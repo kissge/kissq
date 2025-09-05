@@ -1,8 +1,8 @@
 export class Rule {
 	constructor(
-		/** 勝利判定の基準がスコアかマル数・バツ数か */
-		public mode: 'score' | 'marubatsu',
-		/** 勝利に必要なスコアまたはマル数 */
+		/** 勝利判定の基準がスコアかマル数・バツ数かMbyNか */
+		public mode: 'score' | 'marubatsu' | 'MbyN',
+		/** 勝利に必要なスコアまたはマル数またはスコアの平方根 */
 		public win: number,
 		/** 敗北に必要なスコア（負数）またはバツ数（正数） */
 		public lose: number | null,
@@ -47,6 +47,20 @@ export class Rule {
 
 				if (this.batsu !== 1 && this.batsu !== 0) {
 					str += `、誤答+${this.batsu}×`;
+				}
+				break;
+
+			case 'MbyN':
+				str = `${this.win} by ${this.win}（${this.win ** 2}点先取）`;
+
+				// loseは無視される
+
+				if (this.maru !== 1) {
+					str += `、正解+${this.maru}点`;
+				}
+
+				if (this.batsu < 0 && this.batsu !== -1) {
+					str += `、誤答${this.batsu}点`;
 				}
 				break;
 		}

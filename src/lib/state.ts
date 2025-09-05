@@ -69,6 +69,7 @@ export class GameState {
 
 		switch (this.defaultRule.mode) {
 			case 'score':
+			case 'MbyN':
 				this.ranking.sort((ai, bi) => {
 					const a = this.attendants[ai];
 					const b = this.attendants[bi];
