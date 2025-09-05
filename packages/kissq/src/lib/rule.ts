@@ -17,34 +17,38 @@ export class Rule {
 	toString(): string {
 		let str = '';
 
-		if (this.mode === 'score') {
-			str = `${this.win}点先取`;
+		switch (this.mode) {
+			case 'score':
+				str = `${this.win}点先取`;
 
-			if (this.lose !== null) {
-				str += `、${this.lose}点で失格`;
-			}
+				if (this.lose !== null) {
+					str += `、${this.lose}点で失格`;
+				}
 
-			if (this.maru !== 1) {
-				str += `、正解+${this.maru}点`;
-			}
+				if (this.maru !== 1) {
+					str += `、正解+${this.maru}点`;
+				}
 
-			if (this.batsu < 0 && this.batsu !== -1) {
-				str += `、誤答${this.batsu}点`;
-			}
-		} else {
-			str = `${this.win}○`;
+				if (this.batsu < 0 && this.batsu !== -1) {
+					str += `、誤答${this.batsu}点`;
+				}
+				break;
 
-			if (this.lose !== null) {
-				str += `${this.lose}×`;
-			}
+			case 'marubatsu':
+				str = `${this.win}○`;
 
-			if (this.maru !== 1) {
-				str += `、正解+${this.maru}○`;
-			}
+				if (this.lose !== null) {
+					str += `${this.lose}×`;
+				}
 
-			if (this.batsu !== 1 && this.batsu !== 0) {
-				str += `、誤答+${this.batsu}×`;
-			}
+				if (this.maru !== 1) {
+					str += `、正解+${this.maru}○`;
+				}
+
+				if (this.batsu !== 1 && this.batsu !== 0) {
+					str += `、誤答+${this.batsu}×`;
+				}
+				break;
 		}
 
 		if (this.yasu === 'maru') {
