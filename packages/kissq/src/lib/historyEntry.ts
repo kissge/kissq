@@ -15,19 +15,27 @@ export class MaruHistoryEntry implements HistoryEntry {
 	reducer(state: GameState): GameState {
 		const att = state.attendants[this.attendantID];
 
-		att.score += att.rule.maru;
 		att.maruCount += att.rule.maru;
 		state.increaseQuestionCount();
 
 		switch (att.rule.mode) {
 			case 'marubatsu':
+				att.score += att.rule.maru;
 				if (att.maruCount >= att.rule.win) {
 					att.life = 'won';
 				}
 				return state;
 
 			case 'score':
+				att.score += att.rule.maru;
 				if (att.score >= att.rule.win) {
+					att.life = 'won';
+				}
+				return state;
+
+			case 'MbyN':
+				att.score = att.maruCount * (att.rule.win - att.batsuCount);
+				if (att.score >= att.rule.win ** 2) {
 					att.life = 'won';
 				}
 				return state;
@@ -45,12 +53,12 @@ export class BatsuHistoryEntry implements HistoryEntry {
 	reducer(state: GameState): GameState {
 		const att = state.attendants[this.attendantID];
 
-		att.score += att.rule.batsu;
 		att.batsuCount += att.rule.batsu;
 
 		if (att.rule.lose !== null) {
 			switch (att.rule.mode) {
 				case 'marubatsu':
+					att.score += att.rule.batsu;
 					if (att.batsuCount >= att.rule.lose) {
 						att.life = 'lost';
 					} else {
@@ -59,13 +67,25 @@ export class BatsuHistoryEntry implements HistoryEntry {
 					return state;
 
 				case 'score':
+					att.score += att.rule.batsu;
 					if (att.score <= att.rule.lose) {
 						att.life = 'lost';
 					} else {
 						att.yasuCount = 'next';
 					}
 					return state;
+
+				case 'MbyN':
+					att.score = att.maruCount * (att.rule.win - att.batsuCount);
+					if (att.rule.win <= att.batsuCount) {
+						att.life = 'lost';
+					} else {
+						att.yasuCount = 'next';
+					}
+					return state;
 			}
+		} else {
+			return state;
 		}
 	}
 }

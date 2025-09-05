@@ -99,6 +99,16 @@
 						<small>
 							pt{#if att.score !== 1}s{/if}
 						</small>
+					{:else if att.rule.mode === 'MbyN'}
+						<span class="m-by-n-score">
+							<small style:font-size={attendants.length <= 9 ? '2.5rem' : '1.8rem'}>
+								{att.maruCount} × {att.rule.win - att.batsuCount}
+							</small>
+							=
+							{#key att.score}
+								<span class="crossfade" in:fade={{ delay: 500 }} out:fade>{att.score}</span>
+							{/key}
+						</span>
 					{:else}
 						<span class="maru-count">{att.maruCount} ○</span>
 						<span class="batsu-count">{att.batsuCount} ×</span>
@@ -301,6 +311,14 @@
 					small {
 						font-weight: normal;
 						font-size: 1.6rem;
+					}
+
+					.m-by-n-score {
+						text-align: center;
+
+						small {
+							display: block;
+						}
 					}
 					.maru-count {
 						color: red;

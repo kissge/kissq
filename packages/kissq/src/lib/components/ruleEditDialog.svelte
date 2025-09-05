@@ -127,34 +127,55 @@
 				>
 					+5/-5
 				</button>
+				<button
+					onclick={() => {
+						rules[activeTab] = {
+							mode: 'MbyN',
+							win: 10,
+							isLoseNull: false,
+							lose: 0,
+							maru: 1,
+							batsu: 1,
+							yasu: 0,
+							yasuMode: 'number'
+						};
+					}}
+				>
+					10 by 10
+				</button>
 			</div>
 
 			<div>モード</div>
 			<div>
 				<label><input type="radio" bind:group={activeRule.mode} value="score" />スコア</label>
 				<label><input type="radio" bind:group={activeRule.mode} value="marubatsu" />マルバツ</label>
+				<label><input type="radio" bind:group={activeRule.mode} value="MbyN" />M by N</label>
 			</div>
 
 			<div>勝利スコア</div>
 			<div>
 				<input type="number" bind:value={activeRule.win} />
-				{activeRule.mode === 'score' ? 'pts' : '○'}以上
+				{activeRule.mode === 'MbyN' ? '²' : ''}
+				{activeRule.mode !== 'marubatsu' ? 'pts' : '○'}以上
 			</div>
 
-			<div>失格スコア</div>
-			<div>
-				<label>
-					<input type="radio" bind:group={activeRule.isLoseNull} value={false} />
-					<input
-						type="number"
-						bind:value={activeRule.lose}
-						onfocus={() => (activeRule.isLoseNull = false)}
-					/>
-					{activeRule.mode === 'score' ? 'pts以下' : '×以上'}
-				</label>
-				<label><input type="radio" bind:group={activeRule.isLoseNull} value={true} />失格なし</label
-				>
-			</div>
+			{#if activeRule.mode !== 'MbyN'}
+				<div>失格スコア</div>
+				<div>
+					<label>
+						<input type="radio" bind:group={activeRule.isLoseNull} value={false} />
+						<input
+							type="number"
+							bind:value={activeRule.lose}
+							onfocus={() => (activeRule.isLoseNull = false)}
+						/>
+						{activeRule.mode === 'score' ? 'pts以下' : '×以上'}
+					</label>
+					<label>
+						<input type="radio" bind:group={activeRule.isLoseNull} value={true} />失格なし
+					</label>
+				</div>
+			{/if}
 
 			<div>1問正解で</div>
 			<div>
