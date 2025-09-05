@@ -19,17 +19,19 @@ export class MaruHistoryEntry implements HistoryEntry {
 		att.maruCount += att.rule.maru;
 		state.increaseQuestionCount();
 
-		if (att.rule.mode === 'marubatsu') {
-			if (att.maruCount >= att.rule.win) {
-				att.life = 'won';
-			}
-		} else {
-			if (att.score >= att.rule.win) {
-				att.life = 'won';
-			}
-		}
+		switch (att.rule.mode) {
+			case 'marubatsu':
+				if (att.maruCount >= att.rule.win) {
+					att.life = 'won';
+				}
+				return state;
 
-		return state;
+			case 'score':
+				if (att.score >= att.rule.win) {
+					att.life = 'won';
+				}
+				return state;
+		}
 	}
 }
 
@@ -47,22 +49,24 @@ export class BatsuHistoryEntry implements HistoryEntry {
 		att.batsuCount += att.rule.batsu;
 
 		if (att.rule.lose !== null) {
-			if (att.rule.mode === 'marubatsu') {
-				if (att.batsuCount >= att.rule.lose) {
-					att.life = 'lost';
-				}
-			} else {
-				if (att.score <= att.rule.lose) {
-					att.life = 'lost';
-				}
+			switch (att.rule.mode) {
+				case 'marubatsu':
+					if (att.batsuCount >= att.rule.lose) {
+						att.life = 'lost';
+					} else {
+						att.yasuCount = 'next';
+					}
+					return state;
+
+				case 'score':
+					if (att.score <= att.rule.lose) {
+						att.life = 'lost';
+					} else {
+						att.yasuCount = 'next';
+					}
+					return state;
 			}
 		}
-
-		if (att.life === 'alive') {
-			att.yasuCount = 'next';
-		}
-
-		return state;
 	}
 }
 

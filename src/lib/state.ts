@@ -25,14 +25,6 @@ export class AttendantState {
 		}
 	}
 
-	get scoreString(): string {
-		if (this.rule.mode === 'score') {
-			return `${this.score}`;
-		} else {
-			return `${this.maruCount}O ${this.batsuCount}X`;
-		}
-	}
-
 	get yasuDisplay(): number {
 		if (this.yasuCount === 'next') {
 			if (this.rule.yasu === 'maru') {
@@ -75,44 +67,46 @@ export class GameState {
 	updateRanking(): GameState {
 		// sortが安定ソートであることに依存している
 
-		if (this.defaultRule.mode === 'score') {
-			this.ranking.sort((ai, bi) => {
-				const a = this.attendants[ai];
-				const b = this.attendants[bi];
+		switch (this.defaultRule.mode) {
+			case 'score':
+				this.ranking.sort((ai, bi) => {
+					const a = this.attendants[ai];
+					const b = this.attendants[bi];
 
-				const bothAlive = a.life === 'alive' && b.life === 'alive';
+					const bothAlive = a.life === 'alive' && b.life === 'alive';
 
-				if (bothAlive) {
-					// 両方生存している場合はスコア順
-					return b.score - a.score || b.maruCount - a.maruCount || a.batsuCount - b.batsuCount;
-				} else {
-					const aWon = a.life === 'won' ? 1 : 0;
-					const bWon = b.life === 'won' ? 1 : 0;
-					const aLost = a.life === 'lost' ? 1 : 0;
-					const bLost = b.life === 'lost' ? 1 : 0;
-					return bWon - aWon || aLost - bLost;
-				}
-			});
-		} else {
-			this.ranking.sort((ai, bi) => {
-				const a = this.attendants[ai];
-				const b = this.attendants[bi];
+					if (bothAlive) {
+						// 両方生存している場合はスコア順
+						return b.score - a.score || b.maruCount - a.maruCount || a.batsuCount - b.batsuCount;
+					} else {
+						const aWon = a.life === 'won' ? 1 : 0;
+						const bWon = b.life === 'won' ? 1 : 0;
+						const aLost = a.life === 'lost' ? 1 : 0;
+						const bLost = b.life === 'lost' ? 1 : 0;
+						return bWon - aWon || aLost - bLost;
+					}
+				});
+				return this;
 
-				const bothAlive = a.life === 'alive' && b.life === 'alive';
+			case 'marubatsu':
+				this.ranking.sort((ai, bi) => {
+					const a = this.attendants[ai];
+					const b = this.attendants[bi];
 
-				if (bothAlive) {
-					// 両方生存している場合はマル数順、バツ数逆順
-					return b.maruCount - a.maruCount || a.batsuCount - b.batsuCount;
-				} else {
-					const aWon = a.life === 'won' ? 1 : 0;
-					const bWon = b.life === 'won' ? 1 : 0;
-					const aLost = a.life === 'lost' ? 1 : 0;
-					const bLost = b.life === 'lost' ? 1 : 0;
-					return bWon - aWon || aLost - bLost;
-				}
-			});
+					const bothAlive = a.life === 'alive' && b.life === 'alive';
+
+					if (bothAlive) {
+						// 両方生存している場合はマル数順、バツ数逆順
+						return b.maruCount - a.maruCount || a.batsuCount - b.batsuCount;
+					} else {
+						const aWon = a.life === 'won' ? 1 : 0;
+						const bWon = b.life === 'won' ? 1 : 0;
+						const aLost = a.life === 'lost' ? 1 : 0;
+						const bLost = b.life === 'lost' ? 1 : 0;
+						return bWon - aWon || aLost - bLost;
+					}
+				});
+				return this;
 		}
-
-		return this;
 	}
 }
