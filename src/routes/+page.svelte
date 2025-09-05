@@ -143,6 +143,10 @@
 	</div>
 
 	<footer>
+		<div class="left">
+			<a href="https://github.com/kissge/kissq" target="_blank">ソース</a>
+			<a href="https://x.com/_kidochan" target="_blank">🍔作者</a>
+		</div>
 		<button onclick={() => history.push(new ThroughHistoryEntry())}>スルー</button>
 		<button onclick={() => history.pop()} disabled={history.length === 0}>
 			{history.at(-1)?.toString(currentState) || 'この世の始まり'}を元に戻す
@@ -339,6 +343,21 @@
 			display: flex;
 			justify-content: end;
 			gap: 0.5em;
+
+			.left {
+				display: flex;
+				gap: 1em;
+				flex-grow: 1;
+				font-size: 0.8em;
+
+				a {
+					text-decoration: none;
+				}
+
+				a:hover {
+					opacity: 0.6;
+				}
+			}
 		}
 	}
 </style>
