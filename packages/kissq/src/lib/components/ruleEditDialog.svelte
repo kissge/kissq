@@ -198,7 +198,8 @@
 						bind:value={activeRule.yasu}
 						onfocus={() => (activeRule.yasuMode = 'number')}
 						min="0"
-					/> 問休み（0で休みなし）
+					/>
+					問休み<small>（0で休みなし）</small>
 				</label>
 				<br />
 				<label>
@@ -208,7 +209,7 @@
 						value="maru"
 						disabled={activeRule.mode === 'score'}
 					/>
-					（現在のマル数）問休み
+					（現在のマル数）問休み<small>（0マルなら1休）</small>
 				</label>
 				<br />
 				<label>
@@ -218,7 +219,7 @@
 						value="batsu"
 						disabled={activeRule.mode === 'score'}
 					/>
-					（現在のバツ数）問休み
+					N回目の誤答でN問休み
 				</label>
 				{#if !Number.isInteger(activeRule.yasu) || activeRule.yasu < 0}
 					<span class="error">休みは0以上の整数で設定してください</span>
