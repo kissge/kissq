@@ -87,7 +87,7 @@
 					<button onclick={() => (attendants[i].removed = true)}>削除</button>
 				</div>
 
-				<div class="score">
+				<div class="score" style:font-size={attendants.length <= 7 ? '4.5rem' : '2.6rem'}>
 					{#if att.rule.mode === 'score'}
 						<span>
 							{#key att.score}
