@@ -55,37 +55,36 @@ export class BatsuHistoryEntry implements HistoryEntry {
 
 		att.batsuCount += att.rule.batsu;
 
-		if (att.rule.lose !== null) {
-			switch (att.rule.mode) {
-				case 'marubatsu':
-					att.score += att.rule.batsu;
-					if (att.batsuCount >= att.rule.lose) {
-						att.life = 'lost';
-					} else {
-						att.yasuCount = 'next';
-					}
-					return state;
+		switch (att.rule.mode) {
+			case 'marubatsu':
+				att.score += att.rule.batsu;
+				if (att.rule.lose !== null && att.batsuCount >= att.rule.lose) {
+					att.life = 'lost';
+				} else {
+					att.yasuCount = 'next';
+				}
 
-				case 'score':
-					att.score += att.rule.batsu;
-					if (att.score <= att.rule.lose) {
-						att.life = 'lost';
-					} else {
-						att.yasuCount = 'next';
-					}
-					return state;
+				return state;
 
-				case 'MbyN':
-					att.score = att.maruCount * (att.rule.win - att.batsuCount);
-					if (att.rule.win <= att.batsuCount) {
-						att.life = 'lost';
-					} else {
-						att.yasuCount = 'next';
-					}
-					return state;
-			}
-		} else {
-			return state;
+			case 'score':
+				att.score += att.rule.batsu;
+				if (att.rule.lose !== null && att.score <= att.rule.lose) {
+					att.life = 'lost';
+				} else {
+					att.yasuCount = 'next';
+				}
+
+				return state;
+
+			case 'MbyN':
+				att.score = att.maruCount * (att.rule.win - att.batsuCount);
+				if (att.rule.lose !== null && att.rule.win <= att.batsuCount) {
+					att.life = 'lost';
+				} else {
+					att.yasuCount = 'next';
+				}
+
+				return state;
 		}
 	}
 }

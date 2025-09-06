@@ -16,7 +16,7 @@ export class AttendantState {
 			if (this.rule.yasu === 'maru') {
 				this.yasuCount = this.maruCount || 1;
 			} else if (this.rule.yasu === 'batsu') {
-				this.yasuCount = this.batsuCount || 1;
+				this.yasuCount = this.batsuCount;
 			} else {
 				this.yasuCount = this.rule.yasu;
 			}
@@ -30,7 +30,7 @@ export class AttendantState {
 			if (this.rule.yasu === 'maru') {
 				return this.maruCount || 1;
 			} else if (this.rule.yasu === 'batsu') {
-				return this.batsuCount || 1;
+				return this.batsuCount;
 			} else {
 				return this.rule.yasu;
 			}
