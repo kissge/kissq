@@ -104,6 +104,10 @@ export class AttendantState {
 			return this.yasuCount;
 		}
 	}
+
+	get isLizhi(): boolean {
+		return this.life === 'alive' && this.processMaru().life === 'won';
+	}
 }
 
 export class GameState {
