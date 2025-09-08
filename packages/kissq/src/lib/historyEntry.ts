@@ -78,7 +78,7 @@ export class BatsuHistoryEntry implements HistoryEntry {
 
 			case 'MbyN':
 				att.score = att.maruCount * (att.rule.win - att.batsuCount);
-				if (att.rule.lose !== null && att.rule.win <= att.batsuCount) {
+				if (att.rule.win <= att.batsuCount) {
 					att.life = 'lost';
 				} else {
 					att.yasuCount = 'next';
