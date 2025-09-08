@@ -307,6 +307,7 @@
 					flex-direction: column;
 					align-items: center;
 					font-weight: bold;
+					line-height: 0.9;
 
 					small {
 						font-weight: normal;
