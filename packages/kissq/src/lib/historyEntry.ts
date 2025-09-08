@@ -99,3 +99,17 @@ export class ThroughHistoryEntry implements HistoryEntry {
 		return state;
 	}
 }
+
+export class RemoveHistoryEntry implements HistoryEntry {
+	constructor(public attendantID: number) {}
+
+	toString(state: GameState): string {
+		return `${state.attendants[this.attendantID].name} 削除`;
+	}
+
+	reducer(state: GameState): GameState {
+		state.attendants[this.attendantID].life = 'removed';
+		state.ranking = state.ranking.filter((i) => i !== this.attendantID);
+		return state;
+	}
+}
