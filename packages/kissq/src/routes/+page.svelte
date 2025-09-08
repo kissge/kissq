@@ -63,7 +63,7 @@
 			{@const att = currentState.attendants[i]}
 			<div
 				style:font-size={currentState.ranking.length <= 11 ? '3rem' : '1em'}
-				class="attendant"
+				class={['attendant', { lizhi: att.isLizhi }]}
 				animate:flip={{ duration: 500 }}
 			>
 				{#if rules.length > 1}
@@ -272,6 +272,9 @@
 				}
 				&:has(.lost) {
 					background-color: lightcoral;
+				}
+				&.lizhi {
+					background-color: rgb(255 255 158);
 				}
 
 				.group {
