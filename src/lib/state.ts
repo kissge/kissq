@@ -46,13 +46,10 @@ export class GameState {
 	defaultRule: Rule;
 	ranking: number[] = [];
 
-	constructor(attendants: { name: string; group: number; removed: boolean }[], rules: Rule[]) {
-		this.attendants = attendants.map(
-			({ name, group, removed }) =>
-				new AttendantState(name, rules[group], removed ? 'removed' : 'alive')
-		);
+	constructor(attendants: { name: string; group: number }[], rules: Rule[]) {
+		this.attendants = attendants.map(({ name, group }) => new AttendantState(name, rules[group]));
 		this.defaultRule = rules[0];
-		this.ranking = this.attendants.flatMap(({ life }, i) => (life === 'removed' ? [] : [i]));
+		this.ranking = this.attendants.map((_, i) => i);
 	}
 
 	increaseQuestionCount(): void {

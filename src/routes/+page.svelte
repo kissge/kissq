@@ -7,13 +7,14 @@
 		HistoryEntry,
 		MaruHistoryEntry,
 		BatsuHistoryEntry,
-		ThroughHistoryEntry
+		ThroughHistoryEntry,
+		RemoveHistoryEntry
 	} from '$lib/historyEntry';
 	import { GameState } from '$lib/state';
 
 	let attendants = $state([
-		{ name: 'プレイヤー 1', group: 0, removed: false },
-		{ name: 'プレイヤー 2', group: 0, removed: false }
+		{ name: 'プレイヤー 1', group: 0 },
+		{ name: 'プレイヤー 2', group: 0 }
 	]);
 	let rules = $state([new Rule('marubatsu', 7, 3, 1, 1, 0)]);
 	let history = $state<HistoryEntry[]>([]);
@@ -84,7 +85,7 @@
 				<div bind:textContent={attendants[i].name} contenteditable class="name"></div>
 
 				<div class="hidden-buttons">
-					<button onclick={() => (attendants[i].removed = true)}>削除</button>
+					<button onclick={() => history.push(new RemoveHistoryEntry(i))}>削除</button>
 				</div>
 
 				<div class="score" style:font-size={currentState.ranking.length <= 7 ? '4.5rem' : '2.6rem'}>
@@ -165,8 +166,7 @@
 			onclick={() => {
 				attendants.push({
 					name: 'プレイヤー ' + (attendants.length + 1),
-					group: 0,
-					removed: false
+					group: 0
 				});
 			}}
 		>
