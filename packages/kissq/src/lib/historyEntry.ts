@@ -15,31 +15,13 @@ export class MaruHistoryEntry implements HistoryEntry {
 	reducer(state: GameState): GameState {
 		const att = state.attendants[this.attendantID];
 
-		att.maruCount += att.rule.maru;
 		state.increaseQuestionCount();
+		const { maruCount, score, life } = att.processMaru();
+		att.maruCount = maruCount;
+		att.score = score;
+		att.life = life;
 
-		switch (att.rule.mode) {
-			case 'marubatsu':
-				att.score += att.rule.maru;
-				if (att.maruCount >= att.rule.win) {
-					att.life = 'won';
-				}
-				return state;
-
-			case 'score':
-				att.score += att.rule.maru;
-				if (att.score >= att.rule.win) {
-					att.life = 'won';
-				}
-				return state;
-
-			case 'MbyN':
-				att.score = att.maruCount * (att.rule.win - att.batsuCount);
-				if (att.score >= att.rule.win ** 2) {
-					att.life = 'won';
-				}
-				return state;
-		}
+		return state;
 	}
 }
 
@@ -53,39 +35,13 @@ export class BatsuHistoryEntry implements HistoryEntry {
 	reducer(state: GameState): GameState {
 		const att = state.attendants[this.attendantID];
 
-		att.batsuCount += att.rule.batsu;
+		const { batsuCount, score, life, yasuCount } = att.processBatsu();
+		att.batsuCount = batsuCount;
+		att.score = score;
+		att.life = life;
+		att.yasuCount = yasuCount;
 
-		switch (att.rule.mode) {
-			case 'marubatsu':
-				att.score += att.rule.batsu;
-				if (att.rule.lose !== null && att.batsuCount >= att.rule.lose) {
-					att.life = 'lost';
-				} else {
-					att.yasuCount = 'next';
-				}
-
-				return state;
-
-			case 'score':
-				att.score += att.rule.batsu;
-				if (att.rule.lose !== null && att.score <= att.rule.lose) {
-					att.life = 'lost';
-				} else {
-					att.yasuCount = 'next';
-				}
-
-				return state;
-
-			case 'MbyN':
-				att.score = att.maruCount * (att.rule.win - att.batsuCount);
-				if (att.rule.win <= att.batsuCount) {
-					att.life = 'lost';
-				} else {
-					att.yasuCount = 'next';
-				}
-
-				return state;
-		}
+		return state;
 	}
 }
 

@@ -1,15 +1,87 @@
 import { Rule } from './rule';
 
+type Life = 'alive' | 'won' | 'lost' | 'removed';
+
 export class AttendantState {
 	constructor(
 		public name: string,
 		public rule: Rule,
-		public life: 'alive' | 'won' | 'lost' | 'removed' = 'alive',
+		public life: Life = 'alive',
 		public score: number = 0,
 		public maruCount: number = 0,
 		public batsuCount: number = 0,
 		public yasuCount: number | 'next' = 0
 	) {}
+
+	/** マルを受けた場合のstateの変化を求める（破壊的にはしない） */
+	processMaru(): { maruCount: number; score: number; life: Life } {
+		const maruCount = this.maruCount + this.rule.maru;
+		let score = this.score;
+		let life = this.life;
+
+		switch (this.rule.mode) {
+			case 'marubatsu':
+				score += this.rule.maru;
+				if (maruCount >= this.rule.win) {
+					life = 'won';
+				}
+				return { maruCount, score, life };
+
+			case 'score':
+				score += this.rule.maru;
+				if (score >= this.rule.win) {
+					this.life = 'won';
+				}
+				return { maruCount, score, life };
+
+			case 'MbyN':
+				score = maruCount * (this.rule.win - this.batsuCount);
+				if (score >= this.rule.win ** 2) {
+					life = 'won';
+				}
+				return { maruCount, score, life };
+		}
+	}
+
+	/** バツを受けた場合のstateの変化を求める（破壊的にはしない） */
+	processBatsu(): { batsuCount: number; score: number; life: Life; yasuCount: number | 'next' } {
+		const batsuCount = this.batsuCount + this.rule.batsu;
+		let score = this.score;
+		let life = this.life;
+		let yasuCount = this.yasuCount;
+
+		switch (this.rule.mode) {
+			case 'marubatsu':
+				score += this.rule.batsu;
+				if (this.rule.lose !== null && batsuCount >= this.rule.lose) {
+					life = 'lost';
+				} else {
+					yasuCount = 'next';
+				}
+
+				return { batsuCount, score, life, yasuCount };
+
+			case 'score':
+				score += this.rule.batsu;
+				if (this.rule.lose !== null && score <= this.rule.lose) {
+					life = 'lost';
+				} else {
+					yasuCount = 'next';
+				}
+
+				return { batsuCount, score, life, yasuCount };
+
+			case 'MbyN':
+				score = this.maruCount * (this.rule.win - batsuCount);
+				if (this.rule.win <= batsuCount) {
+					life = 'lost';
+				} else {
+					yasuCount = 'next';
+				}
+
+				return { batsuCount, score, life, yasuCount };
+		}
+	}
 
 	decreaseYasu(): void {
 		if (this.yasuCount === 'next') {
