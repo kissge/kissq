@@ -179,6 +179,7 @@
 						'初期状態にリセットしますか？\nこの操作は元に戻せません。\n（プレイヤーリストは残ります）'
 					)
 				) {
+					attendants = attendants.filter((_, i) => currentState.attendants[i].life !== 'removed');
 					history = [];
 				}
 			}}
