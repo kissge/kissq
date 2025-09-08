@@ -13,13 +13,7 @@ export class AttendantState {
 
 	decreaseYasu(): void {
 		if (this.yasuCount === 'next') {
-			if (this.rule.yasu === 'maru') {
-				this.yasuCount = this.maruCount || 1;
-			} else if (this.rule.yasu === 'batsu') {
-				this.yasuCount = this.batsuCount;
-			} else {
-				this.yasuCount = this.rule.yasu;
-			}
+			this.yasuCount = this.yasuDisplay;
 		} else if (this.yasuCount > 0) {
 			this.yasuCount--;
 		}
