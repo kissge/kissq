@@ -61,7 +61,7 @@
 		{#each currentState.ranking as i (i)}
 			{@const att = currentState.attendants[i]}
 			<div
-				style:font-size={attendants.length <= 11 ? '3rem' : '1em'}
+				style:font-size={currentState.ranking.length <= 11 ? '3rem' : '1em'}
 				class="attendant"
 				animate:flip={{ duration: 500 }}
 			>
@@ -69,7 +69,7 @@
 					<button
 						class="group"
 						style:background-color={`hsl(${(360 / rules.length) * attendants[i].group}, 70%, 80%)`}
-						style:font-size={attendants.length <= 11 ? '2rem' : '1.5rem'}
+						style:font-size={currentState.ranking.length <= 11 ? '2rem' : '1.5rem'}
 						onclick={() => {
 							attendants[i].group = (attendants[i].group + 1) % rules.length;
 						}}
@@ -87,7 +87,7 @@
 					<button onclick={() => (attendants[i].removed = true)}>削除</button>
 				</div>
 
-				<div class="score" style:font-size={attendants.length <= 7 ? '4.5rem' : '2.6rem'}>
+				<div class="score" style:font-size={currentState.ranking.length <= 7 ? '4.5rem' : '2.6rem'}>
 					{#if att.rule.mode === 'score'}
 						<span>
 							{#key att.score}
@@ -101,7 +101,7 @@
 						</small>
 					{:else if att.rule.mode === 'MbyN'}
 						<span class="m-by-n-score">
-							<small style:font-size={attendants.length <= 9 ? '2.5rem' : '1.8rem'}>
+							<small style:font-size={currentState.ranking.length <= 9 ? '2.5rem' : '1.8rem'}>
 								{att.maruCount} × {att.rule.win - att.batsuCount}
 							</small>
 							=
@@ -128,7 +128,7 @@
 							onclick={() => {
 								history.push(new MaruHistoryEntry(i));
 							}}
-							style:font-size={attendants.length <= 8 ? '2.5rem' : '1.5rem'}
+							style:font-size={currentState.ranking.length <= 8 ? '2.5rem' : '1.5rem'}
 						>
 							O
 						</button>
@@ -136,7 +136,7 @@
 							onclick={() => {
 								history.push(new BatsuHistoryEntry(i));
 							}}
-							style:font-size={attendants.length <= 8 ? '2.5rem' : '1.5rem'}
+							style:font-size={currentState.ranking.length <= 8 ? '2.5rem' : '1.5rem'}
 						>
 							X
 						</button>

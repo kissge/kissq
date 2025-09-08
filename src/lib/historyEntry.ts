@@ -91,7 +91,7 @@ export class BatsuHistoryEntry implements HistoryEntry {
 
 export class ThroughHistoryEntry implements HistoryEntry {
 	toString(): string {
-		return `スルー`;
+		return 'スルー';
 	}
 
 	reducer(state: GameState): GameState {
