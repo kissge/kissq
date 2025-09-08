@@ -64,7 +64,7 @@
 		<div class="tabbar">
 			<div class="tab button" inert></div>
 			{#each rules, i}
-				<button class="tab" class:active={i === activeTab} onclick={() => (activeTab = i)}>
+				<button class={['tab', { active: i === activeTab }]} onclick={() => (activeTab = i)}>
 					{rules.length === 1 ? '全員' : String.fromCodePoint(65 + i)}
 				</button>
 			{/each}
