@@ -15,8 +15,8 @@
 
 	let attendants = $state(
 		loadFromHash() ?? [
-			{ name: 'プレイヤー 1', group: 0 },
-			{ name: 'プレイヤー 2', group: 0 }
+			{ name: '', group: 0 },
+			{ name: '', group: 0 }
 		]
 	);
 	let rules = $state([new Rule('marubatsu', 7, 3, 1, 1, 0)]);
@@ -110,7 +110,12 @@
 						{/key}
 					</button>
 				{/if}
-				<div bind:textContent={attendants[i].name} contenteditable class="name"></div>
+				<div
+					bind:textContent={attendants[i].name}
+					contenteditable
+					placeholder="プレイヤー {i + 1}"
+					class="name"
+				></div>
 
 				<div class="hidden-buttons">
 					<button onclick={() => history.push(new RemoveHistoryEntry(i))}>削除</button>
@@ -192,10 +197,7 @@
 		</button>
 		<button
 			onclick={() => {
-				attendants.push({
-					name: 'プレイヤー ' + (attendants.length + 1),
-					group: 0
-				});
+				attendants.push({ name: '', group: 0 });
 			}}
 		>
 			プレイヤーを追加
@@ -335,6 +337,11 @@
 					line-height: 1.1;
 					word-break: break-all;
 					font-weight: bold;
+
+					&:empty::before {
+						content: attr(placeholder);
+						color: #aaa;
+					}
 				}
 
 				.hidden-buttons {
