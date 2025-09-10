@@ -55,7 +55,7 @@
 			const url = new URL(document.URL);
 			if (url.hash.length > 1) {
 				const names = JSON.parse(decodeURIComponent(url.hash.slice(1)));
-				if (Array.isArray(names) && names.every((n) => typeof n === 'string')) {
+				if (Array.isArray(names) && names.length > 0 && names.every((n) => typeof n === 'string')) {
 					return names.map((name) => ({ name, group: 0 }));
 				}
 			}
