@@ -15,12 +15,13 @@ export class AttendantState {
 
 	/** マルを受けた場合のstateの変化を求める（破壊的にはしない） */
 	processMaru(): { maruCount: number; score: number; life: Life } {
-		const maruCount = this.maruCount + this.rule.maru;
+		let maruCount = this.maruCount;
 		let score = this.score;
 		let life = this.life;
 
 		switch (this.rule.mode) {
 			case 'marubatsu':
+				maruCount += this.rule.maru;
 				score += this.rule.maru;
 				if (maruCount >= this.rule.win) {
 					life = 'won';
@@ -28,6 +29,7 @@ export class AttendantState {
 				return { maruCount, score, life };
 
 			case 'score':
+				maruCount++;
 				score += this.rule.maru;
 				if (score >= this.rule.win) {
 					this.life = 'won';
@@ -35,6 +37,7 @@ export class AttendantState {
 				return { maruCount, score, life };
 
 			case 'MbyN':
+				maruCount += this.rule.maru;
 				score = maruCount * (this.rule.win - this.batsuCount);
 				if (score >= this.rule.win ** 2) {
 					life = 'won';
@@ -45,13 +48,14 @@ export class AttendantState {
 
 	/** バツを受けた場合のstateの変化を求める（破壊的にはしない） */
 	processBatsu(): { batsuCount: number; score: number; life: Life; yasuCount: number | 'next' } {
-		const batsuCount = this.batsuCount + this.rule.batsu;
+		let batsuCount = this.batsuCount;
 		let score = this.score;
 		let life = this.life;
 		let yasuCount = this.yasuCount;
 
 		switch (this.rule.mode) {
 			case 'marubatsu':
+				batsuCount += this.rule.batsu;
 				score += this.rule.batsu;
 				if (this.rule.lose !== null && batsuCount >= this.rule.lose) {
 					life = 'lost';
@@ -62,6 +66,7 @@ export class AttendantState {
 				return { batsuCount, score, life, yasuCount };
 
 			case 'score':
+				batsuCount++;
 				score += this.rule.batsu;
 				if (this.rule.lose !== null && score <= this.rule.lose) {
 					life = 'lost';
@@ -72,6 +77,7 @@ export class AttendantState {
 				return { batsuCount, score, life, yasuCount };
 
 			case 'MbyN':
+				batsuCount += this.rule.batsu;
 				score = this.maruCount * (this.rule.win - batsuCount);
 				if (this.rule.win <= batsuCount) {
 					life = 'lost';
