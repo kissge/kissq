@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { untrack } from 'svelte';
 	import { flip } from 'svelte/animate';
 	import { fade } from 'svelte/transition';
 	import RuleEditDialog from '$lib/components/ruleEditDialog.svelte';
@@ -12,10 +13,12 @@
 	} from '$lib/historyEntry';
 	import { GameState } from '$lib/state';
 
-	let attendants = $state([
-		{ name: 'プレイヤー 1', group: 0 },
-		{ name: 'プレイヤー 2', group: 0 }
-	]);
+	let attendants = $state(
+		loadFromHash() ?? [
+			{ name: 'プレイヤー 1', group: 0 },
+			{ name: 'プレイヤー 2', group: 0 }
+		]
+	);
 	let rules = $state([new Rule('marubatsu', 7, 3, 1, 1, 0)]);
 	let history = $state<HistoryEntry[]>([]);
 	let currentState = $derived(
@@ -34,6 +37,29 @@
 		if (result) {
 			rules = result;
 		}
+	}
+
+	$effect(() => {
+		const data = attendants.map(({ name }) => name);
+		untrack(() => {
+			const url = new URL(document.URL);
+			url.hash = encodeURIComponent(JSON.stringify(data));
+			location.replace(url);
+		});
+	});
+
+	function loadFromHash(): { name: string; group: number }[] | null {
+		try {
+			const url = new URL(document.URL);
+			if (url.hash.length > 1) {
+				const names = JSON.parse(decodeURIComponent(url.hash.slice(1)));
+				if (Array.isArray(names) && names.every((n) => typeof n === 'string')) {
+					return names.map((name) => ({ name, group: 0 }));
+				}
+			}
+		} catch {}
+
+		return null;
 	}
 </script>
 
