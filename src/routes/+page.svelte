@@ -40,7 +40,9 @@
 	}
 
 	$effect(() => {
-		const data = attendants.map(({ name }) => name);
+		const data = currentState.attendants.flatMap(({ name, life }) =>
+			life === 'removed' ? [] : [name]
+		);
 		untrack(() => {
 			const url = new URL(document.URL);
 			url.hash = encodeURIComponent(JSON.stringify(data));
