@@ -215,6 +215,21 @@
 		>
 			全員リセット
 		</button>
+		<button
+			onclick={() => {
+				if (
+					confirm(
+						'プレイヤーリストを空にした上で、初期状態にリセットしますか？\nこの操作は元に戻せません。'
+					)
+				) {
+					attendants = [];
+					history = [];
+				}
+			}}
+			disabled={attendants.length === 0}
+		>
+			全削除
+		</button>
 	</footer>
 </main>
 
