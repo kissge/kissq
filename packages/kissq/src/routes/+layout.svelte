@@ -12,5 +12,6 @@
 		display: flex;
 		flex-direction: column;
 		justify-content: space-between;
+		font-family: sans-serif;
 	}
 </style>
