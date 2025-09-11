@@ -302,6 +302,7 @@
 			gap: 0.5em;
 
 			.attendant {
+				position: relative;
 				background-color: #fafafa;
 				box-shadow: 0 2px 2px 3px #ccc;
 				padding: 0.5em;
@@ -349,6 +350,8 @@
 				}
 
 				.hidden-buttons {
+					position: absolute;
+					left: -0.5em;
 					opacity: 0;
 					display: flex;
 					flex-wrap: auto;
