@@ -209,7 +209,7 @@
 			onclick={() => {
 				if (
 					confirm(
-						'初期状態にリセットしますか？\nこの操作は元に戻せません。\n（プレイヤーリストは残ります）'
+						'全員ゼロ〇ゼロ×にリセットしますか？\nこの操作は元に戻せません。\n（プレイヤーリストは残ります）'
 					)
 				) {
 					attendants = attendants.filter((_, i) => currentState.attendants[i].life !== 'removed');
