@@ -113,7 +113,10 @@
 				<div
 					bind:textContent={attendants[i].name}
 					contenteditable
-					placeholder="プレイヤー {i + 1}"
+					placeholder="プレイヤー {[...String(i + 1)]
+						.map((c) => String.fromCodePoint(65296 + Number.parseInt(c)))
+						.join('')}"
+					spellcheck="false"
 					class="name"
 				></div>
 
@@ -338,9 +341,10 @@
 					word-break: break-all;
 					font-weight: bold;
 
-					&:empty::before {
+					&:empty:not(:focus)::before {
 						content: attr(placeholder);
 						color: #aaa;
+						cursor: text;
 					}
 				}
 
