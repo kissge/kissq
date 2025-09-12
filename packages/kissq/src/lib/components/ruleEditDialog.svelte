@@ -302,7 +302,7 @@
 					resolve(null);
 				}}>キャンセル</button
 			>
-			<button onclick={save} disabled={!isValid}>保存する</button>
+			<button class="primary" onclick={save} disabled={!isValid}>保存する</button>
 		</div>
 	{/if}
 </dialog>
@@ -401,6 +401,11 @@
 			display: flex;
 			justify-content: end;
 			gap: 0.5em;
+
+			.primary {
+				background-color: #06f;
+				color: white;
+			}
 		}
 	}
 </style>
