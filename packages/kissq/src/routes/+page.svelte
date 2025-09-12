@@ -65,6 +65,12 @@
 	}
 </script>
 
+<svelte:head>
+	<title>
+		kissQ - {attendants.map((a) => a.name || '👤').join(', ')}
+	</title>
+</svelte:head>
+
 <main>
 	<div class="header">
 		<div>
