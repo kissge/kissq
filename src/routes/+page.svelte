@@ -462,6 +462,7 @@
 			display: flex;
 			justify-content: end;
 			gap: 0.5em;
+			user-select: none;
 
 			.left {
 				display: flex;
