@@ -8,8 +8,8 @@ export class Rule {
 		public lose: number | null,
 		/** 1問正解で得られるスコアまたはマル数 */
 		public maru: number,
-		/** 1問誤答で得られるスコア（負数）またはバツ数（正数） */
-		public batsu: number,
+		/** 1問誤答で得られるスコア（負数）またはバツ数（正数）またはその時点のバツ数 */
+		public batsu: number | 'batsu',
 		/** 1問誤答で得られる休みの数（定数またはその時点のマル数・バツ数） */
 		public yasu: number | 'maru' | 'batsu'
 	) {}
@@ -29,7 +29,9 @@ export class Rule {
 					str += `、正解+${this.maru}点`;
 				}
 
-				if (this.batsu < 0 && this.batsu !== -1) {
+				if (this.batsu === 'batsu') {
+					str += `、N回目の誤答で-N点`;
+				} else if (this.batsu < 0 && this.batsu !== -1) {
 					str += `、誤答${this.batsu}点`;
 				}
 				break;
@@ -45,7 +47,9 @@ export class Rule {
 					str += `、正解+${this.maru}○`;
 				}
 
-				if (this.batsu !== 1 && this.batsu !== 0) {
+				if (this.batsu === 'batsu') {
+					str += `、N回目の誤答でN×`;
+				} else if (this.batsu !== 1 && this.batsu !== 0) {
 					str += `、誤答+${this.batsu}×`;
 				}
 				break;
@@ -59,7 +63,9 @@ export class Rule {
 					str += `、正解+${this.maru}点`;
 				}
 
-				if (this.batsu < 0 && this.batsu !== -1) {
+				if (this.batsu === 'batsu') {
+					str += `、N回目の誤答で-N点`;
+				} else if (this.batsu < 0 && this.batsu !== -1) {
 					str += `、誤答${this.batsu}点`;
 				}
 				break;
