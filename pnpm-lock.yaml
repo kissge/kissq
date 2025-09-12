@@ -7,10 +7,6 @@ settings:
 importers:
 
   .:
-    dependencies:
-      '@svelte-plugins/tooltips':
-        specifier: 4.0.0-beta.1
-        version: 4.0.0-beta.1(svelte@5.38.5)
     devDependencies:
       '@eslint/compat':
         specifier: ^1.2.5
@@ -419,11 +415,6 @@ packages:
 
   '@standard-schema/spec@1.0.0':
     resolution: {integrity: sha512-m2bOd0f2RT9k8QJx1JN85cZYyH1RqFBdlwtkSlf4tBDYLCiiZnv1fIIwacK6cqwXavOydf0NPToMQgpKq+dVlA==}
-
-  '@svelte-plugins/tooltips@4.0.0-beta.1':
-    resolution: {integrity: sha512-MM32DeA6z8Wty9sQfWkCRSQm/t7kbD51gzsYrKuw06YeGsGTgKSyalwe/RQyjoM1Vro7Bpsrd6kPJ0ftIe3Zcg==}
-    peerDependencies:
-      svelte: ^5.0.0
 
   '@sveltejs/acorn-typescript@1.0.5':
     resolution: {integrity: sha512-IwQk4yfwLdibDlrXVE04jTZYlLnwsTT2PIOQQGNLWfjavGifnk1JD1LcZjZaBTRcxZu2FfPfNLOE04DSu9lqtQ==}
@@ -1396,10 +1387,6 @@ snapshots:
     optional: true
 
   '@standard-schema/spec@1.0.0': {}
-
-  '@svelte-plugins/tooltips@4.0.0-beta.1(svelte@5.38.5)':
-    dependencies:
-      svelte: 5.38.5
 
   '@sveltejs/acorn-typescript@1.0.5(acorn@8.15.0)':
     dependencies:
