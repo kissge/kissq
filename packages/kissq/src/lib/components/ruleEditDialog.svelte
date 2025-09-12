@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { Rule } from '$lib/rule';
+	import { tooltipInDialog as tooltip } from '$lib/tooltip.svelte';
 
 	let { open = $bindable() }: { open: (rules: Rule[]) => Promise<Rule[] | null> } = $props();
 
@@ -72,7 +73,15 @@
 		<div class="tabbar">
 			<div class="tab button" inert></div>
 			{#each rules, i}
-				<button class={['tab', { active: i === activeTab }]} onclick={() => (activeTab = i)}>
+				<button
+					class={['tab', { active: i === activeTab }]}
+					onclick={() => (activeTab = i)}
+					{@attach tooltip(
+						rules.length === 1
+							? '全員に適用されるルールを編集します。'
+							: `${String.fromCodePoint(65 + i)}グループのプレイヤーに適用されるルールを編集します。`
+					)}
+				>
 					{rules.length === 1 ? '全員' : String.fromCodePoint(65 + i)}
 				</button>
 			{/each}
@@ -81,8 +90,11 @@
 				onclick={() => {
 					rules.push({ ...rules.at(-1)! });
 					activeTab = rules.length - 1;
-				}}>+</button
+				}}
+				{@attach tooltip('ルールグループを追加します。')}
 			>
+				+
+			</button>
 		</div>
 		<div class="table">
 			<div style="margin-bottom: 2rem">定番</div>
@@ -191,7 +203,13 @@
 			{#if activeRule.mode !== 'MbyN'}
 				<div>失格条件</div>
 				<div>
-					<label>
+					<label
+						{@attach tooltip(
+							activeRule.mode === 'marubatsu'
+								? '失格バツ数を正の数で入力'
+								: '失格スコアを負の数で入力'
+						)}
+					>
 						<input type="radio" bind:group={activeRule.isLoseNull} value={false} />
 						<input
 							type="number"
@@ -214,7 +232,13 @@
 
 			<div>1問誤答で</div>
 			<div>
-				<label>
+				<label
+					{@attach tooltip(
+						activeRule.mode === 'marubatsu'
+							? '獲得してしまうバツ数を正の数で入力'
+							: '失ってしまうスコアを負の数で入力'
+					)}
+				>
 					<input type="radio" bind:group={activeRule.batsuMode} value="number" />
 					<input
 						type="number"
@@ -285,7 +309,7 @@
 
 <style>
 	dialog {
-		width: min(90%, 600px);
+		width: min(90%, 800px);
 		max-height: 95dvh;
 		user-select: none;
 		cursor: default;
