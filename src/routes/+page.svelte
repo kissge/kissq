@@ -168,6 +168,7 @@
 				{#if att.yasuDisplay > 0}
 					<div class="yasu" in:fade>
 						{#key att.yasuDisplay}
+							{#if att.yasuCount === 'next'}次{/if}
 							<span class="crossfade" in:fade={{ delay: 500 }} out:fade>{att.yasuDisplay}</span>
 						{/key}
 						休
