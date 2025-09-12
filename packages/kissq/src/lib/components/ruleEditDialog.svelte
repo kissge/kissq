@@ -156,7 +156,7 @@
 			<div>
 				<input type="number" bind:value={activeRule.win} />
 				{activeRule.mode === 'MbyN' ? '²' : ''}
-				{activeRule.mode !== 'marubatsu' ? 'pts' : '○'}以上
+				{activeRule.mode !== 'marubatsu' ? 'pts' : '○'} 以上
 			</div>
 
 			{#if activeRule.mode !== 'MbyN'}
@@ -169,7 +169,7 @@
 							bind:value={activeRule.lose}
 							onfocus={() => (activeRule.isLoseNull = false)}
 						/>
-						{activeRule.mode === 'score' ? 'pts以下' : '×以上'}
+						{activeRule.mode === 'score' ? 'pts 以下' : '× 以上'}
 					</label>
 					<label>
 						<input type="radio" bind:group={activeRule.isLoseNull} value={true} />失格なし
