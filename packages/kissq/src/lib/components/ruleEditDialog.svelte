@@ -163,7 +163,7 @@
 							isLoseNull: false,
 							lose: -10,
 							maru: 1,
-							batsu: 1,
+							batsu: -1,
 							batsuMode: 'batsu',
 							yasu: 0,
 							yasuMode: 'number'
