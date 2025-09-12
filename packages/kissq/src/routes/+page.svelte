@@ -226,7 +226,9 @@
 			disabled={history.length === 0}
 			{@attach tooltip('直前の操作を無かったことにします。')}
 		>
-			{history.at(-1)?.toString(currentState) || 'この世の始まり'}を元に戻す
+			{#key history.length}
+				<span in:fade>{history.at(-1)?.toString(currentState) || 'この世の始まり'}</span>を元に戻す
+			{/key}
 		</button>
 		<button
 			onclick={() => {
