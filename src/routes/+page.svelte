@@ -2,7 +2,6 @@
 	import { untrack } from 'svelte';
 	import { flip } from 'svelte/animate';
 	import { fade } from 'svelte/transition';
-	import { tooltip } from '@svelte-plugins/tooltips';
 	import RuleEditDialog from '$lib/components/ruleEditDialog.svelte';
 	import { Rule } from '$lib/rule';
 	import {
@@ -125,16 +124,10 @@
 						.join('')}"
 					spellcheck="false"
 					class="name"
-					title="クリックして名前を編集"
 				></div>
 
 				<div class="hidden-buttons">
-					<button
-						onclick={() => history.push(new RemoveHistoryEntry(i))}
-						use:tooltip={{ content: 'このプレイヤーをリストから削除します。' }}
-					>
-						削除
-					</button>
+					<button onclick={() => history.push(new RemoveHistoryEntry(i))}>削除</button>
 				</div>
 
 				<div class="score" style:font-size={currentState.ranking.length <= 7 ? '4.5rem' : '2.6rem'}>
@@ -179,9 +172,6 @@
 								history.push(new MaruHistoryEntry(i));
 							}}
 							style:font-size={currentState.ranking.length <= 8 ? '2.5rem' : '1.5rem'}
-							use:tooltip={{
-								content: `${att.name || 'このプレイヤー'}に1○をつけて、問題カウントを1進めます（休みの人がいれば1休減ります）`
-							}}
 						>
 							O
 						</button>
@@ -190,9 +180,6 @@
 								history.push(new BatsuHistoryEntry(i));
 							}}
 							style:font-size={currentState.ranking.length <= 8 ? '2.5rem' : '1.5rem'}
-							use:tooltip={{
-								content: `${att.name || 'このプレイヤー'}に1×をつけます（誰も正解しなければ最後にスルーボタンを押すのを忘れずに！）`
-							}}
 						>
 							X
 						</button>
@@ -213,18 +200,8 @@
 			<a href="https://github.com/kissge/kissq" target="_blank">ソース</a>
 			<a href="https://x.com/_kidochan" target="_blank">🍔作者</a>
 		</div>
-		<button
-			onclick={() => history.push(new ThroughHistoryEntry())}
-			use:tooltip={{
-				content:
-					'誰も正解しなかった場合に押します。問題カウントが1進み、休みの人がいれば1休減ります。'
-			}}>スルー</button
-		>
-		<button
-			onclick={() => history.pop()}
-			disabled={history.length === 0}
-			use:tooltip={{ content: '直前の操作を無かったことにします。' }}
-		>
+		<button onclick={() => history.push(new ThroughHistoryEntry())}>スルー</button>
+		<button onclick={() => history.pop()} disabled={history.length === 0}>
 			{history.at(-1)?.toString(currentState) || 'この世の始まり'}を元に戻す
 		</button>
 		<button
@@ -246,7 +223,6 @@
 				}
 			}}
 			disabled={history.length === 0}
-			use:tooltip={{ content: '全員のスコアだけをリセットします。' }}
 		>
 			全員リセット
 		</button>
@@ -286,16 +262,11 @@
 		}
 	}
 
-	:global(label:has([disabled])) {
-		color: #aaa;
-	}
-
-	:global(label:not(:has([disabled]))) {
+	:global(label) {
 		cursor: pointer;
-		border-radius: 0.5em;
 
 		&:hover {
-			background-color: #eee;
+			opacity: 0.6;
 		}
 	}
 
