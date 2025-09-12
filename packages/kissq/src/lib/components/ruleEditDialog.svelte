@@ -6,11 +6,13 @@
 	let dialog: HTMLDialogElement;
 	let resolve: (rules: Rule[] | null) => void;
 	open = (rules_: Rule[]) => {
-		rules = rules_.map(({ lose, yasu, ...rule }) => {
+		rules = rules_.map(({ lose, batsu, yasu, ...rule }) => {
 			return {
 				...rule,
 				isLoseNull: lose === null,
 				lose: lose ?? (rule.mode === 'score' ? -5 : 3),
+				batsuMode: typeof batsu === 'number' ? 'number' : batsu,
+				batsu: typeof batsu === 'number' ? batsu : 0,
 				yasuMode: typeof yasu === 'number' ? 'number' : yasu,
 				yasu: typeof yasu === 'number' ? yasu : 0
 			};
@@ -24,9 +26,11 @@
 		});
 	};
 
-	interface EditingRule extends Omit<Rule, 'lose' | 'yasu'> {
+	interface EditingRule extends Omit<Rule, 'lose' | 'batsu' | 'yasu'> {
 		isLoseNull: boolean;
 		lose: NonNullable<Rule['lose']>;
+		batsuMode: (Rule['batsu'] & string) | 'number';
+		batsu: number;
 		yasuMode: (Rule['yasu'] & string) | 'number';
 		yasu: number;
 	}
@@ -36,7 +40,11 @@
 	let activeRule = $derived(rules[activeTab]);
 
 	let isValid = $derived(
-		rules.every(({ yasuMode, yasu }) => (yasuMode ? Number.isInteger(yasu) && yasu >= 0 : true))
+		rules.every(
+			({ mode, batsuMode, yasuMode, yasu }) =>
+				(mode !== 'score' ? batsuMode !== 'batsu' : true) &&
+				(yasuMode ? Number.isInteger(yasu) && yasu >= 0 : true)
+		)
 	);
 
 	function save() {
@@ -51,7 +59,7 @@
 						rule.win,
 						rule.isLoseNull ? null : rule.lose,
 						rule.maru,
-						rule.batsu,
+						rule.batsuMode === 'number' ? rule.batsu : rule.batsuMode,
 						rule.yasuMode === 'number' ? rule.yasu : rule.yasuMode
 					)
 			)
@@ -77,8 +85,8 @@
 			>
 		</div>
 		<div class="table">
-			<div style="padding-bottom: 2em">定番</div>
-			<div>
+			<div style="margin-bottom: 2rem">定番</div>
+			<div style="margin-bottom: 2rem">
 				<button
 					onclick={() => {
 						rules[activeTab] = {
@@ -88,6 +96,7 @@
 							lose: 3,
 							maru: 1,
 							batsu: 1,
+							batsuMode: 'number',
 							yasu: 0,
 							yasuMode: 'number'
 						};
@@ -104,6 +113,7 @@
 							lose: 3,
 							maru: 1,
 							batsu: 1,
+							batsuMode: 'number',
 							yasu: 1,
 							yasuMode: 'number'
 						};
@@ -120,12 +130,13 @@
 							lose: -5,
 							maru: 1,
 							batsu: -1,
+							batsuMode: 'number',
 							yasu: 0,
 							yasuMode: 'number'
 						};
 					}}
 				>
-					+5/-5
+					+5/-5 NY
 				</button>
 				<button
 					onclick={() => {
@@ -136,12 +147,30 @@
 							lose: 0,
 							maru: 1,
 							batsu: 1,
+							batsuMode: 'number',
 							yasu: 0,
 							yasuMode: 'number'
 						};
 					}}
 				>
 					10 by 10
+				</button>
+				<button
+					onclick={() => {
+						rules[activeTab] = {
+							mode: 'score',
+							win: 10,
+							isLoseNull: false,
+							lose: -10,
+							maru: 1,
+							batsu: 1,
+							batsuMode: 'batsu',
+							yasu: 0,
+							yasuMode: 'number'
+						};
+					}}
+				>
+					10 Backstream
 				</button>
 			</div>
 
@@ -152,7 +181,7 @@
 				<label><input type="radio" bind:group={activeRule.mode} value="MbyN" />M by N</label>
 			</div>
 
-			<div>勝利スコア</div>
+			<div>勝利条件</div>
 			<div>
 				<input type="number" bind:value={activeRule.win} />
 				{activeRule.mode === 'MbyN' ? '²' : ''}
@@ -160,7 +189,7 @@
 			</div>
 
 			{#if activeRule.mode !== 'MbyN'}
-				<div>失格スコア</div>
+				<div>失格条件</div>
 				<div>
 					<label>
 						<input type="radio" bind:group={activeRule.isLoseNull} value={false} />
@@ -185,12 +214,28 @@
 
 			<div>1問誤答で</div>
 			<div>
-				<input type="number" bind:value={activeRule.batsu} />
-				{activeRule.mode === 'score' ? 'pts' : '×'} 獲得してしまう &
-			</div>
+				<label>
+					<input type="radio" bind:group={activeRule.batsuMode} value="number" />
+					<input
+						type="number"
+						bind:value={activeRule.batsu}
+						onfocus={() => (activeRule.batsuMode = 'number')}
+					/>
+					{activeRule.mode === 'score' ? 'pts' : '×'} 獲得してしまう
+				</label>
+				<br />
+				<label>
+					<input
+						type="radio"
+						bind:group={activeRule.batsuMode}
+						value="batsu"
+						disabled={activeRule.mode !== 'score'}
+					/>
+					N回目の誤答で -N pts 獲得してしまう
+				</label>
 
-			<div></div>
-			<div>
+				<hr />
+
 				<label>
 					<input type="radio" bind:group={activeRule.yasuMode} value="number" />
 					<input
@@ -241,6 +286,7 @@
 <style>
 	dialog {
 		width: min(90%, 600px);
+		max-height: 95dvh;
 		user-select: none;
 		cursor: default;
 		font-size: 1.5rem;
@@ -294,8 +340,13 @@
 			margin-bottom: 2em;
 
 			> :nth-child(2n + 1) {
-				text-align: right;
+				display: flex;
+				align-items: center;
+				justify-content: end;
 				font-weight: bold;
+				font-size: 1rem;
+				padding-right: 0.6em;
+				border-right: 1px solid #ccc;
 			}
 
 			input[type='number'],
@@ -313,6 +364,12 @@
 			.error {
 				display: block;
 				color: red;
+			}
+
+			hr {
+				border: none;
+				border-top: 1px solid #ccc;
+				margin: 1.5em 0;
 			}
 		}
 

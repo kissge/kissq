@@ -55,8 +55,8 @@ export class AttendantState {
 
 		switch (this.rule.mode) {
 			case 'marubatsu':
-				batsuCount += this.rule.batsu;
-				score += this.rule.batsu;
+				batsuCount += this.rule.batsu === 'batsu' ? 1 : this.rule.batsu; // dummy
+				score += this.rule.batsu === 'batsu' ? batsuCount : this.rule.batsu;
 				if (this.rule.lose !== null && batsuCount >= this.rule.lose) {
 					life = 'lost';
 				} else {
@@ -67,7 +67,7 @@ export class AttendantState {
 
 			case 'score':
 				batsuCount++;
-				score += this.rule.batsu;
+				score += this.rule.batsu === 'batsu' ? -batsuCount : this.rule.batsu;
 				if (this.rule.lose !== null && score <= this.rule.lose) {
 					life = 'lost';
 				} else {
@@ -77,7 +77,7 @@ export class AttendantState {
 				return { batsuCount, score, life, yasuCount };
 
 			case 'MbyN':
-				batsuCount += this.rule.batsu;
+				batsuCount += this.rule.batsu === 'batsu' ? 1 : this.rule.batsu; // dummy
 				score = this.maruCount * (this.rule.win - batsuCount);
 				if (this.rule.win <= batsuCount) {
 					life = 'lost';
