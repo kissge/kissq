@@ -1,5 +1,5 @@
-import tippy from 'tippy.js';
 import type { Attachment } from 'svelte/attachments';
+import tippy from 'tippy.js';
 import 'tippy.js/dist/tippy.css';
 
 export function tooltip(content: string, appendTo?: 'parent'): Attachment {

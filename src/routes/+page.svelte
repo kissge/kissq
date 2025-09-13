@@ -3,7 +3,6 @@
 	import { flip } from 'svelte/animate';
 	import { fade } from 'svelte/transition';
 	import RuleEditDialog from '$lib/components/ruleEditDialog.svelte';
-	import { Rule } from '$lib/rule';
 	import {
 		HistoryEntry,
 		MaruHistoryEntry,
@@ -11,6 +10,7 @@
 		ThroughHistoryEntry,
 		RemoveHistoryEntry
 	} from '$lib/historyEntry';
+	import { Rule } from '$lib/rule';
 	import { GameState } from '$lib/state';
 	import { tooltip } from '$lib/tooltip.svelte';
 
@@ -45,6 +45,7 @@
 			life === 'removed' ? [] : [name]
 		);
 		untrack(() => {
+			// eslint-disable-next-line svelte/prefer-svelte-reactivity
 			const url = new URL(document.URL);
 			url.hash = encodeURIComponent(JSON.stringify(data));
 			location.replace(url);
@@ -60,7 +61,9 @@
 					return names.map((name) => ({ name, group: 0, trophyCount: 0 }));
 				}
 			}
-		} catch {}
+		} catch {
+			/* ignore */
+		}
 
 		return null;
 	}
@@ -287,9 +290,9 @@
 
 <style>
 	:global(button) {
-		font-size: 1.2rem;
 		border-radius: 0.3em;
 		padding: 0.2em 0.5em;
+		font-size: 1.2rem;
 		user-select: none;
 
 		&:not(:disabled) {
@@ -324,9 +327,9 @@
 	main {
 		display: grid;
 		grid-template-rows: auto 1fr auto;
+		flex: 1 0 100%;
 		gap: 0 1em;
 		height: 100%;
-		flex: 1 0 100%;
 		font-size: 2rem;
 
 		> * {
@@ -347,21 +350,21 @@
 
 		.attendants {
 			display: grid;
-			grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
 			grid-template-rows: repeat(auto-fill, minmax(1fr, 300px));
+			grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
 			gap: 0.5em;
 
 			.attendant {
-				position: relative;
-				background-color: #fafafa;
-				box-shadow: 0 2px 2px 3px #ccc;
-				padding: 0.5em;
-				border-radius: 0.5em;
-				max-width: 200px;
 				display: flex;
+				position: relative;
 				flex-direction: column;
 				gap: 0.35em;
 				transition: background-color 0.3s ease;
+				box-shadow: 0 2px 2px 3px #ccc;
+				border-radius: 0.5em;
+				background-color: #fafafa;
+				padding: 0.5em;
+				max-width: 200px;
 
 				&:has(.yasu) {
 					background-color: gray;
@@ -381,32 +384,32 @@
 				}
 
 				.name {
-					flex: 1 1 100px;
-					writing-mode: vertical-rl;
-					width: 100%;
 					display: flex;
+					flex: 1 1 100px;
 					align-items: center;
 					padding: 0;
+					width: 100%;
 					overflow: hidden;
-					line-height: 1.1;
-					word-break: break-all;
 					font-weight: bold;
+					line-height: 1.1;
+					writing-mode: vertical-rl;
+					word-break: break-all;
 
 					&:empty:not(:focus)::before {
+						cursor: text;
 						content: attr(placeholder);
 						color: #aaa;
-						cursor: text;
 					}
 				}
 
 				.hidden-buttons {
+					display: flex;
 					position: absolute;
 					left: -0.5em;
-					opacity: 0;
-					display: flex;
 					flex-wrap: auto;
 					justify-content: space-evenly;
 					gap: 3px;
+					opacity: 0;
 				}
 
 				&:hover .hidden-buttons {
@@ -414,17 +417,17 @@
 				}
 
 				.trophies {
+					display: flex;
 					position: absolute;
 					right: -0.5em;
-					display: flex;
 					flex-direction: column;
 
 					span {
-						line-height: 1.225;
-						padding-bottom: 7px;
-						background-color: white;
 						box-shadow: 0 0 3px #888;
 						border-radius: 50%;
+						background-color: white;
+						padding-bottom: 7px;
+						line-height: 1.225;
 					}
 				}
 
@@ -475,11 +478,11 @@
 					gap: 3px;
 
 					> * {
-						flex: 1 1 auto;
-						max-width: 100px;
 						display: flex;
-						align-items: center;
+						flex: 1 1 auto;
 						justify-content: center;
+						align-items: center;
+						max-width: 100px;
 					}
 				}
 			}
@@ -493,8 +496,8 @@
 
 			.left {
 				display: flex;
-				gap: 1em;
 				flex-grow: 1;
+				gap: 1em;
 				font-size: 0.8em;
 
 				a {
