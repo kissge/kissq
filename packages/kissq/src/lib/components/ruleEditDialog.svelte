@@ -309,13 +309,13 @@
 
 <style>
 	dialog {
-		width: min(90%, 800px);
-		max-height: 95dvh;
-		user-select: none;
 		cursor: default;
-		font-size: 1.5rem;
 		box-shadow: 8px 8px 10px 0 #444;
 		border-radius: 0.5em;
+		width: min(90%, 800px);
+		max-height: 95dvh;
+		font-size: 1.5rem;
+		user-select: none;
 
 		.tabbar {
 			display: flex;
@@ -323,16 +323,16 @@
 
 			.tab {
 				flex: 1 1 100px;
-				padding: 0.5em;
-				background-color: #fff;
+				cursor: pointer;
 				border: 1px solid #aaa;
 				border-bottom-color: #444;
-				border-top-left-radius: 1em;
 				border-top-right-radius: 1em;
-				border-bottom-left-radius: 0;
+				border-top-left-radius: 1em;
 				border-bottom-right-radius: 0;
+				border-bottom-left-radius: 0;
+				background-color: #fff;
+				padding: 0.5em;
 				text-align: center;
-				cursor: pointer;
 
 				&.active {
 					border-color: #444;
@@ -365,23 +365,23 @@
 
 			> :nth-child(2n + 1) {
 				display: flex;
-				align-items: center;
 				justify-content: end;
+				align-items: center;
+				border-right: 1px solid #ccc;
+				padding-right: 0.6em;
 				font-weight: bold;
 				font-size: 1rem;
-				padding-right: 0.6em;
-				border-right: 1px solid #ccc;
 			}
 
 			input[type='number'],
 			button {
-				height: 2.5rem;
 				padding: 0 0.5rem;
+				height: 2.5rem;
 			}
 
 			input[type='number'] {
-				font-size: 2rem;
 				width: 3em;
+				font-size: 2rem;
 				text-align: right;
 			}
 
@@ -391,9 +391,9 @@
 			}
 
 			hr {
+				margin: 1.5em 0;
 				border: none;
 				border-top: 1px solid #ccc;
-				margin: 1.5em 0;
 			}
 		}
 
