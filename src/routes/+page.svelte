@@ -104,7 +104,7 @@
 			<div
 				style:font-size={currentState.ranking.length <= 11 ? '3rem' : '1em'}
 				class={['attendant', { lizhi: att.isLizhi }]}
-				animate:flip={{ duration: 500 }}
+				animate:flip={{ duration: 500, delay: 300 }}
 			>
 				{#if rules.length > 1}
 					<button
@@ -114,6 +114,7 @@
 						onclick={() => {
 							attendants[i].group = (attendants[i].group + 1) % rules.length;
 						}}
+						{@attach tooltip('このプレイヤーの所属グループを変更します。')}
 					>
 						{#key attendants[i].group}
 							<span class="crossfade" in:fade={{ delay: 500 }} out:fade>
