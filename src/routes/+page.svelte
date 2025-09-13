@@ -68,7 +68,9 @@
 
 <svelte:head>
 	<title>
-		kissQ - {attendants.map((a) => a.name || '👤').join(', ')}
+		kissQ - {currentState.attendants
+			.flatMap(({ name, life }) => (life !== 'removed' ? [name || '👤'] : []))
+			.join(', ')}
 	</title>
 </svelte:head>
 
