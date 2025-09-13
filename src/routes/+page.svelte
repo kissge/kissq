@@ -16,8 +16,8 @@
 
 	let attendants = $state(
 		loadFromHash() ?? [
-			{ name: '', group: 0 },
-			{ name: '', group: 0 }
+			{ name: '', group: 0, trophyCount: 0 },
+			{ name: '', group: 0, trophyCount: 0 }
 		]
 	);
 	let rules = $state([new Rule('marubatsu', 7, 3, 1, 1, 0)]);
@@ -51,13 +51,13 @@
 		});
 	});
 
-	function loadFromHash(): { name: string; group: number }[] | null {
+	function loadFromHash(): { name: string; group: number; trophyCount: number }[] | null {
 		try {
 			const url = new URL(document.URL);
 			if (url.hash.length > 1) {
 				const names = JSON.parse(decodeURIComponent(url.hash.slice(1)));
 				if (Array.isArray(names) && names.length > 0 && names.every((n) => typeof n === 'string')) {
-					return names.map((name) => ({ name, group: 0 }));
+					return names.map((name) => ({ name, group: 0, trophyCount: 0 }));
 				}
 			}
 		} catch {}
@@ -135,6 +135,12 @@
 					>
 						削除
 					</button>
+				</div>
+
+				<div class="trophies" {@attach tooltip('勝ち抜けた累積回数')}>
+					{#each Array.from({ length: att.trophyCount }), i (i)}
+						<span in:fade>🏆</span>
+					{/each}
 				</div>
 
 				<div class="score" style:font-size={currentState.ranking.length <= 7 ? '4.5rem' : '2.6rem'}>
@@ -233,7 +239,7 @@
 		</button>
 		<button
 			onclick={() => {
-				attendants.push({ name: '', group: 0 });
+				attendants.push({ name: '', group: 0, trophyCount: 0 });
 			}}
 		>
 			プレイヤーを追加
@@ -246,6 +252,9 @@
 					)
 				) {
 					attendants = attendants.filter((_, i) => currentState.attendants[i].life !== 'removed');
+					currentState.attendants.forEach((att, i) => {
+						attendants[i].trophyCount = att.trophyCount;
+					});
 					history = [];
 				}
 			}}
@@ -400,6 +409,21 @@
 
 				&:hover .hidden-buttons {
 					opacity: 1;
+				}
+
+				.trophies {
+					position: absolute;
+					right: -0.5em;
+					display: flex;
+					flex-direction: column;
+
+					span {
+						line-height: 1.225;
+						padding-bottom: 7px;
+						background-color: white;
+						box-shadow: 0 0 3px #888;
+						border-radius: 50%;
+					}
 				}
 
 				.score {

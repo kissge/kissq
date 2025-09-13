@@ -16,10 +16,11 @@ export class MaruHistoryEntry implements HistoryEntry {
 		const att = state.attendants[this.attendantID];
 
 		state.increaseQuestionCount();
-		const { maruCount, score, life } = att.processMaru();
+		const { maruCount, score, life, trophyCount } = att.processMaru();
 		att.maruCount = maruCount;
 		att.score = score;
 		att.life = life;
+		att.trophyCount = trophyCount;
 
 		return state;
 	}
