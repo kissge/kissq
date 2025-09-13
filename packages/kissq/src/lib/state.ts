@@ -6,6 +6,7 @@ export class AttendantState {
 	constructor(
 		public name: string,
 		public rule: Rule,
+		public trophyCount: number = 0,
 		public life: Life = 'alive',
 		public score: number = 0,
 		public maruCount: number = 0,
@@ -14,10 +15,11 @@ export class AttendantState {
 	) {}
 
 	/** マルを受けた場合のstateの変化を求める（破壊的にはしない） */
-	processMaru(): { maruCount: number; score: number; life: Life } {
+	processMaru(): { maruCount: number; score: number; life: Life; trophyCount: number } {
 		let maruCount = this.maruCount;
 		let score = this.score;
 		let life = this.life;
+		let trophyCount = this.trophyCount;
 
 		switch (this.rule.mode) {
 			case 'marubatsu':
@@ -25,24 +27,27 @@ export class AttendantState {
 				score += this.rule.maru;
 				if (maruCount >= this.rule.win) {
 					life = 'won';
+					trophyCount++;
 				}
-				return { maruCount, score, life };
+				return { maruCount, score, life, trophyCount };
 
 			case 'score':
 				maruCount++;
 				score += this.rule.maru;
 				if (score >= this.rule.win) {
-					this.life = 'won';
+					life = 'won';
+					trophyCount++;
 				}
-				return { maruCount, score, life };
+				return { maruCount, score, life, trophyCount };
 
 			case 'MbyN':
 				maruCount += this.rule.maru;
 				score = maruCount * (this.rule.win - this.batsuCount);
 				if (score >= this.rule.win ** 2) {
 					life = 'won';
+					trophyCount++;
 				}
-				return { maruCount, score, life };
+				return { maruCount, score, life, trophyCount };
 		}
 	}
 
@@ -122,8 +127,10 @@ export class GameState {
 	defaultRule: Rule;
 	ranking: number[] = [];
 
-	constructor(attendants: { name: string; group: number }[], rules: Rule[]) {
-		this.attendants = attendants.map(({ name, group }) => new AttendantState(name, rules[group]));
+	constructor(attendants: { name: string; group: number; trophyCount: number }[], rules: Rule[]) {
+		this.attendants = attendants.map(
+			({ name, group, trophyCount }) => new AttendantState(name, rules[group], trophyCount)
+		);
 		this.defaultRule = rules[0];
 		this.ranking = this.attendants.map((_, i) => i);
 	}
