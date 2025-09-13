@@ -432,6 +432,7 @@
 					align-items: center;
 					font-weight: bold;
 					line-height: 0.9;
+					text-shadow: 0px 0px 5px #fafafa;
 
 					small {
 						font-weight: normal;
