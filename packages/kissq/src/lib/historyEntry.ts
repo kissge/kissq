@@ -6,6 +6,8 @@ export abstract class HistoryEntry {
 }
 
 export class MaruHistoryEntry implements HistoryEntry {
+	type = 'maru' as const;
+
 	constructor(public attendantID: number) {}
 
 	toString(state: GameState): string {
@@ -36,6 +38,8 @@ export class MaruHistoryEntry implements HistoryEntry {
 }
 
 export class BatsuHistoryEntry implements HistoryEntry {
+	type = 'batsu' as const;
+
 	constructor(public attendantID: number) {}
 
 	toString(state: GameState): string {
@@ -56,6 +60,8 @@ export class BatsuHistoryEntry implements HistoryEntry {
 }
 
 export class ThroughHistoryEntry implements HistoryEntry {
+	type = 'through' as const;
+
 	toString(): string {
 		return 'スルー';
 	}
@@ -67,6 +73,8 @@ export class ThroughHistoryEntry implements HistoryEntry {
 }
 
 export class RemoveHistoryEntry implements HistoryEntry {
+	type = 'remove' as const;
+
 	constructor(public attendantID: number) {}
 
 	toString(state: GameState): string {
