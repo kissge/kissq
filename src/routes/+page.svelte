@@ -239,6 +239,18 @@
 		<div class="left">
 			<a href="https://github.com/kissge/kissq" target="_blank">ソース</a>
 			<a href="https://x.com/_kidochan" target="_blank">🍔作者</a>
+			<a
+				href="https://docs.google.com/forms/d/e/1FAIpQLSdpwAsY5k5LKnnbntsMo1USadZczeuq-SZqlFcNMpbj255u4Q/viewform?pli=1&usp=pp_url&entry.2107805527={encodeURIComponent(
+					JSON.stringify({
+						a: attendants.map(({ name, ...rest }) => rest),
+						r: rules,
+						h: history
+					})
+				)}"
+				target="_blank"
+			>
+				バグ・要望
+			</a>
 		</div>
 		<button
 			onclick={() => history.push(new ThroughHistoryEntry())}
