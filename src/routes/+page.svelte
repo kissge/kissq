@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { untrack } from 'svelte';
 	import { flip } from 'svelte/animate';
-	import { fade } from 'svelte/transition';
+	import { fade, slide } from 'svelte/transition';
 	import RuleEditDialog from '$lib/components/ruleEditDialog.svelte';
 	import {
 		HistoryEntry,
@@ -24,10 +24,20 @@
 	let history = $state<HistoryEntry[]>([]);
 	let currentState = $derived(
 		history.reduce(
-			(state, entry) => entry.reducer(state).updateRanking(),
+			(state, entry) => entry.reducer(state.clearLatestEvent()).updateRanking(),
 			new GameState(attendants, rules)
 		)
 	);
+
+	let showBanner = $state<typeof currentState.latestEvent>(null);
+	$effect(() => {
+		if (currentState.latestEvent) {
+			showBanner = currentState.latestEvent;
+			setTimeout(() => {
+				showBanner = null;
+			}, 3000);
+		}
+	});
 
 	// svelte-ignore non_reactive_update ...?
 	let openRuleEditDialog: (rules: Rule[]) => Promise<Rule[] | null>;
@@ -287,6 +297,17 @@
 	</footer>
 </main>
 
+{#if showBanner}
+	<div class={['banner', showBanner.type]} transition:slide={{ axis: 'x' }}>
+		{attendants[showBanner.attendantID].name}
+		{#if showBanner.type === 'won'}
+			勝ち抜け
+		{:else if showBanner.type === 'lizhi'}
+			リーチ
+		{/if}
+	</div>
+{/if}
+
 <RuleEditDialog bind:open={openRuleEditDialog} />
 
 <style>
@@ -509,6 +530,37 @@
 					opacity: 0.6;
 				}
 			}
+		}
+	}
+
+	.banner {
+		display: flex;
+		position: absolute;
+		top: 40%;
+		right: 0;
+		bottom: 40%;
+		left: 0;
+		justify-content: center;
+		align-items: center;
+		z-index: 9999;
+		box-shadow: 0 0 30px #444;
+		pointer-events: none;
+		font-weight: bold;
+		font-size: 8rem;
+		line-height: 1;
+		user-select: none;
+		text-align: center;
+		text-shadow: 0 0 15px #444;
+		white-space: nowrap;
+
+		&.won {
+			background-color: rgb(255 100 100);
+			color: white;
+		}
+		&.lizhi {
+			background-color: rgb(240 240 175);
+			color: rgb(77 43 43);
+			text-shadow: none;
 		}
 	}
 </style>

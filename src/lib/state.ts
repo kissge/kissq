@@ -126,6 +126,7 @@ export class GameState {
 	questionCount: number = 1;
 	defaultRule: Rule;
 	ranking: number[] = [];
+	latestEvent: { type: 'won' | 'lizhi'; attendantID: number } | null = null;
 
 	constructor(attendants: { name: string; group: number; trophyCount: number }[], rules: Rule[]) {
 		this.attendants = attendants.map(
@@ -142,6 +143,11 @@ export class GameState {
 				att.decreaseYasu();
 			}
 		});
+	}
+
+	clearLatestEvent(): GameState {
+		this.latestEvent = null;
+		return this;
 	}
 
 	updateRanking(): GameState {
