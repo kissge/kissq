@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { watch } from 'runed';
 	import { untrack } from 'svelte';
 	import { flip } from 'svelte/animate';
 	import { fade, slide } from 'svelte/transition';
@@ -30,14 +31,17 @@
 	);
 
 	let showBanner = $state<typeof currentState.latestEvent>(null);
-	$effect(() => {
-		if (currentState.latestEvent) {
-			showBanner = currentState.latestEvent;
-			setTimeout(() => {
-				showBanner = null;
-			}, 3000);
+	watch(
+		() => currentState.latestEvent,
+		(curr, prev) => {
+			if (curr?.type !== prev?.type) {
+				showBanner = curr;
+				setTimeout(() => {
+					showBanner = null;
+				}, 3000);
+			}
 		}
-	});
+	);
 
 	// svelte-ignore non_reactive_update ...?
 	let openRuleEditDialog: (rules: Rule[]) => Promise<Rule[] | null>;
@@ -544,6 +548,7 @@
 		align-items: center;
 		z-index: 9999;
 		box-shadow: 0 0 30px #444;
+		overflow: hidden;
 		pointer-events: none;
 		font-weight: bold;
 		font-size: 8rem;
