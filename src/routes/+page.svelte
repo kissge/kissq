@@ -34,7 +34,7 @@
 	watch(
 		() => currentState.latestEvent,
 		(curr, prev) => {
-			if (curr?.type !== prev?.type) {
+			if (curr?.type !== prev?.type || curr?.attendantID !== prev?.attendantID) {
 				showBanner = curr;
 				setTimeout(() => {
 					showBanner = null;
