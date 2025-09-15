@@ -234,9 +234,9 @@
 			<div>
 				<label
 					{@attach tooltip(
-						activeRule.mode === 'marubatsu'
-							? '獲得してしまうバツ数を正の数で入力'
-							: '失ってしまうスコアを負の数で入力'
+						activeRule.mode === 'score'
+							? '失ってしまうスコアを負の数で入力'
+							: '獲得してしまうバツ数を正の数で入力'
 					)}
 				>
 					<input type="radio" bind:group={activeRule.batsuMode} value="number" />
