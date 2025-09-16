@@ -233,9 +233,65 @@
 
 			<div>モード</div>
 			<div>
-				<label><input type="radio" bind:group={activeRule.mode} value="score" />スコア</label>
-				<label><input type="radio" bind:group={activeRule.mode} value="marubatsu" />マルバツ</label>
-				<label><input type="radio" bind:group={activeRule.mode} value="MbyN" />M by N</label>
+				<label>
+					<input
+						type="radio"
+						bind:group={activeRule.mode}
+						value="score"
+						onchange={() => {
+							if (activeRule.lose > 0) {
+								activeRule.lose = -5;
+							}
+
+							if (activeRule.batsu > 0) {
+								activeRule.batsu = -1;
+							}
+
+							if (activeRule.yasuMode !== 'number') {
+								activeRule.yasuMode = 'number';
+							}
+						}}
+					/>
+					スコア
+				</label>
+				<label>
+					<input
+						type="radio"
+						bind:group={activeRule.mode}
+						value="marubatsu"
+						onchange={() => {
+							if (activeRule.lose <= 0) {
+								activeRule.lose = 3;
+							}
+
+							if (activeRule.batsu < 0) {
+								activeRule.batsu = 1;
+							}
+
+							if (activeRule.batsuMode !== 'number') {
+								activeRule.batsuMode = 'number';
+							}
+						}}
+					/>
+					マルバツ
+				</label>
+				<label>
+					<input
+						type="radio"
+						bind:group={activeRule.mode}
+						value="MbyN"
+						onchange={() => {
+							if (activeRule.batsu < 0) {
+								activeRule.batsu = 1;
+							}
+
+							if (activeRule.batsuMode !== 'number') {
+								activeRule.batsuMode = 'number';
+							}
+						}}
+					/>
+					M by N
+				</label>
 				<label>
 					<input
 						type="radio"
@@ -246,8 +302,17 @@
 								activeRule.isLoseNull = false;
 								activeRule.lose = 30;
 							}
+
+							if (activeRule.lose < 0) {
+								activeRule.lose = 30;
+							}
+
+							if (activeRule.batsu > 0) {
+								activeRule.batsu = -1;
+							}
 						}}
-					/>アタックサバイバル
+					/>
+					アタックサバイバル
 				</label>
 			</div>
 
