@@ -507,6 +507,10 @@
 
 				.yasu {
 					color: white;
+					text-shadow:
+						0px 0px 5px #000,
+						0px 0px 5px #000,
+						0px 0px 5px #000;
 				}
 
 				.buttons {
