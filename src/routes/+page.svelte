@@ -473,6 +473,7 @@
 					display: flex;
 					flex-direction: column;
 					align-items: center;
+					margin: 0 -1em;
 					font-weight: bold;
 					line-height: 0.9;
 					text-shadow: 0px 0px 5px #fafafa;

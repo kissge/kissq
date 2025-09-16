@@ -12,6 +12,7 @@
 		margin: 0;
 		padding: 0;
 		min-height: 100dvh;
+		overflow-x: hidden;
 		font-family: sans-serif;
 	}
 </style>
