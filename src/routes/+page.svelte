@@ -12,10 +12,10 @@
 		RemoveHistoryEntry
 	} from '$lib/historyEntry';
 	import { Rule } from '$lib/rule';
-	import { GameState } from '$lib/state';
+	import { GameState, type Attendant } from '$lib/state';
 	import { tooltip } from '$lib/tooltip.svelte';
 
-	let attendants = $state(
+	let attendants = $state<Attendant[]>(
 		loadFromHash() ?? [
 			{ name: '', group: 0, trophyCount: 0 },
 			{ name: '', group: 0, trophyCount: 0 }
@@ -29,6 +29,7 @@
 			new GameState(attendants, rules)
 		)
 	);
+	let activeRules = $derived(rules.flatMap((rule, i) => (rule.isRemoved ? [] : { rule, i })));
 
 	let showBanner = $state<typeof currentState.latestEvent>(null);
 	watch(
@@ -50,7 +51,20 @@
 		const result = await openRuleEditDialog(rules);
 
 		if (result) {
-			rules = result;
+			const activeRuleCount = result.filter(({ isRemoved }) => !isRemoved).length;
+			if (activeRuleCount === 1) {
+				rules = result.filter(({ isRemoved }) => !isRemoved);
+				attendants.forEach((att) => {
+					att.group = 0;
+				});
+			} else {
+				rules = result;
+				attendants.forEach((att) => {
+					while (rules[att.group].isRemoved) {
+						att.group = (att.group - 1 + rules.length) % rules.length;
+					}
+				});
+			}
 		}
 	}
 
@@ -66,7 +80,7 @@
 		});
 	});
 
-	function loadFromHash(): { name: string; group: number; trophyCount: number }[] | null {
+	function loadFromHash(): Attendant[] | null {
 		try {
 			const url = new URL(document.URL);
 			if (url.hash.length > 1) {
@@ -103,10 +117,10 @@
 		</div>
 		<div>
 			Rule:
-			{#if rules.length === 1}
-				{rules[0]}
+			{#if activeRules.length === 1}
+				{activeRules[0].rule}
 			{:else}
-				{rules.map((rule, i) => String.fromCodePoint(65 + i) + ': ' + rule).join(' / ')}
+				{activeRules.map(({ rule, i }) => String.fromCodePoint(65 + i) + ': ' + rule).join(' / ')}
 			{/if}
 			<button onclick={editRule}>編集</button>
 		</div>
@@ -120,13 +134,15 @@
 				class={['attendant', { lizhi: att.isLizhi }]}
 				animate:flip={{ duration: 500, delay: 300 }}
 			>
-				{#if rules.length > 1}
+				{#if activeRules.length > 1}
 					<button
 						class="group"
 						style:background-color={`hsl(${(360 / rules.length) * attendants[i].group}, 70%, 80%)`}
 						style:font-size={currentState.ranking.length <= 11 ? '2rem' : '1.5rem'}
 						onclick={() => {
-							attendants[i].group = (attendants[i].group + 1) % rules.length;
+							do {
+								attendants[i].group = (attendants[i].group + 1) % rules.length;
+							} while (rules[attendants[i].group].isRemoved);
 						}}
 						{@attach tooltip('このプレイヤーの所属グループを変更します。')}
 					>

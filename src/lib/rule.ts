@@ -11,7 +11,9 @@ export class Rule {
 		/** 1問誤答で得られるスコア（負数）またはバツ数（正数）またはその時点のバツ数 */
 		public batsu: number | 'batsu',
 		/** 1問誤答で得られる休みの数（定数またはその時点のマル数・バツ数） */
-		public yasu: number | 'maru' | 'batsu'
+		public yasu: number | 'maru' | 'batsu',
+		/** 削除済みかどうか */
+		public isRemoved: boolean = false
 	) {}
 
 	toString(): string {
