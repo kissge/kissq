@@ -299,10 +299,10 @@
 						'全員ゼロ〇ゼロ×にリセットしますか？\nこの操作は元に戻せません。\n（プレイヤーリスト、累積勝利数🏆は残ります）'
 					)
 				) {
-					attendants = attendants.filter((_, i) => currentState.attendants[i].life !== 'removed');
 					currentState.attendants.forEach((att, i) => {
 						attendants[i].trophyCount = att.trophyCount;
 					});
+					attendants = attendants.filter((_, i) => currentState.attendants[i].life !== 'removed');
 					history = [];
 				}
 			}}
