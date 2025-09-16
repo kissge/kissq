@@ -18,7 +18,7 @@ export class MaruHistoryEntry implements HistoryEntry {
 		const att = state.attendants[this.attendantID];
 
 		state.increaseQuestionCount();
-		const { maruCount, score, life, trophyCount } = att.processMaru();
+		const { maruCount, score, life, trophyCount, otherScoreDiff } = att.processMaru();
 
 		if (att.life === 'alive' && life === 'won') {
 			state.latestEvent = { type: 'won', attendantID: this.attendantID };
@@ -31,6 +31,17 @@ export class MaruHistoryEntry implements HistoryEntry {
 
 		if (life === 'alive' && att.processMaru().life === 'won') {
 			state.latestEvent = { type: 'lizhi', attendantID: this.attendantID };
+		}
+
+		if (otherScoreDiff !== 0) {
+			state.attendants.forEach((a, i) => {
+				if (i !== this.attendantID && a.life === 'alive') {
+					a.score += otherScoreDiff;
+					if (a.score <= 0) {
+						a.life = 'lost';
+					}
+				}
+			});
 		}
 
 		return state;
