@@ -164,7 +164,7 @@
 				</div>
 
 				<div class="score" style:font-size={currentState.ranking.length <= 7 ? '4.5rem' : '2.6rem'}>
-					{#if att.rule.mode === 'score'}
+					{#if att.rule.mode === 'score' || att.rule.mode === 'survival'}
 						<span>
 							{#key att.score}
 								<span class="crossfade" in:fade={{ delay: 500 }} out:fade>

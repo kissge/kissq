@@ -12,14 +12,25 @@ export class AttendantState {
 		public maruCount: number = 0,
 		public batsuCount: number = 0,
 		public yasuCount: number | 'next' = 0
-	) {}
+	) {
+		if (rule.mode === 'survival') {
+			this.score = rule.lose!;
+		}
+	}
 
 	/** マルを受けた場合のstateの変化を求める（破壊的にはしない） */
-	processMaru(): { maruCount: number; score: number; life: Life; trophyCount: number } {
+	processMaru(): {
+		maruCount: number;
+		score: number;
+		life: Life;
+		trophyCount: number;
+		otherScoreDiff: number;
+	} {
 		let maruCount = this.maruCount;
 		let score = this.score;
 		let life = this.life;
 		let trophyCount = this.trophyCount;
+		let otherScoreDiff = 0;
 
 		switch (this.rule.mode) {
 			case 'marubatsu':
@@ -29,7 +40,7 @@ export class AttendantState {
 					life = 'won';
 					trophyCount++;
 				}
-				return { maruCount, score, life, trophyCount };
+				return { maruCount, score, life, trophyCount, otherScoreDiff };
 
 			case 'score':
 				maruCount++;
@@ -38,7 +49,7 @@ export class AttendantState {
 					life = 'won';
 					trophyCount++;
 				}
-				return { maruCount, score, life, trophyCount };
+				return { maruCount, score, life, trophyCount, otherScoreDiff };
 
 			case 'MbyN':
 				maruCount += this.rule.maru;
@@ -47,7 +58,12 @@ export class AttendantState {
 					life = 'won';
 					trophyCount++;
 				}
-				return { maruCount, score, life, trophyCount };
+				return { maruCount, score, life, trophyCount, otherScoreDiff };
+
+			case 'survival':
+				maruCount++;
+				otherScoreDiff = -this.rule.maru;
+				return { maruCount, score, life, trophyCount, otherScoreDiff };
 		}
 	}
 
@@ -84,7 +100,19 @@ export class AttendantState {
 			case 'MbyN':
 				batsuCount += this.rule.batsu === 'batsu' ? 1 : this.rule.batsu; // dummy
 				score = this.maruCount * (this.rule.win - batsuCount);
-				if (this.rule.win <= batsuCount) {
+				if (this.rule.win - batsuCount <= 0) {
+					life = 'lost';
+				} else {
+					yasuCount = 'next';
+				}
+
+				return { batsuCount, score, life, yasuCount };
+
+			case 'survival':
+				batsuCount++;
+				score += this.rule.batsu === 'batsu' ? -batsuCount : this.rule.batsu;
+				if (score <= 0) {
+					score = 0;
 					life = 'lost';
 				} else {
 					yasuCount = 'next';
@@ -156,6 +184,7 @@ export class GameState {
 		switch (this.defaultRule.mode) {
 			case 'score':
 			case 'MbyN':
+			case 'survival':
 				this.ranking.sort((ai, bi) => {
 					const a = this.attendants[ai];
 					const b = this.attendants[bi];

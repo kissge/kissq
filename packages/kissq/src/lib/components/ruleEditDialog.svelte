@@ -42,8 +42,9 @@
 
 	let isValid = $derived(
 		rules.every(
-			({ mode, batsuMode, yasuMode, yasu }) =>
-				(mode !== 'score' ? batsuMode !== 'batsu' : true) &&
+			({ mode, lose, isLoseNull, batsuMode, yasuMode, yasu }) =>
+				(mode === 'survival' ? lose > 0 && !isLoseNull : true) &&
+				(mode !== 'score' && mode !== 'survival' ? batsuMode !== 'batsu' : true) &&
 				(yasuMode ? Number.isInteger(yasu) && yasu >= 0 : true)
 		)
 	);
@@ -184,6 +185,23 @@
 				>
 					10 Backstream
 				</button>
+				<button
+					onclick={() => {
+						rules[activeTab] = {
+							mode: 'survival',
+							win: 0,
+							isLoseNull: false,
+							lose: 30,
+							maru: 1,
+							batsu: -2,
+							batsuMode: 'number',
+							yasu: 0,
+							yasuMode: 'number'
+						};
+					}}
+				>
+					30アタサバ
+				</button>
 			</div>
 
 			<div>モード</div>
@@ -191,50 +209,78 @@
 				<label><input type="radio" bind:group={activeRule.mode} value="score" />スコア</label>
 				<label><input type="radio" bind:group={activeRule.mode} value="marubatsu" />マルバツ</label>
 				<label><input type="radio" bind:group={activeRule.mode} value="MbyN" />M by N</label>
+				<label>
+					<input
+						type="radio"
+						bind:group={activeRule.mode}
+						value="survival"
+						onchange={() => {
+							if (activeRule.isLoseNull) {
+								activeRule.isLoseNull = false;
+								activeRule.lose = 30;
+							}
+						}}
+					/>アタックサバイバル
+				</label>
 			</div>
 
-			<div>勝利条件</div>
-			<div>
-				<input type="number" bind:value={activeRule.win} />
-				{activeRule.mode === 'MbyN' ? '²' : ''}
-				{activeRule.mode !== 'marubatsu' ? 'pts' : '○'} 以上
-			</div>
-
-			{#if activeRule.mode !== 'MbyN'}
-				<div>失格条件</div>
+			{#if activeRule.mode === 'survival'}
+				<div>初期スコア</div>
 				<div>
-					<label
-						{@attach tooltip(
-							activeRule.mode === 'marubatsu'
-								? '失格バツ数を正の数で入力'
-								: '失格スコアを負の数で入力'
-						)}
-					>
-						<input type="radio" bind:group={activeRule.isLoseNull} value={false} />
-						<input
-							type="number"
-							bind:value={activeRule.lose}
-							onfocus={() => (activeRule.isLoseNull = false)}
-						/>
-						{activeRule.mode === 'score' ? 'pts 以下' : '× 以上'}
-					</label>
-					<label>
-						<input type="radio" bind:group={activeRule.isLoseNull} value={true} />失格なし
-					</label>
+					<input type="number" bind:value={activeRule.lose} /> pts
 				</div>
+			{:else}
+				<div>勝利条件</div>
+				<div>
+					<input type="number" bind:value={activeRule.win} />
+					{activeRule.mode === 'MbyN' ? '²' : ''}
+					{activeRule.mode !== 'marubatsu' ? 'pts' : '○'} 以上
+				</div>
+
+				{#if activeRule.mode !== 'MbyN'}
+					<div>失格条件</div>
+					<div>
+						<label
+							{@attach tooltip(
+								activeRule.mode === 'marubatsu'
+									? '失格バツ数を正の数で入力'
+									: '失格スコアを負の数で入力'
+							)}
+						>
+							<input type="radio" bind:group={activeRule.isLoseNull} value={false} />
+							<input
+								type="number"
+								bind:value={activeRule.lose}
+								onfocus={() => (activeRule.isLoseNull = false)}
+							/>
+							{activeRule.mode === 'score' ? 'pts 以下' : '× 以上'}
+						</label>
+						<label>
+							<input type="radio" bind:group={activeRule.isLoseNull} value={true} />失格なし
+						</label>
+					</div>
+				{/if}
 			{/if}
 
 			<div>1問正解で</div>
-			<div>
-				<input type="number" bind:value={activeRule.maru} />
-				{activeRule.mode === 'score' ? 'pts' : '○'} 獲得できる
-			</div>
+			{#if activeRule.mode === 'survival'}
+				<div>
+					自分以外全員のスコアから
+					<input type="number" bind:value={activeRule.maru} />
+					pts 減らす
+				</div>
+			{:else}
+				<div>
+					<input type="number" bind:value={activeRule.maru} />
+					{activeRule.mode === 'score' ? 'pts' : '○'} 獲得できる
+				</div>
+			{/if}
 
 			<div>1問誤答で</div>
 			<div>
 				<label
 					{@attach tooltip(
-						activeRule.mode === 'score'
+						activeRule.mode === 'score' || activeRule.mode === 'survival'
 							? '失ってしまうスコアを負の数で入力'
 							: '獲得してしまうバツ数を正の数で入力'
 					)}
@@ -245,7 +291,7 @@
 						bind:value={activeRule.batsu}
 						onfocus={() => (activeRule.batsuMode = 'number')}
 					/>
-					{activeRule.mode === 'score' ? 'pts' : '×'} 獲得してしまう
+					{activeRule.mode === 'score' || activeRule.mode === 'survival' ? 'pts' : '×'} 獲得してしまう
 				</label>
 				<br />
 				<label>
@@ -253,7 +299,7 @@
 						type="radio"
 						bind:group={activeRule.batsuMode}
 						value="batsu"
-						disabled={activeRule.mode !== 'score'}
+						disabled={!(activeRule.mode === 'score' || activeRule.mode === 'survival')}
 					/>
 					N回目の誤答で -N pts 獲得してしまう
 				</label>
@@ -402,7 +448,7 @@
 			justify-content: end;
 			gap: 0.5em;
 
-			.primary {
+			.primary:not([disabled]) {
 				background-color: #06f;
 				color: white;
 			}

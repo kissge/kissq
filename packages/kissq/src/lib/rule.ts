@@ -1,7 +1,7 @@
 export class Rule {
 	constructor(
-		/** 勝利判定の基準がスコアかマル数・バツ数かMbyNか */
-		public mode: 'score' | 'marubatsu' | 'MbyN',
+		/** ゲームモード */
+		public mode: 'score' | 'marubatsu' | 'MbyN' | 'survival',
 		/** 勝利に必要なスコアまたはマル数またはスコアの平方根 */
 		public win: number,
 		/** 敗北に必要なスコア（負数）またはバツ数（正数） */
@@ -69,6 +69,22 @@ export class Rule {
 					str += `、誤答${this.batsu}点`;
 				}
 				break;
+
+			case 'survival':
+				str = `${this.lose} アタサバ`;
+				if (this.maru !== 1) {
+					str += `、正解${-this.maru}点`;
+				}
+				if (this.batsu === 'batsu') {
+					str += `、N回目の誤答で-N点`;
+				} else {
+					str += `、誤答${this.batsu}点`;
+				}
+				break;
+
+			default:
+				// eslint-disable-next-line no-case-declarations, @typescript-eslint/no-unused-vars
+				const _: never = this.mode;
 		}
 
 		if (this.yasu === 'maru') {
