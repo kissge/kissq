@@ -112,6 +112,7 @@
 						} while (rules[newTab].isRemoved);
 						activeTab = newTab;
 					}}
+					{@attach tooltip('削除したグループにいたプレイヤーは自動で別のグループに移動します。')}
 				>
 					{String.fromCodePoint(65 + activeTab)}グループを削除
 				</button>
@@ -496,7 +497,8 @@
 		}
 
 		div:has(> button.remove) {
-			text-align: right;
+			display: flex;
+			justify-content: end;
 
 			button:not([disabled]) {
 				background-color: rgb(255 129 129);
