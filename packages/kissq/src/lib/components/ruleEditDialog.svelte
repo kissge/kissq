@@ -5,7 +5,7 @@
 	let { open = $bindable() }: { open: (rules: Rule[]) => Promise<Rule[] | null> } = $props();
 
 	let dialog: HTMLDialogElement;
-	let resolve: (rules: Rule[] | null) => void;
+	let resolve: (result: Awaited<ReturnType<typeof open>>) => void;
 	open = (rules_: Rule[]) => {
 		rules = rules_.map(({ lose, batsu, yasu, ...rule }) => {
 			return {
@@ -18,11 +18,11 @@
 				yasu: typeof yasu === 'number' ? yasu : 0
 			};
 		});
-		activeTab = 0;
+		activeTab = rules.findIndex((r) => !r.isRemoved);
 
 		dialog.showModal();
 
-		return new Promise<Rule[] | null>((r) => {
+		return new Promise((r) => {
 			resolve = r;
 		});
 	};
@@ -39,6 +39,7 @@
 	let rules = $state<EditingRule[]>([]);
 	let activeTab = $state(0);
 	let activeRule = $derived(rules[activeTab]);
+	let activeRules = $derived(rules.flatMap((rule, i) => (rule.isRemoved ? [] : { rule, i })));
 
 	let isValid = $derived(
 		rules.every(
@@ -62,7 +63,8 @@
 						rule.isLoseNull ? null : rule.lose,
 						rule.maru,
 						rule.batsuMode === 'number' ? rule.batsu : rule.batsuMode,
-						rule.yasuMode === 'number' ? rule.yasu : rule.yasuMode
+						rule.yasuMode === 'number' ? rule.yasu : rule.yasuMode,
+						rule.isRemoved
 					)
 			)
 		);
@@ -73,33 +75,52 @@
 	{#if rules.length > 0}
 		<div class="tabbar">
 			<div class="tab button" inert></div>
-			{#each rules, i}
+			{#each activeRules as { i }}
 				<button
 					class={['tab', { active: i === activeTab }]}
 					onclick={() => (activeTab = i)}
 					{@attach tooltip(
-						rules.length === 1
+						activeRules.length === 1
 							? '全員に適用されるルールを編集します。'
 							: `${String.fromCodePoint(65 + i)}グループのプレイヤーに適用されるルールを編集します。`
 					)}
 				>
-					{rules.length === 1 ? '全員' : String.fromCodePoint(65 + i)}
+					{activeRules.length === 1 ? '全員' : String.fromCodePoint(65 + i)}
 				</button>
 			{/each}
 			<button
 				class="tab button"
 				onclick={() => {
-					rules.push({ ...rules.at(-1)! });
-					activeTab = rules.length - 1;
+					rules.push({ ...activeRules.at(-1)!.rule });
+					activeTab = activeRules.at(-1)!.i;
 				}}
 				{@attach tooltip('ルールグループを追加します。')}
 			>
 				+
 			</button>
 		</div>
+
+		{#if activeRules.length > 1}
+			<div>
+				<button
+					class="remove"
+					onclick={() => {
+						activeRule.isRemoved = true;
+						let newTab = activeTab;
+						do {
+							newTab = (newTab - 1 + rules.length) % rules.length;
+						} while (rules[newTab].isRemoved);
+						activeTab = newTab;
+					}}
+				>
+					{String.fromCodePoint(65 + activeTab)}グループを削除
+				</button>
+			</div>
+		{/if}
+
 		<div class="table">
-			<div style="margin-bottom: 2rem">定番</div>
-			<div style="margin-bottom: 2rem">
+			<div style="margin: 2rem 0">定番</div>
+			<div style="margin: 2rem 0">
 				<button
 					onclick={() => {
 						rules[activeTab] = {
@@ -111,7 +132,8 @@
 							batsu: 1,
 							batsuMode: 'number',
 							yasu: 0,
-							yasuMode: 'number'
+							yasuMode: 'number',
+							isRemoved: false
 						};
 					}}
 				>
@@ -128,7 +150,8 @@
 							batsu: 1,
 							batsuMode: 'number',
 							yasu: 1,
-							yasuMode: 'number'
+							yasuMode: 'number',
+							isRemoved: false
 						};
 					}}
 				>
@@ -145,7 +168,8 @@
 							batsu: -1,
 							batsuMode: 'number',
 							yasu: 0,
-							yasuMode: 'number'
+							yasuMode: 'number',
+							isRemoved: false
 						};
 					}}
 				>
@@ -162,7 +186,8 @@
 							batsu: 1,
 							batsuMode: 'number',
 							yasu: 0,
-							yasuMode: 'number'
+							yasuMode: 'number',
+							isRemoved: false
 						};
 					}}
 				>
@@ -179,7 +204,8 @@
 							batsu: -1,
 							batsuMode: 'batsu',
 							yasu: 0,
-							yasuMode: 'number'
+							yasuMode: 'number',
+							isRemoved: false
 						};
 					}}
 				>
@@ -196,7 +222,8 @@
 							batsu: -2,
 							batsuMode: 'number',
 							yasu: 0,
-							yasuMode: 'number'
+							yasuMode: 'number',
+							isRemoved: false
 						};
 					}}
 				>
@@ -359,7 +386,7 @@
 		box-shadow: 8px 8px 10px 0 #444;
 		border-radius: 0.5em;
 		width: min(90%, 800px);
-		max-height: 95dvh;
+		max-height: 90dvh;
 		font-size: 1.5rem;
 		user-select: none;
 
@@ -400,6 +427,14 @@
 				&[inert] {
 					pointer-events: none;
 				}
+			}
+		}
+
+		div:has(> button.remove) {
+			text-align: right;
+
+			button:not([disabled]) {
+				background-color: rgb(255 129 129);
 			}
 		}
 

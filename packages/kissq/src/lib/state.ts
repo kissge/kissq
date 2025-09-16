@@ -2,6 +2,12 @@ import { Rule } from './rule';
 
 type Life = 'alive' | 'won' | 'lost' | 'removed';
 
+export interface Attendant {
+	name: string;
+	group: number;
+	trophyCount: number;
+}
+
 export class AttendantState {
 	constructor(
 		public name: string,
