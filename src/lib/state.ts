@@ -30,12 +30,14 @@ export class AttendantState {
 		score: number;
 		life: Life;
 		trophyCount: number;
+		yasuCount: number | 'next';
 		otherScoreDiff: number;
 	} {
 		let maruCount = this.maruCount;
 		let score = this.score;
 		let life = this.life;
 		let trophyCount = this.trophyCount;
+		let yasuCount = this.yasuCount;
 		let otherScoreDiff = 0;
 
 		switch (this.rule.mode) {
@@ -45,8 +47,10 @@ export class AttendantState {
 				if (maruCount >= this.rule.win) {
 					life = 'won';
 					trophyCount++;
+				} else if (this.rule.yasuPerMaru && maruCount % this.rule.yasuPerMaru === 0) {
+					yasuCount = this.rule.yasuPerMaru;
 				}
-				return { maruCount, score, life, trophyCount, otherScoreDiff };
+				return { maruCount, score, life, trophyCount, yasuCount, otherScoreDiff };
 
 			case 'score':
 				maruCount++;
@@ -54,8 +58,10 @@ export class AttendantState {
 				if (score >= this.rule.win) {
 					life = 'won';
 					trophyCount++;
+				} else if (this.rule.yasuPerMaru && maruCount % this.rule.yasuPerMaru === 0) {
+					yasuCount = this.rule.yasuPerMaru;
 				}
-				return { maruCount, score, life, trophyCount, otherScoreDiff };
+				return { maruCount, score, life, trophyCount, yasuCount, otherScoreDiff };
 
 			case 'MbyN':
 				maruCount += this.rule.maru;
@@ -63,18 +69,28 @@ export class AttendantState {
 				if (score >= this.rule.win ** 2) {
 					life = 'won';
 					trophyCount++;
+				} else if (this.rule.yasuPerMaru && maruCount % this.rule.yasuPerMaru === 0) {
+					yasuCount = this.rule.yasuPerMaru;
 				}
-				return { maruCount, score, life, trophyCount, otherScoreDiff };
+				return { maruCount, score, life, trophyCount, yasuCount, otherScoreDiff };
 
 			case 'survival':
 				maruCount++;
 				otherScoreDiff = -this.rule.maru;
-				return { maruCount, score, life, trophyCount, otherScoreDiff };
+				if (this.rule.yasuPerMaru && maruCount % this.rule.yasuPerMaru === 0) {
+					yasuCount = this.rule.yasuPerMaru;
+				}
+				return { maruCount, score, life, trophyCount, yasuCount, otherScoreDiff };
 		}
 	}
 
 	/** バツを受けた場合のstateの変化を求める（破壊的にはしない） */
-	processBatsu(): { batsuCount: number; score: number; life: Life; yasuCount: number | 'next' } {
+	processBatsu(): {
+		batsuCount: number;
+		score: number;
+		life: Life;
+		yasuCount: number | 'next';
+	} {
 		let batsuCount = this.batsuCount;
 		let score = this.score;
 		let life = this.life;
