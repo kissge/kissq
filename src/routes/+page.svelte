@@ -135,7 +135,7 @@
 			<div
 				style:font-size={currentState.ranking.length <= 11 ? '3rem' : '1em'}
 				class={['attendant', { lizhi: att.isLizhi }]}
-				animate:flip={{ duration: 500, delay: 300 }}
+				animate:flip={{ duration: 500, delay: 600 }}
 			>
 				{#if activeRules.length > 1}
 					<button
