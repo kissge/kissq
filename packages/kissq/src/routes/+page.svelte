@@ -205,8 +205,12 @@
 							{/key}
 						</span>
 					{:else}
-						<span class="maru-count">{att.maruCount} ○</span>
-						<span class="batsu-count">{att.batsuCount} ×</span>
+						<span class="maru-count">
+							{#key att.maruCount}<span in:fade>{att.maruCount}</span>{/key} ○
+						</span>
+						<span class="batsu-count">
+							{#key att.batsuCount}<span in:fade>{att.batsuCount}</span>{/key} ×
+						</span>
 					{/if}
 				</div>
 
