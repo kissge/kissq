@@ -75,7 +75,7 @@
 	{#if rules.length > 0}
 		<div class="tabbar">
 			<div class="tab button" inert></div>
-			{#each activeRules as { i }}
+			{#each activeRules as { i } (i)}
 				<button
 					class={['tab', { active: i === activeTab }]}
 					onclick={() => (activeTab = i)}
