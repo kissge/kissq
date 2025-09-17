@@ -161,9 +161,11 @@
 				<div
 					bind:textContent={attendants[i].name}
 					contenteditable
-					placeholder="プレイヤー {[...String(i + 1)]
-						.map((c) => String.fromCodePoint(65296 + Number.parseInt(c)))
-						.join('')}"
+					placeholder="プレイヤー {i + 1 < 10
+						? [...String(i + 1)]
+								.map((c) => String.fromCodePoint(65296 + Number.parseInt(c)))
+								.join('')
+						: i + 1}"
 					spellcheck="false"
 					class="name"
 					{@attach tooltip('クリックして名前を編集')}
