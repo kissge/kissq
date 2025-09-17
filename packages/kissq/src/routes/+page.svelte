@@ -462,6 +462,7 @@
 					flex: 1 1 100px;
 					align-items: center;
 					padding: 0;
+					padding-top: 5px;
 					width: 100%;
 					overflow: hidden;
 					font-weight: bold;
