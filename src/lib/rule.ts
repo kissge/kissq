@@ -1,4 +1,6 @@
 export class Rule {
+	// クローンを容易にするため、オブジェクトプロパティを使わない
+
 	constructor(
 		/** ゲームモード */
 		public mode: 'score' | 'marubatsu' | 'MbyN' | 'survival',

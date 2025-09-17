@@ -274,6 +274,7 @@
 			<a
 				href="https://docs.google.com/forms/d/e/1FAIpQLSdpwAsY5k5LKnnbntsMo1USadZczeuq-SZqlFcNMpbj255u4Q/viewform?pli=1&usp=pp_url&entry.2107805527={encodeURIComponent(
 					JSON.stringify({
+						// eslint-disable-next-line @typescript-eslint/no-unused-vars
 						a: attendants.map(({ name, ...rest }) => rest),
 						r: rules,
 						h: history
