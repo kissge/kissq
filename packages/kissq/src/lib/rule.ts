@@ -12,6 +12,8 @@ export class Rule {
 		public maru: number,
 		/** 1問誤答で得られるスコア（負数）またはバツ数（正数）またはその時点のバツ数 */
 		public batsu: number | 'batsu',
+		/** N問正解で得られる休みの数N */
+		public yasuPerMaru: number | null,
 		/** 1問誤答で得られる休みの数（定数またはその時点のマル数・バツ数） */
 		public yasu: number | 'maru' | 'batsu',
 		/** 削除済みかどうか */
@@ -89,6 +91,10 @@ export class Rule {
 			default:
 				// eslint-disable-next-line no-case-declarations, @typescript-eslint/no-unused-vars
 				const _: never = this.mode;
+		}
+
+		if (this.yasuPerMaru) {
+			str += `、${this.yasuPerMaru}○ごとに${this.yasuPerMaru}問休み`;
 		}
 
 		if (this.yasu === 'maru') {

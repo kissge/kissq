@@ -21,7 +21,7 @@
 			{ name: '', group: 0, trophyCount: 0 }
 		]
 	);
-	let rules = $state([new Rule('marubatsu', 7, 3, 1, 1, 0)]);
+	let rules = $state([new Rule('marubatsu', 7, 3, 1, 1, null, 0)]);
 	let history = $state<HistoryEntry[]>([]);
 	let currentState = $derived(
 		history.reduce(
@@ -538,6 +538,7 @@
 				.yasu,
 				.won,
 				.lost {
+					margin: 0 -1em;
 					height: 1.25em;
 					text-align: center;
 				}
@@ -555,6 +556,7 @@
 					flex-wrap: auto;
 					justify-content: space-evenly;
 					gap: 3px;
+					margin: 0;
 
 					> * {
 						display: flex;

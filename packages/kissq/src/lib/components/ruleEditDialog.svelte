@@ -7,13 +7,15 @@
 	let dialog: HTMLDialogElement;
 	let resolve: (result: Awaited<ReturnType<typeof open>>) => void;
 	open = (rules_: Rule[]) => {
-		rules = rules_.map(({ lose, batsu, yasu, ...rule }) => {
+		rules = rules_.map(({ lose, batsu, yasuPerMaru, yasu, ...rule }) => {
 			return {
 				...rule,
 				isLoseNull: lose === null,
 				lose: lose ?? (rule.mode === 'score' ? -5 : 3),
 				batsuMode: typeof batsu === 'number' ? 'number' : batsu,
 				batsu: typeof batsu === 'number' ? batsu : 0,
+				isYasuPerMaruNull: yasuPerMaru === null,
+				yasuPerMaru: yasuPerMaru ?? 5,
 				yasuMode: typeof yasu === 'number' ? 'number' : yasu,
 				yasu: typeof yasu === 'number' ? yasu : 0
 			};
@@ -27,11 +29,13 @@
 		});
 	};
 
-	interface EditingRule extends Omit<Rule, 'lose' | 'batsu' | 'yasu'> {
+	interface EditingRule extends Omit<Rule, 'lose' | 'batsu' | 'yasuPerMaru' | 'yasu'> {
 		isLoseNull: boolean;
 		lose: NonNullable<Rule['lose']>;
 		batsuMode: (Rule['batsu'] & string) | 'number';
 		batsu: number;
+		isYasuPerMaruNull: boolean;
+		yasuPerMaru: NonNullable<Rule['yasuPerMaru']>;
 		yasuMode: (Rule['yasu'] & string) | 'number';
 		yasu: number;
 	}
@@ -43,9 +47,10 @@
 
 	let isValid = $derived(
 		rules.every(
-			({ mode, lose, isLoseNull, batsuMode, yasuMode, yasu }) =>
+			({ mode, lose, isLoseNull, batsuMode, isYasuPerMaruNull, yasuPerMaru, yasuMode, yasu }) =>
 				(mode === 'survival' ? lose > 0 && !isLoseNull : true) &&
 				(mode !== 'score' && mode !== 'survival' ? batsuMode !== 'batsu' : true) &&
+				(isYasuPerMaruNull ? true : Number.isInteger(yasuPerMaru) && yasuPerMaru > 0) &&
 				(yasuMode ? Number.isInteger(yasu) && yasu >= 0 : true)
 		)
 	);
@@ -63,6 +68,7 @@
 						rule.isLoseNull ? null : rule.lose,
 						rule.maru,
 						rule.batsuMode === 'number' ? rule.batsu : rule.batsuMode,
+						rule.isYasuPerMaruNull ? null : rule.yasuPerMaru,
 						rule.yasuMode === 'number' ? rule.yasu : rule.yasuMode,
 						rule.isRemoved
 					)
@@ -132,6 +138,8 @@
 							maru: 1,
 							batsu: 1,
 							batsuMode: 'number',
+							isYasuPerMaruNull: true,
+							yasuPerMaru: 0,
 							yasu: 0,
 							yasuMode: 'number',
 							isRemoved: false
@@ -150,6 +158,8 @@
 							maru: 1,
 							batsu: 1,
 							batsuMode: 'number',
+							isYasuPerMaruNull: true,
+							yasuPerMaru: 0,
 							yasu: 1,
 							yasuMode: 'number',
 							isRemoved: false
@@ -161,6 +171,26 @@
 				<button
 					onclick={() => {
 						rules[activeTab] = {
+							mode: 'marubatsu',
+							win: 15,
+							isLoseNull: true,
+							lose: 3,
+							maru: 1,
+							batsu: 1,
+							batsuMode: 'number',
+							isYasuPerMaruNull: false,
+							yasuPerMaru: 5,
+							yasu: 1,
+							yasuMode: 'number',
+							isRemoved: false
+						};
+					}}
+				>
+					15○1休、5○ごとに5休
+				</button>
+				<button
+					onclick={() => {
+						rules[activeTab] = {
 							mode: 'score',
 							win: 5,
 							isLoseNull: false,
@@ -168,6 +198,8 @@
 							maru: 1,
 							batsu: -1,
 							batsuMode: 'number',
+							isYasuPerMaruNull: true,
+							yasuPerMaru: 0,
 							yasu: 0,
 							yasuMode: 'number',
 							isRemoved: false
@@ -186,6 +218,8 @@
 							maru: 1,
 							batsu: 1,
 							batsuMode: 'number',
+							isYasuPerMaruNull: true,
+							yasuPerMaru: 0,
 							yasu: 0,
 							yasuMode: 'number',
 							isRemoved: false
@@ -204,6 +238,8 @@
 							maru: 1,
 							batsu: -1,
 							batsuMode: 'batsu',
+							isYasuPerMaruNull: true,
+							yasuPerMaru: 0,
 							yasu: 0,
 							yasuMode: 'number',
 							isRemoved: false
@@ -222,6 +258,8 @@
 							maru: 1,
 							batsu: -2,
 							batsuMode: 'number',
+							isYasuPerMaruNull: true,
+							yasuPerMaru: 0,
 							yasu: 0,
 							yasuMode: 'number',
 							isRemoved: false
@@ -356,18 +394,32 @@
 			{/if}
 
 			<div>1問正解で</div>
-			{#if activeRule.mode === 'survival'}
-				<div>
+			<div>
+				{#if activeRule.mode === 'survival'}
 					自分以外全員のスコアから
 					<input type="number" bind:value={activeRule.maru} />
 					pts 減らす
-				</div>
-			{:else}
-				<div>
+				{:else}
 					<input type="number" bind:value={activeRule.maru} />
 					{activeRule.mode === 'score' ? 'pts' : '○'} 獲得できる
-				</div>
-			{/if}
+				{/if}
+
+				<hr />
+
+				<label>
+					<input type="radio" bind:group={activeRule.isYasuPerMaruNull} value={false} />
+					<input
+						type="number"
+						bind:value={activeRule.yasuPerMaru}
+						onfocus={() => (activeRule.isYasuPerMaruNull = false)}
+					/>
+					○ごとに {activeRule.yasuPerMaru} 問休み
+				</label>
+				<label>
+					<input type="radio" bind:group={activeRule.isYasuPerMaruNull} value={true} />
+					なし
+				</label>
+			</div>
 
 			<div>1問誤答で</div>
 			<div>
@@ -508,8 +560,12 @@
 		.table {
 			display: grid;
 			grid-template-columns: auto 1fr;
-			gap: 1em;
+			gap: 1em 0;
 			margin-bottom: 2em;
+
+			> div {
+				padding: 1em 0;
+			}
 
 			> :nth-child(2n + 1) {
 				display: flex;
@@ -519,6 +575,15 @@
 				padding-right: 0.6em;
 				font-weight: bold;
 				font-size: 1rem;
+			}
+
+			> :nth-child(2n + 2) {
+				padding-left: 0.6em;
+			}
+
+			> :nth-child(4n + 3),
+			> :nth-child(4n + 4) {
+				background-color: #f6f6f6;
 			}
 
 			input[type='number'],
