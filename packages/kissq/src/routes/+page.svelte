@@ -105,8 +105,8 @@
 <svelte:head>
 	<title>
 		kissQ - {currentState.attendants
-			.flatMap(({ name, life }) => (life !== 'removed' ? [name || '👤'] : []))
-			.join(', ')}
+			.flatMap(({ name, life }) => (life !== 'removed' ? [name.slice(0, 3) || '👤'] : []))
+			.join('・')}
 	</title>
 </svelte:head>
 
