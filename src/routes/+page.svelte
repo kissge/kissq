@@ -44,6 +44,8 @@
 		}
 	);
 
+	let attendantFLIPDelay = $state(0);
+
 	// svelte-ignore non_reactive_update ...?
 	let openRuleEditDialog: (rules: Rule[]) => Promise<Rule[] | null>;
 
@@ -135,7 +137,7 @@
 			<div
 				style:font-size={currentState.ranking.length <= 11 ? '3rem' : '1em'}
 				class={['attendant', { lizhi: att.isLizhi }]}
-				animate:flip={{ duration: 500, delay: 600 }}
+				animate:flip={{ duration: 500, delay: attendantFLIPDelay }}
 			>
 				{#if activeRules.length > 1}
 					<button
@@ -223,7 +225,12 @@
 						休
 					</div>
 				{:else if att.life === 'alive'}
-					<div class="buttons">
+					<div
+						class="buttons"
+						onmouseenter={() => (attendantFLIPDelay = 600)}
+						onmouseleave={() => (attendantFLIPDelay = 0)}
+						role="group"
+					>
 						<button
 							onclick={() => {
 								history.push(new MaruHistoryEntry(i));
