@@ -291,6 +291,12 @@
 		</div>
 		<button
 			onclick={() => history.push(new ThroughHistoryEntry())}
+			class={{
+				blink: currentState.attendants.some(
+					({ yasuCount, rule: { yasu } }) =>
+						yasuCount === 'next' && (typeof yasu !== 'number' || yasu > 0)
+				)
+			}}
 			{@attach tooltip(
 				'誰も正解しなかった場合に押します。問題カウントが1進み、休みの人がいれば1休減ります。'
 			)}
@@ -594,9 +600,20 @@
 					opacity: 0.6;
 				}
 			}
+
+			button.blink {
+				animation: blink-animation 0.5s ease infinite;
+				background-color: red;
+				color: white;
+			}
 		}
 	}
 
+	@keyframes blink-animation {
+		to {
+			opacity: 0.3;
+		}
+	}
 	.banner-bg {
 		position: absolute;
 		z-index: 9998;
