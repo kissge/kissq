@@ -334,8 +334,10 @@
 			onclick={() => history.pop()}
 			disabled={history.length === 0}
 			{@attach tooltip('直前の操作を無かったことにします。')}
+			style="max-width: 20dvw"
 		>
 			{#key history.length}
+				↩
 				<span in:fade>{history.at(-1)?.toString(currentState) || 'この世の始まり'}</span>を元に戻す
 			{/key}
 		</button>
@@ -343,8 +345,9 @@
 			onclick={() => {
 				attendants.push({ name: '', group: 0, trophyCount: 0 });
 			}}
+			style="max-width: 20dvw"
 		>
-			プレイヤーを追加
+			＋ プレイヤー追加
 		</button>
 		<button
 			onclick={() => {
@@ -609,6 +612,7 @@
 			display: flex;
 			justify-content: end;
 			gap: 0.5em;
+			max-width: 100dvw;
 			user-select: none;
 
 			.left {
@@ -626,10 +630,17 @@
 				}
 			}
 
-			button.blink {
-				animation: blink-animation 0.5s ease infinite;
-				background-color: red;
-				color: white;
+			a,
+			button {
+				max-width: 10dvw;
+				overflow: hidden;
+				white-space: nowrap;
+
+				&.blink {
+					animation: blink-animation 0.5s ease infinite;
+					background-color: red;
+					color: white;
+				}
 			}
 		}
 	}
@@ -639,6 +650,7 @@
 			opacity: 0.3;
 		}
 	}
+
 	.banner-bg {
 		position: absolute;
 		z-index: 9998;
