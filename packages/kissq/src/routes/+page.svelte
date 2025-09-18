@@ -4,6 +4,7 @@
 	import { flip } from 'svelte/animate';
 	import { fade, slide } from 'svelte/transition';
 	import RuleEditDialog from '$lib/components/ruleEditDialog.svelte';
+	import Stars from '$lib/components/stars.svelte';
 	import {
 		HistoryEntry,
 		MaruHistoryEntry,
@@ -350,6 +351,9 @@
 </main>
 
 {#if showBanner}
+	<div class="banner-bg" transition:fade>
+		<Stars />
+	</div>
 	<div class={['banner', showBanner.type]} transition:slide={{ axis: 'x' }}>
 		{attendants[showBanner.attendantID].name}
 		{#if showBanner.type === 'won'}
@@ -591,6 +595,13 @@
 				}
 			}
 		}
+	}
+
+	.banner-bg {
+		position: absolute;
+		z-index: 9998;
+		inset: 0;
+		background-color: rgba(0, 0, 0, 0.3);
 	}
 
 	.banner {
