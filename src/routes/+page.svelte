@@ -32,17 +32,20 @@
 	);
 	let activeRules = $derived(rules.flatMap((rule, i) => (rule.isRemoved ? [] : { rule, i })));
 
+	let innerWidth = $state(0);
 	let columnCount = $derived.by(() => {
 		// 余白の占める割合を最小化するカラム数を計算する
 		const attCount = currentState.ranking.length;
+		const maxCols = Math.floor(((innerWidth - 48) * 1.3) / 196);
+		const minCols = Math.max(maxCols - 5, 3);
 
-		if (attCount < 6) {
+		if (attCount < minCols) {
 			return attCount;
 		}
 
 		let min = Infinity;
 		let bestCol = 0;
-		for (let col = 6; col <= 11; ++col) {
+		for (let col = maxCols; col >= minCols; --col) {
 			const row = Math.ceil(attCount / col);
 			const ratio = 1 - attCount / (col * row);
 			if (ratio < min) {
@@ -124,6 +127,8 @@
 		return null;
 	}
 </script>
+
+<svelte:window bind:innerWidth />
 
 <svelte:head>
 	<title>
@@ -209,7 +214,7 @@
 					{/each}
 				</div>
 
-				<div class="score" style:font-size={currentState.ranking.length <= 7 ? '4.5rem' : '2.6rem'}>
+				<div class="score" style:font-size={currentState.ranking.length <= 9 ? '4.5rem' : '2.6rem'}>
 					{#if att.rule.mode === 'score' || att.rule.mode === 'survival'}
 						<span>
 							{#key att.score}
