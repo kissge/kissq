@@ -32,6 +32,28 @@
 	);
 	let activeRules = $derived(rules.flatMap((rule, i) => (rule.isRemoved ? [] : { rule, i })));
 
+	let columnCount = $derived.by(() => {
+		// 余白の占める割合を最小化するカラム数を計算する
+		const attCount = currentState.ranking.length;
+
+		if (attCount < 6) {
+			return attCount;
+		}
+
+		let min = Infinity;
+		let bestCol = 0;
+		for (let col = 6; col <= 11; ++col) {
+			const row = Math.ceil(attCount / col);
+			const ratio = 1 - attCount / (col * row);
+			if (ratio < min) {
+				min = ratio;
+				bestCol = col;
+			}
+		}
+
+		return bestCol;
+	});
+
 	let showBanner = $state<typeof currentState.latestEvent>(null);
 	watch(
 		() => currentState.latestEvent,
@@ -132,7 +154,7 @@
 		</div>
 	</div>
 
-	<div class="attendants">
+	<div class="attendants" style:grid-template-columns={`repeat(${columnCount}, 1fr)`}>
 		{#each currentState.ranking as i (i)}
 			{@const att = currentState.attendants[i]}
 			<div
@@ -434,8 +456,6 @@
 
 		.attendants {
 			display: grid;
-			grid-template-rows: repeat(auto-fill, minmax(1fr, 300px));
-			grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
 			gap: 0.5em;
 
 			.attendant {
@@ -448,7 +468,6 @@
 				border-radius: 0.5em;
 				background-color: #fafafa;
 				padding: 0.5em;
-				max-width: 200px;
 
 				&:has(.yasu) {
 					background-color: gray;
@@ -517,13 +536,14 @@
 				}
 
 				.score {
-					display: flex;
-					flex-direction: column;
-					align-items: center;
-					margin: 0 -1em;
 					font-weight: bold;
 					line-height: 0.9;
+					text-align: center;
 					text-shadow: 0px 0px 5px #fafafa;
+
+					> * {
+						display: inline-block;
+					}
 
 					small {
 						font-weight: normal;
