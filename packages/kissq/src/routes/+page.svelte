@@ -169,7 +169,7 @@
 						: i + 1}"
 					spellcheck="false"
 					class="name"
-					{@attach tooltip('クリックして名前を編集')}
+					{@attach tooltip('クリックして名前を編集（ヒント：アルファベットは全角がおすすめ）')}
 				></div>
 
 				<div class="hidden-buttons">
