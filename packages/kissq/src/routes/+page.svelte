@@ -33,28 +33,42 @@
 	let activeRules = $derived(rules.flatMap((rule, i) => (rule.isRemoved ? [] : { rule, i })));
 
 	let innerWidth = $state(0);
+	let innerHeight = $state(0);
+	let headerClientHeight = $state(0);
+	let footerClientHeight = $state(0);
+	let container: HTMLDivElement;
 	let columnCount = $derived.by(() => {
-		// 余白の占める割合を最小化するカラム数を計算する
+		// 画面に収まる範囲でなるべく多い列数を求める
 		const attCount = currentState.ranking.length;
-		const maxCols = Math.floor(((innerWidth - 48) * 1.3) / 196);
-		const minCols = Math.max(maxCols - 5, 3);
-
-		if (attCount < minCols) {
-			return attCount;
+		if (attCount < 8) {
+			return Math.floor(innerWidth / 250) || 7;
 		}
 
-		let min = Infinity;
-		let bestCol = 0;
-		for (let col = maxCols; col >= minCols; --col) {
-			const row = Math.ceil(attCount / col);
-			const ratio = 1 - attCount / (col * row);
-			if (ratio < min) {
-				min = ratio;
-				bestCol = col;
+		const totalHeight = innerHeight - headerClientHeight - footerClientHeight + 1;
+
+		let bestCols = Infinity;
+
+		for (let rows = attCount; rows >= 1; --rows) {
+			const cols = Math.ceil(attCount / rows);
+			container.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+
+			if (container.clientWidth > innerWidth) {
+				break;
 			}
+
+			if (container.clientHeight > totalHeight) {
+				continue;
+			}
+
+			bestCols = Math.ceil(attCount / rows);
 		}
 
-		return bestCol;
+		if (!Number.isFinite(bestCols)) {
+			bestCols = Math.floor(innerWidth / 250);
+		}
+
+		container.style.gridTemplateColumns = `repeat(${bestCols}, 1fr)`;
+		return bestCols;
 	});
 
 	let showBanner = $state<typeof currentState.latestEvent>(null);
@@ -128,7 +142,7 @@
 	}
 </script>
 
-<svelte:window bind:innerWidth />
+<svelte:window bind:innerWidth bind:innerHeight />
 
 <svelte:head>
 	<title>
@@ -139,7 +153,7 @@
 </svelte:head>
 
 <main>
-	<div class="header">
+	<div class="header" bind:clientHeight={headerClientHeight}>
 		<div>
 			Next:
 			{#key currentState.questionCount}
@@ -159,7 +173,11 @@
 		</div>
 	</div>
 
-	<div class="attendants" style:grid-template-columns={`repeat(${columnCount}, 1fr)`}>
+	<div
+		class="attendants"
+		style:grid-template-columns={`repeat(${columnCount}, 1fr)`}
+		bind:this={container}
+	>
 		{#each currentState.ranking as i (i)}
 			{@const att = currentState.attendants[i]}
 			<div
@@ -295,7 +313,7 @@
 		{/each}
 	</div>
 
-	<footer>
+	<footer bind:clientHeight={footerClientHeight}>
 		<div class="left">
 			<a href="https://github.com/kissge/kissq" target="_blank">ソース</a>
 			<a href="https://x.com/_kidochan" target="_blank">🍔作者</a>
@@ -458,6 +476,8 @@
 		.header {
 			display: flex;
 			justify-content: space-between;
+			box-sizing: border-box;
+			width: 100dvw;
 			font-weight: bold;
 			font-size: 2rem;
 		}
@@ -511,6 +531,7 @@
 						cursor: text;
 						content: attr(placeholder);
 						color: #aaa;
+						word-break: normal;
 					}
 				}
 
@@ -612,7 +633,9 @@
 			display: flex;
 			justify-content: end;
 			gap: 0.5em;
-			max-width: 100dvw;
+			box-sizing: border-box;
+			width: 100dvw;
+			overflow: hidden;
 			user-select: none;
 
 			.left {
