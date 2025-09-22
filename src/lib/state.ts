@@ -247,4 +247,29 @@ export class GameState {
 				return this;
 		}
 	}
+
+	checkIfLastSurvivor(): GameState {
+		if (this.defaultRule.mode === 'survival') {
+			let survivor = null;
+
+			for (const [id, att] of this.attendants.entries()) {
+				if (att.life === 'alive') {
+					if (survivor !== null) {
+						// 2人以上生き残っている
+						return this;
+					}
+
+					survivor = id;
+				}
+			}
+
+			if (survivor !== null) {
+				this.attendants[survivor].life = 'won';
+				this.attendants[survivor].trophyCount++;
+				this.latestEvent = { type: 'won', attendantID: survivor };
+			}
+		}
+
+		return this;
+	}
 }

@@ -26,7 +26,8 @@
 	let history = $state<HistoryEntry[]>([]);
 	let currentState = $derived(
 		history.reduce(
-			(state, entry) => entry.reducer(state.clearLatestEvent()).updateRanking(),
+			(state, entry) =>
+				entry.reducer(state.clearLatestEvent()).checkIfLastSurvivor().updateRanking(),
 			new GameState(attendants, rules)
 		)
 	);
