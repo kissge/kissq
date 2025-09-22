@@ -163,6 +163,7 @@
 				</span>
 			{/key}
 		</div>
+		<div>kissQ</div>
 		<div>
 			Rule:
 			{#if activeRules.length === 1}
