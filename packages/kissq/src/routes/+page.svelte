@@ -141,6 +141,15 @@
 
 		return null;
 	}
+
+	function han2zen(str: string) {
+		// 全ASCII（4文字以上連続をどこかに含む場合は無視）
+		return /[!-~]{4}/gi.test(str)
+			? str
+			: str.replace(/[!-~]+/gi, (s) =>
+					[...s].map((c) => String.fromCodePoint(c.charCodeAt(0) + 0xfee0)).join('')
+				);
+	}
 </script>
 
 <svelte:window bind:innerWidth bind:innerHeight />
@@ -208,6 +217,7 @@
 				{/if}
 				<div
 					bind:textContent={attendants[i].name}
+					onblur={() => (attendants[i].name = han2zen(attendants[i].name))}
 					contenteditable
 					placeholder="プレイヤー {i + 1 < 10
 						? [...String(i + 1)]
@@ -216,7 +226,7 @@
 						: i + 1}"
 					spellcheck="false"
 					class="name"
-					{@attach tooltip('クリックして名前を編集（ヒント：アルファベットは全角がおすすめ）')}
+					{@attach tooltip('クリックして名前を編集')}
 				></div>
 
 				<div class="hidden-buttons">
