@@ -94,15 +94,15 @@ export class Rule {
 		}
 
 		if (this.yasuPerMaru) {
-			str += `、${this.yasuPerMaru}○ごとに${this.yasuPerMaru}問休み`;
+			str += `、${this.yasuPerMaru}○ごとに${this.yasuPerMaru}休`;
 		}
 
 		if (this.yasu === 'maru') {
-			str += `、誤答で（現在のマル数）問休み`;
+			str += `、誤答（現在のマル数）休`;
 		} else if (this.yasu === 'batsu') {
-			str += `、N回目の誤答でN問休み`;
+			str += `、N回目の誤答でN休`;
 		} else if (this.yasu > 0) {
-			str += `、誤答で${this.yasu}問休み`;
+			str += `、誤答${this.yasu}休`;
 		}
 
 		return str;
