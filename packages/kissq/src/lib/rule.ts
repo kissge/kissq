@@ -89,8 +89,7 @@ export class Rule {
 				break;
 
 			default:
-				// eslint-disable-next-line no-case-declarations, @typescript-eslint/no-unused-vars
-				const _: never = this.mode;
+				this.mode satisfies never;
 		}
 
 		if (this.yasuPerMaru) {
