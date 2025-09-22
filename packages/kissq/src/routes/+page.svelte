@@ -233,7 +233,7 @@
 					{/each}
 				</div>
 
-				<div class="score" style:font-size={currentState.ranking.length <= 9 ? '4.5rem' : '2.6rem'}>
+				<div class="score" style:font-size={currentState.ranking.length <= 9 ? '4.5rem' : '3.5rem'}>
 					{#if att.rule.mode === 'score' || att.rule.mode === 'survival'}
 						<span>
 							{#key att.score}
