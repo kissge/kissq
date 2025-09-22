@@ -629,6 +629,16 @@
 					}
 				}
 			}
+
+			&:empty::before {
+				display: flex;
+				grid-column: 1 / -1;
+				justify-content: center;
+				align-items: center;
+				content: '🍔プレイヤーを追加してください🍔';
+				color: #aaa;
+				font-size: 3rem;
+			}
 		}
 
 		footer {
