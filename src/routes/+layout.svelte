@@ -25,7 +25,8 @@
 		:global(&:not(:disabled)) {
 			cursor: pointer;
 
-			&:hover {
+			&:hover,
+			&:focus {
 				box-shadow: 3px 3px 5px 3px #ccc;
 			}
 
