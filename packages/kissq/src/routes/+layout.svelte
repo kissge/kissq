@@ -58,6 +58,7 @@
 
 	:global(dialog) {
 		cursor: default;
+		box-sizing: border-box;
 		box-shadow: 8px 8px 10px 0 #444;
 		border-radius: 0.5em;
 		width: min(90%, 800px);
