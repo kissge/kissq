@@ -21,6 +21,7 @@
 		activeTab = rules.findIndex((r) => !r.isRemoved);
 
 		dialog.showModal();
+		dialog.scrollTop = 0;
 
 		return new Promise((r) => {
 			resolve = r;
