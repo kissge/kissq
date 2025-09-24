@@ -2,11 +2,9 @@
 	import { Rule } from '$lib/rule';
 	import { tooltipInDialog as tooltip } from '$lib/tooltip.svelte';
 
-	let { open = $bindable() }: { open: (rules: Rule[]) => Promise<Rule[] | null> } = $props();
-
 	let dialog: HTMLDialogElement;
 	let resolve: (result: Awaited<ReturnType<typeof open>>) => void;
-	open = (rules_: Rule[]) => {
+	export function open(rules_: Rule[]): Promise<Rule[] | null> {
 		rules = rules_.map(({ lose, batsu, yasuPerMaru, yasu, ...rule }) => {
 			return {
 				...rule,
@@ -27,7 +25,7 @@
 		return new Promise((r) => {
 			resolve = r;
 		});
-	};
+	}
 
 	interface EditingRule extends Omit<Rule, 'lose' | 'batsu' | 'yasuPerMaru' | 'yasu'> {
 		isLoseNull: boolean;

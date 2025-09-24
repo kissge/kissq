@@ -89,12 +89,12 @@
 	let attendantFLIPDelay = $state(0);
 
 	// svelte-ignore non_reactive_update ...?
-	let openRuleEditDialog: (rules: Rule[]) => Promise<Rule[] | null>;
+	let ruleEditDialog: { open: (rules: Rule[]) => Promise<Rule[] | null> };
 	// svelte-ignore non_reactive_update ...?
 	let helpDialog: { open: () => void };
 
 	async function editRule() {
-		const result = await openRuleEditDialog(rules);
+		const result = await ruleEditDialog.open(rules);
 
 		if (result) {
 			const activeRuleCount = result.filter(({ isRemoved }) => !isRemoved).length;
@@ -436,7 +436,7 @@
 	</div>
 {/if}
 
-<RuleEditDialog bind:open={openRuleEditDialog} />
+<RuleEditDialog bind:this={ruleEditDialog} />
 <HelpDialog bind:this={helpDialog} />
 
 <style>
