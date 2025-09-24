@@ -3,6 +3,7 @@
 
 	export function open() {
 		dialog.showModal();
+		dialog.scrollTop = 0;
 	}
 </script>
 
