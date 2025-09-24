@@ -3,6 +3,7 @@
 	import { untrack } from 'svelte';
 	import { flip } from 'svelte/animate';
 	import { fade, slide } from 'svelte/transition';
+	import HelpDialog from '$lib/components/helpDialog.svelte';
 	import RuleEditDialog from '$lib/components/ruleEditDialog.svelte';
 	import Stars from '$lib/components/stars.svelte';
 	import {
@@ -89,6 +90,8 @@
 
 	// svelte-ignore non_reactive_update ...?
 	let openRuleEditDialog: (rules: Rule[]) => Promise<Rule[] | null>;
+	// svelte-ignore non_reactive_update ...?
+	let helpDialog: { open: () => void };
 
 	async function editRule() {
 		const result = await openRuleEditDialog(rules);
@@ -172,7 +175,10 @@
 				</span>
 			{/key}
 		</div>
-		<div>kissQ</div>
+		<div>
+			kissQ
+			<button onclick={helpDialog.open} {@attach tooltip('使い方')}>？</button>
+		</div>
 		<div>
 			Rule:
 			{#if activeRules.length === 1}
@@ -431,6 +437,7 @@
 {/if}
 
 <RuleEditDialog bind:open={openRuleEditDialog} />
+<HelpDialog bind:this={helpDialog} />
 
 <style>
 	main {
