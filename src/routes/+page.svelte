@@ -433,41 +433,6 @@
 <RuleEditDialog bind:open={openRuleEditDialog} />
 
 <style>
-	:global(button) {
-		border-radius: 0.3em;
-		padding: 0.2em 0.5em;
-		font-size: 1.2rem;
-		user-select: none;
-
-		&:not(:disabled) {
-			cursor: pointer;
-
-			&:hover {
-				box-shadow: 3px 3px 5px 3px #ccc;
-			}
-		}
-	}
-
-	:global(label:has([disabled])) {
-		color: #aaa;
-	}
-
-	:global(label:not(:has([disabled]))) {
-		cursor: pointer;
-		border-radius: 0.5em;
-
-		&:hover {
-			background-color: #eee;
-		}
-	}
-
-	:global(.crossfade[inert]) {
-		/** アニメーションががたがたしないように */
-		display: inline-block;
-		width: 0;
-		height: 0;
-	}
-
 	main {
 		display: grid;
 		grid-template-rows: auto 1fr auto;

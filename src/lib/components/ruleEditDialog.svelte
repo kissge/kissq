@@ -499,126 +499,105 @@
 </dialog>
 
 <style>
-	dialog {
-		cursor: default;
-		box-shadow: 8px 8px 10px 0 #444;
-		border-radius: 0.5em;
-		width: min(90%, 800px);
-		max-height: 90dvh;
-		font-size: 1.5rem;
-		user-select: none;
+	.tabbar {
+		display: flex;
+		margin-bottom: 1em;
 
-		.tabbar {
-			display: flex;
-			margin-bottom: 1em;
+		.tab {
+			flex: 1 1 100px;
+			cursor: pointer;
+			border: 1px solid #aaa;
+			border-bottom-color: #444;
+			border-top-right-radius: 1em;
+			border-top-left-radius: 1em;
+			border-bottom-right-radius: 0;
+			border-bottom-left-radius: 0;
+			background-color: #fff;
+			padding: 0.5em;
+			text-align: center;
 
-			.tab {
-				flex: 1 1 100px;
-				cursor: pointer;
-				border: 1px solid #aaa;
-				border-bottom-color: #444;
-				border-top-right-radius: 1em;
-				border-top-left-radius: 1em;
-				border-bottom-right-radius: 0;
-				border-bottom-left-radius: 0;
-				background-color: #fff;
-				padding: 0.5em;
-				text-align: center;
-
-				&.active {
-					border-color: #444;
-					border-bottom: none;
-					pointer-events: none;
-				}
-
-				&:hover {
-					background-color: #aaa;
-				}
+			&.active {
+				border-color: #444;
+				border-bottom: none;
+				pointer-events: none;
 			}
 
-			.tab.button {
-				flex: 0 1 30px;
-				border: 0;
-				border-bottom: 1px solid #444;
-				font-size: 2rem;
-
-				&[inert] {
-					pointer-events: none;
-				}
+			&:hover {
+				background-color: #aaa;
 			}
 		}
 
-		div:has(> button.remove) {
-			display: flex;
-			justify-content: end;
+		.tab.button {
+			flex: 0 1 30px;
+			border: 0;
+			border-bottom: 1px solid #444;
+			font-size: 2rem;
 
-			button:not([disabled]) {
-				background-color: rgb(255 129 129);
+			&[inert] {
+				pointer-events: none;
 			}
 		}
+	}
 
-		.table {
-			display: grid;
-			grid-template-columns: auto 1fr;
-			gap: 1em 0;
-			margin-bottom: 2em;
+	div:has(> button.remove) {
+		display: flex;
+		justify-content: end;
 
-			> div {
-				padding: 1em 0;
-			}
+		button:not([disabled]) {
+			background-color: rgb(255 129 129);
+		}
+	}
 
-			> :nth-child(2n + 1) {
-				display: flex;
-				justify-content: end;
-				align-items: center;
-				border-right: 1px solid #ccc;
-				padding-right: 0.6em;
-				font-weight: bold;
-				font-size: 1rem;
-			}
+	.table {
+		display: grid;
+		grid-template-columns: auto 1fr;
+		gap: 1em 0;
+		margin-bottom: 2em;
 
-			> :nth-child(2n + 2) {
-				padding-left: 0.6em;
-			}
-
-			> :nth-child(4n + 3),
-			> :nth-child(4n + 4) {
-				background-color: #f6f6f6;
-			}
-
-			input[type='number'],
-			button {
-				padding: 0 0.5rem;
-				height: 2.5rem;
-			}
-
-			input[type='number'] {
-				width: 3em;
-				font-size: 2rem;
-				text-align: right;
-			}
-
-			.error {
-				display: block;
-				color: red;
-			}
-
-			hr {
-				margin: 1.5em 0;
-				border: none;
-				border-top: 1px solid #ccc;
-			}
+		> div {
+			padding: 1em 0;
 		}
 
-		.buttons {
+		> :nth-child(2n + 1) {
 			display: flex;
 			justify-content: end;
-			gap: 0.5em;
+			align-items: center;
+			border-right: 1px solid #ccc;
+			padding-right: 0.6em;
+			font-weight: bold;
+			font-size: 1rem;
+		}
 
-			.primary:not([disabled]) {
-				background-color: #06f;
-				color: white;
-			}
+		> :nth-child(2n + 2) {
+			padding-left: 0.6em;
+		}
+
+		> :nth-child(4n + 3),
+		> :nth-child(4n + 4) {
+			background-color: #f6f6f6;
+		}
+
+		input[type='number'],
+		button {
+			padding: 0 0.5rem;
+			height: 2.5rem;
+		}
+
+		input[type='number'] {
+			width: 3em;
+			font-size: 2rem;
+			text-align: right;
+		}
+
+		.error {
+			display: block;
+			color: red;
+		}
+
+		hr {
+			margin: 1.5em 0;
+			border: none;
+			border-top: 1px solid #ccc;
 		}
 	}
 </style>
