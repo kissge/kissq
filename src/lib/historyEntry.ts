@@ -1,6 +1,7 @@
 import { GameState } from './state';
 
 export abstract class HistoryEntry {
+	abstract type: string;
 	abstract toString(state: GameState): string;
 	abstract reducer(state: GameState): GameState;
 }
