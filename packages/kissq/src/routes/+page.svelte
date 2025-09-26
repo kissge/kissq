@@ -4,6 +4,7 @@
 	import { flip } from 'svelte/animate';
 	import { fade, slide } from 'svelte/transition';
 	import HelpDialog from '$lib/components/helpDialog.svelte';
+	import LogDialog from '$lib/components/logDialog.svelte';
 	import RuleEditDialog from '$lib/components/ruleEditDialog.svelte';
 	import Stars from '$lib/components/stars.svelte';
 	import {
@@ -105,10 +106,11 @@
 		}
 	}
 
-	// svelte-ignore non_reactive_update ...?
 	let ruleEditDialog: { open: (rules: Rule[]) => Promise<Rule[] | null> };
 	// svelte-ignore non_reactive_update ...?
 	let helpDialog: { open: () => void };
+	// svelte-ignore non_reactive_update ...?
+	let logDialog: { open: () => void };
 
 	async function editRule() {
 		const result = await ruleEditDialog.open(rules);
@@ -457,6 +459,7 @@
 		>
 			📸モード{#if screenshotModeTimer != null}OFF{/if}
 		</button>
+		<button onclick={logDialog.open}>履歴確認</button>
 	</div>
 {/if}
 
@@ -476,6 +479,7 @@
 
 <RuleEditDialog bind:this={ruleEditDialog} />
 <HelpDialog bind:this={helpDialog} />
+<LogDialog bind:this={logDialog} {history} {currentState} />
 
 <style>
 	main {
