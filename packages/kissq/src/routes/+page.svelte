@@ -88,6 +88,8 @@
 
 	let attendantFLIPDelay = $state(0);
 
+	let showOtherMenu = $state(false);
+
 	let screenshotModeTimer = $state<number>();
 	let screenshotOffset = $state(-1);
 
@@ -422,6 +424,18 @@
 		>
 			全員リセット
 		</button>
+
+		<button
+			onclick={() => (showOtherMenu = !showOtherMenu)}
+			onblur={() => setTimeout(() => (showOtherMenu = false), 1000)}
+		>
+			その他 ▼
+		</button>
+	</footer>
+</main>
+
+{#if showOtherMenu}
+	<div class="other-menu" transition:fade={{ duration: 100 }}>
 		<button
 			onclick={() => {
 				if (
@@ -443,8 +457,8 @@
 		>
 			📸モード{#if screenshotModeTimer != null}OFF{/if}
 		</button>
-	</footer>
-</main>
+	</div>
+{/if}
 
 {#if showBanner}
 	<div class="banner-bg" transition:fade>
@@ -694,6 +708,16 @@
 		to {
 			opacity: 0.3;
 		}
+	}
+
+	.other-menu {
+		position: absolute;
+		right: 0px;
+		bottom: 4rem;
+		box-shadow: -2px -2px 6px #666;
+		background: #eee;
+		padding: 1rem;
+		font-size: 2rem;
 	}
 
 	.banner-bg {
