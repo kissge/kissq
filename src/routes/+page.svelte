@@ -519,17 +519,17 @@
 				background-color: #fafafa;
 				padding: 0.5em;
 
-				&:has(.yasu) {
-					background-color: gray;
+				&.lizhi {
+					background-color: rgb(255 255 158);
 				}
 				&:has(.won) {
 					background-color: lightgreen;
 				}
+				&:has(.yasu) {
+					background-color: gray;
+				}
 				&:has(.lost) {
 					background-color: lightcoral;
-				}
-				&.lizhi {
-					background-color: rgb(255 255 158);
 				}
 
 				.group {
