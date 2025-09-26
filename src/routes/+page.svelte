@@ -88,6 +88,21 @@
 
 	let attendantFLIPDelay = $state(0);
 
+	let screenshotModeTimer = $state<number>();
+	let screenshotOffset = $state(-1);
+
+	function toggleScreenshotMode() {
+		if (screenshotModeTimer != null) {
+			clearInterval(screenshotModeTimer);
+			screenshotModeTimer = undefined;
+		} else {
+			screenshotOffset = -1;
+			screenshotModeTimer = setInterval(() => {
+				screenshotOffset = (screenshotOffset + 1) % (currentState.ranking.length + 1);
+			}, 1500);
+		}
+	}
+
 	// svelte-ignore non_reactive_update ...?
 	let ruleEditDialog: { open: (rules: Rule[]) => Promise<Rule[] | null> };
 	// svelte-ignore non_reactive_update ...?
@@ -231,7 +246,10 @@
 								.join('')
 						: i + 1}"
 					spellcheck="false"
-					class="name"
+					class={[
+						'name',
+						{ blurred: screenshotModeTimer != null && i !== currentState.ranking[screenshotOffset] }
+					]}
 					{@attach tooltip('クリックして名前を編集')}
 				></div>
 
@@ -419,6 +437,12 @@
 		>
 			全削除
 		</button>
+		<button
+			onclick={toggleScreenshotMode}
+			{@attach tooltip('画面写真を撮りやすいようにプレイヤー名をぼかします')}
+		>
+			📸モード{#if screenshotModeTimer != null}OFF{/if}
+		</button>
 	</footer>
 </main>
 
@@ -516,6 +540,10 @@
 						content: attr(placeholder);
 						color: #aaa;
 						word-break: normal;
+					}
+
+					&.blurred {
+						filter: blur(15px);
 					}
 				}
 
