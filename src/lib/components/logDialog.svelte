@@ -30,7 +30,7 @@
 				<tr>
 					<th>
 						{#if q}
-							Q{q}.
+							{q}
 						{/if}
 					</th>
 					<td>{entry.toString(currentState)}</td>
@@ -66,6 +66,10 @@
 
 		th {
 			width: 5em;
+
+			&:not(:empty)::before {
+				content: 'Q';
+			}
 		}
 	}
 </style>
