@@ -524,6 +524,7 @@
 				padding: 0.5em;
 
 				&.lizhi {
+					box-shadow: 0 2px 2px 6px rgb(230 230 37);
 					background-color: rgb(255 255 158);
 				}
 				&:has(.won) {
@@ -598,7 +599,7 @@
 					font-weight: bold;
 					line-height: 0.9;
 					text-align: center;
-					text-shadow: 0px 0px 5px #fafafa;
+					text-shadow: 0px 0px 25px #fafafa;
 
 					> * {
 						display: inline-block;
