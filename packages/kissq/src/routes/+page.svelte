@@ -727,7 +727,7 @@
 	}
 
 	.other-menu {
-		position: absolute;
+		position: fixed;
 		right: 0px;
 		bottom: 4rem;
 		box-shadow: -2px -2px 6px #666;
