@@ -196,7 +196,18 @@
 		</div>
 		<div>
 			kissQ
-			<button onclick={helpDialog.open} {@attach tooltip('使い方')}>？</button>
+			<button
+				onclick={helpDialog.open}
+				{@attach tooltip(
+					`はじめにお読みください！！！！！！！！！！！！
+					！！！！！！！！！！！！！！！！！！！！！！！
+					！！！！！！！！！！！！！！！！！！！！！！！
+					！！！！！！！！！！！！！！！！！！！！！！！
+					！！！！！！！！！！！！！！！！！！！！！！！`
+				)}
+			>
+				？
+			</button>
 		</div>
 		<div>
 			Rule:
