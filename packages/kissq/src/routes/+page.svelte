@@ -468,7 +468,7 @@
 		<Stars />
 	</div>
 	<div class={['banner', showBanner.type]} transition:slide={{ axis: 'x' }}>
-		{attendants[showBanner.attendantID].name}
+		{attendants[showBanner.attendantID].name || 'プレイヤー ' + (showBanner.attendantID + 1)}
 		{#if showBanner.type === 'won'}
 			勝ち抜け
 		{:else if showBanner.type === 'lizhi'}

@@ -12,7 +12,7 @@ export class MaruHistoryEntry implements HistoryEntry {
 	constructor(public attendantID: number) {}
 
 	toString(state: GameState): string {
-		return `${state.attendants[this.attendantID].name} 正解`;
+		return `${state.attendants[this.attendantID].name || 'プレイヤー ' + (this.attendantID + 1)} 正解`;
 	}
 
 	reducer(state: GameState): GameState {
@@ -56,7 +56,7 @@ export class BatsuHistoryEntry implements HistoryEntry {
 	constructor(public attendantID: number) {}
 
 	toString(state: GameState): string {
-		return `${state.attendants[this.attendantID].name} 誤答`;
+		return `${state.attendants[this.attendantID].name || 'プレイヤー ' + (this.attendantID + 1)} 誤答`;
 	}
 
 	reducer(state: GameState): GameState {
@@ -91,7 +91,7 @@ export class RemoveHistoryEntry implements HistoryEntry {
 	constructor(public attendantID: number) {}
 
 	toString(state: GameState): string {
-		return `${state.attendants[this.attendantID].name} 削除`;
+		return `${state.attendants[this.attendantID].name || 'プレイヤー ' + (this.attendantID + 1)} 削除`;
 	}
 
 	reducer(state: GameState): GameState {
