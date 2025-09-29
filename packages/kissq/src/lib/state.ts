@@ -40,6 +40,10 @@ export class AttendantState {
 		let yasuCount = this.yasuCount;
 		let otherScoreDiff = 0;
 
+		if (this.life !== 'alive') {
+			return { maruCount, score, life, trophyCount, yasuCount, otherScoreDiff };
+		}
+
 		switch (this.rule.mode) {
 			case 'marubatsu':
 				maruCount += this.rule.maru;
