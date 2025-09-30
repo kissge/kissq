@@ -582,6 +582,7 @@
 				.hidden-buttons {
 					display: flex;
 					position: absolute;
+					bottom: 5em;
 					left: -0.5em;
 					flex-wrap: auto;
 					justify-content: space-evenly;
