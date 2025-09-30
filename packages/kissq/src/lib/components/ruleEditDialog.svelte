@@ -83,6 +83,7 @@
 			{#each activeRules as { i } (i)}
 				<button
 					class={['tab', { active: i === activeTab }]}
+					disabled={i === activeTab}
 					onclick={() => (activeTab = i)}
 					{@attach tooltip(
 						activeRules.length === 1
@@ -505,6 +506,7 @@
 		.tab {
 			flex: 1 1 100px;
 			cursor: pointer;
+			box-shadow: none;
 			border: 1px solid #aaa;
 			border-bottom-color: #444;
 			border-top-right-radius: 1em;
@@ -523,6 +525,11 @@
 
 			&:hover {
 				background-color: #aaa;
+			}
+
+			&:disabled {
+				color: inherit;
+				font-weight: bold;
 			}
 		}
 
