@@ -335,6 +335,7 @@
 								history.push(new MaruHistoryEntry(i));
 							}}
 							style:font-size={currentState.ranking.length <= 8 ? '2.5rem' : '1.5rem'}
+							class="maru-btn"
 							{@attach tooltip(
 								`${att.name || 'このプレイヤー'}に1○をつけて、問題カウントを1進めます（休みの人がいれば1休減ります）`
 							)}
@@ -346,6 +347,7 @@
 								history.push(new BatsuHistoryEntry(i));
 							}}
 							style:font-size={currentState.ranking.length <= 8 ? '2.5rem' : '1.5rem'}
+							class="batsu-btn"
 							{@attach tooltip(
 								`${att.name || 'このプレイヤー'}に1×をつけます（誰も正解しなければ最後にスルーボタンを押すのを忘れずに！）`
 							)}
@@ -666,6 +668,15 @@
 						justify-content: center;
 						align-items: center;
 						max-width: 100px;
+					}
+
+					.maru-btn:hover:not(:active) {
+						background-color: red;
+						color: white;
+					}
+					.batsu-btn:hover:not(:active) {
+						background-color: blue;
+						color: white;
 					}
 				}
 			}
