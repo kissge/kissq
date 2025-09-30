@@ -94,6 +94,8 @@
 	let screenshotModeTimer = $state<number>();
 	let screenshotOffset = $state(-1);
 
+	let showMarubatsuOverride = $state(false);
+
 	function toggleScreenshotMode() {
 		if (screenshotModeTimer != null) {
 			clearInterval(screenshotModeTimer);
@@ -284,7 +286,7 @@
 				</div>
 
 				<div class="score" style:font-size={currentState.ranking.length <= 9 ? '4.5rem' : '3.5rem'}>
-					{#if att.rule.mode === 'score' || att.rule.mode === 'survival'}
+					{#if !showMarubatsuOverride && (att.rule.mode === 'score' || att.rule.mode === 'survival')}
 						<span>
 							{#key att.score}
 								<span class="crossfade" in:fade={{ delay: 500 }} out:fade>
@@ -473,6 +475,12 @@
 			📸モード{#if screenshotModeTimer != null}OFF{/if}
 		</button>
 		<button onclick={logDialog.open}>履歴確認</button>
+		<button
+			onclick={() => (showMarubatsuOverride = !showMarubatsuOverride)}
+			disabled={currentState.defaultRule.mode === 'MbyN'}
+		>
+			マルバツ表示{#if showMarubatsuOverride}OFF{/if}
+		</button>
 	</div>
 {/if}
 
