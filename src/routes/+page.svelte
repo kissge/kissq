@@ -226,7 +226,9 @@
 			{:else}
 				{activeRules.map(({ rule, i }) => String.fromCodePoint(65 + i) + ': ' + rule).join(' / ')}
 			{/if}
-			<button onclick={editRule}>編集</button>
+			<button onclick={editRule} {@attach tooltip('ルールとルールグループを編集します。')}>
+				編集
+			</button>
 		</div>
 	</div>
 
