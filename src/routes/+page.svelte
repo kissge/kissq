@@ -477,7 +477,9 @@
 		<button onclick={logDialog.open}>履歴確認</button>
 		<button
 			onclick={() => (showMarubatsuOverride = !showMarubatsuOverride)}
-			disabled={currentState.defaultRule.mode === 'MbyN'}
+			disabled={currentState.defaultRule.mode === 'MbyN' ||
+				currentState.defaultRule.mode === 'marubatsu'}
+			{@attach tooltip('スコア表示を強制的に○×表示に切り替えます')}
 		>
 			マルバツ表示{#if showMarubatsuOverride}OFF{/if}
 		</button>
