@@ -3,6 +3,9 @@
 	import { untrack } from 'svelte';
 	import { flip } from 'svelte/animate';
 	import { fade, slide } from 'svelte/transition';
+	import se1 from '$lib/assets/se1.mp3';
+	import se2 from '$lib/assets/se2.mp3';
+	import se3 from '$lib/assets/se3.mp3';
 	import HelpDialog from '$lib/components/helpDialog.svelte';
 	import LogDialog from '$lib/components/logDialog.svelte';
 	import RuleEditDialog from '$lib/components/ruleEditDialog.svelte';
@@ -96,6 +99,8 @@
 
 	let showMarubatsuOverride = $state(false);
 
+	let playSounds = $state(true);
+
 	function toggleScreenshotMode() {
 		if (screenshotModeTimer != null) {
 			clearInterval(screenshotModeTimer);
@@ -184,6 +189,9 @@
 			.flatMap(({ name, life }) => (life !== 'removed' ? [name.slice(0, 3) || '👤'] : []))
 			.join('・')}
 	</title>
+	<link rel="preload" href={se1} as="audio" />
+	<link rel="preload" href={se2} as="audio" />
+	<link rel="preload" href={se3} as="audio" />
 </svelte:head>
 
 <main>
@@ -335,6 +343,11 @@
 						<button
 							onclick={() => {
 								history.push(new MaruHistoryEntry(i));
+								if (playSounds) {
+									new Audio(se1).play().catch(() => {
+										/* noop */
+									});
+								}
 							}}
 							style:font-size={currentState.ranking.length <= 8 ? '2.5rem' : '1.5rem'}
 							class="maru-btn"
@@ -347,6 +360,11 @@
 						<button
 							onclick={() => {
 								history.push(new BatsuHistoryEntry(i));
+								if (playSounds) {
+									new Audio(se2).play().catch(() => {
+										/* noop */
+									});
+								}
 							}}
 							style:font-size={currentState.ranking.length <= 8 ? '2.5rem' : '1.5rem'}
 							class="batsu-btn"
@@ -390,7 +408,14 @@
 			</a>
 		</div>
 		<button
-			onclick={() => history.push(new ThroughHistoryEntry())}
+			onclick={() => {
+				history.push(new ThroughHistoryEntry());
+				if (playSounds) {
+					new Audio(se3).play().catch(() => {
+						/* noop */
+					});
+				}
+			}}
 			class={{
 				blink: currentState.attendants.some(
 					({ yasuCount, rule: { yasu } }) =>
@@ -482,6 +507,12 @@
 			{@attach tooltip('スコア表示を強制的に○×表示に切り替えます')}
 		>
 			マルバツ表示{#if showMarubatsuOverride}OFF{/if}
+		</button>
+		<button
+			onclick={() => (playSounds = !playSounds)}
+			{@attach tooltip('効果音のオンオフを切り替えます')}
+		>
+			{#if playSounds}🔊 ON{:else}🔇 OFF{/if}
 		</button>
 	</div>
 {/if}
