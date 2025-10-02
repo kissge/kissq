@@ -503,7 +503,7 @@
 			onclick={toggleScreenshotMode}
 			{@attach tooltip('画面写真を撮りやすいようにプレイヤー名をぼかします')}
 		>
-			📸モード{#if screenshotModeTimer != null}OFF{/if}
+			📸モード{#if screenshotModeTimer != null}をOFFに{/if}
 		</button>
 		<button onclick={logDialog.open}>履歴確認</button>
 		<button
@@ -512,7 +512,7 @@
 				currentState.defaultRule.mode === 'marubatsu'}
 			{@attach tooltip('スコア表示を強制的に○×表示に切り替えます')}
 		>
-			マルバツ表示{#if showMarubatsuOverride}OFF{/if}
+			マルバツ表示{#if showMarubatsuOverride}をOFFに{/if}
 		</button>
 		<button
 			onclick={() => (playSounds = !playSounds)}
