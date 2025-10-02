@@ -193,9 +193,9 @@
 			.flatMap(({ name, life }) => (life !== 'removed' ? [name.slice(0, 3) || '👤'] : []))
 			.join('・')}
 	</title>
-	<link rel="preload" href={se1} as="audio" />
-	<link rel="preload" href={se2} as="audio" />
-	<link rel="preload" href={se3} as="audio" />
+	<audio src={se1} preload="auto"></audio>
+	<audio src={se2} preload="auto"></audio>
+	<audio src={se3} preload="auto"></audio>
 </svelte:head>
 
 <main>
@@ -832,5 +832,9 @@
 			color: rgb(77 43 43);
 			text-shadow: none;
 		}
+	}
+
+	audio {
+		display: none;
 	}
 </style>
