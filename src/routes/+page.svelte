@@ -709,7 +709,9 @@
 					font-weight: bold;
 					line-height: 0.9;
 					text-align: center;
-					text-shadow: 0px 0px 25px #fafafa;
+					text-shadow:
+						0px 0px 25px #fafafa,
+						0px 0px 25px #fafafa;
 
 					> * {
 						display: inline-block;
