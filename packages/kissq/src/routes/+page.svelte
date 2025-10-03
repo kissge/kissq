@@ -23,8 +23,8 @@
 
 	let attendants = $state<Attendant[]>(
 		loadFromHash() ?? [
-			{ name: '', group: 0, trophyCount: 0 },
-			{ name: '', group: 0, trophyCount: 0 }
+			{ name: '', group: 0, trophyCount: 0, manualOrder: 0 },
+			{ name: '', group: 0, trophyCount: 0, manualOrder: 1 }
 		]
 	);
 	let rules = $state([new Rule('marubatsu', 7, 3, 1, 1, null, 0)]);
@@ -103,6 +103,19 @@
 
 	let showMarubatsuOverride = $state(false);
 
+	let orderingMode = $state<'ranking' | 'manual'>('ranking');
+	let orderedAttendants = $derived.by<number[]>(() => {
+		switch (orderingMode) {
+			case 'ranking':
+				return currentState.ranking;
+			case 'manual':
+				return currentState.attendants
+					.flatMap(({ life, manualOrder }, i) => (life === 'removed' ? [] : [[manualOrder, i]]))
+					.toSorted(([a], [b]) => a - b)
+					.map(([, i]) => i);
+		}
+	});
+
 	let playSounds = $state(true);
 
 	function toggleScreenshotMode() {
@@ -112,7 +125,7 @@
 		} else {
 			screenshotOffset = -1;
 			screenshotModeTimer = setInterval(() => {
-				screenshotOffset = (screenshotOffset + 1) % (currentState.ranking.length + 1);
+				screenshotOffset = (screenshotOffset + 1) % (orderedAttendants.length + 1);
 			}, 1500);
 		}
 	}
@@ -165,7 +178,12 @@
 			if (url.hash.length > 1) {
 				const names = JSON.parse(decodeURIComponent(url.hash.slice(1)));
 				if (Array.isArray(names) && names.length > 0 && names.every((n) => typeof n === 'string')) {
-					return names.map((name) => ({ name, group: 0, trophyCount: 0 }));
+					return names.map((name, manualOrder) => ({
+						name,
+						group: 0,
+						trophyCount: 0,
+						manualOrder
+					}));
 				}
 			}
 		} catch {
@@ -241,10 +259,10 @@
 		style:grid-template-columns={`repeat(${columnCount}, 1fr)`}
 		bind:this={container}
 	>
-		{#each currentState.ranking as i (i)}
+		{#each orderedAttendants as i, ord (i)}
 			{@const att = currentState.attendants[i]}
 			<div
-				style:font-size={currentState.ranking.length <= 11 ? '3rem' : '1em'}
+				style:font-size={orderedAttendants.length <= 11 ? '3rem' : '1em'}
 				class={['attendant', { lizhi: att.isLizhi }]}
 				animate:flip={{ duration: 500, delay: attendantFLIPDelay }}
 			>
@@ -252,7 +270,7 @@
 					<button
 						class="group"
 						style:background-color={`hsl(${(360 / rules.length) * attendants[i].group}, 70%, 80%)`}
-						style:font-size={currentState.ranking.length <= 11 ? '2rem' : '1.5rem'}
+						style:font-size={orderedAttendants.length <= 11 ? '2rem' : '1.5rem'}
 						onclick={() => {
 							do {
 								attendants[i].group = (attendants[i].group + 1) % rules.length;
@@ -279,12 +297,36 @@
 					spellcheck="false"
 					class={[
 						'name',
-						{ blurred: screenshotModeTimer != null && i !== currentState.ranking[screenshotOffset] }
+						{ blurred: screenshotModeTimer != null && i !== orderedAttendants[screenshotOffset] }
 					]}
 					{@attach tooltip('クリックして名前を編集')}
 				></div>
 
 				<div class="hidden-buttons">
+					<button
+						{@attach tooltip('並び順を左に移動します。')}
+						disabled={orderingMode !== 'manual' || ord === 0}
+						onclick={() => {
+							[attendants[orderedAttendants[ord - 1]].manualOrder, attendants[i].manualOrder] = [
+								attendants[i].manualOrder,
+								attendants[orderedAttendants[ord - 1]].manualOrder
+							];
+						}}
+					>
+						◀
+					</button>
+					<button
+						{@attach tooltip('並び順を右に移動します。')}
+						disabled={orderingMode !== 'manual' || ord === orderedAttendants.length - 1}
+						onclick={() => {
+							[attendants[orderedAttendants[ord + 1]].manualOrder, attendants[i].manualOrder] = [
+								attendants[i].manualOrder,
+								attendants[orderedAttendants[ord + 1]].manualOrder
+							];
+						}}
+					>
+						▶
+					</button>
 					<button
 						onclick={() => history.push(new RemoveHistoryEntry(i))}
 						{@attach tooltip('このプレイヤーをリストから削除します。')}
@@ -299,7 +341,7 @@
 					{/each}
 				</div>
 
-				<div class="score" style:font-size={currentState.ranking.length <= 9 ? '4.5rem' : '3.5rem'}>
+				<div class="score" style:font-size={orderedAttendants.length <= 9 ? '4.5rem' : '3.5rem'}>
 					{#if !showMarubatsuOverride && (att.rule.mode === 'score' || att.rule.mode === 'survival')}
 						<span>
 							{#key att.score}
@@ -313,7 +355,7 @@
 						</small>
 					{:else if att.rule.mode === 'MbyN'}
 						<span class="m-by-n-score">
-							<small style:font-size={currentState.ranking.length <= 9 ? '2.5rem' : '1.8rem'}>
+							<small style:font-size={orderedAttendants.length <= 9 ? '2.5rem' : '1.8rem'}>
 								{att.maruCount} × {att.rule.win - att.batsuCount}
 							</small>
 							=
@@ -355,7 +397,7 @@
 									});
 								}
 							}}
-							style:font-size={currentState.ranking.length <= 8 ? '2.5rem' : '1.5rem'}
+							style:font-size={orderedAttendants.length <= 8 ? '2.5rem' : '1.5rem'}
 							class="maru-btn"
 							{@attach tooltip(
 								`${att.name || 'このプレイヤー'}に1○をつけて、問題カウントを1進めます（休みの人がいれば1休減ります）`
@@ -372,7 +414,7 @@
 									});
 								}
 							}}
-							style:font-size={currentState.ranking.length <= 8 ? '2.5rem' : '1.5rem'}
+							style:font-size={orderedAttendants.length <= 8 ? '2.5rem' : '1.5rem'}
 							class="batsu-btn"
 							{@attach tooltip(
 								`${att.name || 'このプレイヤー'}に1×をつけます（誰も正解しなければ最後にスルーボタンを押すのを忘れずに！）`
@@ -447,7 +489,7 @@
 		</button>
 		<button
 			onclick={() => {
-				attendants.push({ name: '', group: 0, trophyCount: 0 });
+				attendants.push({ name: '', group: 0, trophyCount: 0, manualOrder: attendants.length });
 			}}
 			style="max-width: 20dvw"
 		>
@@ -513,6 +555,12 @@
 			{@attach tooltip('スコア表示を強制的に○×表示に切り替えます')}
 		>
 			マルバツ表示{#if showMarubatsuOverride}をOFFに{/if}
+		</button>
+		<button
+			onclick={() => (orderingMode = orderingMode === 'ranking' ? 'manual' : 'ranking')}
+			{@attach tooltip('プレイヤーの並び順を切り替えます')}
+		>
+			並び順：{#if orderingMode === 'ranking'}ランキング{:else}手動{/if}
 		</button>
 		<button
 			onclick={() => (playSounds = !playSounds)}
@@ -631,6 +679,7 @@
 					position: absolute;
 					bottom: 5em;
 					left: -0.5em;
+					flex-direction: column;
 					flex-wrap: auto;
 					justify-content: space-evenly;
 					gap: 3px;

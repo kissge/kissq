@@ -6,11 +6,13 @@ export interface Attendant {
 	name: string;
 	group: number;
 	trophyCount: number;
+	manualOrder: number;
 }
 
 export class AttendantState {
 	constructor(
 		public name: string,
+		public manualOrder: number,
 		public rule: Rule,
 		public trophyCount: number = 0,
 		public life: Life = 'alive',
@@ -182,9 +184,10 @@ export class GameState {
 	ranking: number[] = [];
 	latestEvent: { type: 'won' | 'lizhi'; attendantID: number } | null = null;
 
-	constructor(attendants: { name: string; group: number; trophyCount: number }[], rules: Rule[]) {
+	constructor(attendants: Attendant[], rules: Rule[]) {
 		this.attendants = attendants.map(
-			({ name, group, trophyCount }) => new AttendantState(name, rules[group], trophyCount)
+			({ name, group, trophyCount, manualOrder }) =>
+				new AttendantState(name, manualOrder, rules[group], trophyCount)
 		);
 		this.defaultRule = rules[0];
 		this.ranking = this.attendants.map((_, i) => i);
