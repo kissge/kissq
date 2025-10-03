@@ -76,7 +76,7 @@
 	}
 </script>
 
-<dialog bind:this={dialog} closedby="any" onclose={() => resolve(null)}>
+<dialog bind:this={dialog}>
 	{#if rules.length > 0}
 		<div class="tabbar">
 			<div class="tab button" inert></div>
