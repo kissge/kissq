@@ -118,6 +118,16 @@
 
 	let playSounds = $state(true);
 
+	function playSound(src: string) {
+		if (playSounds) {
+			const audio = new Audio(src);
+			audio.volume = 0.25;
+			audio.play().catch(() => {
+				/* noop */
+			});
+		}
+	}
+
 	function toggleScreenshotMode() {
 		if (screenshotModeTimer != null) {
 			clearInterval(screenshotModeTimer);
@@ -414,11 +424,7 @@
 						<button
 							onclick={() => {
 								history.push(new MaruHistoryEntry(i));
-								if (playSounds) {
-									new Audio(se1).play().catch(() => {
-										/* noop */
-									});
-								}
+								playSound(se1);
 							}}
 							style:font-size={orderedAttendants.length <= 8 ? '2.5rem' : '1.5rem'}
 							class="maru-btn"
@@ -431,11 +437,7 @@
 						<button
 							onclick={() => {
 								history.push(new BatsuHistoryEntry(i));
-								if (playSounds) {
-									new Audio(se2).play().catch(() => {
-										/* noop */
-									});
-								}
+								playSound(se2);
 							}}
 							style:font-size={orderedAttendants.length <= 8 ? '2.5rem' : '1.5rem'}
 							class="batsu-btn"
@@ -481,11 +483,7 @@
 		<button
 			onclick={() => {
 				history.push(new ThroughHistoryEntry());
-				if (playSounds) {
-					new Audio(se3).play().catch(() => {
-						/* noop */
-					});
-				}
+				playSound(se3);
 			}}
 			class={{
 				blink: currentState.attendants.some(
