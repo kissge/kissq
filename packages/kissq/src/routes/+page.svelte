@@ -136,10 +136,27 @@
 	// svelte-ignore non_reactive_update ...?
 	let logDialog: { open: () => void };
 
+	function clearHistory() {
+		currentState.attendants.forEach((att, i) => {
+			attendants[i].trophyCount = att.trophyCount;
+		});
+		attendants = attendants.filter((_, i) => currentState.attendants[i].life !== 'removed');
+		history = [];
+	}
+
 	async function editRule() {
 		const result = await ruleEditDialog.open(rules);
 
 		if (result) {
+			if (
+				history.length > 0 &&
+				confirm(
+					'全員のスコアのリセットも行いますか？\n\n※ しない場合、トロフィーが消えることなどがあります\n※ まだゲームの途中であれば無視してください'
+				)
+			) {
+				clearHistory();
+			}
+
 			const activeRuleCount = result.filter(({ isRemoved }) => !isRemoved).length;
 			if (activeRuleCount === 1) {
 				rules = result.filter(({ isRemoved }) => !isRemoved);
@@ -502,11 +519,7 @@
 						'全員ゼロ〇ゼロ×にリセットしますか？\nこの操作は元に戻せません。\n（プレイヤーリスト、累積勝利数🏆は残ります）'
 					)
 				) {
-					currentState.attendants.forEach((att, i) => {
-						attendants[i].trophyCount = att.trophyCount;
-					});
-					attendants = attendants.filter((_, i) => currentState.attendants[i].life !== 'removed');
-					history = [];
+					clearHistory();
 				}
 			}}
 			disabled={history.length === 0}
