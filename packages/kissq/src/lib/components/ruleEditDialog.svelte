@@ -358,12 +358,12 @@
 			{#if activeRule.mode === 'survival'}
 				<div>初期スコア</div>
 				<div>
-					<input type="number" bind:value={activeRule.lose} /> pts
+					<input type="number" bind:value={activeRule.lose} min="1" /> pts
 				</div>
 			{:else}
 				<div>勝利条件</div>
 				<div>
-					<input type="number" bind:value={activeRule.win} />
+					<input type="number" bind:value={activeRule.win} min="1" />
 					{activeRule.mode === 'MbyN' ? '²' : ''}
 					{activeRule.mode !== 'marubatsu' ? 'pts' : '○'} 以上
 				</div>
@@ -397,7 +397,7 @@
 			<div>
 				{#if activeRule.mode === 'survival'}
 					自分以外全員のスコアから
-					<input type="number" bind:value={activeRule.maru} />
+					<input type="number" bind:value={activeRule.maru} min="1" />
 					pts 減らす
 				{:else}
 					<input type="number" bind:value={activeRule.maru} />
@@ -412,6 +412,7 @@
 						type="number"
 						bind:value={activeRule.yasuPerMaru}
 						onfocus={() => (activeRule.isYasuPerMaruNull = false)}
+						min="1"
 					/>
 					○ごとに {activeRule.yasuPerMaru} 問休み
 				</label>
