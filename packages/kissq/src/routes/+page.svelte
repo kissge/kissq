@@ -304,7 +304,13 @@
 				{/if}
 				<div
 					bind:textContent={attendants[i].name}
-					onblur={() => (attendants[i].name = han2zen(attendants[i].name))}
+					onblur={() => {
+						const tmp = han2zen(attendants[i].name.replace(/[\r\n]/g, ''));
+						if (tmp !== attendants[i].name) {
+							attendants[i].name = ' ';
+							setTimeout(() => (attendants[i].name = tmp), 1);
+						}
+					}}
 					contenteditable
 					placeholder="プレイヤー {i + 1 < 10
 						? [...String(i + 1)]
