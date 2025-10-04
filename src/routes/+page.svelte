@@ -708,6 +708,7 @@
 					justify-content: space-evenly;
 					gap: 3px;
 					opacity: 0;
+					background-color: white;
 				}
 
 				&:hover .hidden-buttons {
