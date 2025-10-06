@@ -49,7 +49,6 @@ export class AttendantState {
 		switch (this.rule.mode) {
 			case 'marubatsu':
 				maruCount += this.rule.maru;
-				score += this.rule.maru;
 				if (maruCount >= this.rule.win) {
 					life = 'won';
 					trophyCount++;
@@ -92,11 +91,13 @@ export class AttendantState {
 
 	/** バツを受けた場合のstateの変化を求める（破壊的にはしない） */
 	processBatsu(): {
+		maruCount: number;
 		batsuCount: number;
 		score: number;
 		life: Life;
 		yasuCount: number | 'next';
 	} {
+		let maruCount = this.maruCount;
 		let batsuCount = this.batsuCount;
 		let score = this.score;
 		let life = this.life;
@@ -104,29 +105,46 @@ export class AttendantState {
 
 		switch (this.rule.mode) {
 			case 'marubatsu':
-				batsuCount += this.rule.batsu === 'batsu' ? 1 : this.rule.batsu; // dummy
-				score += this.rule.batsu === 'batsu' ? batsuCount : this.rule.batsu;
+				batsuCount +=
+					this.rule.batsu === 'batsu'
+						? /** dummy */ 1
+						: this.rule.batsu === 'updown'
+							? 1
+							: this.rule.batsu;
+
+				if (this.rule.batsu === 'updown') {
+					maruCount = 0;
+				}
+
 				if (this.rule.lose !== null && batsuCount >= this.rule.lose) {
 					life = 'lost';
 				} else {
 					yasuCount = 'next';
 				}
 
-				return { batsuCount, score, life, yasuCount };
+				return { maruCount, batsuCount, score, life, yasuCount };
 
 			case 'score':
 				batsuCount++;
-				score += this.rule.batsu === 'batsu' ? -batsuCount : this.rule.batsu;
+				score +=
+					this.rule.batsu === 'batsu'
+						? -batsuCount
+						: this.rule.batsu === 'updown'
+							? /** dummy */ -batsuCount
+							: this.rule.batsu;
 				if (this.rule.lose !== null && score <= this.rule.lose) {
 					life = 'lost';
 				} else {
 					yasuCount = 'next';
 				}
 
-				return { batsuCount, score, life, yasuCount };
+				return { maruCount, batsuCount, score, life, yasuCount };
 
 			case 'MbyN':
-				batsuCount += this.rule.batsu === 'batsu' ? 1 : this.rule.batsu; // dummy
+				batsuCount +=
+					this.rule.batsu === 'batsu' || this.rule.batsu === 'updown'
+						? /** dummy */ 1
+						: this.rule.batsu;
 				score = this.maruCount * (this.rule.win - batsuCount);
 				if (this.rule.win - batsuCount <= 0) {
 					life = 'lost';
@@ -134,11 +152,16 @@ export class AttendantState {
 					yasuCount = 'next';
 				}
 
-				return { batsuCount, score, life, yasuCount };
+				return { maruCount, batsuCount, score, life, yasuCount };
 
 			case 'survival':
 				batsuCount++;
-				score += this.rule.batsu === 'batsu' ? -batsuCount : this.rule.batsu;
+				score +=
+					this.rule.batsu === 'batsu'
+						? -batsuCount
+						: this.rule.batsu === 'updown'
+							? /** dummy */ 1
+							: this.rule.batsu;
 				if (score <= 0) {
 					score = 0;
 					life = 'lost';
@@ -146,7 +169,7 @@ export class AttendantState {
 					yasuCount = 'next';
 				}
 
-				return { batsuCount, score, life, yasuCount };
+				return { maruCount, batsuCount, score, life, yasuCount };
 		}
 	}
 
