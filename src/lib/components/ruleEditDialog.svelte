@@ -268,6 +268,46 @@
 				>
 					30アタサバ
 				</button>
+				<button
+					onclick={() => {
+						rules[activeTab] = {
+							mode: 'marubatsu',
+							win: 4,
+							isLoseNull: true,
+							lose: 3,
+							maru: 1,
+							batsu: 1,
+							batsuMode: 'number',
+							isYasuPerMaruNull: true,
+							yasuPerMaru: 0,
+							yasu: 0,
+							yasuMode: 'batsu',
+							isRemoved: false
+						};
+					}}
+				>
+					Freeze 4
+				</button>
+				<button
+					onclick={() => {
+						rules[activeTab] = {
+							mode: 'marubatsu',
+							win: 7,
+							isLoseNull: true,
+							lose: 3,
+							maru: 1,
+							batsu: 1,
+							batsuMode: 'number',
+							isYasuPerMaruNull: true,
+							yasuPerMaru: 0,
+							yasu: 0,
+							yasuMode: 'maru',
+							isRemoved: false
+						};
+					}}
+				>
+					Crescendo 7
+				</button>
 			</div>
 
 			<div>モード</div>
