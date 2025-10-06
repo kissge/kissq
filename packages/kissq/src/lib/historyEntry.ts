@@ -10,7 +10,8 @@ type HistoryEntryType =
 	| MaruHistoryEntry
 	| BatsuHistoryEntry
 	| ThroughHistoryEntry
-	| RemoveHistoryEntry;
+	| RemoveHistoryEntry
+	| LoseHistoryEntry;
 
 export type { HistoryEntryType as HistoryEntry };
 
@@ -106,6 +107,21 @@ export class RemoveHistoryEntry implements HistoryEntry {
 	reducer(state: GameState): GameState {
 		state.attendants[this.attendantID].life = 'removed';
 		state.ranking = state.ranking.filter((i) => i !== this.attendantID);
+		return state;
+	}
+}
+
+export class LoseHistoryEntry implements HistoryEntry {
+	type = 'lose' as const;
+
+	constructor(public attendantID: number) {}
+
+	toString(state: GameState): string {
+		return `${state.attendants[this.attendantID].name || 'プレイヤー ' + (this.attendantID + 1)} 失格`;
+	}
+
+	reducer(state: GameState): GameState {
+		state.attendants[this.attendantID].life = 'lost';
 		return state;
 	}
 }

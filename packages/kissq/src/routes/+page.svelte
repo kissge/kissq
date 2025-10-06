@@ -15,7 +15,8 @@
 		MaruHistoryEntry,
 		BatsuHistoryEntry,
 		ThroughHistoryEntry,
-		RemoveHistoryEntry
+		RemoveHistoryEntry,
+		LoseHistoryEntry
 	} from '$lib/historyEntry';
 	import { Rule } from '$lib/rule';
 	import { GameState, type Attendant } from '$lib/state';
@@ -337,6 +338,13 @@
 				></div>
 
 				<div class="hidden-buttons">
+					<button
+						onclick={() => history.push(new LoseHistoryEntry(i))}
+						disabled={att.life !== 'alive'}
+						{@attach tooltip('このプレイヤーを強制的に失格にします。')}
+					>
+						失格
+					</button>
 					<button
 						{@attach tooltip('並び順を左に移動します。')}
 						disabled={orderingMode !== 'manual' || ord === 0}
