@@ -1,10 +1,18 @@
 import { GameState } from './state';
 
-export abstract class HistoryEntry {
+abstract class HistoryEntry {
 	abstract type: string;
 	abstract toString(state: GameState): string;
 	abstract reducer(state: GameState): GameState;
 }
+
+type HistoryEntryType =
+	| MaruHistoryEntry
+	| BatsuHistoryEntry
+	| ThroughHistoryEntry
+	| RemoveHistoryEntry;
+
+export type { HistoryEntryType as HistoryEntry };
 
 export class MaruHistoryEntry implements HistoryEntry {
 	type = 'maru' as const;

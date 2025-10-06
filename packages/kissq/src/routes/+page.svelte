@@ -11,7 +11,7 @@
 	import RuleEditDialog from '$lib/components/ruleEditDialog.svelte';
 	import Stars from '$lib/components/stars.svelte';
 	import {
-		HistoryEntry,
+		type HistoryEntry,
 		MaruHistoryEntry,
 		BatsuHistoryEntry,
 		ThroughHistoryEntry,
