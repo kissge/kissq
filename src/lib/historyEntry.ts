@@ -62,7 +62,8 @@ export class BatsuHistoryEntry implements HistoryEntry {
 	reducer(state: GameState): GameState {
 		const att = state.attendants[this.attendantID];
 
-		const { batsuCount, score, life, yasuCount } = att.processBatsu();
+		const { maruCount, batsuCount, score, life, yasuCount } = att.processBatsu();
+		att.maruCount = maruCount;
 		att.batsuCount = batsuCount;
 		att.score = score;
 		att.life = life;

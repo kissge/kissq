@@ -308,6 +308,26 @@
 				>
 					Crescendo 7
 				</button>
+				<button
+					onclick={() => {
+						rules[activeTab] = {
+							mode: 'marubatsu',
+							win: 7,
+							isLoseNull: true,
+							lose: 3,
+							maru: 1,
+							batsu: 1,
+							batsuMode: 'updown',
+							isYasuPerMaruNull: true,
+							yasuPerMaru: 0,
+							yasu: 0,
+							yasuMode: 'number',
+							isRemoved: false
+						};
+					}}
+				>
+					7-Updown
+				</button>
 			</div>
 
 			<div>モード</div>
@@ -488,6 +508,16 @@
 						disabled={!(activeRule.mode === 'score' || activeRule.mode === 'survival')}
 					/>
 					N回目の誤答で -N pts 獲得してしまう
+				</label>
+				<br />
+				<label>
+					<input
+						type="radio"
+						bind:group={activeRule.batsuMode}
+						value="updown"
+						disabled={activeRule.mode !== 'marubatsu'}
+					/>
+					マル数がゼロにリセットされてしまう
 				</label>
 
 				<hr />
