@@ -1,6 +1,4 @@
 export class Rule {
-	// クローンを容易にするため、オブジェクトプロパティを使わない
-
 	constructor(
 		/** ゲームモード */
 		public mode: 'score' | 'marubatsu' | 'MbyN' | 'survival',
@@ -12,8 +10,8 @@ export class Rule {
 		public maru: number,
 		/** 1問誤答で得られるスコア（負数）またはバツ数（正数）またはその時点のバツ数 */
 		public batsu: number | 'batsu' | 'updown',
-		/** N問正解で得られる休みの数N */
-		public yasuPerMaru: number | null,
+		/** N問正解で得られる休みの数M */
+		public yasuPerMaru: { maru: number; yasu: number } | null,
 		/** 1問誤答で得られる休みの数（定数またはその時点のマル数・バツ数） */
 		public yasu: number | 'maru' | 'batsu',
 		/** 削除済みかどうか */
@@ -104,7 +102,7 @@ export class Rule {
 		}
 
 		if (this.yasuPerMaru) {
-			str += `、${this.yasuPerMaru}○ごとに${this.yasuPerMaru}休`;
+			str += `、${this.yasuPerMaru.maru}○ごとに${this.yasuPerMaru.yasu}休`;
 		}
 
 		if (this.yasu === 'maru') {

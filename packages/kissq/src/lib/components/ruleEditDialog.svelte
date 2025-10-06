@@ -13,7 +13,8 @@
 				batsuMode: typeof batsu === 'number' ? 'number' : batsu,
 				batsu: typeof batsu === 'number' ? batsu : 0,
 				isYasuPerMaruNull: yasuPerMaru === null,
-				yasuPerMaru: yasuPerMaru ?? 5,
+				yasuPerMaruMaru: yasuPerMaru?.maru ?? 5,
+				yasuPerMaruYasu: yasuPerMaru?.yasu ?? 5,
 				yasuMode: typeof yasu === 'number' ? 'number' : yasu,
 				yasu: typeof yasu === 'number' ? yasu : 0
 			};
@@ -28,13 +29,15 @@
 		});
 	}
 
+	/** クローンを容易にするため、オブジェクトプロパティを使わない */
 	interface EditingRule extends Omit<Rule, 'lose' | 'batsu' | 'yasuPerMaru' | 'yasu'> {
 		isLoseNull: boolean;
 		lose: NonNullable<Rule['lose']>;
 		batsuMode: (Rule['batsu'] & string) | 'number';
 		batsu: number;
 		isYasuPerMaruNull: boolean;
-		yasuPerMaru: NonNullable<Rule['yasuPerMaru']>;
+		yasuPerMaruMaru: NonNullable<Rule['yasuPerMaru']>['maru'];
+		yasuPerMaruYasu: NonNullable<Rule['yasuPerMaru']>['yasu'];
 		yasuMode: (Rule['yasu'] & string) | 'number';
 		yasu: number;
 	}
@@ -46,10 +49,25 @@
 
 	let isValid = $derived(
 		rules.every(
-			({ mode, lose, isLoseNull, batsuMode, isYasuPerMaruNull, yasuPerMaru, yasuMode, yasu }) =>
+			({
+				mode,
+				lose,
+				isLoseNull,
+				batsuMode,
+				isYasuPerMaruNull,
+				yasuPerMaruMaru,
+				yasuPerMaruYasu,
+				yasuMode,
+				yasu
+			}) =>
 				(mode === 'survival' ? lose > 0 && !isLoseNull : true) &&
 				(mode !== 'score' && mode !== 'survival' ? batsuMode !== 'batsu' : true) &&
-				(isYasuPerMaruNull ? true : Number.isInteger(yasuPerMaru) && yasuPerMaru > 0) &&
+				(isYasuPerMaruNull
+					? true
+					: Number.isInteger(yasuPerMaruMaru) &&
+						yasuPerMaruMaru > 0 &&
+						Number.isInteger(yasuPerMaruYasu) &&
+						yasuPerMaruYasu > 0) &&
 				(yasuMode ? Number.isInteger(yasu) && yasu >= 0 : true)
 		)
 	);
@@ -67,7 +85,9 @@
 						rule.isLoseNull ? null : rule.lose,
 						rule.maru,
 						rule.batsuMode === 'number' ? rule.batsu : rule.batsuMode,
-						rule.isYasuPerMaruNull ? null : rule.yasuPerMaru,
+						rule.isYasuPerMaruNull
+							? null
+							: { maru: rule.yasuPerMaruMaru, yasu: rule.yasuPerMaruYasu },
 						rule.yasuMode === 'number' ? rule.yasu : rule.yasuMode,
 						rule.isRemoved
 					)
@@ -139,7 +159,8 @@
 							batsu: 1,
 							batsuMode: 'number',
 							isYasuPerMaruNull: true,
-							yasuPerMaru: 0,
+							yasuPerMaruMaru: 0,
+							yasuPerMaruYasu: 0,
 							yasu: 0,
 							yasuMode: 'number',
 							isRemoved: false
@@ -159,7 +180,8 @@
 							batsu: 1,
 							batsuMode: 'number',
 							isYasuPerMaruNull: true,
-							yasuPerMaru: 0,
+							yasuPerMaruMaru: 0,
+							yasuPerMaruYasu: 0,
 							yasu: 1,
 							yasuMode: 'number',
 							isRemoved: false
@@ -179,7 +201,8 @@
 							batsu: 1,
 							batsuMode: 'number',
 							isYasuPerMaruNull: false,
-							yasuPerMaru: 5,
+							yasuPerMaruMaru: 5,
+							yasuPerMaruYasu: 5,
 							yasu: 1,
 							yasuMode: 'number',
 							isRemoved: false
@@ -199,7 +222,8 @@
 							batsu: -1,
 							batsuMode: 'number',
 							isYasuPerMaruNull: true,
-							yasuPerMaru: 0,
+							yasuPerMaruMaru: 0,
+							yasuPerMaruYasu: 0,
 							yasu: 0,
 							yasuMode: 'number',
 							isRemoved: false
@@ -219,7 +243,8 @@
 							batsu: 1,
 							batsuMode: 'number',
 							isYasuPerMaruNull: true,
-							yasuPerMaru: 0,
+							yasuPerMaruMaru: 0,
+							yasuPerMaruYasu: 0,
 							yasu: 0,
 							yasuMode: 'number',
 							isRemoved: false
@@ -239,7 +264,8 @@
 							batsu: -1,
 							batsuMode: 'batsu',
 							isYasuPerMaruNull: true,
-							yasuPerMaru: 0,
+							yasuPerMaruMaru: 0,
+							yasuPerMaruYasu: 0,
 							yasu: 0,
 							yasuMode: 'number',
 							isRemoved: false
@@ -259,7 +285,8 @@
 							batsu: -2,
 							batsuMode: 'number',
 							isYasuPerMaruNull: true,
-							yasuPerMaru: 0,
+							yasuPerMaruMaru: 0,
+							yasuPerMaruYasu: 0,
 							yasu: 0,
 							yasuMode: 'number',
 							isRemoved: false
@@ -279,7 +306,8 @@
 							batsu: 1,
 							batsuMode: 'number',
 							isYasuPerMaruNull: true,
-							yasuPerMaru: 0,
+							yasuPerMaruMaru: 0,
+							yasuPerMaruYasu: 0,
 							yasu: 0,
 							yasuMode: 'batsu',
 							isRemoved: false
@@ -299,7 +327,8 @@
 							batsu: 1,
 							batsuMode: 'number',
 							isYasuPerMaruNull: true,
-							yasuPerMaru: 0,
+							yasuPerMaruMaru: 0,
+							yasuPerMaruYasu: 0,
 							yasu: 0,
 							yasuMode: 'maru',
 							isRemoved: false
@@ -319,7 +348,8 @@
 							batsu: 1,
 							batsuMode: 'updown',
 							isYasuPerMaruNull: true,
-							yasuPerMaru: 0,
+							yasuPerMaruMaru: 0,
+							yasuPerMaruYasu: 0,
 							yasu: 0,
 							yasuMode: 'number',
 							isRemoved: false
@@ -470,11 +500,17 @@
 					<input type="radio" bind:group={activeRule.isYasuPerMaruNull} value={false} />
 					<input
 						type="number"
-						bind:value={activeRule.yasuPerMaru}
+						bind:value={activeRule.yasuPerMaruMaru}
 						onfocus={() => (activeRule.isYasuPerMaruNull = false)}
 						min="1"
 					/>
-					○ごとに {activeRule.yasuPerMaru} 問休み
+					○ごとに
+					<input
+						type="number"
+						bind:value={activeRule.yasuPerMaruYasu}
+						onfocus={() => (activeRule.isYasuPerMaruNull = false)}
+						min="1"
+					/> 問休み
 				</label>
 				<label>
 					<input type="radio" bind:group={activeRule.isYasuPerMaruNull} value={true} />

@@ -52,8 +52,8 @@ export class AttendantState {
 				if (maruCount >= this.rule.win) {
 					life = 'won';
 					trophyCount++;
-				} else if (this.rule.yasuPerMaru && maruCount % this.rule.yasuPerMaru === 0) {
-					yasuCount = this.rule.yasuPerMaru;
+				} else if (this.rule.yasuPerMaru && maruCount % this.rule.yasuPerMaru.maru === 0) {
+					yasuCount = this.rule.yasuPerMaru.yasu;
 				}
 				return { maruCount, score, life, trophyCount, yasuCount, otherScoreDiff };
 
@@ -63,8 +63,8 @@ export class AttendantState {
 				if (score >= this.rule.win) {
 					life = 'won';
 					trophyCount++;
-				} else if (this.rule.yasuPerMaru && maruCount % this.rule.yasuPerMaru === 0) {
-					yasuCount = this.rule.yasuPerMaru;
+				} else if (this.rule.yasuPerMaru && maruCount % this.rule.yasuPerMaru.maru === 0) {
+					yasuCount = this.rule.yasuPerMaru.yasu;
 				}
 				return { maruCount, score, life, trophyCount, yasuCount, otherScoreDiff };
 
@@ -74,16 +74,16 @@ export class AttendantState {
 				if (score >= this.rule.win ** 2) {
 					life = 'won';
 					trophyCount++;
-				} else if (this.rule.yasuPerMaru && maruCount % this.rule.yasuPerMaru === 0) {
-					yasuCount = this.rule.yasuPerMaru;
+				} else if (this.rule.yasuPerMaru && maruCount % this.rule.yasuPerMaru.maru === 0) {
+					yasuCount = this.rule.yasuPerMaru.yasu;
 				}
 				return { maruCount, score, life, trophyCount, yasuCount, otherScoreDiff };
 
 			case 'survival':
 				maruCount++;
 				otherScoreDiff = -this.rule.maru;
-				if (this.rule.yasuPerMaru && maruCount % this.rule.yasuPerMaru === 0) {
-					yasuCount = this.rule.yasuPerMaru;
+				if (this.rule.yasuPerMaru && maruCount % this.rule.yasuPerMaru.maru === 0) {
+					yasuCount = this.rule.yasuPerMaru.yasu;
 				}
 				return { maruCount, score, life, trophyCount, yasuCount, otherScoreDiff };
 		}
