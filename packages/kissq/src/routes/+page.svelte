@@ -395,7 +395,7 @@
 						<small>
 							pt{#if att.score !== 1}s{/if}
 						</small>
-					{:else if att.rule.mode === 'MbyN'}
+					{:else if !showMarubatsuOverride && att.rule.mode === 'MbyN'}
 						<span class="m-by-n-score">
 							<small style:font-size={orderedAttendants.length <= 9 ? '2.5rem' : '1.8rem'}>
 								{att.maruCount} × {att.rule.win - att.batsuCount}
@@ -582,8 +582,7 @@
 		<button onclick={logDialog.open}>履歴確認</button>
 		<button
 			onclick={() => (showMarubatsuOverride = !showMarubatsuOverride)}
-			disabled={currentState.defaultRule.mode === 'MbyN' ||
-				currentState.defaultRule.mode === 'marubatsu'}
+			disabled={currentState.defaultRule.mode === 'marubatsu'}
 			{@attach tooltip('スコア表示を強制的に○×表示に切り替えます')}
 		>
 			マルバツ表示{#if showMarubatsuOverride}をOFFに{/if}
