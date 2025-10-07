@@ -831,6 +831,7 @@
 			width: 100dvw;
 			overflow: hidden;
 			user-select: none;
+			anchor-name: --footer;
 
 			.left {
 				display: flex;
@@ -870,12 +871,14 @@
 
 	.other-menu {
 		position: fixed;
-		right: 0px;
-		bottom: 4rem;
+		position-anchor: --footer;
+		right: anchor(right);
+		bottom: anchor(top);
 		box-shadow: -2px -2px 6px #666;
 		background: #eee;
 		padding: 1rem;
 		font-size: 2rem;
+		user-select: none;
 	}
 
 	.banner-bg {
