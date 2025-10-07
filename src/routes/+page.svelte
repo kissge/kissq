@@ -386,7 +386,14 @@
 				</div>
 
 				<div class="score" style:font-size={orderedAttendants.length <= 9 ? '4.5rem' : '3.5rem'}>
-					{#if !showMarubatsuOverride && (att.rule.mode === 'score' || att.rule.mode === 'survival')}
+					{#if showMarubatsuOverride || att.rule.mode === 'marubatsu'}
+						<span class="maru-count">
+							{#key att.maruCount}<span in:fade>{att.maruCount}</span>{/key} ○
+						</span>
+						<span class="batsu-count">
+							{#key att.batsuCount}<span in:fade>{att.batsuCount}</span>{/key} ×
+						</span>
+					{:else if att.rule.mode === 'score' || att.rule.mode === 'survival'}
 						<span>
 							{#key att.score}
 								<span class="crossfade" in:fade={{ delay: 500 }} out:fade>
@@ -397,7 +404,7 @@
 						<small>
 							pt{#if att.score !== 1}s{/if}
 						</small>
-					{:else if !showMarubatsuOverride && att.rule.mode === 'MbyN'}
+					{:else}
 						<span class="m-by-n-score">
 							<small style:font-size={orderedAttendants.length <= 9 ? '2.5rem' : '1.8rem'}>
 								{att.maruCount} × {att.rule.win - att.batsuCount}
@@ -406,13 +413,6 @@
 							{#key att.score}
 								<span class="crossfade" in:fade={{ delay: 500 }} out:fade>{att.score}</span>
 							{/key}
-						</span>
-					{:else}
-						<span class="maru-count">
-							{#key att.maruCount}<span in:fade>{att.maruCount}</span>{/key} ○
-						</span>
-						<span class="batsu-count">
-							{#key att.batsuCount}<span in:fade>{att.batsuCount}</span>{/key} ×
 						</span>
 					{/if}
 				</div>
