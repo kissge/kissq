@@ -417,7 +417,13 @@
 					{/if}
 				</div>
 
-				{#if att.yasuDisplay > 0}
+				{#if att.life === 'won'}
+					<div class="won" in:fade>
+						{currentState.ranking.indexOf(i) + 1}位
+					</div>
+				{:else if att.life === 'lost'}
+					<div class="lost" in:fade>失格</div>
+				{:else if att.yasuDisplay > 0}
 					<div class="yasu" in:fade>
 						{#key att.yasuDisplay}
 							{#if att.yasuCount === 'next'}次{/if}
@@ -425,7 +431,7 @@
 						{/key}
 						休
 					</div>
-				{:else if att.life === 'alive'}
+				{:else}
 					<div
 						class="buttons"
 						onmouseenter={() => (attendantFLIPDelay = 600)}
@@ -459,12 +465,6 @@
 							X
 						</button>
 					</div>
-				{:else if att.life === 'won'}
-					<div class="won" in:fade>
-						{currentState.ranking.indexOf(i) + 1}位
-					</div>
-				{:else}
-					<div class="lost" in:fade>失格</div>
 				{/if}
 			</div>
 		{/each}
