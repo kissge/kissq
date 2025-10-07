@@ -78,6 +78,10 @@
 			bestCols = Math.floor(innerWidth / 250);
 		}
 
+		// これでベストな行数の方が逆に定まったので、あらためてその中で列数を決める
+		const bestRows = Math.ceil(attCount / bestCols);
+		bestCols = Math.ceil(attCount / bestRows);
+
 		container.style.gridTemplateColumns = `repeat(${bestCols}, 1fr)`;
 		return bestCols;
 	});
@@ -710,7 +714,7 @@
 				.hidden-buttons {
 					display: flex;
 					position: absolute;
-					bottom: 5em;
+					bottom: 2.5em;
 					left: -0.5em;
 					flex-direction: column;
 					flex-wrap: auto;
