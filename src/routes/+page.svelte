@@ -6,6 +6,7 @@
 	import se1 from '$lib/assets/se1.mp3';
 	import se2 from '$lib/assets/se2.mp3';
 	import se3 from '$lib/assets/se3.mp3';
+	import EffectEditDialog from '$lib/components/effectEditDialog.svelte';
 	import HelpDialog from '$lib/components/helpDialog.svelte';
 	import LogDialog from '$lib/components/logDialog.svelte';
 	import RuleEditDialog from '$lib/components/ruleEditDialog.svelte';
@@ -153,6 +154,12 @@
 	let helpDialog: { open: () => void };
 	// svelte-ignore non_reactive_update ...?
 	let logDialog: { open: () => void };
+	let effectEditDialog: {
+		open: (
+			effect2Name: string | undefined,
+			effect3Name: string | undefined
+		) => Promise<[string | undefined, string | undefined] | null>;
+	};
 
 	function clearHistory() {
 		currentState.attendants.forEach((att, i) => {
@@ -191,6 +198,13 @@
 			}
 
 			showMarubatsuOverride = false;
+		}
+	}
+
+	async function editEffects() {
+		const result = await effectEditDialog.open(effect2Name, effect3Name);
+		if (result) {
+			[effect2Name, effect3Name] = result;
 		}
 	}
 
@@ -451,7 +465,9 @@
 								history.push(new MaruHistoryEntry(i));
 								playSound(se1);
 							}}
-							style:font-size={orderedAttendants.length <= 8 && !effect2Name ? '2.5rem' : '1.5rem'}
+							style:font-size={orderedAttendants.length <= 8 && !(effect2Name || effect3Name)
+								? '2.5rem'
+								: '1.5rem'}
 							class="maru-btn"
 							{@attach tooltip(
 								`${att.name || 'このプレイヤー'}に1○をつけて、問題カウントを1進めます（休みの人がいれば1休減ります）`
@@ -466,6 +482,7 @@
 									playSound(se3);
 								}}
 								class="maru-btn"
+								{@attach tooltip(`${effect2Name}（+2○）`)}
 							>
 								O2
 							</button>
@@ -477,6 +494,7 @@
 									playSound(se3);
 								}}
 								class="maru-btn"
+								{@attach tooltip(`${effect3Name}（+3○）`)}
 							>
 								O3
 							</button>
@@ -486,7 +504,9 @@
 								history.push(new BatsuHistoryEntry(i));
 								playSound(se2);
 							}}
-							style:font-size={orderedAttendants.length <= 8 && !effect2Name ? '2.5rem' : '1.5rem'}
+							style:font-size={orderedAttendants.length <= 8 && !(effect2Name || effect3Name)
+								? '2.5rem'
+								: '1.5rem'}
 							class="batsu-btn"
 							{@attach tooltip(
 								`${att.name || 'このプレイヤー'}に1×をつけます（誰も正解しなければ最後にスルーボタンを押すのを忘れずに！）`
@@ -625,19 +645,8 @@
 		>
 			並び順：{#if orderingMode === 'ranking'}ランキング{:else}手動{/if}
 		</button>
-		<button
-			onclick={() => {
-				if (effect2Name) {
-					effect2Name = undefined;
-					effect3Name = undefined;
-				} else {
-					effect2Name = '横取り成功';
-					effect3Name = '差し込み成功';
-				}
-			}}
-			{@attach tooltip('エフェクトボタンの表示を切り替えます')}
-		>
-			エフェクトボタン{#if effect2Name}をOFFに{/if}
+		<button onclick={editEffects} {@attach tooltip('エフェクトボタンの設定を編集します')}>
+			エフェクトボタン設定
 		</button>
 		<button
 			onclick={() => (playSounds = !playSounds)}
@@ -669,6 +678,7 @@
 <RuleEditDialog bind:this={ruleEditDialog} />
 <HelpDialog bind:this={helpDialog} />
 <LogDialog bind:this={logDialog} {history} {currentState} />
+<EffectEditDialog bind:this={effectEditDialog} />
 
 <style>
 	main {
