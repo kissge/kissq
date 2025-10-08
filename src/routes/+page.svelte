@@ -716,6 +716,17 @@
 					}
 				}
 
+				&:hover {
+					outline: 3px solid #888;
+					.name:not(:focus) {
+						color: #fff;
+						text-shadow:
+							0 0 10px #000,
+							0 0 10px #000,
+							0 0 10px #000;
+					}
+				}
+
 				.hidden-buttons {
 					display: flex;
 					position: absolute;
