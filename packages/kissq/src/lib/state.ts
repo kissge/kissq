@@ -27,7 +27,7 @@ export class AttendantState {
 	}
 
 	/** マルを受けた場合のstateの変化を求める（破壊的にはしない） */
-	processMaru(): {
+	processMaru(eventType?: GameEventType): {
 		maruCount: number;
 		score: number;
 		life: Life;
@@ -48,7 +48,8 @@ export class AttendantState {
 
 		switch (this.rule.mode) {
 			case 'marubatsu':
-				maruCount += this.rule.maru;
+				maruCount +=
+					this.rule.maru * (eventType === 'effect2' ? 2 : eventType === 'effect3' ? 3 : 1);
 				if (maruCount >= this.rule.win) {
 					life = 'won';
 					trophyCount++;
@@ -200,12 +201,14 @@ export class AttendantState {
 	}
 }
 
+export type GameEventType = 'won' | 'lizhi' | 'effect2' | 'effect3';
+
 export class GameState {
 	attendants: AttendantState[];
 	questionCount: number = 1;
 	defaultRule: Rule;
 	ranking: number[] = [];
-	latestEvent: { type: 'won' | 'lizhi'; attendantID: number } | null = null;
+	latestEvent: { type: GameEventType; attendantID: number } | null = null;
 
 	constructor(attendants: Attendant[], rules: Rule[]) {
 		this.attendants = attendants.map(

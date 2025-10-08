@@ -121,6 +121,9 @@
 		}
 	});
 
+	let effect2Name = $state<string>();
+	let effect3Name = $state<string>();
+
 	let playSounds = $state(true);
 
 	function playSound(src: string) {
@@ -448,7 +451,7 @@
 								history.push(new MaruHistoryEntry(i));
 								playSound(se1);
 							}}
-							style:font-size={orderedAttendants.length <= 8 ? '2.5rem' : '1.5rem'}
+							style:font-size={orderedAttendants.length <= 8 && !effect2Name ? '2.5rem' : '1.5rem'}
 							class="maru-btn"
 							{@attach tooltip(
 								`${att.name || 'このプレイヤー'}に1○をつけて、問題カウントを1進めます（休みの人がいれば1休減ります）`
@@ -456,12 +459,34 @@
 						>
 							O
 						</button>
+						{#if effect2Name}
+							<button
+								onclick={() => {
+									history.push(new MaruHistoryEntry(i, 'effect2'));
+									playSound(se3);
+								}}
+								class="maru-btn"
+							>
+								O2
+							</button>
+						{/if}
+						{#if effect3Name}
+							<button
+								onclick={() => {
+									history.push(new MaruHistoryEntry(i, 'effect3'));
+									playSound(se3);
+								}}
+								class="maru-btn"
+							>
+								O3
+							</button>
+						{/if}
 						<button
 							onclick={() => {
 								history.push(new BatsuHistoryEntry(i));
 								playSound(se2);
 							}}
-							style:font-size={orderedAttendants.length <= 8 ? '2.5rem' : '1.5rem'}
+							style:font-size={orderedAttendants.length <= 8 && !effect2Name ? '2.5rem' : '1.5rem'}
 							class="batsu-btn"
 							{@attach tooltip(
 								`${att.name || 'このプレイヤー'}に1×をつけます（誰も正解しなければ最後にスルーボタンを押すのを忘れずに！）`
@@ -601,6 +626,20 @@
 			並び順：{#if orderingMode === 'ranking'}ランキング{:else}手動{/if}
 		</button>
 		<button
+			onclick={() => {
+				if (effect2Name) {
+					effect2Name = undefined;
+					effect3Name = undefined;
+				} else {
+					effect2Name = '横取り成功';
+					effect3Name = '差し込み成功';
+				}
+			}}
+			{@attach tooltip('エフェクトボタンの表示を切り替えます')}
+		>
+			エフェクトボタン{#if effect2Name}をOFFに{/if}
+		</button>
+		<button
 			onclick={() => (playSounds = !playSounds)}
 			{@attach tooltip('効果音のオンオフを切り替えます')}
 		>
@@ -619,6 +658,10 @@
 			勝ち抜け
 		{:else if showBanner.type === 'lizhi'}
 			リーチ
+		{:else if showBanner.type === 'effect2'}
+			{effect2Name}
+		{:else if showBanner.type === 'effect3'}
+			{effect3Name}
 		{/if}
 	</div>
 {/if}
@@ -795,7 +838,7 @@
 				.won,
 				.lost {
 					margin: 0 -1em;
-					height: 1.25em;
+					min-height: 1.25em;
 					text-align: center;
 				}
 
@@ -809,7 +852,7 @@
 
 				.buttons {
 					display: flex;
-					flex-wrap: auto;
+					flex-wrap: wrap;
 					justify-content: space-evenly;
 					gap: 3px;
 					margin: 0;
@@ -934,7 +977,9 @@
 			background-color: rgb(255 100 100);
 			color: white;
 		}
-		&.lizhi {
+		&.lizhi,
+		&.effect2,
+		&.effect3 {
 			background-color: rgb(240 240 175);
 			color: rgb(77 43 43);
 			text-shadow: none;
