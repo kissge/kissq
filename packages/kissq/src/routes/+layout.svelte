@@ -76,5 +76,58 @@
 				color: white;
 			}
 		}
+
+		:global(.table) {
+			display: grid;
+			grid-template-columns: auto 1fr;
+			gap: 1em 0;
+			margin-bottom: 2em;
+
+			:global(> div) {
+				padding: 1em 0;
+			}
+
+			:global(> :nth-child(2n + 1)) {
+				display: flex;
+				justify-content: end;
+				align-items: center;
+				border-right: 1px solid #ccc;
+				padding-right: 0.6em;
+				font-weight: bold;
+				font-size: 1rem;
+			}
+
+			:global(> :nth-child(2n + 2)) {
+				padding-left: 0.6em;
+			}
+
+			:global(> :nth-child(4n + 3)),
+			:global(> :nth-child(4n + 4)) {
+				background-color: #f6f6f6;
+			}
+
+			:global(input[type='number']),
+			:global(button) {
+				padding: 0 0.5rem;
+				height: 2.5rem;
+			}
+
+			:global(input[type='number']) {
+				width: 3em;
+				font-size: 2rem;
+				text-align: right;
+			}
+
+			:global(.error) {
+				display: block;
+				color: red;
+			}
+
+			:global(hr) {
+				margin: 1.5em 0;
+				border: none;
+				border-top: 1px solid #ccc;
+			}
+		}
 	}
 </style>
