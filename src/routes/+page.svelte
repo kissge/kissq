@@ -244,6 +244,7 @@
 		kissQ - {currentState.attendants
 			.flatMap(({ name, life }) => (life !== 'removed' ? [name.slice(0, 3) || '👤'] : []))
 			.join('・')}
+		- クイズカウンター（得点表示機）のkissQ
 	</title>
 </svelte:head>
 
@@ -261,7 +262,7 @@
 				</span>
 			{/key}
 		</div>
-		<div>
+		<h1>
 			kissQ
 			<button
 				onclick={helpDialog.open}
@@ -275,7 +276,7 @@
 			>
 				？
 			</button>
-		</div>
+		</h1>
 		<div>
 			Rule:
 			{#if activeRules.length === 1}
@@ -651,6 +652,10 @@
 			width: 100dvw;
 			font-weight: bold;
 			font-size: 2rem;
+
+			h1 {
+				all: unset;
+			}
 		}
 
 		.attendants {
