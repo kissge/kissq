@@ -1,4 +1,4 @@
-import { GameState } from './state';
+import { GameState, type GameEventType } from './state';
 
 abstract class HistoryEntry {
 	abstract type: string;
@@ -18,7 +18,10 @@ export type { HistoryEntryType as HistoryEntry };
 export class MaruHistoryEntry implements HistoryEntry {
 	type = 'maru' as const;
 
-	constructor(public attendantID: number) {}
+	constructor(
+		public attendantID: number,
+		public eventType?: GameEventType
+	) {}
 
 	toString(state: GameState): string {
 		return `${state.attendants[this.attendantID].name || 'プレイヤー ' + (this.attendantID + 1)} 正解`;
@@ -28,7 +31,13 @@ export class MaruHistoryEntry implements HistoryEntry {
 		const att = state.attendants[this.attendantID];
 
 		state.increaseQuestionCount();
-		const { maruCount, score, life, trophyCount, yasuCount, otherScoreDiff } = att.processMaru();
+		const { maruCount, score, life, trophyCount, yasuCount, otherScoreDiff } = att.processMaru(
+			this.eventType
+		);
+
+		if (this.eventType) {
+			state.latestEvent = { type: this.eventType, attendantID: this.attendantID };
+		}
 
 		if (att.life === 'alive' && life === 'won') {
 			state.latestEvent = { type: 'won', attendantID: this.attendantID };
