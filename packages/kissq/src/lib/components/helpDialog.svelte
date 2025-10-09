@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { browser } from '$app/environment';
+
 	let dialog: HTMLDialogElement;
 
 	export function open() {
@@ -7,7 +9,7 @@
 	}
 </script>
 
-<dialog bind:this={dialog} closedby="any">
+<dialog bind:this={dialog} closedby="any" open={browser && /googlebot/i.test(navigator.userAgent)}>
 	<h1><ruby><rb>kissQ</rb><rt>きすきゅー</rt></ruby>の使い方</h1>
 
 	<h2>ルール</h2>
