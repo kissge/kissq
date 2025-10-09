@@ -8,12 +8,16 @@
 		dialog.scrollTop = 0;
 	}
 
-	if (browser && !/googlebot/i.test(navigator.userAgent)) {
-		setTimeout(() => dialog.close(), 0);
+	let tag = $state('div');
+	if (browser) {
+		console.log(navigator.userAgent);
+		if (!/googlebot/i.test(navigator.userAgent)) {
+			setTimeout(() => (tag = 'dialog'), 0);
+		}
 	}
 </script>
 
-<dialog bind:this={dialog} closedby="any" open>
+<svelte:element this={tag} bind:this={dialog} closedby="any">
 	<h1>❓<ruby><rb>kissQ</rb><rt>きすきゅー</rt></ruby>の使い方</h1>
 
 	<h2>ルール</h2>
@@ -68,7 +72,7 @@
 	<div class="buttons">
 		<button onclick={() => dialog.close()}>閉じる</button>
 	</div>
-</dialog>
+</svelte:element>
 
 <style>
 	rt {
