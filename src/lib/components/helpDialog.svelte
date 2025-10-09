@@ -8,7 +8,7 @@
 		dialog.scrollTop = 0;
 	}
 
-	if (browser) {
+	if (browser && !/googlebot/i.test(navigator.userAgent)) {
 		setTimeout(() => dialog.close(), 0);
 	}
 </script>
