@@ -86,6 +86,20 @@
 		container.style.gridTemplateColumns = `repeat(${bestCols}, 1fr)`;
 		return bestCols;
 	});
+	let nameWidth = $state([0, 0]);
+	let nameHeight = $state([0, 0]);
+	let nameDirection = $state<'vertical-rl' | ''>('vertical-rl');
+	$effect(() => {
+		if (nameWidth.length === 0 || nameHeight.length === 0) {
+			return;
+		}
+
+		if (nameWidth[0] > nameHeight[0]) {
+			nameDirection = '';
+		} else {
+			nameDirection = 'vertical-rl';
+		}
+	});
 
 	let isBannerVisible = $state<GameEvent | null>(null);
 	watch(
@@ -361,7 +375,11 @@
 						'name',
 						{ blurred: screenshotModeTimer != null && i !== orderedAttendants[screenshotOffset] }
 					]}
+					style:writing-mode={nameDirection}
+					style:justify-content={nameDirection ? '' : 'center'}
 					{@attach tooltip('クリックして名前を編集')}
+					bind:clientWidth={nameWidth[i]}
+					bind:clientHeight={nameHeight[i]}
 				></div>
 
 				<div class="hidden-buttons">
@@ -763,7 +781,6 @@
 					overflow: hidden;
 					font-weight: bold;
 					line-height: 1.1;
-					writing-mode: vertical-rl;
 					word-break: break-all;
 
 					&:empty:not(:focus)::before {
