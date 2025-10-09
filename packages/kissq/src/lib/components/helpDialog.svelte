@@ -11,7 +11,7 @@
 	let tag = $state('div');
 	if (browser) {
 		console.log(navigator.userAgent);
-		if (!/googlebot/i.test(navigator.userAgent)) {
+		if (!/google/i.test(navigator.userAgent)) {
 			setTimeout(() => (tag = 'dialog'), 0);
 		}
 	}
