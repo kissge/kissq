@@ -1,4 +1,4 @@
-import { GameState, type GameEventType } from './state';
+import { GameState } from './state';
 
 abstract class HistoryEntry {
 	abstract type: string;
@@ -20,7 +20,7 @@ export class MaruHistoryEntry implements HistoryEntry {
 
 	constructor(
 		public attendantID: number,
-		public eventType?: GameEventType
+		public multiplier: number = 1
 	) {}
 
 	toString(state: GameState): string {
@@ -32,12 +32,8 @@ export class MaruHistoryEntry implements HistoryEntry {
 
 		state.increaseQuestionCount();
 		const { maruCount, score, life, trophyCount, yasuCount, otherScoreDiff } = att.processMaru(
-			this.eventType
+			this.multiplier
 		);
-
-		if (this.eventType) {
-			state.latestEvent = { type: this.eventType, attendantID: this.attendantID };
-		}
 
 		if (att.life === 'alive' && life === 'won') {
 			state.latestEvent = { type: 'won', attendantID: this.attendantID };
