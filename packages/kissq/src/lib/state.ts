@@ -59,7 +59,7 @@ export class AttendantState {
 
 			case 'score':
 				maruCount++;
-				score += this.rule.maru;
+				score += this.rule.maru * multiplier;
 				if (score >= this.rule.win) {
 					life = 'won';
 					trophyCount++;
@@ -69,7 +69,7 @@ export class AttendantState {
 				return { maruCount, score, life, trophyCount, yasuCount, otherScoreDiff };
 
 			case 'MbyN':
-				maruCount += this.rule.maru;
+				maruCount += this.rule.maru * multiplier;
 				score = maruCount * (this.rule.win - this.batsuCount);
 				if (score >= this.rule.win ** 2) {
 					life = 'won';
@@ -81,7 +81,7 @@ export class AttendantState {
 
 			case 'survival':
 				maruCount++;
-				otherScoreDiff = -this.rule.maru;
+				otherScoreDiff = -this.rule.maru * multiplier;
 				if (this.rule.yasuPerMaru && maruCount % this.rule.yasuPerMaru.maru === 0) {
 					yasuCount = this.rule.yasuPerMaru.yasu;
 				}
