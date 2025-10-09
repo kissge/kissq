@@ -7,10 +7,14 @@
 		dialog.showModal();
 		dialog.scrollTop = 0;
 	}
+
+	if (browser) {
+		setTimeout(() => dialog.close(), 0);
+	}
 </script>
 
-<dialog bind:this={dialog} closedby="any" open={browser && /googlebot/i.test(navigator.userAgent)}>
-	<h1><ruby><rb>kissQ</rb><rt>きすきゅー</rt></ruby>の使い方</h1>
+<dialog bind:this={dialog} closedby="any" open>
+	<h1>❓<ruby><rb>kissQ</rb><rt>きすきゅー</rt></ruby>の使い方</h1>
 
 	<h2>ルール</h2>
 	<ul>
