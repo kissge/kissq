@@ -20,7 +20,7 @@
 		LoseHistoryEntry
 	} from '$lib/historyEntry';
 	import { Rule } from '$lib/rule';
-	import { GameState, type Attendant } from '$lib/state';
+	import { GameState, type Attendant, type GameEvent } from '$lib/state';
 	import { tooltip } from '$lib/tooltip.svelte';
 
 	let attendants = $state<Attendant[]>(
@@ -87,18 +87,21 @@
 		return bestCols;
 	});
 
-	let showBanner = $state<typeof currentState.latestEvent>(null);
+	let isBannerVisible = $state<GameEvent | null>(null);
 	watch(
 		() => currentState.latestEvent,
 		(curr, prev) => {
 			if (curr?.type !== prev?.type || curr?.attendantID !== prev?.attendantID) {
-				showBanner = curr;
-				setTimeout(() => {
-					showBanner = null;
-				}, 3000);
+				showBanner(curr);
 			}
 		}
 	);
+	let showBannerTimeout = 0;
+	function showBanner(event: GameEvent | null, duration: number = 3000) {
+		isBannerVisible = event;
+		clearTimeout(showBannerTimeout);
+		showBannerTimeout = setTimeout(() => (isBannerVisible = null), duration);
+	}
 
 	let attendantFLIPDelay = $state(0);
 
@@ -478,25 +481,27 @@
 						{#if effect2Name}
 							<button
 								onclick={() => {
-									history.push(new MaruHistoryEntry(i, 'effect2'));
+									history.push(new MaruHistoryEntry(i, 2));
 									playSound(se3);
+									showBanner({ type: 'effect2', attendantID: i });
 								}}
 								class="maru-btn"
 								{@attach tooltip(`${effect2Name}（+2○）`)}
 							>
-								O2
+								2O
 							</button>
 						{/if}
 						{#if effect3Name}
 							<button
 								onclick={() => {
-									history.push(new MaruHistoryEntry(i, 'effect3'));
+									history.push(new MaruHistoryEntry(i, 3));
 									playSound(se3);
+									showBanner({ type: 'effect3', attendantID: i });
 								}}
 								class="maru-btn"
 								{@attach tooltip(`${effect3Name}（+3○）`)}
 							>
-								O3
+								3O
 							</button>
 						{/if}
 						<button
@@ -657,19 +662,20 @@
 	</div>
 {/if}
 
-{#if showBanner}
+{#if isBannerVisible}
 	<div class="banner-bg" transition:fade>
 		<Stars />
 	</div>
-	<div class={['banner', showBanner.type]} transition:slide={{ axis: 'x' }}>
-		{attendants[showBanner.attendantID].name || 'プレイヤー ' + (showBanner.attendantID + 1)}
-		{#if showBanner.type === 'won'}
+	<div class={['banner', isBannerVisible.type]} transition:slide={{ axis: 'x' }}>
+		{attendants[isBannerVisible.attendantID].name ||
+			'プレイヤー ' + (isBannerVisible.attendantID + 1)}
+		{#if isBannerVisible.type === 'won'}
 			勝ち抜け
-		{:else if showBanner.type === 'lizhi'}
+		{:else if isBannerVisible.type === 'lizhi'}
 			リーチ
-		{:else if showBanner.type === 'effect2'}
+		{:else if isBannerVisible.type === 'effect2'}
 			{effect2Name}
-		{:else if showBanner.type === 'effect3'}
+		{:else if isBannerVisible.type === 'effect3'}
 			{effect3Name}
 		{/if}
 	</div>
