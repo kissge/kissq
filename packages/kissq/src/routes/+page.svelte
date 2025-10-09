@@ -482,7 +482,8 @@
 							<button
 								onclick={() => {
 									history.push(new MaruHistoryEntry(i, 2));
-									playSound(se3);
+									playSound(se1);
+									setTimeout(() => playSound(se1), 150);
 									showBanner({ type: 'effect2', attendantID: i });
 								}}
 								class="maru-btn"
@@ -495,7 +496,9 @@
 							<button
 								onclick={() => {
 									history.push(new MaruHistoryEntry(i, 3));
-									playSound(se3);
+									playSound(se1);
+									setTimeout(() => playSound(se1), 150);
+									setTimeout(() => playSound(se1), 300);
 									showBanner({ type: 'effect3', attendantID: i });
 								}}
 								class="maru-btn"
