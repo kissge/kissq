@@ -6,6 +6,7 @@
 	import se1 from '$lib/assets/se1.mp3';
 	import se2 from '$lib/assets/se2.mp3';
 	import se3 from '$lib/assets/se3.mp3';
+	import wallpaper from '$lib/assets/wallpaper.jpg';
 	import EffectEditDialog from '$lib/components/effectEditDialog.svelte';
 	import HelpDialog from '$lib/components/helpDialog.svelte';
 	import LogDialog from '$lib/components/logDialog.svelte';
@@ -326,6 +327,7 @@
 
 	<div
 		class="attendants"
+		style:background-image="url({wallpaper})"
 		style:grid-template-columns={`repeat(${columnCount}, 1fr)`}
 		bind:this={container}
 	>
@@ -431,7 +433,7 @@
 				<div class="score" style:font-size={orderedAttendants.length <= 9 ? '4.5rem' : '3.5rem'}>
 					{#if showMarubatsuOverride || att.rule.mode === 'marubatsu'}
 						<span class="maru-count">
-							{#key att.maruCount}<span in:fade>{att.maruCount}</span>{/key} ○
+							{#key att.maruCount}<span in:fade>{att.maruCount}</span>{/key} 〇
 						</span>
 						<span class="batsu-count">
 							{#key att.batsuCount}<span in:fade>{att.batsuCount}</span>{/key} ×
@@ -741,30 +743,56 @@
 		.attendants {
 			display: grid;
 			gap: 0.5em;
+			background-position: center center;
+			background-size: cover;
 
 			.attendant {
 				display: flex;
 				position: relative;
 				flex-direction: column;
 				gap: 0.35em;
-				transition: background-color 0.3s ease;
-				box-shadow: 0 2px 2px 3px #ccc;
-				border-radius: 0.5em;
-				background-color: #fafafa;
+				backdrop-filter: blur(10px);
+				transition:
+					background-color 0.3s ease,
+					backdrop-filter 0.3s ease;
+				box-shadow: 0 0 15px #eeea;
+				border-radius: 1.5em 0 1em 0;
+				background-color: #ffffff40;
 				padding: 0.5em;
+				color: #fff;
+				text-shadow:
+					0px 10px 50px #444,
+					0px 10px 50px #444;
+
+				button {
+					backdrop-filter: blur(10px);
+					box-shadow: 3px 3px 6px #00000080;
+					border: none;
+					border-radius: 0;
+					background-color: #00000040;
+					color: #fff;
+
+					&:disabled {
+						opacity: 1;
+						color: #0004;
+					}
+				}
 
 				&.lizhi {
 					box-shadow: 0 2px 2px 6px rgb(230 230 37);
-					background-color: rgb(255 255 158);
+					background-color: rgba(255 255 158 / 0.5);
 				}
 				&:has(.won) {
-					background-color: lightgreen;
+					box-shadow: 0 2px 2px 6px rgb(61 184 61);
+					background-color: rgba(114 250 114 / 0.5);
 				}
 				&:has(.yasu) {
-					background-color: gray;
+					opacity: 0.7;
+					backdrop-filter: blur(5px);
+					background-color: rgba(128 128 128 / 0.3);
 				}
 				&:has(.lost) {
-					background-color: lightcoral;
+					background-color: rgba(240 128 128 / 0.8);
 				}
 
 				.group {
@@ -795,26 +823,29 @@
 					}
 				}
 
-				&:hover {
-					outline: 3px solid #888;
-					.name:not(:focus) {
-						color: #fff;
-						text-shadow:
-							0 0 10px #000,
-							0 0 10px #000,
-							0 0 10px #000;
+				&:hover,
+				&:has(.name:focus-within) {
+					backdrop-filter: blur(20px);
+					box-shadow:
+						0 2px 2px 3px #ccc,
+						0 0 30px #eee;
+					background-color: #fafafa;
+					.name {
+						color: #000;
+						text-shadow: none;
 					}
 				}
 
 				.hidden-buttons {
 					display: flex;
 					position: absolute;
-					bottom: 2.5em;
+					bottom: 50%;
 					left: -0.5em;
 					flex-direction: column;
 					flex-wrap: auto;
 					justify-content: space-evenly;
 					gap: 3px;
+					translate: 0% 50%;
 					opacity: 0;
 				}
 
@@ -842,7 +873,7 @@
 					line-height: 0.9;
 					text-align: center;
 					text-shadow:
-						0px 0px 25px #fafafa,
+						0px 0px 3px #222,
 						0px 0px 25px #fafafa;
 
 					> * {
@@ -874,7 +905,7 @@
 				.won,
 				.lost {
 					margin: 0 -1em;
-					min-height: 1.25em;
+					min-height: 1.5em;
 					text-align: center;
 				}
 
@@ -998,7 +1029,7 @@
 		justify-content: center;
 		align-items: center;
 		z-index: 9999;
-		box-shadow: 0 0 30px #444;
+		box-shadow: 0 0 20px #222;
 		overflow: hidden;
 		pointer-events: none;
 		font-weight: bold;
@@ -1010,15 +1041,16 @@
 		white-space: nowrap;
 
 		&.won {
-			background-color: rgb(255 100 100);
+			backdrop-filter: blur(10px);
+			background-color: rgba(255 100 100 / 0.3);
 			color: white;
 		}
 		&.lizhi,
 		&.effect2,
 		&.effect3 {
-			background-color: rgb(240 240 175);
-			color: rgb(77 43 43);
-			text-shadow: none;
+			backdrop-filter: blur(10px);
+			background-color: rgba(240 240 175 / 0.4);
+			color: rgb(255 231 231);
 		}
 	}
 
