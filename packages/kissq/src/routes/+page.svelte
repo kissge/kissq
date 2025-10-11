@@ -379,7 +379,7 @@
 					]}
 					style:writing-mode={nameDirection}
 					style:justify-content={nameDirection ? '' : 'center'}
-					{@attach tooltip('クリックして名前を編集')}
+					{@attach tooltip('ダブルクリックして名前を編集')}
 					bind:clientWidth={nameWidth[i]}
 					bind:clientHeight={nameHeight[i]}
 				></div>
