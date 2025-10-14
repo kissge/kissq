@@ -341,7 +341,7 @@
 				{#if activeRules.length > 1}
 					<button
 						class="group"
-						style:background-color={`hsl(${(360 / rules.length) * attendants[i].group}, 70%, 80%)`}
+						style:background-color={`hsl(${(360 / rules.length) * attendants[i].group}, 70%, 40%)`}
 						style:font-size={orderedAttendants.length <= 11 ? '2rem' : '1.5rem'}
 						onclick={() => {
 							do {
