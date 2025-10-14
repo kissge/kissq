@@ -384,6 +384,38 @@
 					bind:clientHeight={nameHeight[i]}
 				></div>
 
+				<div class="score" style:font-size={orderedAttendants.length <= 9 ? '4.5rem' : '3.5rem'}>
+					{#if showMarubatsuOverride || att.rule.mode === 'marubatsu'}
+						<span class="maru-count">
+							{#key att.maruCount}<span in:fade>{att.maruCount}</span>{/key} 〇
+						</span>
+						<span class="batsu-count">
+							{#key att.batsuCount}<span in:fade>{att.batsuCount}</span>{/key} ×
+						</span>
+					{:else if att.rule.mode === 'score' || att.rule.mode === 'survival'}
+						<span>
+							{#key att.score}
+								<span class="crossfade" in:fade={{ delay: 500 }} out:fade>
+									{att.score}
+								</span>
+							{/key}
+						</span>
+						<small>
+							pt{#if att.score !== 1}s{/if}
+						</small>
+					{:else}
+						<span class="m-by-n-score">
+							<small style:font-size={orderedAttendants.length <= 9 ? '2.5rem' : '1.8rem'}>
+								{att.maruCount} × {att.rule.win - att.batsuCount}
+							</small>
+							=
+							{#key att.score}
+								<span class="crossfade" in:fade={{ delay: 500 }} out:fade>{att.score}</span>
+							{/key}
+						</span>
+					{/if}
+				</div>
+
 				<div class="hidden-buttons">
 					<button
 						onclick={() => history.push(new LoseHistoryEntry(i))}
@@ -428,38 +460,6 @@
 					{#each Array.from({ length: att.trophyCount }), i (i)}
 						<span in:fade>🏆</span>
 					{/each}
-				</div>
-
-				<div class="score" style:font-size={orderedAttendants.length <= 9 ? '4.5rem' : '3.5rem'}>
-					{#if showMarubatsuOverride || att.rule.mode === 'marubatsu'}
-						<span class="maru-count">
-							{#key att.maruCount}<span in:fade>{att.maruCount}</span>{/key} 〇
-						</span>
-						<span class="batsu-count">
-							{#key att.batsuCount}<span in:fade>{att.batsuCount}</span>{/key} ×
-						</span>
-					{:else if att.rule.mode === 'score' || att.rule.mode === 'survival'}
-						<span>
-							{#key att.score}
-								<span class="crossfade" in:fade={{ delay: 500 }} out:fade>
-									{att.score}
-								</span>
-							{/key}
-						</span>
-						<small>
-							pt{#if att.score !== 1}s{/if}
-						</small>
-					{:else}
-						<span class="m-by-n-score">
-							<small style:font-size={orderedAttendants.length <= 9 ? '2.5rem' : '1.8rem'}>
-								{att.maruCount} × {att.rule.win - att.batsuCount}
-							</small>
-							=
-							{#key att.score}
-								<span class="crossfade" in:fade={{ delay: 500 }} out:fade>{att.score}</span>
-							{/key}
-						</span>
-					{/if}
 				</div>
 
 				{#if att.life === 'won'}
@@ -870,12 +870,14 @@
 				}
 
 				.score {
+					backdrop-filter: blur(10px);
+					margin: 0 -0.25em;
+					background-color: #eee8;
 					font-weight: bold;
 					line-height: 0.9;
+					letter-spacing: -0.1em;
 					text-align: center;
-					text-shadow:
-						0px 0px 3px #222,
-						0px 0px 25px #fafafa;
+					text-shadow: none;
 
 					> * {
 						display: inline-block;
