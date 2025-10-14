@@ -745,6 +745,7 @@
 			gap: 0.5em;
 			background-position: center center;
 			background-size: cover;
+			background-color: rgb(15 18 33);
 
 			.attendant {
 				display: flex;
