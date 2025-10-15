@@ -406,9 +406,8 @@
 					{:else}
 						<span class="m-by-n-score">
 							<small style:font-size={orderedAttendants.length <= 9 ? '2.5rem' : '1.8rem'}>
-								{att.maruCount} × {att.rule.win - att.batsuCount}
+								{att.maruCount} × {att.rule.win - att.batsuCount} =
 							</small>
-							=
 							{#key att.score}
 								<span class="crossfade" in:fade={{ delay: 500 }} out:fade>{att.score}</span>
 							{/key}
@@ -877,7 +876,6 @@
 					padding-bottom: 0.1em;
 					font-weight: bold;
 					line-height: 0.9;
-					letter-spacing: -0.1em;
 					text-align: center;
 					text-shadow: 0 0 5px #000e;
 
@@ -891,6 +889,7 @@
 					}
 
 					.m-by-n-score {
+						letter-spacing: -0.04em;
 						text-align: center;
 
 						small {
@@ -899,9 +898,11 @@
 					}
 					.maru-count {
 						color: red;
+						letter-spacing: -0.1em;
 					}
 					.batsu-count {
 						color: rgb(140 140 255);
+						letter-spacing: -0.1em;
 					}
 				}
 
