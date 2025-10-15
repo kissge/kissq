@@ -126,6 +126,7 @@
 	let screenshotOffset = $state(-1);
 
 	let showMarubatsuOverride = $state(false);
+	let showScore = $state(true);
 
 	let orderingMode = $state<'ranking' | 'manual'>('ranking');
 	let orderedAttendants = $derived.by<number[]>(() => {
@@ -216,6 +217,7 @@
 			}
 
 			showMarubatsuOverride = false;
+			showScore = true;
 		}
 	}
 
@@ -386,7 +388,11 @@
 					bind:clientHeight={nameHeight[i]}
 				></div>
 
-				<div class="score" style:font-size={orderedAttendants.length <= 9 ? '4.5rem' : '3.5rem'}>
+				<div
+					class="score"
+					style:font-size={orderedAttendants.length <= 9 ? '4.5rem' : '3.5rem'}
+					style:opacity={showScore ? 1 : 0}
+				>
 					{#if showMarubatsuOverride || att.rule.mode === 'marubatsu'}
 						<span class="maru-count">
 							{#key att.maruCount}<span in:fade>{att.maruCount}</span>{/key} 〇
@@ -667,6 +673,12 @@
 			{@attach tooltip('スコア表示を強制的に○×表示に切り替えます')}
 		>
 			マルバツ表示{#if showMarubatsuOverride}をOFFに{/if}
+		</button>
+		<button
+			onclick={() => (showScore = !showScore)}
+			{@attach tooltip('スコア表示のオンオフを切り替えます')}
+		>
+			スコアを{#if showScore}隠す{:else}表示する{/if}
 		</button>
 		<button
 			onclick={() => (orderingMode = orderingMode === 'ranking' ? 'manual' : 'ranking')}
