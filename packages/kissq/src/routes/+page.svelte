@@ -798,6 +798,7 @@
 
 				.group {
 					transition: background-color 0.3s ease;
+					border-radius: 2em 0.5em 0 0;
 				}
 
 				.name {
@@ -870,14 +871,15 @@
 				}
 
 				.score {
-					backdrop-filter: blur(10px);
 					margin: 0 -0.25em;
-					background-color: #eee8;
+					border-radius: 0.2em;
+					background-color: #111;
+					padding-bottom: 0.1em;
 					font-weight: bold;
 					line-height: 0.9;
 					letter-spacing: -0.1em;
 					text-align: center;
-					text-shadow: none;
+					text-shadow: 0 0 5px #000e;
 
 					> * {
 						display: inline-block;
@@ -899,7 +901,7 @@
 						color: red;
 					}
 					.batsu-count {
-						color: blue;
+						color: rgb(140 140 255);
 					}
 				}
 
