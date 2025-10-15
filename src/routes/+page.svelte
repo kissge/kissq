@@ -329,6 +329,7 @@
 		class="attendants"
 		style:background-image="url({wallpaper})"
 		style:grid-template-columns={`repeat(${columnCount}, 1fr)`}
+		style:grid-template-rows={`repeat(${Math.ceil(orderedAttendants.length / columnCount)}, 1fr auto auto)`}
 		bind:this={container}
 	>
 		{#each orderedAttendants as i, ord (i)}
@@ -747,8 +748,10 @@
 			background-color: rgb(15 18 33);
 
 			.attendant {
-				display: flex;
+				display: grid;
 				position: relative;
+				grid-template-rows: subgrid;
+				grid-row: span 3;
 				flex-direction: column;
 				gap: 0.35em;
 				backdrop-filter: blur(10px);
@@ -843,7 +846,7 @@
 					bottom: 50%;
 					left: -0.5em;
 					flex-direction: column;
-					flex-wrap: auto;
+					flex-wrap: wrap;
 					justify-content: space-evenly;
 					gap: 3px;
 					translate: 0% 50%;
@@ -884,6 +887,7 @@
 					}
 
 					small {
+						margin: 0 -0.25em;
 						font-weight: normal;
 						font-size: 1.6rem;
 					}
