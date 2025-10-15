@@ -329,13 +329,14 @@
 		class="attendants"
 		style:background-image="url({wallpaper})"
 		style:grid-template-columns={`repeat(${columnCount}, 1fr)`}
-		style:grid-template-rows={`repeat(${Math.ceil(orderedAttendants.length / columnCount)}, 1fr auto auto)`}
+		style:grid-template-rows={`repeat(${Math.ceil(orderedAttendants.length / columnCount)}, ${activeRules.length > 1 ? 'auto' : ''} 1fr auto auto)`}
 		bind:this={container}
 	>
 		{#each orderedAttendants as i, ord (i)}
 			{@const att = currentState.attendants[i]}
 			<div
 				style:font-size={orderedAttendants.length <= 11 ? '3rem' : '1em'}
+				style:grid-row={activeRules.length > 1 ? 'span 4' : 'span 3'}
 				class={['attendant', { lizhi: att.isLizhi }]}
 				animate:flip={{ duration: 500, delay: attendantFLIPDelay }}
 			>
@@ -751,7 +752,6 @@
 				display: grid;
 				position: relative;
 				grid-template-rows: subgrid;
-				grid-row: span 3;
 				flex-direction: column;
 				gap: 0.35em;
 				backdrop-filter: blur(10px);
