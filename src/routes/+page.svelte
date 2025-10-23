@@ -956,11 +956,13 @@
 						max-width: 100px;
 					}
 
-					.maru-btn:hover:not(:active) {
+					.maru-btn:hover:not(:active),
+					.maru-btn:focus-visible:not(:active) {
 						background-color: red;
 						color: white;
 					}
-					.batsu-btn:hover:not(:active) {
+					.batsu-btn:hover:not(:active),
+					.batsu-btn:focus-visible:not(:active) {
 						background-color: blue;
 						color: white;
 					}
