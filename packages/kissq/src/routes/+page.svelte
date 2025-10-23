@@ -232,14 +232,15 @@
 		let data = currentState.attendants.flatMap(({ name, life }) =>
 			life === 'removed' ? [] : [name]
 		);
-		if (data.every((n) => n === '')) {
-			data = [];
-		}
 		untrack(() => {
-			// eslint-disable-next-line svelte/prefer-svelte-reactivity
-			const url = new URL(document.URL);
-			url.hash = encodeURIComponent(JSON.stringify(data));
-			location.replace(url);
+			if (data.every((n) => n === '')) {
+				window.history.replaceState(null, '', ' ');
+			} else {
+				// eslint-disable-next-line svelte/prefer-svelte-reactivity
+				const url = new URL(document.URL);
+				url.hash = encodeURIComponent(JSON.stringify(data));
+				location.replace(url);
+			}
 		});
 	});
 
