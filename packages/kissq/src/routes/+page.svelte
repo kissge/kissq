@@ -854,7 +854,7 @@
 				}
 
 				.hidden-buttons {
-					display: flex;
+					display: none;
 					position: absolute;
 					bottom: 50%;
 					left: -0.5em;
@@ -863,11 +863,10 @@
 					justify-content: space-evenly;
 					gap: 3px;
 					translate: 0% 50%;
-					opacity: 0;
 				}
 
 				&:hover .hidden-buttons {
-					opacity: 1;
+					display: flex;
 				}
 
 				.trophies {
