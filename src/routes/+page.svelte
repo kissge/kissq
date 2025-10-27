@@ -12,16 +12,18 @@
 	import LogDialog from '$lib/components/logDialog.svelte';
 	import RuleEditDialog from '$lib/components/ruleEditDialog.svelte';
 	import Stars from '$lib/components/stars.svelte';
+	import StateEditDialog from '$lib/components/stateEditDialog.svelte';
 	import {
 		type HistoryEntry,
 		MaruHistoryEntry,
 		BatsuHistoryEntry,
 		ThroughHistoryEntry,
 		RemoveHistoryEntry,
-		LoseHistoryEntry
+		LoseHistoryEntry,
+		EditHistoryEntry
 	} from '$lib/historyEntry';
 	import { Rule } from '$lib/rule';
-	import { GameState, type Attendant, type GameEvent } from '$lib/state';
+	import { AttendantState, GameState, type Attendant, type GameEvent } from '$lib/state';
 	import { tooltip } from '$lib/tooltip.svelte';
 
 	let attendants = $state<Attendant[]>(
@@ -179,6 +181,7 @@
 			effect3Name: string | undefined
 		) => Promise<[string | undefined, string | undefined] | null>;
 	};
+	let stateEditDialog: { open: (att: AttendantState) => Promise<AttendantState | null> };
 
 	function clearHistory() {
 		currentState.attendants.forEach((att, i) => {
@@ -225,6 +228,13 @@
 		const result = await effectEditDialog.open(effect2Name, effect3Name);
 		if (result) {
 			[effect2Name, effect3Name] = result;
+		}
+	}
+
+	async function editState(attendantID: number, att: AttendantState) {
+		const result = await stateEditDialog.open(att);
+		if (result) {
+			history.push(new EditHistoryEntry(attendantID, result));
 		}
 	}
 
@@ -425,6 +435,13 @@
 				</div>
 
 				<div class="hidden-buttons">
+					<button
+						onclick={() => editState(i, att)}
+						disabled={att.yasuCount === 'next'}
+						{@attach tooltip('このプレイヤーの得点状況を手で書き換えます。')}
+					>
+						編集
+					</button>
 					<button
 						onclick={() => history.push(new LoseHistoryEntry(i))}
 						disabled={att.life !== 'alive'}
@@ -722,6 +739,7 @@
 <HelpDialog bind:this={helpDialog} />
 <LogDialog bind:this={logDialog} {history} {currentState} />
 <EffectEditDialog bind:this={effectEditDialog} />
+<StateEditDialog bind:this={stateEditDialog} />
 
 <style>
 	main {

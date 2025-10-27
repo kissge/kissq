@@ -1,6 +1,6 @@
 import { Rule } from './rule';
 
-type Life = 'alive' | 'won' | 'lost' | 'removed';
+export type Life = 'alive' | 'won' | 'lost' | 'removed';
 
 export interface Attendant {
 	name: string;
