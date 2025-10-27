@@ -1,4 +1,4 @@
-import { GameState } from './state';
+import { AttendantState, GameState } from './state';
 
 abstract class HistoryEntry {
 	abstract type: string;
@@ -11,7 +11,8 @@ type HistoryEntryType =
 	| BatsuHistoryEntry
 	| ThroughHistoryEntry
 	| RemoveHistoryEntry
-	| LoseHistoryEntry;
+	| LoseHistoryEntry
+	| EditHistoryEntry;
 
 export type { HistoryEntryType as HistoryEntry };
 
@@ -127,6 +128,28 @@ export class LoseHistoryEntry implements HistoryEntry {
 
 	reducer(state: GameState): GameState {
 		state.attendants[this.attendantID].life = 'lost';
+		return state;
+	}
+}
+
+export class EditHistoryEntry implements HistoryEntry {
+	type = 'edit' as const;
+
+	constructor(
+		public attendantID: number,
+		public newState: AttendantState
+	) {}
+
+	toString(state: GameState): string {
+		return `${state.attendants[this.attendantID].name || 'プレイヤー ' + (this.attendantID + 1)} 手編集`;
+	}
+
+	reducer(state: GameState): GameState {
+		state.attendants[this.attendantID].trophyCount = this.newState.trophyCount;
+		state.attendants[this.attendantID].life = this.newState.life;
+		state.attendants[this.attendantID].maruCount = this.newState.maruCount;
+		state.attendants[this.attendantID].batsuCount = this.newState.batsuCount;
+		state.attendants[this.attendantID].yasuCount = this.newState.yasuCount;
 		return state;
 	}
 }
