@@ -1,4 +1,4 @@
-import { AttendantState, GameState } from './state';
+import { GameState, type AttendantStateValue } from './state';
 
 abstract class HistoryEntry {
 	abstract type: string;
@@ -137,7 +137,7 @@ export class EditHistoryEntry implements HistoryEntry {
 
 	constructor(
 		public attendantID: number,
-		public newState: AttendantState
+		public newState: AttendantStateValue
 	) {}
 
 	toString(state: GameState): string {

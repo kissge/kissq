@@ -23,7 +23,13 @@
 		EditHistoryEntry
 	} from '$lib/historyEntry';
 	import { Rule } from '$lib/rule';
-	import { AttendantState, GameState, type Attendant, type GameEvent } from '$lib/state';
+	import {
+		AttendantState,
+		GameState,
+		type Attendant,
+		type AttendantStateValue,
+		type GameEvent
+	} from '$lib/state';
 	import { tooltip } from '$lib/tooltip.svelte';
 
 	let attendants = $state<Attendant[]>(
@@ -181,7 +187,7 @@
 			effect3Name: string | undefined
 		) => Promise<[string | undefined, string | undefined] | null>;
 	};
-	let stateEditDialog: { open: (att: AttendantState) => Promise<AttendantState | null> };
+	let stateEditDialog: { open: (att: AttendantState) => Promise<AttendantStateValue | null> };
 
 	function clearHistory() {
 		currentState.attendants.forEach((att, i) => {
