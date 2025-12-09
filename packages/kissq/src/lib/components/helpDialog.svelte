@@ -16,6 +16,7 @@
 	}
 </script>
 
+{/* @ts-expect-error yurushite */ null}
 <svelte:element this={tag} bind:this={dialog} closedby="any">
 	<h1>❓<ruby><rb>kissQ</rb><rt>きすきゅー</rt></ruby>の使い方</h1>
 
