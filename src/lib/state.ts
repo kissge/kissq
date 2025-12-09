@@ -200,6 +200,10 @@ export class AttendantState {
 	}
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const _ = { ...({} as AttendantState) };
+export type AttendantStateValue = typeof _;
+
 export type GameEventType = 'won' | 'lizhi' | 'effect2' | 'effect3';
 
 export interface GameEvent {

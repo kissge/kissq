@@ -1,10 +1,9 @@
 <script lang="ts">
-	import type { Rule } from '$lib/rule';
-	import type { AttendantState, Life } from '$lib/state';
+	import type { AttendantState, AttendantStateValue } from '$lib/state';
 
 	let dialog: HTMLDialogElement;
 	let resolve: (result: Awaited<ReturnType<typeof open>>) => void;
-	export function open({ ...state }: AttendantState): Promise<typeof att | null> {
+	export function open({ ...state }: AttendantState): Promise<AttendantStateValue | null> {
 		att = state;
 
 		dialog.showModal();
@@ -17,18 +16,10 @@
 
 	function save() {
 		dialog.close();
-		resolve(att);
+		resolve(att ?? null);
 	}
 
-	let att = $state<{
-		name: string;
-		rule: Rule;
-		trophyCount: number;
-		life: Life;
-		maruCount: number;
-		batsuCount: number;
-		yasuCount: number | 'next';
-	}>();
+	let att = $state<AttendantStateValue>();
 </script>
 
 <dialog bind:this={dialog} closedby="any">
