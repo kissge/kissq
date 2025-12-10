@@ -6,6 +6,7 @@ export interface Attendant {
 	name: string;
 	group: number;
 	trophyCount: number;
+	totalScore: { num: number; den: number };
 	manualOrder: number;
 }
 
@@ -17,6 +18,7 @@ export class AttendantState {
 		public manualOrder: number,
 		public rule: Rule,
 		public trophyCount: number = 0,
+		public totalScore: { num: number; den: number } = { num: 0, den: 0 },
 		public life: Life = 'alive',
 		public score: number = 0,
 		public maruCount: number = 0,
@@ -239,8 +241,8 @@ export class GameState {
 
 	constructor(attendants: Attendant[], rules: Rule[]) {
 		this.attendants = attendants.map(
-			({ name, group, trophyCount, manualOrder }) =>
-				new AttendantState(name, manualOrder, rules[group], trophyCount)
+			({ name, group, trophyCount, totalScore, manualOrder }) =>
+				new AttendantState(name, manualOrder, rules[group], trophyCount, totalScore)
 		);
 		this.defaultRule = rules[0];
 		this.ranking = this.attendants.map((_, i) => i);
@@ -275,7 +277,12 @@ export class GameState {
 
 					if (bothAlive) {
 						// 両方生存している場合はスコア順
-						return b.score - a.score || b.maruCount - a.maruCount || a.batsuCount - b.batsuCount;
+						return (
+							b.score - a.score ||
+							b.maruCount - a.maruCount ||
+							a.batsuCount - b.batsuCount ||
+							b.totalScore.num * a.totalScore.den - a.totalScore.num * b.totalScore.den
+						);
 					} else {
 						const aWon = a.life === 'won' ? 1 : 0;
 						const bWon = b.life === 'won' ? 1 : 0;
@@ -295,7 +302,11 @@ export class GameState {
 
 					if (bothAlive) {
 						// 両方生存している場合はマル数順、バツ数逆順
-						return b.maruCount - a.maruCount || a.batsuCount - b.batsuCount;
+						return (
+							b.maruCount - a.maruCount ||
+							a.batsuCount - b.batsuCount ||
+							b.totalScore.num * a.totalScore.den - a.totalScore.num * b.totalScore.den
+						);
 					} else {
 						const aWon = a.life === 'won' ? 1 : 0;
 						const bWon = b.life === 'won' ? 1 : 0;
