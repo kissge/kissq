@@ -1,11 +1,12 @@
 <script lang="ts">
-	import { Rule } from '$lib/rule';
+	import { fade } from 'svelte/transition';
+	import { Rule, type Penalty } from '$lib/rule';
 	import { tooltipInDialog as tooltip } from '$lib/tooltip.svelte';
 
 	let dialog: HTMLDialogElement;
 	let resolve: (result: Awaited<ReturnType<typeof open>>) => void;
 	export function open(rules_: Rule[]): Promise<Rule[] | null> {
-		rules = rules_.map(({ lose, batsu, yasuPerMaru, yasu, ...rule }) => {
+		rules = rules_.map(({ lose, batsu, yasuPerMaru, yasu, roulette, ...rule }) => {
 			return {
 				...rule,
 				isLoseNull: lose === null,
@@ -16,7 +17,8 @@
 				yasuPerMaruMaru: yasuPerMaru?.maru ?? 5,
 				yasuPerMaruYasu: yasuPerMaru?.yasu ?? 5,
 				yasuMode: typeof yasu === 'number' ? 'number' : yasu,
-				yasu: typeof yasu === 'number' ? yasu : 0
+				yasu: typeof yasu === 'number' ? yasu : 0,
+				rouletteName: roulette?.name ?? null
 			};
 		});
 		activeTab = rules.findIndex((r) => !r.isRemoved);
@@ -30,7 +32,7 @@
 	}
 
 	/** クローンを容易にするため、オブジェクトプロパティを使わない */
-	interface EditingRule extends Omit<Rule, 'lose' | 'batsu' | 'yasuPerMaru' | 'yasu'> {
+	interface EditingRule extends Omit<Rule, 'lose' | 'batsu' | 'yasuPerMaru' | 'yasu' | 'roulette'> {
 		isLoseNull: boolean;
 		lose: NonNullable<Rule['lose']>;
 		batsuMode: (Rule['batsu'] & string) | 'number';
@@ -40,7 +42,36 @@
 		yasuPerMaruYasu: NonNullable<Rule['yasuPerMaru']>['yasu'];
 		yasuMode: (Rule['yasu'] & string) | 'number';
 		yasu: number;
+		rouletteName: NonNullable<Rule['roulette']>['name'] | null;
 	}
+
+	const roulettePresets: Record<string, Penalty[]> = {
+		重い: [
+			{ type: 'zero' },
+			{ type: 'yasu', count: 1 },
+			{ type: 'yasu', count: 1 },
+			{ type: 'yasu', count: 2 },
+			{ type: 'yasu', count: 2 },
+			{ type: 'yasu', count: 3 },
+			{ type: 'yasu', count: 6 }
+		],
+		ふつう: [
+			{ type: 'yasu', count: 1 },
+			{ type: 'yasu', count: 1 },
+			{ type: 'yasu', count: 1 },
+			{ type: 'yasu', count: 1 },
+			{ type: 'yasu', count: 2 },
+			{ type: 'yasu', count: 3 }
+		],
+		軽い: [
+			{ type: 'yasu', count: 1 },
+			{ type: 'yasu', count: 1 },
+			{ type: 'yasu', count: 1 },
+			{ type: 'yasu', count: 1 },
+			{ type: 'yasu', count: 1 },
+			{ type: 'yasu', count: 2 }
+		]
+	};
 
 	let rules = $state<EditingRule[]>([]);
 	let activeTab = $state(0);
@@ -58,7 +89,8 @@
 				yasuPerMaruMaru,
 				yasuPerMaruYasu,
 				yasuMode,
-				yasu
+				yasu,
+				rouletteName
 			}) =>
 				(mode === 'survival' ? lose > 0 && !isLoseNull : true) &&
 				(mode !== 'score' && mode !== 'survival' ? batsuMode !== 'batsu' : true) &&
@@ -68,7 +100,8 @@
 						yasuPerMaruMaru > 0 &&
 						Number.isInteger(yasuPerMaruYasu) &&
 						yasuPerMaruYasu > 0) &&
-				(yasuMode ? Number.isInteger(yasu) && yasu >= 0 : true)
+				(yasuMode ? Number.isInteger(yasu) && yasu >= 0 : true) &&
+				(yasuMode === 'roulette' ? rouletteName : true)
 		)
 	);
 
@@ -89,6 +122,9 @@
 							? null
 							: { maru: rule.yasuPerMaruMaru, yasu: rule.yasuPerMaruYasu },
 						rule.yasuMode === 'number' ? rule.yasu : rule.yasuMode,
+						rule.rouletteName === null
+							? null
+							: { name: rule.rouletteName, choices: roulettePresets[rule.rouletteName] },
 						rule.isRemoved
 					)
 			)
@@ -163,6 +199,7 @@
 							yasuPerMaruYasu: 0,
 							yasu: 0,
 							yasuMode: 'number',
+							rouletteName: null,
 							isRemoved: false
 						};
 					}}
@@ -184,6 +221,7 @@
 							yasuPerMaruYasu: 0,
 							yasu: 1,
 							yasuMode: 'number',
+							rouletteName: null,
 							isRemoved: false
 						};
 					}}
@@ -205,6 +243,7 @@
 							yasuPerMaruYasu: 5,
 							yasu: 1,
 							yasuMode: 'number',
+							rouletteName: null,
 							isRemoved: false
 						};
 					}}
@@ -226,6 +265,7 @@
 							yasuPerMaruYasu: 0,
 							yasu: 0,
 							yasuMode: 'number',
+							rouletteName: null,
 							isRemoved: false
 						};
 					}}
@@ -247,6 +287,7 @@
 							yasuPerMaruYasu: 0,
 							yasu: 0,
 							yasuMode: 'number',
+							rouletteName: null,
 							isRemoved: false
 						};
 					}}
@@ -268,6 +309,7 @@
 							yasuPerMaruYasu: 0,
 							yasu: 0,
 							yasuMode: 'number',
+							rouletteName: null,
 							isRemoved: false
 						};
 					}}
@@ -289,6 +331,7 @@
 							yasuPerMaruYasu: 0,
 							yasu: 0,
 							yasuMode: 'number',
+							rouletteName: null,
 							isRemoved: false
 						};
 					}}
@@ -310,6 +353,7 @@
 							yasuPerMaruYasu: 0,
 							yasu: 0,
 							yasuMode: 'batsu',
+							rouletteName: null,
 							isRemoved: false
 						};
 					}}
@@ -331,6 +375,7 @@
 							yasuPerMaruYasu: 0,
 							yasu: 0,
 							yasuMode: 'maru',
+							rouletteName: null,
 							isRemoved: false
 						};
 					}}
@@ -352,6 +397,7 @@
 							yasuPerMaruYasu: 0,
 							yasu: 0,
 							yasuMode: 'number',
+							rouletteName: null,
 							isRemoved: false
 						};
 					}}
@@ -588,10 +634,27 @@
 					/>
 					N回目の誤答でN問休み
 				</label>
+				<br />
+				<label>
+					<input type="radio" bind:group={activeRule.yasuMode} value="roulette" />
+					ルーレット
+				</label>
 				{#if !Number.isInteger(activeRule.yasu) || activeRule.yasu < 0}
 					<span class="error">休みは0以上の整数で設定してください</span>
 				{/if}
 			</div>
+
+			{#if activeRule.yasuMode === 'roulette'}
+				<div transition:fade>ルーレット</div>
+				<div transition:fade>
+					{#each Object.keys(roulettePresets) as name (name)}
+						<label>
+							<input type="radio" bind:group={activeRule.rouletteName} value={name} />
+							{name}
+						</label>
+					{/each}
+				</div>
+			{/if}
 		</div>
 		<div class="buttons">
 			<button

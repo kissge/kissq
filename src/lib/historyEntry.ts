@@ -1,3 +1,4 @@
+import type { Penalty } from './rule';
 import { GameState, type AttendantStateValue } from './state';
 
 abstract class HistoryEntry {
@@ -68,7 +69,10 @@ export class MaruHistoryEntry implements HistoryEntry {
 export class BatsuHistoryEntry implements HistoryEntry {
 	type = 'batsu' as const;
 
-	constructor(public attendantID: number) {}
+	constructor(
+		public attendantID: number,
+		public penalty: Penalty | null = null
+	) {}
 
 	toString(state: GameState): string {
 		return `${state.attendants[this.attendantID].name || 'プレイヤー ' + (this.attendantID + 1)} 誤答`;
@@ -77,12 +81,13 @@ export class BatsuHistoryEntry implements HistoryEntry {
 	reducer(state: GameState): GameState {
 		const att = state.attendants[this.attendantID];
 
-		const { maruCount, batsuCount, score, life, yasuCount } = att.processBatsu();
+		const { maruCount, batsuCount, score, life, yasuCount } = att.processBatsu(this.penalty);
 		att.maruCount = maruCount;
 		att.batsuCount = batsuCount;
 		att.score = score;
 		att.life = life;
 		att.yasuCount = yasuCount;
+		att.lastPenalty = this.penalty;
 
 		return state;
 	}

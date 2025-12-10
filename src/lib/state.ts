@@ -1,4 +1,4 @@
-import { Rule } from './rule';
+import { Rule, type Penalty } from './rule';
 
 export type Life = 'alive' | 'won' | 'lost' | 'removed';
 
@@ -10,6 +10,8 @@ export interface Attendant {
 }
 
 export class AttendantState {
+	lastPenalty: Penalty | null = null;
+
 	constructor(
 		public name: string,
 		public manualOrder: number,
@@ -90,7 +92,7 @@ export class AttendantState {
 	}
 
 	/** バツを受けた場合のstateの変化を求める（破壊的にはしない） */
-	processBatsu(): {
+	processBatsu(penalty: Penalty | null = null): {
 		maruCount: number;
 		batsuCount: number;
 		score: number;
@@ -112,7 +114,10 @@ export class AttendantState {
 							? 1
 							: this.rule.batsu;
 
-				if (this.rule.batsu === 'updown') {
+				if (
+					this.rule.batsu === 'updown' ||
+					(this.rule.yasu === 'roulette' && penalty?.type === 'zero')
+				) {
 					maruCount = 0;
 				}
 
@@ -132,6 +137,10 @@ export class AttendantState {
 						: this.rule.batsu === 'updown'
 							? /** dummy */ -batsuCount
 							: this.rule.batsu;
+				if (this.rule.yasu === 'roulette' && penalty?.type === 'zero') {
+					score = 0;
+				}
+
 				if (this.rule.lose !== null && score <= this.rule.lose) {
 					life = 'lost';
 				} else {
@@ -146,6 +155,10 @@ export class AttendantState {
 						? /** dummy */ 1
 						: this.rule.batsu;
 				score = this.maruCount * (this.rule.win - batsuCount);
+				if (this.rule.yasu === 'roulette' && penalty?.type === 'zero') {
+					score = 0;
+				}
+
 				if (this.rule.win - batsuCount <= 0) {
 					life = 'lost';
 				} else {
@@ -162,6 +175,10 @@ export class AttendantState {
 						: this.rule.batsu === 'updown'
 							? /** dummy */ 1
 							: this.rule.batsu;
+				if (this.rule.yasu === 'roulette' && penalty?.type === 'zero') {
+					score = 0;
+				}
+
 				if (score <= 0) {
 					score = 0;
 					life = 'lost';
@@ -187,6 +204,8 @@ export class AttendantState {
 				return this.maruCount || 1;
 			} else if (this.rule.yasu === 'batsu') {
 				return this.batsuCount;
+			} else if (this.rule.yasu === 'roulette') {
+				return this.lastPenalty?.type === 'yasu' ? this.lastPenalty.count : 0;
 			} else {
 				return this.rule.yasu;
 			}

@@ -10,6 +10,7 @@
 	import EffectEditDialog from '$lib/components/effectEditDialog.svelte';
 	import HelpDialog from '$lib/components/helpDialog.svelte';
 	import LogDialog from '$lib/components/logDialog.svelte';
+	import PenaltyRoulette from '$lib/components/penaltyRoulette.svelte';
 	import RuleEditDialog from '$lib/components/ruleEditDialog.svelte';
 	import Stars from '$lib/components/stars.svelte';
 	import StateEditDialog from '$lib/components/stateEditDialog.svelte';
@@ -22,7 +23,7 @@
 		LoseHistoryEntry,
 		EditHistoryEntry
 	} from '$lib/historyEntry';
-	import { Rule } from '$lib/rule';
+	import { Rule, type Penalty } from '$lib/rule';
 	import {
 		AttendantState,
 		GameState,
@@ -38,7 +39,7 @@
 			{ name: '', group: 0, trophyCount: 0, manualOrder: 1 }
 		]
 	);
-	let rules = $state([new Rule('marubatsu', 7, 3, 1, 1, null, 0)]);
+	let rules = $state([new Rule('marubatsu', 7, 3, 1, 1, null, 0, null)]);
 	let history = $state<HistoryEntry[]>([]);
 	let currentState = $derived(
 		history.reduce(
@@ -214,6 +215,7 @@
 		) => Promise<[string | undefined, string | undefined] | null>;
 	};
 	let stateEditDialog: { open: (att: AttendantState) => Promise<AttendantStateValue | null> };
+	let penaltyRoulette: { run: (choices: Penalty[]) => Promise<number> };
 
 	function clearHistory() {
 		currentState.attendants.forEach((att, i) => {
@@ -581,8 +583,14 @@
 							</button>
 						{/if}
 						<button
-							onclick={() => {
-								history.push(new BatsuHistoryEntry(i));
+							onclick={async () => {
+								if (att.rule.yasu === 'roulette') {
+									const selection = await penaltyRoulette.run(att.rule.roulette!.choices);
+									history.push(new BatsuHistoryEntry(i, att.rule.roulette!.choices[selection]));
+								} else {
+									history.push(new BatsuHistoryEntry(i));
+								}
+
 								playSound(se2);
 							}}
 							style:font-size={orderedAttendants.length <= 8 && !(effect2Name || effect3Name)
@@ -768,6 +776,7 @@
 <LogDialog bind:this={logDialog} {history} {currentState} />
 <EffectEditDialog bind:this={effectEditDialog} />
 <StateEditDialog bind:this={stateEditDialog} />
+<PenaltyRoulette bind:this={penaltyRoulette} />
 
 <style>
 	main {
