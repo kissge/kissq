@@ -1,3 +1,5 @@
+export type Penalty = { type: 'yasu'; count: number } | { type: 'zero' };
+
 export class Rule {
 	constructor(
 		/** ゲームモード */
@@ -13,7 +15,9 @@ export class Rule {
 		/** N問正解で得られる休みの数M */
 		public yasuPerMaru: { maru: number; yasu: number } | null,
 		/** 1問誤答で得られる休みの数（定数またはその時点のマル数・バツ数） */
-		public yasu: number | 'maru' | 'batsu',
+		public yasu: number | 'maru' | 'batsu' | 'roulette',
+		/** ルーレット */
+		public roulette: { name: string; choices: Penalty[] } | null,
 		/** 削除済みかどうか */
 		public isRemoved: boolean = false
 	) {}
@@ -109,6 +113,8 @@ export class Rule {
 			str += `、誤答（現在のマル数）休`;
 		} else if (this.yasu === 'batsu') {
 			str += `、N回目の誤答でN休`;
+		} else if (this.yasu === 'roulette') {
+			str += `、誤答で？？？`;
 		} else if (this.yasu > 0) {
 			str += `、誤答${this.yasu}休`;
 		}
