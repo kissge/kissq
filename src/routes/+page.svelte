@@ -35,8 +35,8 @@
 
 	let attendants = $state<Attendant[]>(
 		loadFromHash() ?? [
-			{ name: '', group: 0, trophyCount: 0, manualOrder: 0 },
-			{ name: '', group: 0, trophyCount: 0, manualOrder: 1 }
+			{ name: '', group: 0, trophyCount: 0, totalScore: { num: 0, den: 0 }, manualOrder: 0 },
+			{ name: '', group: 0, trophyCount: 0, totalScore: { num: 0, den: 0 }, manualOrder: 1 }
 		]
 	);
 	let rules = $state([new Rule('marubatsu', 7, 3, 1, 1, null, 0, null)]);
@@ -45,7 +45,7 @@
 		history.reduce(
 			(state, entry) =>
 				entry.reducer(state.clearLatestEvent()).checkIfLastSurvivor().updateRanking(),
-			new GameState(attendants, rules)
+			new GameState(attendants, rules).updateRanking()
 		)
 	);
 	let activeRules = $derived(rules.flatMap((rule, i) => (rule.isRemoved ? [] : { rule, i })));
@@ -220,6 +220,12 @@
 	function clearHistory() {
 		currentState.attendants.forEach((att, i) => {
 			attendants[i].trophyCount = att.trophyCount;
+			attendants[i].totalScore = {
+				num:
+					att.totalScore.num +
+					(currentState.attendants.length - currentState.ranking.indexOf(i) - 1),
+				den: att.totalScore.den + 1
+			};
 		});
 		attendants = attendants.filter((_, i) => currentState.attendants[i].life !== 'removed');
 		history = [];
@@ -298,6 +304,7 @@
 						name,
 						group: 0,
 						trophyCount: 0,
+						totalScore: { num: 0, den: 0 },
 						manualOrder
 					}));
 				}
@@ -434,7 +441,13 @@
 					style:font-size={orderedAttendants.length <= 9 ? '4.5rem' : '3.5rem'}
 					style:opacity={showScore ? 1 : 0}
 				>
-					{#if showMarubatsuOverride || att.rule.mode === 'marubatsu'}
+					{#if history.length === 0}
+						{#if att.totalScore.den === 0}
+							---
+						{:else}
+							{Math.floor((att.totalScore.num / att.totalScore.den) * 492.8).toLocaleString()}
+						{/if}
+					{:else if showMarubatsuOverride || att.rule.mode === 'marubatsu'}
 						<span class="maru-count">
 							{#key att.maruCount}<span in:fade>{att.maruCount}</span>{/key} 〇
 						</span>
@@ -666,7 +679,13 @@
 		</button>
 		<button
 			onclick={() => {
-				attendants.push({ name: '', group: 0, trophyCount: 0, manualOrder: attendants.length });
+				attendants.push({
+					name: '',
+					group: 0,
+					trophyCount: 0,
+					totalScore: { num: 0, den: 0 },
+					manualOrder: attendants.length
+				});
 			}}
 			style="max-width: 20dvw"
 		>
