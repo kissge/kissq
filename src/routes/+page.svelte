@@ -48,6 +48,32 @@
 		)
 	);
 	let activeRules = $derived(rules.flatMap((rule, i) => (rule.isRemoved ? [] : { rule, i })));
+	let activeRulesText = $derived.by(() => {
+		if (activeRules.length === 1) {
+			return activeRules[0].rule;
+		}
+
+		const ruleTexts = activeRules.map(({ rule }) => String(rule));
+		return ruleTexts
+			.slice(1)
+			.reduce(
+				(acc, curr, i) => {
+					if (curr === acc.at(-1)!.text) {
+						acc.at(-1)!.end = i + 1;
+						return acc;
+					} else {
+						return [...acc, { start: i + 1, end: i + 1, text: curr }];
+					}
+				},
+				[{ start: 0, end: 0, text: ruleTexts[0] }]
+			)
+			.map(({ start, end, text }) =>
+				start === end
+					? String.fromCodePoint(65 + start) + ': ' + text
+					: String.fromCodePoint(65 + start) + '–' + String.fromCodePoint(65 + end) + ': ' + text
+			)
+			.join(' / ');
+	});
 
 	let innerWidth = $state(0);
 	let innerHeight = $state(0);
@@ -333,11 +359,7 @@
 		</h1>
 		<div>
 			Rule:
-			{#if activeRules.length === 1}
-				{activeRules[0].rule}
-			{:else}
-				{activeRules.map(({ rule, i }) => String.fromCodePoint(65 + i) + ': ' + rule).join(' / ')}
-			{/if}
+			{activeRulesText}
 			<button onclick={editRule} {@attach tooltip('ルールとルールグループを編集します。')}>
 				編集
 			</button>
