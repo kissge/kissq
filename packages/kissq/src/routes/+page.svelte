@@ -1,12 +1,11 @@
 <script lang="ts">
 	import { watch } from 'runed';
-	import { untrack } from 'svelte';
+	import { onMount, untrack } from 'svelte';
 	import { flip } from 'svelte/animate';
 	import { fade, slide } from 'svelte/transition';
 	import se1 from '$lib/assets/se1.mp3';
 	import se2 from '$lib/assets/se2.mp3';
 	import se3 from '$lib/assets/se3.mp3';
-	import wallpaper from '$lib/assets/wallpaper.jpg';
 	import EffectEditDialog from '$lib/components/effectEditDialog.svelte';
 	import HelpDialog from '$lib/components/helpDialog.svelte';
 	import LogDialog from '$lib/components/logDialog.svelte';
@@ -278,6 +277,21 @@
 		}
 	}
 
+	let showQuestionWindow = $state(false);
+	let currentQuestion = $state({ question: '', answer: '' });
+
+	function processWindowMessage(event: MessageEvent) {
+		switch (event.data.command) {
+			case 'toggleQuestionWindow':
+				showQuestionWindow = !showQuestionWindow;
+				break;
+
+			case 'updateQuestion':
+				currentQuestion = { question: event.data.question, answer: event.data.answer };
+				break;
+		}
+	}
+
 	$effect(() => {
 		let data = currentState.attendants.flatMap(({ name, life }) =>
 			life === 'removed' ? [] : [name]
@@ -292,6 +306,12 @@
 				location.replace(url);
 			}
 		});
+	});
+
+	onMount(() => {
+		window.addEventListener('message', processWindowMessage);
+
+		return () => window.removeEventListener('message', processWindowMessage);
 	});
 
 	function loadFromHash(): Attendant[] | null {
@@ -341,7 +361,7 @@
 <audio src={se2} preload="auto"></audio>
 <audio src={se3} preload="auto"></audio>
 
-<main>
+<main style:grid-template-rows={showQuestionWindow ? 'auto auto 1fr auto' : 'auto 1fr auto'}>
 	<div class="header" bind:clientHeight={headerClientHeight}>
 		<div>
 			Next:
@@ -375,9 +395,17 @@
 		</div>
 	</div>
 
+	{#if showQuestionWindow}
+		<div transition:fade>
+			<div class="question">
+				{#key currentQuestion.question}<p in:fade>{currentQuestion.question}</p>{/key}
+				<div class="answer">A. {currentQuestion.answer}</div>
+			</div>
+		</div>
+	{/if}
+
 	<div
 		class="attendants"
-		style:background-image="url({wallpaper})"
 		style:grid-template-columns={`repeat(${columnCount}, 1fr)`}
 		style:grid-template-rows={`repeat(${Math.ceil(orderedAttendants.length / columnCount)}, ${activeRules.length > 1 ? 'auto' : ''} 1fr auto auto)`}
 		bind:this={container}
@@ -768,6 +796,7 @@
 		>
 			{#if playSounds}🔊 ON{:else}🔇 OFF{/if}
 		</button>
+		<button onclick={() => window.open('./question', 'questionWindow', 'popup')}>問題表示</button>
 	</div>
 {/if}
 
@@ -800,9 +829,12 @@
 <style>
 	main {
 		display: grid;
-		grid-template-rows: auto 1fr auto;
 		flex: 1 0 100%;
 		gap: 0 1em;
+		background-image: url('$lib/assets/wallpaper.jpg');
+		background-position: center center;
+		background-size: cover;
+		background-color: rgb(15 18 33);
 		height: 100%;
 		font-size: 2rem;
 
@@ -828,12 +860,50 @@
 			}
 		}
 
+		.question {
+			position: relative;
+			backdrop-filter: blur(10px);
+			margin-top: -0.7rem;
+			box-shadow: 0 0 15px #eeea;
+			border-radius: 0 0 0.5em 0.5em;
+			background-color: #0008;
+			padding: 0.5em 1em;
+			height: 4.5em;
+			color: #fff;
+			font-size: 1.9rem;
+			font-family: serif;
+
+			p {
+				margin: 0;
+				height: 100%;
+				overflow: hidden;
+			}
+
+			.answer {
+				display: inline-block;
+				position: absolute;
+				right: 1em;
+				bottom: -0.5em;
+				backdrop-filter: blur(10px);
+				transition: 0.3s translate 1s ease;
+
+				margin-top: 0.5em;
+				box-shadow: 0 0 15px #eeea;
+				border-radius: 0.5em;
+				background-color: #000c;
+				padding: 0.35em 1em;
+				font-size: 2rem;
+
+				&:hover {
+					translate: 0 60%;
+					transition-delay: 0s;
+				}
+			}
+		}
+
 		.attendants {
 			display: grid;
 			gap: 0.5em;
-			background-position: center center;
-			background-size: cover;
-			background-color: rgb(15 18 33);
 
 			.attendant {
 				display: grid;
