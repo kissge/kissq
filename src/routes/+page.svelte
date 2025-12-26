@@ -901,9 +901,9 @@
 			border-radius: 0 0 0.5em 0.5em;
 			background-color: #0008;
 			padding: 0.5em 1em;
-			height: 4.5em;
+			height: 3em;
 			color: #fff;
-			font-size: 1.9rem;
+			font-size: 4rem;
 			font-family: serif;
 
 			p {
@@ -925,7 +925,6 @@
 				border-radius: 0.5em;
 				background-color: #000c;
 				padding: 0.35em 1em;
-				font-size: 2rem;
 
 				&:hover {
 					translate: 0 60%;
