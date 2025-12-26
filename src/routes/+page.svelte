@@ -277,8 +277,35 @@
 		}
 	}
 
+	function clickMaru(attendantID: number) {
+		history.push(new MaruHistoryEntry(attendantID));
+		playSound(se1);
+	}
+
+	async function clickBatsu(attendantID: number) {
+		playSound(se2);
+
+		const rule = currentState.attendants[attendantID].rule;
+		if (rule.yasu === 'roulette') {
+			const selection = await penaltyRoulette.run(rule.roulette!.choices);
+			history.push(new BatsuHistoryEntry(attendantID, rule.roulette!.choices[selection]));
+		} else {
+			history.push(new BatsuHistoryEntry(attendantID));
+		}
+	}
+
+	function clickThrough() {
+		history.push(new ThroughHistoryEntry());
+		playSound(se3);
+	}
+
 	let showQuestionWindow = $state(false);
 	let currentQuestion = $state({ question: '', answer: '' });
+	let subWindow = $state<Window>();
+
+	function openSubWindow() {
+		subWindow = window.open('./question', 'questionWindow', 'popup') || undefined;
+	}
 
 	function processWindowMessage(event: MessageEvent) {
 		switch (event.data.command) {
@@ -289,8 +316,29 @@
 			case 'updateQuestion':
 				currentQuestion = { question: event.data.question, answer: event.data.answer };
 				break;
+
+			case 'clickMaru':
+				clickMaru(event.data.attendantID);
+				break;
+
+			case 'clickBatsu':
+				clickBatsu(event.data.attendantID);
+				break;
+
+			case 'clickThrough':
+				clickThrough();
+				break;
 		}
 	}
+
+	$effect(() => {
+		if (subWindow && !subWindow.closed) {
+			subWindow.postMessage({
+				command: 'syncState',
+				currentState: JSON.parse(JSON.stringify(currentState))
+			});
+		}
+	});
 
 	$effect(() => {
 		let data = currentState.attendants.flatMap(({ name, life }) =>
@@ -580,10 +628,7 @@
 						role="group"
 					>
 						<button
-							onclick={() => {
-								history.push(new MaruHistoryEntry(i));
-								playSound(se1);
-							}}
+							onclick={() => clickMaru(i)}
 							style:font-size={orderedAttendants.length <= 8 && !(effect2Name || effect3Name)
 								? '2.5rem'
 								: '1.5rem'}
@@ -624,16 +669,7 @@
 							</button>
 						{/if}
 						<button
-							onclick={async () => {
-								if (att.rule.yasu === 'roulette') {
-									const selection = await penaltyRoulette.run(att.rule.roulette!.choices);
-									history.push(new BatsuHistoryEntry(i, att.rule.roulette!.choices[selection]));
-								} else {
-									history.push(new BatsuHistoryEntry(i));
-								}
-
-								playSound(se2);
-							}}
+							onclick={() => clickBatsu(i)}
 							style:font-size={orderedAttendants.length <= 8 && !(effect2Name || effect3Name)
 								? '2.5rem'
 								: '1.5rem'}
@@ -678,10 +714,7 @@
 			</a>
 		</div>
 		<button
-			onclick={() => {
-				history.push(new ThroughHistoryEntry());
-				playSound(se3);
-			}}
+			onclick={clickThrough}
 			class={{
 				blink: currentState.attendants.some(
 					({ yasuCount, rule: { yasu } }) =>
@@ -796,7 +829,7 @@
 		>
 			{#if playSounds}🔊 ON{:else}🔇 OFF{/if}
 		</button>
-		<button onclick={() => window.open('./question', 'questionWindow', 'popup')}>問題表示</button>
+		<button onclick={openSubWindow}>操作盤表示</button>
 	</div>
 {/if}
 

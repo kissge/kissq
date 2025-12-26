@@ -1,15 +1,28 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import type { GameState } from '$lib/state';
+
+	const opener = (typeof window !== 'undefined' ? window.opener : {}) as Window;
 
 	const qZero = { question: 'ここに問題が表示されます', answer: 'ここに答えが表示されます' };
 	let questions = $state([qZero]);
 	let rawInput = $state('');
 	let currentIndex = $state(0);
 
+	let currentState = $state<GameState>();
+
 	let inputDialog: HTMLDialogElement;
 
+	function processWindowMessage(event: MessageEvent) {
+		switch (event.data.command) {
+			case 'syncState':
+				currentState = event.data.currentState;
+				break;
+		}
+	}
+
 	$effect(() => {
-		window.opener?.postMessage({
+		opener.postMessage({
 			command: 'updateQuestion',
 			...questions[currentIndex]
 		});
@@ -21,6 +34,10 @@
 		if (stored) {
 			questions = JSON.parse(stored);
 		}
+
+		window.addEventListener('message', processWindowMessage);
+
+		return () => window.removeEventListener('message', processWindowMessage);
 	});
 
 	function loadFromTSV() {
@@ -44,15 +61,47 @@
 	}
 </script>
 
+<svelte:head>
+	<title>操作盤 - kissQ</title>
+</svelte:head>
+
 <header>
-	<button disabled={currentIndex === 0} onclick={() => --currentIndex}>← 前の問題へ</button>
-	<button disabled={currentIndex === questions.length - 1} onclick={() => ++currentIndex}>
-		次の問題へ →
-	</button>
-	<div class="spacer"></div>
-	<button onclick={() => window.opener.postMessage({ command: 'toggleQuestionWindow' })}>
-		問題ウィンドウを表示・非表示
-	</button>
+	<div>
+		<button onclick={() => opener.postMessage({ command: 'clickThrough' })}>スルー</button>
+		<button disabled={currentIndex === 0} onclick={() => --currentIndex}>← 前の問題へ</button>
+		<button disabled={currentIndex === questions.length - 1} onclick={() => ++currentIndex}>
+			次の問題へ →
+		</button>
+		<div class="spacer"></div>
+		<button onclick={() => window.opener.postMessage({ command: 'toggleQuestionWindow' })}>
+			問題ウィンドウを表示・非表示
+		</button>
+	</div>
+	{#if currentState}
+		<div>
+			{#each currentState.attendants as att, i (i)}
+				{#if att.life !== 'removed'}
+					<div class="attendant">
+						{att.name}&nbsp;
+						{#if att.life === 'won'}
+							勝ち
+						{:else if att.life === 'lost'}
+							失格
+						{:else if att.yasuDisplay > 0}
+							{#if att.yasuCount === 'next'}次{/if}{att.yasuDisplay}休
+						{:else}
+							<button onclick={() => opener.postMessage({ command: 'clickMaru', attendantID: i })}>
+								O
+							</button>
+							<button onclick={() => opener.postMessage({ command: 'clickBatsu', attendantID: i })}>
+								X
+							</button>
+						{/if}
+					</div>
+				{/if}
+			{/each}
+		</div>
+	{/if}
 </header>
 
 <main>
@@ -106,13 +155,21 @@
 		height: 100vh;
 	}
 
-	header {
+	header > div {
 		display: flex;
+		flex-wrap: wrap;
 		align-items: center;
-		gap: 1em;
+		gap: 0.5em;
+		margin-bottom: 1em;
 
 		.spacer {
 			flex-grow: 1;
+		}
+
+		.attendant {
+			border: 1px solid #ccc;
+			padding: 0.5em;
+			line-height: 2.1;
 		}
 	}
 
