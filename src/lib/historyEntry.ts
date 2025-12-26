@@ -150,6 +150,7 @@ export class EditHistoryEntry implements HistoryEntry {
 		state.attendants[this.attendantID].maruCount = this.newState.maruCount;
 		state.attendants[this.attendantID].batsuCount = this.newState.batsuCount;
 		state.attendants[this.attendantID].yasuCount = this.newState.yasuCount;
+		state.attendants[this.attendantID].score = this.newState.score;
 		return state;
 	}
 }

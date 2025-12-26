@@ -27,6 +27,11 @@
 		<h2>{att.name || 'このプレイヤー'}の得点状況</h2>
 
 		<div class="table">
+			<div>スコア</div>
+			<div>
+				<input type="number" bind:value={att.score} /> pt(s)
+			</div>
+
 			<div>マル数</div>
 			<div>
 				<input type="number" bind:value={att.maruCount} /> ○
