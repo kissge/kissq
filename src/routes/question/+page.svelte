@@ -150,6 +150,9 @@
 	footer {
 		padding: 1em;
 	}
+	:global(html) {
+		font-size: 2em;
+	}
 
 	:global(body) {
 		height: 100vh;
