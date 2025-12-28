@@ -79,6 +79,7 @@
 	let innerHeight = $state(0);
 	let headerClientHeight = $state(0);
 	let footerClientHeight = $state(0);
+	let fontSize = $state<number>();
 	let container: HTMLDivElement;
 	let columnCount = $derived.by(() => {
 		// 画面に収まる範囲でなるべく多い列数を求める
@@ -134,6 +135,13 @@
 		} else {
 			nameDirection = 'vertical-rl';
 		}
+
+		fontSize = Math.floor(
+			Math.min(
+				(container?.clientWidth / columnCount) * 0.3,
+				(container?.clientHeight / (currentState.ranking.length / columnCount)) * 0.1
+			)
+		);
 	});
 
 	let isBannerVisible = $state<GameEvent | null>(null);
@@ -461,7 +469,7 @@
 		{#each orderedAttendants as i, ord (i)}
 			{@const att = currentState.attendants[i]}
 			<div
-				style:font-size={orderedAttendants.length <= 11 ? '3rem' : '1em'}
+				style:font-size={fontSize && fontSize + 'px'}
 				style:grid-row={activeRules.length > 1 ? 'span 4' : 'span 3'}
 				class={['attendant', { lizhi: att.isLizhi }]}
 				animate:flip={{ duration: 500, delay: attendantFLIPDelay }}
@@ -941,7 +949,6 @@
 				display: grid;
 				position: relative;
 				grid-template-rows: subgrid;
-				flex-direction: column;
 				gap: 0.35em;
 				backdrop-filter: blur(10px);
 				transition:
@@ -999,6 +1006,7 @@
 					padding: 0;
 					padding-top: 5px;
 					width: 100%;
+					max-height: 5em;
 					overflow: hidden;
 					font-weight: bold;
 					line-height: 1.1;
