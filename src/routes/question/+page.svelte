@@ -9,6 +9,8 @@
 	let rawInput = $state('');
 	let currentIndex = $state(0);
 
+	let fontSize = $state(6);
+
 	let currentState = $state<GameState>();
 
 	let inputDialog: HTMLDialogElement;
@@ -27,6 +29,13 @@
 			...questions[currentIndex]
 		});
 		document.querySelector('table:not(:hover) tr.current')?.scrollIntoView({ block: 'center' });
+	});
+
+	$effect(() => {
+		(document.querySelector(':root') as HTMLElement).style.setProperty(
+			'--root-font-size',
+			`${fontSize / 5}vw`
+		);
 	});
 
 	onMount(() => {
@@ -73,6 +82,10 @@
 			次の問題へ →
 		</button>
 		<div class="spacer"></div>
+		<div>
+			フォントサイズ
+			<input type="number" bind:value={fontSize} />
+		</div>
 		<button onclick={() => window.opener.postMessage({ command: 'toggleQuestionWindow' })}>
 			問題ウィンドウを表示・非表示
 		</button>
@@ -151,7 +164,7 @@
 		padding: 1em;
 	}
 	:global(html) {
-		font-size: 2em;
+		font-size: var(--root-font-size);
 	}
 
 	:global(body) {
@@ -167,6 +180,11 @@
 
 		.spacer {
 			flex-grow: 1;
+		}
+
+		input[type='number'] {
+			width: 3em;
+			font-size: 1rem;
 		}
 
 		.attendant {
