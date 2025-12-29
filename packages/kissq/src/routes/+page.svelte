@@ -88,11 +88,14 @@
 			typeof navigator !== 'undefined' &&
 			/safari/i.test(navigator.userAgent) &&
 			!/chrome|android/i.test(navigator.userAgent);
-		if (attCount < 8 || !container || isSafari) {
+		if (attCount < 4 || !container || isSafari) {
 			return Math.floor(innerWidth / 250) || 7;
 		}
 
 		const totalHeight = innerHeight - headerClientHeight - footerClientHeight + 1;
+		document.querySelectorAll('.attendant .name').forEach((el) => {
+			(el as HTMLElement).style.display = 'none';
+		});
 
 		let bestCols = Infinity;
 
@@ -119,6 +122,10 @@
 		const bestRows = Math.ceil(attCount / bestCols);
 		bestCols = Math.ceil(attCount / bestRows);
 
+		document.querySelectorAll('.attendant .name').forEach((el) => {
+			(el as HTMLElement).style.display = '';
+		});
+
 		container.style.gridTemplateColumns = `repeat(${bestCols}, 1fr)`;
 		return bestCols;
 	});
@@ -139,7 +146,7 @@
 		fontSize = Math.floor(
 			Math.min(
 				(container?.clientWidth / columnCount) * 0.3,
-				(container?.clientHeight / (currentState.ranking.length / columnCount)) * 0.1
+				(container?.clientHeight / Math.ceil(currentState.ranking.length / columnCount)) * 0.1
 			)
 		);
 	});
@@ -478,7 +485,6 @@
 					<button
 						class="group"
 						style:background-color={`hsl(${(360 / rules.length) * attendants[i].group}, 70%, 40%)`}
-						style:font-size={orderedAttendants.length <= 11 ? '2rem' : '1.5rem'}
 						onclick={() => {
 							do {
 								attendants[i].group = (attendants[i].group + 1) % rules.length;
@@ -520,11 +526,7 @@
 					bind:clientHeight={nameHeight[i]}
 				></div>
 
-				<div
-					class="score"
-					style:font-size={orderedAttendants.length <= 9 ? '4.5rem' : '3.5rem'}
-					style:opacity={showScore ? 1 : 0}
-				>
+				<div class="score" style:opacity={showScore ? 1 : 0}>
 					{#if history.length === 0}
 						{#if att.totalScore.den === 0}
 							---
@@ -551,7 +553,7 @@
 						</small>
 					{:else}
 						<span class="m-by-n-score">
-							<small style:font-size={orderedAttendants.length <= 9 ? '2.5rem' : '1.8rem'}>
+							<small>
 								{att.maruCount} × {att.rule.win - att.batsuCount}
 							</small>
 							{#key att.score}
@@ -637,9 +639,6 @@
 					>
 						<button
 							onclick={() => clickMaru(i)}
-							style:font-size={orderedAttendants.length <= 8 && !(effect2Name || effect3Name)
-								? '2.5rem'
-								: '1.5rem'}
 							class="maru-btn"
 							{@attach tooltip(
 								`${att.name || 'このプレイヤー'}に1○をつけて、問題カウントを1進めます（休みの人がいれば1休減ります）`
@@ -678,9 +677,6 @@
 						{/if}
 						<button
 							onclick={() => clickBatsu(i)}
-							style:font-size={orderedAttendants.length <= 8 && !(effect2Name || effect3Name)
-								? '2.5rem'
-								: '1.5rem'}
 							class="batsu-btn"
 							{@attach tooltip(
 								`${att.name || 'このプレイヤー'}に1×をつけます（誰も正解しなければ最後にスルーボタンを押すのを忘れずに！）`
@@ -870,13 +866,12 @@
 <style>
 	main {
 		display: grid;
-		flex: 1 0 100%;
+		flex: 1 0 100dvh;
 		gap: 0 1em;
 		background-image: url('$lib/assets/wallpaper.jpg');
 		background-position: center center;
 		background-size: cover;
 		background-color: rgb(15 18 33);
-		height: 100%;
 		font-size: 2rem;
 
 		> * {
@@ -944,6 +939,7 @@
 		.attendants {
 			display: grid;
 			gap: 0.5em;
+			height: calc(100dvh - 4.9em);
 
 			.attendant {
 				display: grid;
@@ -1006,7 +1002,6 @@
 					padding: 0;
 					padding-top: 5px;
 					width: 100%;
-					max-height: 5em;
 					overflow: hidden;
 					font-weight: bold;
 					line-height: 1.1;
@@ -1016,7 +1011,6 @@
 						cursor: text;
 						content: attr(placeholder);
 						color: #aaa;
-						word-break: normal;
 					}
 
 					&.blurred {
@@ -1161,6 +1155,10 @@
 				color: #aaa;
 				font-size: 3rem;
 			}
+		}
+
+		:has(.question) + .attendants {
+			height: calc(100dvh - 4.9em - 17rem);
 		}
 
 		footer {
