@@ -21,7 +21,7 @@
 		button {
 			border-radius: 0.3em;
 			padding: 0.2em 0.5em;
-			font-size: 1.2rem;
+			font-size: 0.8em;
 			user-select: none;
 
 			&:not(:disabled) {

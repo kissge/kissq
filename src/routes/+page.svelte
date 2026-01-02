@@ -103,7 +103,7 @@
 			const cols = Math.ceil(attCount / rows);
 			container.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
 
-			if (container.clientWidth > innerWidth) {
+			if (container.clientWidth > innerWidth || innerWidth / cols < 140) {
 				break;
 			}
 
@@ -939,7 +939,7 @@
 		.attendants {
 			display: grid;
 			gap: 0.5em;
-			height: calc(100dvh - 4.9em);
+			height: calc(100dvh - 5.5em);
 
 			.attendant {
 				display: grid;
@@ -1041,6 +1041,7 @@
 					justify-content: space-evenly;
 					gap: 3px;
 					translate: 0% 50%;
+					font-size: 0.3em;
 				}
 
 				&:hover .hidden-buttons {
@@ -1123,7 +1124,8 @@
 					flex-wrap: wrap;
 					justify-content: space-evenly;
 					gap: 3px;
-					margin: 0;
+					margin: 0 -0.5em;
+					font-size: 0.6em;
 
 					> * {
 						display: flex;
@@ -1158,7 +1160,7 @@
 		}
 
 		:has(.question) + .attendants {
-			height: calc(100dvh - 4.9em - 17rem);
+			height: calc(100dvh - 5.5em - 17rem);
 		}
 
 		footer {
