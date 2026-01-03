@@ -1,6 +1,6 @@
+import * as Rules from '$lib/components/rules.svelte';
 import type { HistoryEntry } from '$lib/historyEntry';
 import { GameState, type Attendant } from '$lib/state';
-import * as Rules from './rules.svelte';
 
 export const state = $state({
 	history: [] as HistoryEntry[],

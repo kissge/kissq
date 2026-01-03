@@ -1,8 +1,5 @@
 <script lang="ts">
-	import type { HistoryEntry } from '$lib/historyEntry';
-	import type { GameState } from '$lib/state';
-
-	let { history, currentState }: { history: HistoryEntry[]; currentState: GameState } = $props();
+	import * as State from '$lib/components/state.svelte';
 
 	let dialog: HTMLDialogElement;
 	export function open() {
@@ -11,11 +8,12 @@
 
 	let logs = $derived.by(() => {
 		let q = 1;
-		return history.map((entry, i) => ({
+		return State.state.history.map((entry, i) => ({
 			q:
 				i === 0
 					? q
-					: history[i - 1].type === 'maru' || history[i - 1].type === 'through'
+					: State.state.history[i - 1].type === 'maru' ||
+						  State.state.history[i - 1].type === 'through'
 						? ++q
 						: null,
 			entry
@@ -33,7 +31,7 @@
 							{q}
 						{/if}
 					</th>
-					<td>{entry.toString(currentState)}</td>
+					<td>{entry.toString(State.current())}</td>
 				</tr>
 			{:else}
 				<tr><td>まだ履歴がありません🍔</td></tr>

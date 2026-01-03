@@ -11,7 +11,9 @@
 	import LogDialog from '$lib/components/logDialog.svelte';
 	import PenaltyRoulette from '$lib/components/penaltyRoulette.svelte';
 	import RuleEditDialog from '$lib/components/ruleEditDialog.svelte';
+	import * as Rules from '$lib/components/rules.svelte';
 	import Stars from '$lib/components/stars.svelte';
+	import * as State from '$lib/components/state.svelte';
 	import StateEditDialog from '$lib/components/stateEditDialog.svelte';
 	import {
 		MaruHistoryEntry,
@@ -24,9 +26,7 @@
 	import { Rule, type Penalty } from '$lib/rule';
 	import { AttendantState, type AttendantStateValue, type GameEvent } from '$lib/state';
 	import { tooltip } from '$lib/tooltip.svelte';
-	import * as Rules from './rules.svelte';
 	import * as Sound from './sound.svelte';
-	import * as State from './state.svelte';
 
 	let innerWidth = $state(0);
 	let innerHeight = $state(0);
@@ -772,7 +772,7 @@
 
 <RuleEditDialog bind:this={ruleEditDialog} />
 <HelpDialog bind:this={helpDialog} />
-<LogDialog bind:this={logDialog} history={State.state.history} currentState={State.current()} />
+<LogDialog bind:this={logDialog} />
 <EffectEditDialog bind:this={effectEditDialog} />
 <StateEditDialog bind:this={stateEditDialog} />
 <PenaltyRoulette bind:this={penaltyRoulette} />
