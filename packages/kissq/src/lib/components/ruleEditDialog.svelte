@@ -669,6 +669,15 @@
 </dialog>
 
 <style>
+	dialog[open] {
+		display: grid;
+		grid-template-rows: auto 1fr auto;
+
+		&:has(:nth-child(4)) {
+			grid-template-rows: auto auto 1fr auto;
+		}
+	}
+
 	.tabbar {
 		display: flex;
 		margin-bottom: 1em;
@@ -718,9 +727,14 @@
 	div:has(> button.remove) {
 		display: flex;
 		justify-content: end;
+		margin-bottom: 0.5em;
 
 		button:not([disabled]) {
 			background-color: rgb(255 129 129);
 		}
+	}
+
+	.table {
+		overflow-y: auto;
 	}
 </style>
