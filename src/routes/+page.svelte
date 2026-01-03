@@ -25,6 +25,7 @@
 	import { AttendantState, type AttendantStateValue, type GameEvent } from '$lib/state';
 	import { tooltip } from '$lib/tooltip.svelte';
 	import * as Rules from './rules.svelte';
+	import * as Sound from './sound.svelte';
 	import * as State from './state.svelte';
 
 	let innerWidth = $state(0);
@@ -149,18 +150,6 @@
 	let effect2Name = $state<string>();
 	let effect3Name = $state<string>();
 
-	let playSounds = $state(true);
-
-	function playSound(src: string) {
-		if (playSounds) {
-			const audio = new Audio(src);
-			audio.volume = 0.25;
-			audio.play().catch(() => {
-				/* noop */
-			});
-		}
-	}
-
 	function toggleScreenshotMode() {
 		if (screenshotModeTimer != null) {
 			clearInterval(screenshotModeTimer);
@@ -236,12 +225,11 @@
 
 	function clickMaru(attendantID: number) {
 		State.state.history.push(new MaruHistoryEntry(attendantID));
-		playSound(se1);
+		Sound.playSound(se1);
 	}
 
 	async function clickBatsu(attendantID: number) {
-		playSound(se2);
-
+		Sound.playSound(se2);
 		const rule = State.current().attendants[attendantID].rule;
 		if (rule.yasu === 'roulette') {
 			const selection = await penaltyRoulette.run(rule.roulette!.choices);
@@ -255,7 +243,7 @@
 
 	function clickThrough() {
 		State.state.history.push(new ThroughHistoryEntry());
-		playSound(se3);
+		Sound.playSound(se3);
 	}
 
 	let showQuestionWindow = $state(false);
@@ -586,8 +574,8 @@
 							<button
 								onclick={() => {
 									State.state.history.push(new MaruHistoryEntry(i, 2));
-									playSound(se1);
-									setTimeout(() => playSound(se1), 150);
+									Sound.playSound(se1);
+									setTimeout(() => Sound.playSound(se1), 150);
 									showBanner({ type: 'effect2', attendantID: i });
 								}}
 								class="maru-btn"
@@ -600,9 +588,9 @@
 							<button
 								onclick={() => {
 									State.state.history.push(new MaruHistoryEntry(i, 3));
-									playSound(se1);
-									setTimeout(() => playSound(se1), 150);
-									setTimeout(() => playSound(se1), 300);
+									Sound.playSound(se1);
+									setTimeout(() => Sound.playSound(se1), 150);
+									setTimeout(() => Sound.playSound(se1), 300);
 									showBanner({ type: 'effect3', attendantID: i });
 								}}
 								class="maru-btn"
@@ -754,10 +742,10 @@
 			エフェクトボタン設定
 		</button>
 		<button
-			onclick={() => (playSounds = !playSounds)}
+			onclick={() => (Sound.state.playSounds = !Sound.state.playSounds)}
 			{@attach tooltip('効果音のオンオフを切り替えます')}
 		>
-			{#if playSounds}🔊 ON{:else}🔇 OFF{/if}
+			{#if Sound.state.playSounds}🔊 ON{:else}🔇 OFF{/if}
 		</button>
 		<button onclick={openSubWindow}>操作盤表示</button>
 	</div>
