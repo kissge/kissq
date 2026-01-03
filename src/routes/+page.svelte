@@ -1123,16 +1123,15 @@
 					display: flex;
 					flex-wrap: wrap;
 					justify-content: space-evenly;
-					gap: 3px;
-					margin: 0 -0.5em;
-					font-size: 0.6em;
+					gap: 10px;
+					margin: 0.2em -0.45em;
+					font-size: 0.9em;
 
 					> * {
 						display: flex;
-						flex: 1 1 auto;
+						flex: 1 1 40px;
 						justify-content: center;
 						align-items: center;
-						max-width: 100px;
 					}
 
 					.maru-btn:hover:not(:active),
