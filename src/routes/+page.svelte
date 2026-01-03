@@ -1231,9 +1231,9 @@
 	.banner {
 		display: flex;
 		position: fixed;
-		top: calc(50% - 5rem);
+		top: calc(50% - 0.7em);
 		right: 0;
-		bottom: calc(50% - 5rem);
+		bottom: calc(50% - 0.7em);
 		left: 0;
 		justify-content: center;
 		align-items: center;
@@ -1242,7 +1242,7 @@
 		overflow: hidden;
 		pointer-events: none;
 		font-weight: bold;
-		font-size: 8rem;
+		font-size: min(8dvw, 20dvh);
 		line-height: 1;
 		user-select: none;
 		text-align: center;
