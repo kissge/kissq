@@ -169,6 +169,31 @@
 		showBannerTimeout = setTimeout(() => (isBannerVisible = null), duration);
 	}
 
+	function addAttendant(name: string = '') {
+		attendants.push({
+			name,
+			group: 0,
+			trophyCount: 0,
+			totalScore: { num: 0, den: 0 },
+			manualOrder: attendants.length
+		});
+	}
+
+	function handlePasteEvent(event: ClipboardEvent, ord: number) {
+		const text = (event.clipboardData?.getData('text') || '').trim();
+		const lines = text.split(/[\r\n]+/);
+		if (lines.length >= 2) {
+			event.preventDefault();
+			lines.forEach((line, i) => {
+				if (ord + i < attendants.length) {
+					attendants[orderedAttendants[ord + i]].name = line;
+				} else {
+					addAttendant(line);
+				}
+			});
+		}
+	}
+
 	let attendantFLIPDelay = $state(0);
 
 	let showOtherMenu = $state(false);
@@ -510,6 +535,7 @@
 							setTimeout(() => (attendants[i].name = tmp), 1);
 						}
 					}}
+					onpaste={(e) => handlePasteEvent(e, ord)}
 					contenteditable
 					placeholder="プレイヤー {i + 1 < 10
 						? [...String(i + 1)]
@@ -744,20 +770,7 @@
 				<span in:fade>{history.at(-1)?.toString(currentState) || 'この世の始まり'}</span>を元に戻す
 			{/key}
 		</button>
-		<button
-			onclick={() => {
-				attendants.push({
-					name: '',
-					group: 0,
-					trophyCount: 0,
-					totalScore: { num: 0, den: 0 },
-					manualOrder: attendants.length
-				});
-			}}
-			style="max-width: 20dvw"
-		>
-			＋ プレイヤー追加
-		</button>
+		<button onclick={() => addAttendant()} style="max-width: 20dvw">＋ プレイヤー追加</button>
 		<button
 			onclick={() => {
 				if (
