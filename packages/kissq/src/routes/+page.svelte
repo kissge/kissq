@@ -1007,6 +1007,7 @@
 					overflow: hidden;
 					font-weight: bold;
 					line-height: 1.1;
+					text-wrap: balance;
 					word-break: break-all;
 
 					&:empty:not(:focus)::before {
@@ -1044,6 +1045,10 @@
 					gap: 3px;
 					translate: 0% 50%;
 					font-size: 0.3em;
+
+					button:hover:not([disabled]) {
+						background: #444;
+					}
 				}
 
 				&:hover .hidden-buttons {
