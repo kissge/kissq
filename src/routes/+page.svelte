@@ -53,19 +53,18 @@
 			return activeRules[0].rule;
 		}
 
-		const ruleTexts = activeRules.map(({ rule }) => String(rule));
-		return ruleTexts
+		return activeRules
 			.slice(1)
 			.reduce(
-				(acc, curr, i) => {
-					if (curr === acc.at(-1)!.text) {
-						acc.at(-1)!.end = i + 1;
+				(acc, { rule, i }) => {
+					if (String(rule) === acc.at(-1)!.text) {
+						acc.at(-1)!.end = i;
 						return acc;
 					} else {
-						return [...acc, { start: i + 1, end: i + 1, text: curr }];
+						return [...acc, { start: i, end: i, text: String(rule) }];
 					}
 				},
-				[{ start: 0, end: 0, text: ruleTexts[0] }]
+				[{ start: activeRules[0].i, end: activeRules[0].i, text: String(activeRules[0].rule) }]
 			)
 			.map(({ start, end, text }) =>
 				start === end
