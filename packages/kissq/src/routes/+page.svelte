@@ -1231,9 +1231,9 @@
 	.banner {
 		display: flex;
 		position: fixed;
-		top: 40%;
+		top: calc(50% - 5rem);
 		right: 0;
-		bottom: 40%;
+		bottom: calc(50% - 5rem);
 		left: 0;
 		justify-content: center;
 		align-items: center;
