@@ -88,7 +88,9 @@
 			typeof navigator !== 'undefined' &&
 			/safari/i.test(navigator.userAgent) &&
 			!/chrome|android/i.test(navigator.userAgent);
-		if (attCount < 4 || !container || isSafari) {
+		if (attCount <= 4) {
+			return 4;
+		} else if (!container || isSafari) {
 			return Math.floor(innerWidth / 250) || 7;
 		}
 
