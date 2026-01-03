@@ -904,9 +904,9 @@
 			border-radius: 0 0 0.5em 0.5em;
 			background-color: #0008;
 			padding: 0.5em 1em;
-			height: 3em;
+			height: 5em;
 			color: #fff;
-			font-size: 4rem;
+			font-size: 0.8em;
 			font-family: serif;
 
 			p {
@@ -1160,7 +1160,7 @@
 		}
 
 		:has(.question) + .attendants {
-			height: calc(100dvh - 5.5em - 17rem);
+			height: calc(100dvh - 5.5em - 5em);
 		}
 
 		footer {
