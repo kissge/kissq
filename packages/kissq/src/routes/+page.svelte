@@ -147,7 +147,7 @@
 		fontSize = Math.floor(
 			Math.min(
 				(container?.clientWidth / columnCount) * 0.3,
-				(container?.clientHeight / Math.ceil(currentState.ranking.length / columnCount)) * 0.1
+				(container?.clientHeight / Math.ceil(currentState.ranking.length / columnCount)) * 0.09
 			)
 		);
 	});
