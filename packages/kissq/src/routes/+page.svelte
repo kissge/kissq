@@ -1026,6 +1026,7 @@
 						cursor: text;
 						content: attr(placeholder);
 						color: #aaa;
+						text-wrap: initial;
 					}
 
 					&.blurred {
