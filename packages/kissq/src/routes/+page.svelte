@@ -554,7 +554,7 @@
 				></div>
 
 				<div class="score" style:opacity={showScore ? 1 : 0}>
-					{#if history.length === 0}
+					{#if history.length === 0 && att.rule.mode !== 'survival'}
 						{#if att.totalScore.den === 0}
 							---
 						{:else}
