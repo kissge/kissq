@@ -668,7 +668,8 @@
 							onclick={() => clickMaru(i)}
 							class="maru-btn"
 							{@attach tooltip(
-								`${att.name || 'このプレイヤー'}に1○をつけて、問題カウントを1進めます（休みの人がいれば1休減ります）`
+								`${att.name || 'このプレイヤー'}に1○をつけて、問題カウントを1進めます（休みの人がいれば1休減ります）`,
+								{ placement: 'bottom' }
 							)}
 						>
 							O
@@ -682,7 +683,7 @@
 									showBanner({ type: 'effect2', attendantID: i });
 								}}
 								class="maru-btn"
-								{@attach tooltip(`${effect2Name}（+2○）`)}
+								{@attach tooltip(`${effect2Name}（+2○）`, { placement: 'bottom' })}
 							>
 								2O
 							</button>
@@ -697,7 +698,7 @@
 									showBanner({ type: 'effect3', attendantID: i });
 								}}
 								class="maru-btn"
-								{@attach tooltip(`${effect3Name}（+3○）`)}
+								{@attach tooltip(`${effect3Name}（+3○）`, { placement: 'bottom' })}
 							>
 								3O
 							</button>
@@ -706,7 +707,8 @@
 							onclick={() => clickBatsu(i)}
 							class="batsu-btn"
 							{@attach tooltip(
-								`${att.name || 'このプレイヤー'}に1×をつけます（誰も正解しなければ最後にスルーボタンを押すのを忘れずに！）`
+								`${att.name || 'このプレイヤー'}に1×をつけます（誰も正解しなければ最後にスルーボタンを押すのを忘れずに！）`,
+								{ placement: 'bottom' }
 							)}
 						>
 							X
