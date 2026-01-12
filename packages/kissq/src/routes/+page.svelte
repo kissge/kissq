@@ -571,11 +571,13 @@
 
 				<div class="score" style:opacity={showScore ? 1 : 0}>
 					{#if history.length === 0 && att.rule.mode !== 'survival'}
-						{#if att.totalScore.den === 0}
-							---
-						{:else}
-							{Math.floor((att.totalScore.num / att.totalScore.den) * 492.8).toLocaleString()}
-						{/if}
+						<span {@attach tooltip('レート')}>
+							{#if att.totalScore.den === 0}
+								---
+							{:else}
+								{Math.floor((att.totalScore.num / att.totalScore.den) * 492.8).toLocaleString()}
+							{/if}
+						</span>
 					{:else if showMarubatsuOverride || att.rule.mode === 'marubatsu'}
 						<span class="maru-count">
 							{#key att.maruCount}<span in:fade>{att.maruCount}</span>{/key} 〇
