@@ -340,6 +340,10 @@
 		playSound(se3);
 	}
 
+	function clickUndo() {
+		history.pop();
+	}
+
 	let showQuestionWindow = $state(false);
 	let currentQuestion = $state({ question: '', answer: '' });
 	let subWindow = $state<Window>();
@@ -376,6 +380,10 @@
 
 			case 'clickThrough':
 				clickThrough();
+				break;
+
+			case 'clickUndo':
+				clickUndo();
 				break;
 		}
 	}
@@ -769,7 +777,7 @@
 			スルー
 		</button>
 		<button
-			onclick={() => history.pop()}
+			onclick={clickUndo}
 			disabled={history.length === 0}
 			{@attach tooltip('直前の操作を無かったことにします。')}
 			style="max-width: 20dvw"
