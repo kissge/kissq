@@ -346,6 +346,14 @@
 
 	function openSubWindow() {
 		subWindow = window.open('./question', 'questionWindow', 'popup') || undefined;
+		setTimeout(
+			() =>
+				subWindow?.postMessage({
+					command: 'syncState',
+					currentState: JSON.parse(JSON.stringify(currentState))
+				}),
+			1000
+		);
 	}
 
 	function processWindowMessage(event: MessageEvent) {

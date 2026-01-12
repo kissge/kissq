@@ -95,7 +95,7 @@
 			{#each currentState.attendants as att, i (i)}
 				{#if att.life !== 'removed'}
 					<div class="attendant">
-						{att.name}&nbsp;
+						{att.name || '--'}&nbsp;
 						{#if att.life === 'won'}
 							勝ち
 						{:else if att.life === 'lost'}
