@@ -140,16 +140,21 @@
 
 		if (nameWidth[0] > nameHeight[0]) {
 			nameDirection = '';
+			fontSize = Math.floor(
+				Math.min(
+					(container?.clientWidth / columnCount) * 0.15,
+					(container?.clientHeight / Math.ceil(currentState.ranking.length / columnCount)) * 0.15
+				)
+			);
 		} else {
 			nameDirection = 'vertical-rl';
+			fontSize = Math.floor(
+				Math.min(
+					(container?.clientWidth / columnCount) * 0.3,
+					(container?.clientHeight / Math.ceil(currentState.ranking.length / columnCount)) * 0.09
+				)
+			);
 		}
-
-		fontSize = Math.floor(
-			Math.min(
-				(container?.clientWidth / columnCount) * 0.3,
-				(container?.clientHeight / Math.ceil(currentState.ranking.length / columnCount)) * 0.09
-			)
-		);
 	});
 
 	let isBannerVisible = $state<GameEvent | null>(null);
