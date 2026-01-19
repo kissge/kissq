@@ -1126,7 +1126,7 @@
 					small {
 						margin: 0 -0.25em;
 						font-weight: normal;
-						font-size: 1.6rem;
+						font-size: 0.4em;
 					}
 
 					.m-by-n-score {
@@ -1135,6 +1135,7 @@
 
 						small {
 							display: block;
+							font-size: 0.55em;
 						}
 					}
 					.maru-count {
@@ -1260,8 +1261,8 @@
 		bottom: anchor(top);
 		box-shadow: -2px -2px 6px #666;
 		background: #eee;
-		padding: 1rem;
-		font-size: 2rem;
+		padding: 0.5em;
+		font-size: 2em;
 		user-select: none;
 	}
 
