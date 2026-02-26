@@ -584,7 +584,7 @@
 
 				<div class="score" style:opacity={showScore ? 1 : 0}>
 					{#if history.length === 0 && att.rule.mode !== 'survival'}
-						<span {@attach tooltip('レート')}>
+						<span {@attach tooltip('レート')} class="rate">
 							{#if att.totalScore.den === 0}
 								---
 							{:else}
@@ -1145,6 +1145,10 @@
 							display: block;
 							font-size: 0.55em;
 						}
+					}
+
+					.rate {
+						font-size: 0.7em;
 					}
 					.maru-count {
 						color: red;
