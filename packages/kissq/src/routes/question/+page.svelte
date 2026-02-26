@@ -78,6 +78,17 @@
 	<div>
 		<button onclick={() => opener.postMessage({ command: 'clickThrough' })}>スルー</button>
 		<button onclick={() => opener.postMessage({ command: 'clickUndo' })}>元に戻す</button>
+		<button onclick={() => opener.postMessage({ command: 'clickReset' })}>全員リセット</button>
+		<button
+			onclick={() => {
+				let name = prompt('プレイヤーの名前を入力してください');
+				if (name) {
+					opener.postMessage({ command: 'addAttendant', name });
+				}
+			}}
+		>
+			プレイヤー追加
+		</button>
 		<button disabled={currentIndex === 0} onclick={() => --currentIndex}>← 前の問題へ</button>
 		<button disabled={currentIndex === questions.length - 1} onclick={() => ++currentIndex}>
 			次の問題へ →
