@@ -175,7 +175,7 @@
 
 	function addAttendant(name: string = '') {
 		attendants.push({
-			name,
+			name: han2zen(name),
 			group: 0,
 			trophyCount: 0,
 			totalScore: { num: 0, den: 0 },
@@ -389,6 +389,14 @@
 
 			case 'clickUndo':
 				clickUndo();
+				break;
+
+			case 'clickReset':
+				clearHistory();
+				break;
+
+			case 'addAttendant':
+				addAttendant(event.data.name);
 				break;
 		}
 	}
