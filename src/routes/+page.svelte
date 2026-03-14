@@ -236,6 +236,8 @@
 		}
 	}
 
+	let enableRating = $state(false);
+
 	function toggleScreenshotMode() {
 		if (screenshotModeTimer != null) {
 			clearInterval(screenshotModeTimer);
@@ -265,12 +267,14 @@
 	function clearHistory() {
 		currentState.attendants.forEach((att, i) => {
 			attendants[i].trophyCount = att.trophyCount;
-			attendants[i].totalScore = {
-				num:
-					att.totalScore.num +
-					(currentState.attendants.length - currentState.ranking.indexOf(i) - 1),
-				den: att.totalScore.den + 1
-			};
+			if (enableRating) {
+				attendants[i].totalScore = {
+					num:
+						att.totalScore.num +
+						(currentState.attendants.length - currentState.ranking.indexOf(i) - 1),
+					den: att.totalScore.den + 1
+				};
+			}
 		});
 		attendants = attendants.filter((_, i) => currentState.attendants[i].life !== 'removed');
 		history = [];
@@ -583,7 +587,7 @@
 				></div>
 
 				<div class="score" style:opacity={showScore ? 1 : 0}>
-					{#if history.length === 0 && att.rule.mode !== 'survival'}
+					{#if history.length === 0 && att.rule.mode !== 'survival' && att.rule.mode !== 'score' && enableRating}
 						<span {@attach tooltip('レート')} class="rate">
 							{#if att.totalScore.den === 0}
 								---
@@ -879,6 +883,12 @@
 			{@attach tooltip('効果音のオンオフを切り替えます')}
 		>
 			{#if playSounds}🔊 ON{:else}🔇 OFF{/if}
+		</button>
+		<button
+			onclick={() => (enableRating = !enableRating)}
+			{@attach tooltip('レーティング自動計算のオンオフを切り替えます')}
+		>
+			{#if enableRating}レートON{:else}レートOFF{/if}
 		</button>
 		<button onclick={openSubWindow}>操作盤表示</button>
 	</div>
