@@ -118,7 +118,7 @@ export class AttendantState {
 
 				if (
 					this.rule.batsu === 'updown' ||
-					(this.rule.yasu === 'roulette' && penalty?.type === 'zero')
+					(this.rule.yasuMode === 'roulette' && penalty?.type === 'zero')
 				) {
 					maruCount = 0;
 				}
@@ -139,7 +139,7 @@ export class AttendantState {
 						: this.rule.batsu === 'updown'
 							? /** dummy */ -batsuCount
 							: this.rule.batsu;
-				if (this.rule.yasu === 'roulette' && penalty?.type === 'zero') {
+				if (this.rule.yasuMode === 'roulette' && penalty?.type === 'zero') {
 					score = 0;
 				}
 
@@ -157,7 +157,7 @@ export class AttendantState {
 						? /** dummy */ 1
 						: this.rule.batsu;
 				score = this.maruCount * (this.rule.win - batsuCount);
-				if (this.rule.yasu === 'roulette' && penalty?.type === 'zero') {
+				if (this.rule.yasuMode === 'roulette' && penalty?.type === 'zero') {
 					score = 0;
 				}
 
@@ -177,7 +177,7 @@ export class AttendantState {
 						: this.rule.batsu === 'updown'
 							? /** dummy */ 1
 							: this.rule.batsu;
-				if (this.rule.yasu === 'roulette' && penalty?.type === 'zero') {
+				if (this.rule.yasuMode === 'roulette' && penalty?.type === 'zero') {
 					score = 0;
 				}
 
@@ -202,14 +202,14 @@ export class AttendantState {
 
 	get yasuDisplay(): number {
 		if (this.yasuCount === 'next') {
-			if (this.rule.yasu === 'maru') {
+			if (this.rule.yasuMode === 'maru') {
 				return this.maruCount || 1;
-			} else if (this.rule.yasu === 'batsu') {
+			} else if (this.rule.yasuMode === 'batsu') {
 				return this.batsuCount;
-			} else if (this.rule.yasu === 'roulette') {
+			} else if (this.rule.yasuMode === 'roulette') {
 				return this.lastPenalty?.type === 'yasu' ? this.lastPenalty.count : 0;
 			} else {
-				return this.rule.yasu;
+				return this.rule.yasuPerBatsu;
 			}
 		} else {
 			return this.yasuCount;

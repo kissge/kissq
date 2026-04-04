@@ -38,7 +38,7 @@
 			{ name: '', group: 0, trophyCount: 0, totalScore: { num: 0, den: 0 }, manualOrder: 1 }
 		]
 	);
-	let rules = $state([new Rule('marubatsu', 7, 3, 1, 1, null, 0, null)]);
+	let rules = $state([new Rule('marubatsu', 7, 3, 1, 1, null, 'constant', 0, null)]);
 	let history = $state<HistoryEntry[]>([]);
 	let currentState = $derived(
 		history.reduce(
@@ -336,7 +336,7 @@
 		playSound(se2);
 
 		const rule = currentState.attendants[attendantID].rule;
-		if (rule.yasu === 'roulette') {
+		if (rule.yasuMode === 'roulette') {
 			const selection = await penaltyRoulette.run(rule.roulette!.choices);
 			history.push(new BatsuHistoryEntry(attendantID, rule.roulette!.choices[selection]));
 		} else {
@@ -785,8 +785,8 @@
 			onclick={clickThrough}
 			class={{
 				blink: currentState.attendants.some(
-					({ yasuCount, rule: { yasu } }) =>
-						yasuCount === 'next' && (typeof yasu !== 'number' || yasu > 0)
+					({ yasuCount, rule: { yasuMode, yasuPerBatsu } }) =>
+						yasuCount === 'next' && (yasuMode !== 'constant' || yasuPerBatsu > 0)
 				)
 			}}
 			{@attach tooltip(

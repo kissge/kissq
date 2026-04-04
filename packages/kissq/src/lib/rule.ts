@@ -14,8 +14,10 @@ export class Rule {
 		public batsu: number | 'batsu' | 'updown',
 		/** N問正解で得られる休みの数M */
 		public yasuPerMaru: { maru: number; yasu: number } | null,
-		/** 1問誤答で得られる休みの数（定数またはその時点のマル数・バツ数） */
-		public yasu: number | 'maru' | 'batsu' | 'roulette',
+		/** 1問誤答で得られる休みの方式（定数またはその時点のマル数・バツ数） */
+		public yasuMode: 'constant' | 'maru' | 'batsu' | 'roulette',
+		/** 1問誤答で得られる休みの数 */
+		public yasuPerBatsu: number,
 		/** ルーレット */
 		public roulette: { name: string; choices: Penalty[] } | null,
 		/** 削除済みかどうか */
@@ -109,14 +111,14 @@ export class Rule {
 			str += `、${this.yasuPerMaru.maru}○ごとに${this.yasuPerMaru.yasu}休`;
 		}
 
-		if (this.yasu === 'maru') {
+		if (this.yasuMode === 'maru') {
 			str += `、誤答（現在のマル数）休`;
-		} else if (this.yasu === 'batsu') {
+		} else if (this.yasuMode === 'batsu') {
 			str += `、N回目の誤答でN休`;
-		} else if (this.yasu === 'roulette') {
+		} else if (this.yasuMode === 'roulette') {
 			str += `、誤答で？？？`;
-		} else if (this.yasu > 0) {
-			str += `、誤答${this.yasu}休`;
+		} else if (this.yasuPerBatsu > 0) {
+			str += `、誤答${this.yasuPerBatsu}休`;
 		}
 
 		return str;
