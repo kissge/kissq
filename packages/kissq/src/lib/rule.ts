@@ -112,9 +112,9 @@ export class Rule {
 		}
 
 		if (this.yasuMode === 'maru') {
-			str += `、誤答（現在のマル数）休`;
+			str += `、誤答（現在のマル数）${this.yasuPerBatsu !== 1 ? '×' + this.yasuPerBatsu : ''}休`;
 		} else if (this.yasuMode === 'batsu') {
-			str += `、N回目の誤答でN休`;
+			str += `、N回目の誤答で${this.yasuPerBatsu !== 1 ? this.yasuPerBatsu : ''}N休`;
 		} else if (this.yasuMode === 'roulette') {
 			str += `、誤答で？？？`;
 		} else if (this.yasuPerBatsu > 0) {
