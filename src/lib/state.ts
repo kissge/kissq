@@ -203,9 +203,9 @@ export class AttendantState {
 	get yasuDisplay(): number {
 		if (this.yasuCount === 'next') {
 			if (this.rule.yasuMode === 'maru') {
-				return this.maruCount || 1;
+				return (this.maruCount || 1) * this.rule.yasuPerBatsu;
 			} else if (this.rule.yasuMode === 'batsu') {
-				return this.batsuCount;
+				return this.batsuCount * this.rule.yasuPerBatsu;
 			} else if (this.rule.yasuMode === 'roulette') {
 				return this.lastPenalty?.type === 'yasu' ? this.lastPenalty.count : 0;
 			} else {

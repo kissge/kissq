@@ -97,8 +97,11 @@
 						Number.isInteger(yasuPerMaruYasu) &&
 						yasuPerMaruYasu > 0) &&
 				Number.isInteger(yasuPerBatsu) &&
-				yasuPerBatsu >= 0 &&
-				(yasuMode === 'roulette' ? rouletteName : true)
+				(yasuMode === 'constant'
+					? yasuPerBatsu >= 0
+					: yasuMode === 'roulette'
+						? rouletteName
+						: yasuPerBatsu > 0)
 		)
 	);
 
@@ -620,7 +623,13 @@
 						value="maru"
 						disabled={activeRule.mode === 'score'}
 					/>
-					（現在のマル数）問休み<small>（0マルなら1休）</small>
+					（現在のマル数）×
+					<input
+						type="number"
+						bind:value={activeRule.yasuPerBatsu}
+						onfocus={() => (activeRule.yasuMode = 'maru')}
+						min="1"
+					/>問休み<small>（0マルなら1休）</small>
 				</label>
 				<br />
 				<label>
@@ -630,15 +639,27 @@
 						value="batsu"
 						disabled={activeRule.mode === 'score'}
 					/>
-					N回目の誤答でN問休み
+					N回目の誤答で
+					<input
+						type="number"
+						bind:value={activeRule.yasuPerBatsu}
+						onfocus={() => (activeRule.yasuMode = 'batsu')}
+						min="1"
+					/>N問休み
 				</label>
 				<br />
 				<label>
 					<input type="radio" bind:group={activeRule.yasuMode} value="roulette" />
 					ルーレット
 				</label>
-				{#if !Number.isInteger(activeRule.yasuPerBatsu) || activeRule.yasuPerBatsu < 0}
-					<span class="error">休みは0以上の整数で設定してください</span>
+				{#if activeRule.yasuMode === 'constant'}
+					{#if !Number.isInteger(activeRule.yasuPerBatsu) || activeRule.yasuPerBatsu < 0}
+						<span class="error">休みは0以上の整数で設定してください</span>
+					{/if}
+				{:else if activeRule.yasuMode !== 'roulette'}
+					{#if !Number.isInteger(activeRule.yasuPerBatsu) || activeRule.yasuPerBatsu < 1}
+						<span class="error">休みの倍数は1以上の整数で設定してください</span>
+					{/if}
 				{/if}
 			</div>
 
