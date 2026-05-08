@@ -648,6 +648,7 @@
 								attendants[i].manualOrder,
 								attendants[orderedAttendants[ord - 1]].manualOrder
 							];
+							orderedAttendants.forEach((a, i) => (attendants[a].manualOrder = i));
 						}}
 					>
 						◀
@@ -660,6 +661,7 @@
 								attendants[i].manualOrder,
 								attendants[orderedAttendants[ord + 1]].manualOrder
 							];
+							orderedAttendants.forEach((a, i) => (attendants[a].manualOrder = i));
 						}}
 					>
 						▶
