@@ -877,6 +877,16 @@
 		>
 			並び順：{#if orderingMode === 'ranking'}ランキング{:else}手動{/if}
 		</button>
+		<button
+			onclick={() => {
+				orderingMode = 'manual';
+				orderedAttendants
+					.toSorted((a, b) => attendants[a].group - attendants[b].group)
+					.forEach((a, i) => (attendants[a].manualOrder = i));
+			}}
+		>
+			グループ順に整列
+		</button>
 		<button onclick={editEffects} {@attach tooltip('エフェクトボタンの設定を編集します')}>
 			エフェクトボタン設定
 		</button>
