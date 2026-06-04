@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { csv2json } from 'json-2-csv';
 	import { onMount } from 'svelte';
 	import type { GameState } from '$lib/state';
 
@@ -49,20 +50,23 @@
 		return () => window.removeEventListener('message', processWindowMessage);
 	});
 
-	function loadFromTSV() {
+	function loadFromCSV() {
+		const tabCount = rawInput.match(/\t/g)?.length ?? 0;
+		const commaCount = rawInput.match(/,/g)?.length ?? 0;
+		const delimiter = tabCount > commaCount ? '\t' : ',';
+
 		const lines = rawInput
 			.trim()
 			.split('\n')
-			.filter((line) => line.trim() !== '');
+			.filter((line) => line.trim() !== '')
+			.join('\n');
+
 		questions = [
 			qZero,
-			...lines.map((line) => {
-				let [q, a] = line.split('\t');
-				// q = q?.replace(/^"|"$/g, '');
-				// a = a?.replace(/^"|"$/g, '');
-
-				return { question: q, answer: a };
-			})
+			...(csv2json(lines, {
+				delimiter: { field: delimiter },
+				headerFields: ['question', 'answer']
+			}) as { question: string; answer: string }[])
 		];
 
 		window.localStorage.setItem('questions', JSON.stringify(questions));
@@ -161,12 +165,15 @@
 </footer>
 
 <dialog closedby="any" bind:this={inputDialog}>
+	<p style="font-size: 0.5em;">
+		ヒント：スプレッドシート上で質問と回答の列を選択してコピーするとTSV形式になります。
+	</p>
 	<textarea
 		bind:value={rawInput}
-		onpaste={() => setTimeout(loadFromTSV, 0)}
-		placeholder="ここにTSVデータを貼り付けてください"
+		onpaste={() => setTimeout(loadFromCSV, 0)}
+		placeholder="ここにCSV/TSVデータを貼り付けてください"
 	></textarea>
-	<button onclick={loadFromTSV}>読み込み</button>
+	<button onclick={loadFromCSV}>読み込み</button>
 </dialog>
 
 <style>
