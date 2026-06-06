@@ -144,7 +144,13 @@
 						</button>
 					</td>
 					<td class:error={!question?.trim()}>
-						{question}
+						{#each question.split(/(（.+?）|\(.+?\)|【.+?】|［.+?］)/) as part, i (i)}
+							{#if i % 2}
+								<em>{part}</em>
+							{:else}
+								{part}
+							{/if}
+						{/each}
 					</td>
 					<td class:error={!answer?.trim()}>
 						{answer}
@@ -242,6 +248,11 @@
 
 			&.error {
 				animation: errorFlash 0.5s ease-in-out infinite;
+			}
+
+			em {
+				color: #888;
+				font-style: normal;
 			}
 		}
 	}
