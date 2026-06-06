@@ -353,8 +353,12 @@
 		history.pop();
 	}
 
-	let showQuestionWindow = $state(false);
-	let currentQuestion = $state({ question: '', answer: '' });
+	const urlParams = new URLSearchParams(typeof location !== 'undefined' ? location.search : '');
+	let showQuestionWindow = $state(urlParams.has('qw'));
+	let currentQuestion = $state({
+		question: 'ここに問題が表示されます',
+		answer: 'ここに答えが表示されます'
+	});
 	let subWindow = $state<Window>();
 
 	function openSubWindow() {
