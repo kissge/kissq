@@ -279,8 +279,6 @@ export class GameState {
 						// 両方生存している場合はスコア順
 						return (
 							b.score - a.score ||
-							b.maruCount - a.maruCount ||
-							a.batsuCount - b.batsuCount ||
 							b.totalScore.num * a.totalScore.den - a.totalScore.num * b.totalScore.den
 						);
 					} else {
