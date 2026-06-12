@@ -585,6 +585,7 @@
 					]}
 					style:writing-mode={nameDirection}
 					style:justify-content={nameDirection ? '' : 'center'}
+					style:text-align={nameDirection ? '' : 'center'}
 					{@attach tooltip('ダブルクリックして名前を編集')}
 					bind:clientWidth={nameWidth[i]}
 					bind:clientHeight={nameHeight[i]}
@@ -1072,14 +1073,21 @@
 					display: flex;
 					flex: 1 1 100px;
 					align-items: center;
+					margin: -1em;
 					padding: 0;
-					padding-top: 5px;
-					width: 100%;
+					padding-top: calc(1em + 5px);
+					padding-bottom: 1em;
 					overflow: hidden;
 					font-weight: bold;
 					line-height: 1.1;
 					text-wrap: balance;
 					word-break: break-all;
+
+					&:focus {
+						margin: 0 -0.5em;
+						padding-top: 5px;
+						padding-bottom: 0;
+					}
 
 					&:empty:not(:focus)::before {
 						cursor: text;
