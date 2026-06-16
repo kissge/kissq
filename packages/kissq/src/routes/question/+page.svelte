@@ -116,8 +116,10 @@
 							勝ち
 						{:else if att.life === 'lost'}
 							失格
-						{:else if att.yasuDisplay > 0}
-							{#if att.yasuCount === 'next'}次{/if}{att.yasuDisplay}休
+						{:else if att.yasuCount === 'next'}
+							次休
+						{:else if att.yasuCount > 0}
+							{att.yasuCount}休
 						{:else}
 							<button onclick={() => opener.postMessage({ command: 'clickMaru', attendantID: i })}>
 								O
