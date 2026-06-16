@@ -534,6 +534,7 @@
 		class="attendants"
 		style:grid-template-columns={`repeat(${columnCount}, 1fr)`}
 		style:grid-template-rows={`repeat(${Math.ceil(orderedAttendants.length / columnCount)}, ${activeRules.length > 1 ? 'auto' : ''} 1fr auto auto)`}
+		style:height={`calc(100dvh - ${headerClientHeight}px - ${footerClientHeight}px - 22px)`}
 		bind:this={container}
 	>
 		{#each orderedAttendants as i, ord (i)}
@@ -960,6 +961,7 @@
 		.header {
 			display: flex;
 			justify-content: space-between;
+			gap: 1em;
 			box-sizing: border-box;
 			width: 100dvw;
 			font-weight: bold;
@@ -1013,7 +1015,6 @@
 		.attendants {
 			display: grid;
 			gap: 0.5em;
-			height: calc(100dvh - 5.5em);
 
 			.attendant {
 				display: grid;
