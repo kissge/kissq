@@ -184,7 +184,7 @@
 
 		<div class="table">
 			<div style="margin: 2rem 0">定番</div>
-			<div style="margin: 2rem 0">
+			<div style="margin: 2rem 0" class="presets">
 				<button
 					onclick={() => {
 						rules[activeTab] = {
@@ -755,5 +755,11 @@
 
 	.table {
 		overflow-y: auto;
+	}
+
+	.presets {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 2px;
 	}
 </style>
