@@ -534,7 +534,7 @@
 		class="attendants"
 		style:grid-template-columns={`repeat(${columnCount}, 1fr)`}
 		style:grid-template-rows={`repeat(${Math.ceil(orderedAttendants.length / columnCount)}, ${activeRules.length > 1 ? 'auto' : ''} 1fr auto auto)`}
-		style:height={`calc(100dvh - ${headerClientHeight}px - ${footerClientHeight}px - 22px)`}
+		style:height={`calc(100dvh - ${headerClientHeight}px - ${footerClientHeight}px - 22px${showQuestionWindow ? ' - 6.25em - 0.7rem' : ''})`}
 		bind:this={container}
 	>
 		{#each orderedAttendants as i, ord (i)}
@@ -982,7 +982,6 @@
 			padding: 0.5em 1em;
 			height: 5em;
 			color: #fff;
-			font-size: 0.8em;
 			font-family: serif;
 
 			p {
