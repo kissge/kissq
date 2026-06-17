@@ -111,15 +111,17 @@
 			{#each currentState.attendants as att, i (i)}
 				{#if att.life !== 'removed'}
 					<div class="attendant">
-						{att.name || '--'}&nbsp;
+						{att.name || '--'}
+						{#if att.isLizhi}
+							<span class="lizhi">リーチ</span>
+						{/if}
+						&nbsp;
 						{#if att.life === 'won'}
-							勝ち
+							<span class="won">勝ち</span>
 						{:else if att.life === 'lost'}
-							失格
-						{:else if att.yasuCount === 'next'}
-							次休
-						{:else if att.yasuCount > 0}
-							{att.yasuCount}休
+							<span class="lost">失格</span>
+						{:else if att.yasuDisplay > 0}
+							{#if att.yasuCount === 'next'}次{/if}{att.yasuDisplay}休
 						{:else}
 							<button onclick={() => opener.postMessage({ command: 'clickMaru', attendantID: i })}>
 								O
@@ -218,6 +220,23 @@
 			border: 1px solid #ccc;
 			padding: 0.5em;
 			line-height: 2.1;
+		}
+
+		.lizhi,
+		.won,
+		.lost {
+			border-radius: 1em;
+			padding: 0 0.5em;
+		}
+
+		.lizhi {
+			background: #dddd0e;
+		}
+		.won {
+			background: #7cfc00;
+		}
+		.lost {
+			background: #ff4500;
 		}
 	}
 

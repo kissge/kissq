@@ -219,6 +219,14 @@ export class AttendantState {
 	get isLizhi(): boolean {
 		return this.life === 'alive' && this.processMaru().life === 'won';
 	}
+
+	toJSON() {
+		return {
+			...this,
+			yasuDisplay: this.yasuDisplay,
+			isLizhi: this.isLizhi,
+		};
+	}
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
