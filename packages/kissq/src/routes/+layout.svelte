@@ -1,6 +1,14 @@
 <script lang="ts">
+	// @ts-expect-error PWA
+	import { pwaInfo } from 'virtual:pwa-info';
+
 	let { children } = $props();
 </script>
+
+<svelte:head>
+	<!-- eslint-disable-next-line svelte/no-at-html-tags -->
+	{@html pwaInfo?.webManifest.linkTag}
+</svelte:head>
 
 {@render children?.()}
 
