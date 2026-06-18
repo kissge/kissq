@@ -195,6 +195,9 @@
 					addAttendant(line);
 				}
 			});
+		} else if (text.length > 0) {
+			event.preventDefault();
+			attendants[orderedAttendants[ord]].name = text;
 		}
 	}
 
