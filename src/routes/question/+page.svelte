@@ -239,6 +239,7 @@
 		}
 		.lost {
 			background: #ff4500;
+			color: white;
 		}
 	}
 
