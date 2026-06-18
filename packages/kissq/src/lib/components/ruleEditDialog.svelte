@@ -388,8 +388,8 @@
 						rules[activeTab] = {
 							mode: 'marubatsu',
 							win: 7,
-							isLoseNull: true,
-							lose: 3,
+							isLoseNull: false,
+							lose: 2,
 							maru: 1,
 							batsu: 1,
 							batsuMode: 'updown',
