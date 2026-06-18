@@ -16,11 +16,43 @@
 
 	let inputDialog: HTMLDialogElement;
 
+	const Keys = [
+		['Q', 'A'],
+		['W', 'S'],
+		['E', 'D'],
+		['R', 'F'],
+		['T', 'G'],
+		['Y', 'H'],
+		['U', 'J'],
+		['I', 'K'],
+		['O', 'L'],
+		['P', ';']
+	];
+
 	function processWindowMessage(event: MessageEvent) {
 		switch (event.data.command) {
 			case 'syncState':
 				currentState = event.data.currentState;
 				break;
+		}
+	}
+
+	function processKeyboardInput(event: KeyboardEvent) {
+		const key = event.key.toUpperCase();
+
+		if (key === 'Z') {
+			opener.postMessage({ command: 'clickUndo' });
+		} else if (key === 'X') {
+			opener.postMessage({ command: 'clickThrough' });
+		} else {
+			const index = Keys.findIndex(([maru, batsu]) => maru === key || batsu === key);
+			if (index !== -1) {
+				if (key === Keys[index][0]) {
+					opener.postMessage({ command: 'clickMaru', attendantID: index });
+				} else {
+					opener.postMessage({ command: 'clickBatsu', attendantID: index });
+				}
+			}
 		}
 	}
 
@@ -46,8 +78,12 @@
 		}
 
 		window.addEventListener('message', processWindowMessage);
+		window.addEventListener('keydown', processKeyboardInput);
 
-		return () => window.removeEventListener('message', processWindowMessage);
+		return () => {
+			window.removeEventListener('message', processWindowMessage);
+			window.removeEventListener('keydown', processKeyboardInput);
+		};
 	});
 
 	function loadFromCSV() {
@@ -80,8 +116,20 @@
 
 <header>
 	<div>
-		<button onclick={() => opener.postMessage({ command: 'clickThrough' })}>スルー</button>
-		<button onclick={() => opener.postMessage({ command: 'clickUndo' })}>元に戻す</button>
+		<button
+			class="labeled"
+			data-label="Z"
+			onclick={() => opener.postMessage({ command: 'clickUndo' })}
+		>
+			元に戻す
+		</button>
+		<button
+			class="labeled"
+			data-label="X"
+			onclick={() => opener.postMessage({ command: 'clickThrough' })}
+		>
+			スルー
+		</button>
 		<button onclick={() => opener.postMessage({ command: 'clickReset' })}>全員リセット</button>
 		<button
 			onclick={() => {
@@ -125,10 +173,18 @@
 						{:else if att.yasuDisplay > 0}
 							{#if att.yasuCount === 'next'}次{/if}{att.yasuDisplay}休
 						{:else}
-							<button onclick={() => opener.postMessage({ command: 'clickMaru', attendantID: i })}>
+							<button
+								class="labeled"
+								data-label={Keys[i]?.[0] || ''}
+								onclick={() => opener.postMessage({ command: 'clickMaru', attendantID: i })}
+							>
 								O
 							</button>
-							<button onclick={() => opener.postMessage({ command: 'clickBatsu', attendantID: i })}>
+							<button
+								class="labeled"
+								data-label={Keys[i]?.[1] || ''}
+								onclick={() => opener.postMessage({ command: 'clickBatsu', attendantID: i })}
+							>
 								X
 							</button>
 						{/if}
@@ -283,6 +339,22 @@
 
 	textarea {
 		width: 90%;
+	}
+
+	button.labeled {
+		position: relative;
+
+		&:after {
+			display: block;
+			position: absolute;
+			top: -0.5em;
+			right: -0.5em;
+			border-radius: 0.25em;
+			background: rgb(89 89 228);
+			width: 1em;
+			content: attr(data-label);
+			color: white;
+		}
 	}
 
 	@keyframes errorFlash {
