@@ -220,11 +220,16 @@ export class AttendantState {
 		return this.life === 'alive' && this.processMaru().life === 'won';
 	}
 
+	get isLoseLizhi(): boolean {
+		return this.life === 'alive' && this.processBatsu().life === 'lost';
+	}
+
 	toJSON() {
 		return {
 			...this,
 			yasuDisplay: this.yasuDisplay,
 			isLizhi: this.isLizhi,
+			isLoseLizhi: this.isLoseLizhi,
 		};
 	}
 }

@@ -114,6 +114,8 @@
 						{att.name || '--'}
 						{#if att.isLizhi}
 							<span class="lizhi">リーチ</span>
+						{:else if att.isLoseLizhi}
+							<span class="lizhi">失格リーチ</span>
 						{/if}
 						&nbsp;
 						{#if att.life === 'won'}

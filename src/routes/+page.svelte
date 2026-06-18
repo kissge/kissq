@@ -606,12 +606,21 @@
 							{#key att.maruCount}<span in:fade>{att.maruCount}</span>{/key} 〇
 						</span>
 						<span class="batsu-count">
-							{#key att.batsuCount}<span in:fade>{att.batsuCount}</span>{/key} ×
+							{#key att.batsuCount}
+								<span in:fade class:lose-lizhi={att.isLoseLizhi}>
+									{att.batsuCount}
+								</span>
+							{/key} ×
 						</span>
 					{:else if att.rule.mode === 'score' || att.rule.mode === 'survival'}
 						<span>
 							{#key att.score}
-								<span class="crossfade" in:fade={{ delay: 500 }} out:fade>
+								<span
+									class="crossfade"
+									class:lose-lizhi={att.isLoseLizhi}
+									in:fade={{ delay: 500 }}
+									out:fade
+								>
 									{att.score}
 								</span>
 							{/key}
@@ -625,7 +634,12 @@
 								{att.maruCount} × {att.rule.win - att.batsuCount}
 							</small>
 							{#key att.score}
-								<span class="crossfade" in:fade={{ delay: 500 }} out:fade>{att.score}</span>
+								<span
+									class="crossfade"
+									class:lose-lizhi={att.isLoseLizhi}
+									in:fade={{ delay: 500 }}
+									out:fade>{att.score}</span
+								>
 							{/key}
 						</span>
 					{/if}
@@ -1192,6 +1206,10 @@
 						color: rgb(140 140 255);
 						letter-spacing: -0.1em;
 					}
+
+					.lose-lizhi {
+						animation: lose-lizhi-animation 1.2s ease infinite;
+					}
 				}
 
 				.buttons,
@@ -1297,6 +1315,16 @@
 	@keyframes blink-animation {
 		to {
 			opacity: 0.3;
+		}
+	}
+
+	@keyframes lose-lizhi-animation {
+		0%,
+		100% {
+			opacity: 0.3;
+		}
+		50% {
+			opacity: 1;
 		}
 	}
 
