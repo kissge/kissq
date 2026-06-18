@@ -410,9 +410,16 @@
 				addAttendant(event.data.name);
 				break;
 		}
+
+		if (!subWindow) {
+			subWindow = event.source as Window;
+		}
 	}
 
 	$effect(() => {
+		// eslint-disable-next-line svelte/no-unused-svelte-ignore
+		// svelte-ignore state_snapshot_uncloneable
+		$state.snapshot(currentState);
 		if (subWindow && !subWindow.closed) {
 			subWindow.postMessage({
 				command: 'syncState',
