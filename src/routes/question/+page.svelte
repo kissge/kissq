@@ -80,9 +80,12 @@
 		window.addEventListener('message', processWindowMessage);
 		window.addEventListener('keydown', processKeyboardInput);
 
+		const timer = setInterval(() => opener.postMessage({ command: 'ping' }), 1000);
+
 		return () => {
 			window.removeEventListener('message', processWindowMessage);
 			window.removeEventListener('keydown', processKeyboardInput);
+			clearInterval(timer);
 		};
 	});
 
