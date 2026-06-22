@@ -607,11 +607,7 @@
 					}}
 					onpaste={(e) => handlePasteEvent(e, ord)}
 					contenteditable
-					placeholder="プレイヤー {i + 1 < 10
-						? [...String(i + 1)]
-								.map((c) => String.fromCodePoint(65296 + Number.parseInt(c)))
-								.join('')
-						: i + 1}"
+					placeholder="プレイヤー {i + 1 < 10 ? String.fromCodePoint(65297 + i) : i + 1}"
 					spellcheck="false"
 					class={[
 						'name',
