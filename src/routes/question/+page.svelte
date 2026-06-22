@@ -11,6 +11,7 @@
 	let currentIndex = $state(0);
 
 	let fontSize = $state(6);
+	let isKeyboardEnabled = $state(true);
 
 	let currentState = $state<GameState>();
 
@@ -38,6 +39,10 @@
 	}
 
 	function processKeyboardInput(event: KeyboardEvent) {
+		if (!isKeyboardEnabled) {
+			return;
+		}
+
 		const key = event.key.toUpperCase();
 
 		if (key === 'Z') {
@@ -117,7 +122,7 @@
 	<title>操作盤 - kissQ</title>
 </svelte:head>
 
-<header>
+<header class:show-keyboard={isKeyboardEnabled}>
 	<div>
 		<button
 			class="labeled"
@@ -149,10 +154,14 @@
 			次の問題へ →
 		</button>
 		<div class="spacer"></div>
-		<div>
+		<label>
+			<input type="checkbox" bind:checked={isKeyboardEnabled} />
+			キーボード操作
+		</label>
+		<label>
 			フォントサイズ
 			<input type="number" bind:value={fontSize} />
-		</div>
+		</label>
 		<button onclick={() => window.opener.postMessage({ command: 'toggleQuestionWindow' })}>
 			問題ウィンドウを表示・非表示
 		</button>
@@ -272,6 +281,11 @@
 			flex-grow: 1;
 		}
 
+		label {
+			display: flex;
+			gap: 0.25em;
+		}
+
 		input[type='number'] {
 			width: 3em;
 			font-size: 1rem;
@@ -344,7 +358,7 @@
 		width: 90%;
 	}
 
-	button.labeled {
+	button.labeled:is(.show-keyboard *) {
 		position: relative;
 
 		&:after {
