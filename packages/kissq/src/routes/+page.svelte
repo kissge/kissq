@@ -157,6 +157,20 @@
 		}
 	});
 
+	let barMax = $derived.by(() => {
+		if (attendants.length === 0) {
+			return null;
+		}
+
+		if (
+			currentState.attendants.some(({ rule }) => rule.mode !== currentState.attendants[0].rule.mode)
+		) {
+			return null;
+		}
+
+		return Math.max(...currentState.attendants.map((a) => a.rule.max));
+	});
+
 	let isBannerVisible = $state<GameEvent | null>(null);
 	watch(
 		() => currentState.latestEvent,
@@ -548,6 +562,16 @@
 	>
 		{#each orderedAttendants as i, ord (i)}
 			{@const att = currentState.attendants[i]}
+			{@const barHeight: number = (() => {
+				switch (att.rule.mode) {
+					case 'marubatsu':
+						return att.maruCount;
+					case 'score':
+					case 'MbyN':
+					case 'survival':
+						return att.score;
+				}
+			})()}
 			<div
 				style:font-size={fontSize && fontSize + 'px'}
 				style:grid-row={activeRules.length > 1 ? 'span 4' : 'span 3'}
@@ -596,7 +620,8 @@
 					style:writing-mode={nameDirection}
 					style:justify-content={nameDirection ? '' : 'center'}
 					style:text-align={nameDirection ? '' : 'center'}
-					{@attach tooltip('ダブルクリックして名前を編集')}
+					style:--bar-height-ratio={barMax !== null ? Math.min(barHeight / barMax, 1) : -999}
+					{@attach tooltip('ダブルクリックして名前を編集', { placement: 'bottom' })}
 					bind:clientWidth={nameWidth[i]}
 					bind:clientHeight={nameHeight[i]}
 				></div>
@@ -1094,6 +1119,7 @@
 
 				.name {
 					display: flex;
+					position: relative;
 					flex: 1 1 100px;
 					align-items: center;
 					margin: -1em;
@@ -1121,6 +1147,24 @@
 
 					&.blurred {
 						filter: blur(15px);
+					}
+
+					&:after {
+						display: block;
+						position: absolute;
+						bottom: 0;
+						z-index: -1;
+						filter: blur(5px);
+						transition: height 1s ease; /* not working as expected */
+						border-radius: 1em 0 0 0;
+						background: #0a1e3666;
+						width: 40%;
+						height: calc(70% * var(--bar-height-ratio) + 1em);
+						content: '';
+					}
+
+					&:focus:after {
+						display: none;
 					}
 				}
 
@@ -1319,6 +1363,12 @@
 				}
 			}
 		}
+	}
+
+	@property --bar-height-ratio {
+		syntax: '<number>';
+		initial-value: -999;
+		inherits: true;
 	}
 
 	@keyframes blink-animation {
