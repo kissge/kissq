@@ -40,25 +40,12 @@
 	}
 
 	function processKeyboardInput(event: KeyboardEvent) {
-		if (!isKeyboardEnabled) {
-			return;
-		}
-
-		const key = event.key.toUpperCase();
-
-		if (key === 'Z') {
-			opener.postMessage({ command: 'clickUndo' });
-		} else if (key === 'X') {
-			opener.postMessage({ command: 'clickThrough' });
-		} else {
-			const index = Keys.findIndex(([maru, batsu]) => maru === key || batsu === key);
-			if (index !== -1) {
-				if (key === Keys[index][0]) {
-					opener.postMessage({ command: 'clickMaru', attendantID: index });
-				} else {
-					opener.postMessage({ command: 'clickBatsu', attendantID: index });
-				}
-			}
+		if (isKeyboardEnabled) {
+			(
+				document.querySelector(
+					`button.labeled[data-label="${event.key.toUpperCase()}"]`
+				) as HTMLElement | null
+			)?.click();
 		}
 	}
 
@@ -150,8 +137,18 @@
 		>
 			プレイヤー追加
 		</button>
-		<button disabled={currentIndex === 0} onclick={() => --currentIndex}>← 前の問題へ</button>
-		<button disabled={currentIndex === questions.length - 1} onclick={() => ++currentIndex}>
+		<button
+			class="labeled"
+			data-label="N"
+			disabled={currentIndex === 0}
+			onclick={() => --currentIndex}>← 前の問題へ</button
+		>
+		<button
+			class="labeled"
+			data-label="M"
+			disabled={currentIndex === questions.length - 1}
+			onclick={() => ++currentIndex}
+		>
 			次の問題へ →
 		</button>
 		<div class="spacer"></div>
