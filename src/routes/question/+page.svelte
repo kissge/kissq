@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { csv2json } from 'json-2-csv';
 	import { onMount } from 'svelte';
+	import { fade } from 'svelte/transition';
 	import type { GameState } from '$lib/state';
 
 	const opener = (typeof window !== 'undefined' ? window.opener : {}) as Window;
@@ -173,15 +174,15 @@
 					<div class="attendant">
 						{att.name || '--'}
 						{#if att.isLizhi}
-							<span class="lizhi">リーチ</span>
+							<span class="lizhi" transition:fade>リーチ</span>
 						{:else if att.isLoseLizhi}
-							<span class="lizhi">失格リーチ</span>
+							<span class="lizhi" transition:fade>失格リーチ</span>
 						{/if}
 						&nbsp;
 						{#if att.life === 'won'}
-							<span class="won">勝ち</span>
+							<span class="won" transition:fade>勝ち</span>
 						{:else if att.life === 'lost'}
-							<span class="lost">失格</span>
+							<span class="lost" transition:fade>失格</span>
 						{:else if att.yasuDisplay > 0}
 							{#if att.yasuCount === 'next'}次{/if}{att.yasuDisplay}休
 						{:else}
