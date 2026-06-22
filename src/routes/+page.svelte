@@ -726,7 +726,7 @@
 
 				<div class="trophies" {@attach tooltip('勝ち抜けた累積回数')}>
 					{#each Array.from({ length: att.trophyCount }), i (i)}
-						<span in:fade>🏆</span>
+						<span in:fade></span>
 					{/each}
 				</div>
 
@@ -1207,9 +1207,12 @@
 					span {
 						box-shadow: 0 0 3px #888;
 						border-radius: 50%;
+						background-image: url('$lib/assets/trophy.png');
+						background-position: center;
+						background-size: cover;
 						background-color: white;
-						padding-bottom: 7px;
-						line-height: 1.225;
+						width: 1.375em;
+						height: 1.375em;
 					}
 				}
 
