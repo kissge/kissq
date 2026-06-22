@@ -123,4 +123,18 @@ export class Rule {
 
 		return str;
 	}
+
+	get max(): number {
+		switch (this.mode) {
+			case 'marubatsu':
+			case 'score':
+				return this.win;
+
+			case 'MbyN':
+				return this.win ** 2;
+
+			case 'survival':
+				return this.lose!;
+		}
+	}
 }
