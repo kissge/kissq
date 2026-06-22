@@ -171,6 +171,25 @@
 		return Math.max(...currentState.attendants.map((a) => a.rule.max));
 	});
 
+	let lastMaruAttendantID = $derived.by<number | null>(() => {
+		const i = history.findLastIndex((entry) => entry.type === 'maru');
+
+		if (i === -1) {
+			return null;
+		}
+
+		const attendantID = (history[i] as { attendantID: number }).attendantID;
+		const j = history.findLastIndex(
+			(entry) => entry.type === 'batsu' && entry.attendantID === attendantID
+		);
+
+		if (j === -1 || j < i) {
+			return attendantID;
+		}
+
+		return null;
+	});
+
 	let isBannerVisible = $state<GameEvent | null>(null);
 	watch(
 		() => currentState.latestEvent,
@@ -754,6 +773,7 @@
 						<button
 							onclick={() => clickMaru(i)}
 							class="maru-btn"
+							class:last-maru={lastMaruAttendantID === i}
 							{@attach tooltip(
 								`${att.name || 'このプレイヤー'}に1○をつけて、問題カウントを1進めます（休みの人がいれば1休減ります）`,
 								{ placement: 'bottom' }
@@ -1300,6 +1320,9 @@
 					.maru-btn:focus-visible:not(:active) {
 						background-color: red;
 						color: white;
+					}
+					.maru-btn.last-maru {
+						background-color: rgb(255 115 0);
 					}
 					.batsu-btn:hover:not(:active),
 					.batsu-btn:focus-visible:not(:active) {
