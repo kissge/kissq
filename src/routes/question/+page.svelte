@@ -149,8 +149,10 @@
 			class="labeled"
 			data-label="N"
 			disabled={currentIndex === 0}
-			onclick={() => --currentIndex}>← 前の問題へ</button
+			onclick={() => --currentIndex}
 		>
+			← 前の問題へ
+		</button>
 		<button
 			class="labeled"
 			data-label="M"

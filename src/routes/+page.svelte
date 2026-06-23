@@ -224,13 +224,14 @@
 			lines.forEach((line, i) => {
 				if (ord + i < attendants.length) {
 					attendants[orderedAttendants[ord + i]].name = line;
+					attendants[orderedAttendants[ord + i]].trophyCount = 0;
 				} else {
 					addAttendant(line);
 				}
 			});
 		} else if (text.length > 0) {
 			event.preventDefault();
-			attendants[orderedAttendants[ord]].name = text;
+			document.execCommand('insertText', false, han2zen(text));
 		}
 	}
 
