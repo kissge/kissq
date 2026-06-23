@@ -30,7 +30,7 @@
 	}
 
 	/** クローンを容易にするため、オブジェクトプロパティを使わない */
-	interface EditingRule extends Omit<Rule, 'lose' | 'batsu' | 'yasuPerMaru' | 'roulette'> {
+	interface EditingRule extends Omit<Rule, 'lose' | 'batsu' | 'yasuPerMaru' | 'roulette' | 'max'> {
 		isLoseNull: boolean;
 		lose: NonNullable<Rule['lose']>;
 		batsuMode: (Rule['batsu'] & string) | 'number';
