@@ -1144,6 +1144,7 @@
 				}
 
 				.group {
+					z-index: 10;
 					transition: background-color 0.3s ease;
 					border-radius: 2em 0.5em 0 0;
 				}
