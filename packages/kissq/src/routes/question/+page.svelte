@@ -126,7 +126,15 @@
 		>
 			スルー
 		</button>
-		<button onclick={() => opener.postMessage({ command: 'clickReset' })}>全員リセット</button>
+		<button
+			onclick={() => {
+				if (confirm('リセットしてよろしいですか？')) {
+					opener.postMessage({ command: 'clickReset' });
+				}
+			}}
+		>
+			全員リセット
+		</button>
 		<button
 			onclick={() => {
 				let name = prompt('プレイヤーの名前を入力してください');
