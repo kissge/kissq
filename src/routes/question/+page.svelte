@@ -121,6 +121,10 @@
 		</button>
 		<button
 			class="labeled"
+			class:blink={currentState?.attendants.some(
+				({ yasuCount, rule: { yasuMode, yasuPerBatsu } }) =>
+					yasuCount === 'next' && (yasuMode !== 'constant' || yasuPerBatsu > 0)
+			)}
 			data-label="X"
 			onclick={() => opener.postMessage({ command: 'clickThrough' })}
 		>
@@ -285,6 +289,12 @@
 		gap: 0.5em;
 		margin-bottom: 1em;
 
+		button.blink {
+			animation: blink-animation 0.5s ease infinite;
+			background-color: red;
+			color: white;
+		}
+
 		.spacer {
 			flex-grow: 1;
 		}
@@ -321,6 +331,12 @@
 		.lost {
 			background: #ff4500;
 			color: white;
+		}
+	}
+
+	@keyframes blink-animation {
+		to {
+			opacity: 0.3;
 		}
 	}
 
