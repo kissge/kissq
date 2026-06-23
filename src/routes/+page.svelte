@@ -566,7 +566,17 @@
 	{#if showQuestionWindow}
 		<div transition:fade>
 			<div class="question">
-				{#key currentQuestion.question}<p in:fade>{currentQuestion.question}</p>{/key}
+				{#key currentQuestion.question}
+					<p in:fade>
+						{#each currentQuestion.question.split(/(（.+?）|\(.+?\)|【.+?】|［.+?］)/) as part, i (i)}
+							{#if i % 2}
+								<small>{part}</small>
+							{:else}
+								{part}
+							{/if}
+						{/each}
+					</p>
+				{/key}
 				<div class="answer">A. {currentQuestion.answer}</div>
 			</div>
 		</div>
@@ -1052,6 +1062,11 @@
 				margin: 0;
 				height: 100%;
 				overflow: hidden;
+			}
+
+			small {
+				opacity: 0.6;
+				font-size: smaller;
 			}
 
 			.answer {
