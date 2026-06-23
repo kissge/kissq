@@ -1246,7 +1246,7 @@
 						background-image: url('$lib/assets/trophy.png');
 						background-position: center;
 						background-size: cover;
-						background-color: white;
+						background-color: #ffffffaa;
 						width: 1.375em;
 						height: 1.375em;
 					}
