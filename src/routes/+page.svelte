@@ -19,6 +19,7 @@
 		BatsuHistoryEntry,
 		ThroughHistoryEntry,
 		RemoveHistoryEntry,
+		WinHistoryEntry,
 		LoseHistoryEntry,
 		EditHistoryEntry
 	} from '$lib/historyEntry';
@@ -712,6 +713,13 @@
 						{@attach tooltip('このプレイヤーの得点状況を手で書き換えます。')}
 					>
 						編集
+					</button>
+					<button
+						onclick={() => history.push(new WinHistoryEntry(i))}
+						disabled={att.life !== 'alive'}
+						{@attach tooltip('このプレイヤーを強制的に勝ち抜けにします。')}
+					>
+						勝利
 					</button>
 					<button
 						onclick={() => history.push(new LoseHistoryEntry(i))}

@@ -12,6 +12,7 @@ type HistoryEntryType =
 	| BatsuHistoryEntry
 	| ThroughHistoryEntry
 	| RemoveHistoryEntry
+	| WinHistoryEntry
 	| LoseHistoryEntry
 	| EditHistoryEntry;
 
@@ -118,6 +119,22 @@ export class RemoveHistoryEntry implements HistoryEntry {
 	reducer(state: GameState): GameState {
 		state.attendants[this.attendantID].life = 'removed';
 		state.ranking = state.ranking.filter((i) => i !== this.attendantID);
+		return state;
+	}
+}
+
+export class WinHistoryEntry implements HistoryEntry {
+	type = 'win' as const;
+
+	constructor(public attendantID: number) { }
+
+	toString(state: GameState): string {
+		return `${state.attendants[this.attendantID].name || 'プレイヤー ' + (this.attendantID + 1)} 勝利`;
+	}
+
+	reducer(state: GameState): GameState {
+		state.attendants[this.attendantID].life = 'won';
+		state.attendants[this.attendantID].trophyCount++;
 		return state;
 	}
 }
