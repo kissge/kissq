@@ -579,7 +579,16 @@
 						{/each}
 					</p>
 				{/key}
-				<div class="answer">A. {currentQuestion.answer}</div>
+				<div class="answer">
+					A.
+					{#each currentQuestion.answer.split(/(（.+?）|\(.+?\)|【.+?】|［.+?］)/) as part, i (i)}
+						{#if i % 2}
+							<small>{part}</small>
+						{:else}
+							{part}
+						{/if}
+					{/each}
+				</div>
 			</div>
 		</div>
 	{/if}
