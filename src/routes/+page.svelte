@@ -172,7 +172,7 @@
 		return Math.max(...currentState.attendants.map((a) => a.rule.max));
 	});
 
-	let lastMaruAttendantID = $derived.by<number | null>(() => {
+	let consecutive = $derived.by<{ attendantID: number; count: number } | null>(() => {
 		const i = history.findLastIndex((entry) => entry.type === 'maru');
 
 		if (i === -1) {
@@ -181,14 +181,21 @@
 
 		const attendantID = (history[i] as { attendantID: number }).attendantID;
 		const j = history.findLastIndex(
-			(entry) => entry.type === 'batsu' && entry.attendantID === attendantID
+			(entry) =>
+				(entry.type === 'batsu' && entry.attendantID === attendantID) ||
+				(entry.type === 'maru' && entry.attendantID !== attendantID)
 		);
 
-		if (j === -1 || j < i) {
-			return attendantID;
+		if (i <= j) {
+			return null;
 		}
 
-		return null;
+		return {
+			attendantID,
+			count: history
+				.slice(j + 1, i + 1)
+				.filter((entry) => entry.type === 'maru' && entry.attendantID === attendantID).length
+		};
 	});
 
 	let isBannerVisible = $state<GameEvent | null>(null);
@@ -801,13 +808,16 @@
 						<button
 							onclick={() => clickMaru(i)}
 							class="maru-btn"
-							class:last-maru={lastMaruAttendantID === i}
+							class:last-maru={consecutive?.attendantID === i}
 							{@attach tooltip(
 								`${att.name || 'このプレイヤー'}に1○をつけて、問題カウントを1進めます（休みの人がいれば1休減ります）`,
 								{ placement: 'bottom' }
 							)}
 						>
 							O
+							{#if consecutive?.attendantID === i}
+								<span class="consecutive-count">{consecutive.count}</span>
+							{/if}
 						</button>
 						{#if effect2Name}
 							<button
@@ -1356,7 +1366,21 @@
 						color: white;
 					}
 					.maru-btn.last-maru {
+						position: relative;
 						background-color: rgb(255 115 0);
+					}
+					.consecutive-count {
+						display: flex;
+						position: absolute;
+						top: -0.5em;
+						left: -0.5em;
+						justify-content: center;
+						align-items: center;
+						box-shadow: 0 0 8px #000a;
+						border-radius: 50%;
+						background-color: rgb(201 94 6);
+						width: 1.5em;
+						height: 1.5em;
 					}
 					.batsu-btn:hover:not(:active),
 					.batsu-btn:focus-visible:not(:active) {
