@@ -139,7 +139,7 @@
 			return;
 		}
 
-		if (nameWidth[0] > nameHeight[0]) {
+		if (nameWidth[0] > nameHeight[0] * 1.2) {
 			nameDirection = '';
 			fontSize = Math.floor(
 				Math.min(
