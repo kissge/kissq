@@ -2,6 +2,7 @@
 	import { watch } from 'runed';
 	import { onMount, untrack } from 'svelte';
 	import { flip } from 'svelte/animate';
+	import { Spring } from 'svelte/motion';
 	import { fade, slide } from 'svelte/transition';
 	import se1 from '$lib/assets/se1.mp3';
 	import se2 from '$lib/assets/se2.mp3';
@@ -170,6 +171,30 @@
 		}
 
 		return Math.max(...currentState.attendants.map((a) => a.rule.max));
+	});
+	let barHeightRatioArray = $state<Spring<number>[]>([]);
+	$effect(() => {
+		if (attendants.length < barHeightRatioArray.length) {
+			barHeightRatioArray = barHeightRatioArray.slice(0, attendants.length);
+		} else if (attendants.length > barHeightRatioArray.length) {
+			for (let i = barHeightRatioArray.length; i < attendants.length; ++i) {
+				barHeightRatioArray.push(new Spring(0, { stiffness: 0.2, damping: 0.2 }));
+			}
+		}
+
+		for (let i = 0; i < barHeightRatioArray.length; ++i) {
+			const ratio = (() => {
+				switch (currentState.attendants[i].rule.mode) {
+					case 'marubatsu':
+						return currentState.attendants[i].maruCount;
+					case 'score':
+					case 'MbyN':
+					case 'survival':
+						return currentState.attendants[i].score;
+				}
+			})();
+			barHeightRatioArray[i].set(ratio);
+		}
 	});
 
 	let consecutive = $derived.by<{ attendantID: number; count: number } | null>(() => {
@@ -609,16 +634,7 @@
 	>
 		{#each orderedAttendants as i, ord (i)}
 			{@const att = currentState.attendants[i]}
-			{@const barHeight: number = (() => {
-				switch (att.rule.mode) {
-					case 'marubatsu':
-						return att.maruCount;
-					case 'score':
-					case 'MbyN':
-					case 'survival':
-						return att.score;
-				}
-			})()}
+			{@const barHeight: number = barHeightRatioArray[i]?.current ?? 0}
 			<div
 				style:font-size={fontSize && fontSize + 'px'}
 				style:grid-row={activeRules.length > 1 ? 'span 4' : 'span 3'}
@@ -1215,7 +1231,6 @@
 						bottom: 0;
 						z-index: -1;
 						filter: blur(5px);
-						transition: height 1s ease; /* not working as expected */
 						border-radius: 1em 0 0 0;
 						background: #0a1e3666;
 						width: 40%;
