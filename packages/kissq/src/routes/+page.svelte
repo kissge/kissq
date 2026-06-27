@@ -411,6 +411,10 @@
 	}
 
 	function processWindowMessage(event: MessageEvent) {
+		if (!subWindow) {
+			subWindow = event.source as Window;
+		}
+
 		switch (event.data.command) {
 			case 'toggleQuestionWindow':
 				showQuestionWindow = !showQuestionWindow;
@@ -450,10 +454,6 @@
 					currentState: JSON.parse(JSON.stringify(currentState))
 				});
 				break;
-		}
-
-		if (!subWindow) {
-			subWindow = event.source as Window;
 		}
 	}
 
