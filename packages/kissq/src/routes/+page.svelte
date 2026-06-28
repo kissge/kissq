@@ -674,7 +674,10 @@
 					spellcheck="false"
 					class={[
 						'name',
-						{ blurred: screenshotModeTimer != null && i !== orderedAttendants[screenshotOffset] }
+						{
+							blurred: screenshotModeTimer != null && i !== orderedAttendants[screenshotOffset],
+							'show-bar': showScore
+						}
 					]}
 					style:writing-mode={nameDirection}
 					style:justify-content={nameDirection ? '' : 'center'}
@@ -1225,7 +1228,7 @@
 						filter: blur(15px);
 					}
 
-					&:after {
+					&.show-bar:after {
 						display: block;
 						position: absolute;
 						bottom: 0;
