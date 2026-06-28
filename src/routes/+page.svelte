@@ -3,7 +3,7 @@
 	import { onMount, untrack } from 'svelte';
 	import { flip } from 'svelte/animate';
 	import { Spring } from 'svelte/motion';
-	import { fade, slide } from 'svelte/transition';
+	import { fade, fly, slide } from 'svelte/transition';
 	import se1 from '$lib/assets/se1.mp3';
 	import se2 from '$lib/assets/se2.mp3';
 	import se3 from '$lib/assets/se3.mp3';
@@ -835,7 +835,11 @@
 						>
 							O
 							{#if consecutive?.attendantID === i}
-								<span class="consecutive-count">{consecutive.count}</span>
+								{#key consecutive.count}
+									<span class="consecutive-count" in:fly={{ y: 100 }}>
+										{consecutive.count}
+									</span>
+								{/key}
 							{/if}
 						</button>
 						{#if effect2Name}
