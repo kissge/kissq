@@ -1358,8 +1358,8 @@
 					.consecutive-count {
 						display: flex;
 						position: absolute;
-						top: -0.8em;
-						left: -0.5em;
+						top: -1em;
+						right: -0.4em;
 						justify-content: center;
 						align-items: center;
 						box-shadow: 0 0 8px #000a;
