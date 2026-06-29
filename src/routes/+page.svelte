@@ -836,7 +836,16 @@
 							O
 							{#if consecutive?.attendantID === i}
 								{#key consecutive.count}
-									<span class="consecutive-count" in:fly={{ y: 100 }}>
+									<span
+										class="consecutive-count"
+										style:background-color={consecutive.count < 3
+											? 'rgb(201 94 6)'
+											: consecutive.count < 6
+												? 'rgb(160, 40, 0)'
+												: 'rgb(0, 0, 0)'}
+										in:fly={{ y: 100 }}
+										{@attach tooltip('連答カウント')}
+									>
 										{consecutive.count}
 									</span>
 								{/key}
@@ -1400,7 +1409,6 @@
 						align-items: center;
 						box-shadow: 0 0 8px #000a;
 						border-radius: 50%;
-						background-color: rgb(201 94 6);
 						width: 1.5em;
 						height: 1.5em;
 					}
