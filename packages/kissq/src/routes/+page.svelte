@@ -739,6 +739,23 @@
 							{/key}
 						</span>
 					{/if}
+
+					{#if consecutive?.attendantID === i}
+						{#key consecutive.count}
+							<span
+								class="consecutive-count"
+								style:background-color={consecutive.count < 3
+									? 'rgb(221 94 6)'
+									: consecutive.count < 6
+										? 'rgb(160, 40, 0)'
+										: 'rgb(0, 0, 0)'}
+								in:fly={{ y: 100 }}
+								{@attach tooltip('連答カウント')}
+							>
+								{consecutive.count}
+							</span>
+						{/key}
+					{/if}
 				</div>
 
 				<div class="hidden-buttons">
@@ -827,29 +844,12 @@
 						<button
 							onclick={() => clickMaru(i)}
 							class="maru-btn"
-							class:last-maru={consecutive?.attendantID === i}
 							{@attach tooltip(
 								`${att.name || 'このプレイヤー'}に1○をつけて、問題カウントを1進めます（休みの人がいれば1休減ります）`,
 								{ placement: 'bottom' }
 							)}
 						>
 							O
-							{#if consecutive?.attendantID === i}
-								{#key consecutive.count}
-									<span
-										class="consecutive-count"
-										style:background-color={consecutive.count < 3
-											? 'rgb(201 94 6)'
-											: consecutive.count < 6
-												? 'rgb(160, 40, 0)'
-												: 'rgb(0, 0, 0)'}
-										in:fly={{ y: 100 }}
-										{@attach tooltip('連答カウント')}
-									>
-										{consecutive.count}
-									</span>
-								{/key}
-							{/if}
 						</button>
 						{#if effect2Name}
 							<button
@@ -1312,6 +1312,7 @@
 				}
 
 				.score {
+					position: relative;
 					align-content: center;
 					margin: 0 -0.25em;
 					border-radius: 0.2em;
@@ -1352,6 +1353,21 @@
 					.batsu-count {
 						color: rgb(140 140 255);
 						letter-spacing: -0.1em;
+					}
+
+					.consecutive-count {
+						display: flex;
+						position: absolute;
+						top: -0.8em;
+						left: -0.5em;
+						justify-content: center;
+						align-items: center;
+						box-shadow: 0 0 8px #000a;
+						border-radius: 50%;
+						width: 1.25em;
+						height: 1.25em;
+						font-weight: normal;
+						line-height: 0.5em;
 					}
 
 					.lose-lizhi {
@@ -1395,22 +1411,6 @@
 					.maru-btn:focus-visible:not(:active) {
 						background-color: red;
 						color: white;
-					}
-					.maru-btn.last-maru {
-						position: relative;
-						background-color: rgb(255 115 0);
-					}
-					.consecutive-count {
-						display: flex;
-						position: absolute;
-						top: -0.5em;
-						left: -0.5em;
-						justify-content: center;
-						align-items: center;
-						box-shadow: 0 0 8px #000a;
-						border-radius: 50%;
-						width: 1.5em;
-						height: 1.5em;
 					}
 					.batsu-btn:hover:not(:active),
 					.batsu-btn:focus-visible:not(:active) {
