@@ -74,7 +74,6 @@
 			width: min(90%, 800px);
 			max-height: 90dvh;
 			font-size: 1.5rem;
-			user-select: none;
 
 			.buttons {
 				display: flex;
