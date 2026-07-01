@@ -24,13 +24,15 @@
 		LoseHistoryEntry,
 		EditHistoryEntry
 	} from '$lib/historyEntry';
+	import type { LogEntry, LogStateEntry } from '$lib/logs';
 	import { Rule, type Penalty } from '$lib/rule';
 	import {
 		AttendantState,
 		GameState,
 		type Attendant,
 		type AttendantStateValue,
-		type GameEvent
+		type GameEvent,
+		type Life
 	} from '$lib/state';
 	import { tooltip } from '$lib/tooltip.svelte';
 
@@ -334,6 +336,65 @@
 	let stateEditDialog: { open: (att: AttendantState) => Promise<AttendantStateValue | null> };
 	let penaltyRoulette: { run: (choices: Penalty[]) => Promise<number> };
 
+	function stateToLog(): LogStateEntry[] {
+		return currentState.attendants.map((att, i) => {
+			switch (att.rule.mode) {
+				case 'marubatsu':
+					return {
+						mode: 'marubatsu',
+						name: att.name,
+						group: attendants[i].group,
+						maruCount: att.maruCount,
+						batsuCount: att.batsuCount,
+						life: att.life
+					};
+				case 'score':
+				case 'MbyN':
+				case 'survival':
+					return {
+						mode: att.rule.mode,
+						name: att.name,
+						group: attendants[i].group,
+						score: att.score,
+						life: att.life
+					};
+			}
+		});
+	}
+
+	function pushLog(): void {
+		const logs: LogEntry[] = JSON.parse(window.localStorage.getItem('logs') ?? '[]');
+
+		logs.push({
+			startAt: new Date().toLocaleString('ja', {
+				timeZone: 'Asia/Tokyo',
+				dateStyle: 'short',
+				timeStyle: 'long'
+			}),
+			questionCount: currentState.questionCount - 1,
+			state: stateToLog()
+		});
+
+		window.localStorage.setItem('logs', JSON.stringify(logs.slice(-100)));
+	}
+
+	$effect(() => {
+		if (history.length === 0) {
+			return;
+		}
+
+		const logs: LogEntry[] = JSON.parse(window.localStorage.getItem('logs') ?? '[]');
+
+		if (logs.length === 0) {
+			return;
+		}
+
+		logs.at(-1)!.questionCount = currentState.questionCount - 1;
+		logs.at(-1)!.state = stateToLog();
+
+		window.localStorage.setItem('logs', JSON.stringify(logs));
+	});
+
 	function clearHistory() {
 		currentState.attendants.forEach((att, i) => {
 			attendants[i].trophyCount = att.trophyCount;
@@ -346,6 +407,9 @@
 				};
 			}
 		});
+
+		pushLog();
+
 		attendants = attendants.filter((_, i) => currentState.attendants[i].life !== 'removed');
 		history = [];
 	}
@@ -515,6 +579,7 @@
 	});
 
 	onMount(() => {
+		pushLog();
 		window.addEventListener('message', processWindowMessage);
 
 		return () => window.removeEventListener('message', processWindowMessage);
@@ -1071,7 +1136,7 @@
 
 <RuleEditDialog bind:this={ruleEditDialog} />
 <HelpDialog bind:this={helpDialog} />
-<LogDialog bind:this={logDialog} {history} {currentState} />
+<LogDialog bind:this={logDialog} />
 <EffectEditDialog bind:this={effectEditDialog} />
 <StateEditDialog bind:this={stateEditDialog} />
 <PenaltyRoulette bind:this={penaltyRoulette} />

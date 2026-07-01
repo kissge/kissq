@@ -1,40 +1,62 @@
 <script lang="ts">
-	import type { HistoryEntry } from '$lib/historyEntry';
-	import type { GameState } from '$lib/state';
-
-	let { history, currentState }: { history: HistoryEntry[]; currentState: GameState } = $props();
+	import type { LogEntry } from '$lib/logs';
 
 	let dialog: HTMLDialogElement;
 	export function open() {
+		logs = JSON.parse(window.localStorage.getItem('logs') ?? '[]');
 		dialog.showModal();
 	}
 
-	let logs = $derived.by(() => {
-		let q = 1;
-		return history.map((entry, i) => ({
-			q:
-				i === 0
-					? q
-					: history[i - 1].type === 'maru' || history[i - 1].type === 'through'
-						? ++q
-						: null,
-			entry
-		}));
-	});
+	let logs = $state<LogEntry[]>([]);
 </script>
 
 <dialog bind:this={dialog} closedby="any">
 	<table>
 		<tbody>
-			{#each logs as { q, entry }, i (i)}
+			{#each logs.toReversed().filter(({ questionCount }) => questionCount > 0) as log, i (i)}
+				{@const showGroup = log.state.some((att) => att.group !== log.state[0].group)}
 				<tr>
 					<th>
-						{#if q}
-							{q}
-						{/if}
+						{log.startAt}
 					</th>
-					<td>{entry.toString(currentState)}</td>
+					<td colspan="3">
+						{log.questionCount}<span>問目まで</span>
+					</td>
 				</tr>
+				{#each log.state as att, j (j)}
+					<tr>
+						<td>
+							{att.name || `プレイヤー${j + 1}`}
+							{#if showGroup}
+								({String.fromCodePoint(65 + att.group)})
+							{/if}
+						</td>
+						{#if att.mode === 'marubatsu'}
+							<td>
+								{att.maruCount}
+								<span>〇</span>
+							</td><td>
+								{att.batsuCount}
+								<span>×</span>
+							</td>
+						{:else}
+							<td colspan="2">
+								{att.score}
+								<span>
+									pt{#if att.score !== 1}s{/if}
+								</span>
+							</td>
+						{/if}
+						<td>
+							{#if att.life === 'won'}
+								勝利
+							{:else if att.life === 'lost'}
+								失格
+							{/if}
+						</td>
+					</tr>
+				{/each}
+				<tr><td colspan="4">&nbsp;</td></tr>
 			{:else}
 				<tr><td>まだ履歴がありません🍔</td></tr>
 			{/each}
@@ -47,14 +69,10 @@
 </dialog>
 
 <style>
-	dialog {
-		user-select: initial;
-	}
-
 	table {
+		cursor: text;
 		margin-bottom: 2em;
 		width: 100%;
-		user-select: all;
 
 		tr:nth-child(2n + 1) {
 			background-color: #eee;
@@ -65,10 +83,15 @@
 		}
 
 		th {
-			width: 5em;
+			width: 70%;
+		}
 
-			&:not(:empty)::before {
-				content: 'Q';
+		td {
+			padding: 0 0.5em;
+			text-align: right;
+
+			span {
+				user-select: none;
 			}
 		}
 	}
