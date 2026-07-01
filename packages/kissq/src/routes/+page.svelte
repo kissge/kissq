@@ -437,7 +437,11 @@
 
 	function processWindowMessage(event: MessageEvent) {
 		if (!subWindow) {
-			subWindow = event.source as Window;
+			try {
+				subWindow = event.source as Window;
+			} catch {
+				/* ignore */
+			}
 		}
 
 		switch (event.data.command) {
