@@ -398,6 +398,10 @@
 		}
 	}
 
+	dialog {
+		user-select: none;
+	}
+
 	@keyframes errorFlash {
 		0%,
 		100% {

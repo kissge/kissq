@@ -691,6 +691,7 @@
 	dialog[open] {
 		display: grid;
 		grid-template-rows: auto 1fr auto;
+		user-select: none;
 
 		&:has(:nth-child(4)) {
 			grid-template-rows: auto auto 1fr auto;

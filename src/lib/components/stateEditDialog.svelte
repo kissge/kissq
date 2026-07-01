@@ -82,3 +82,9 @@
 		</div>
 	{/if}
 </dialog>
+
+<style>
+	dialog {
+		user-select: none;
+	}
+</style>

@@ -83,3 +83,9 @@
 		<button class="primary" onclick={save}>保存する</button>
 	</div>
 </dialog>
+
+<style>
+	dialog {
+		user-select: none;
+	}
+</style>
