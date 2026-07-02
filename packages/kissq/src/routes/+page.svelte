@@ -706,7 +706,7 @@
 			{@const att = currentState.attendants[i]}
 			{@const barHeight: number = barHeightRatioArray[i]?.current ?? 0}
 			<div
-				style:font-size={fontSize && fontSize + 'px'}
+				style:font-size={(fontSize ?? 0) + 'px'}
 				style:grid-row={activeRules.length > 1 ? 'span 4' : 'span 3'}
 				class={['attendant', { lizhi: att.isLizhi }]}
 				animate:flip={{ duration: 500, delay: attendantFLIPDelay }}
