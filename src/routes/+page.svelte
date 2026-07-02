@@ -4,6 +4,8 @@
 	import { flip } from 'svelte/animate';
 	import { Spring } from 'svelte/motion';
 	import { fade, fly, slide } from 'svelte/transition';
+	import Toastify from 'toastify-js';
+	import 'toastify-js/src/toastify.css';
 	import se1 from '$lib/assets/se1.mp3';
 	import se2 from '$lib/assets/se2.mp3';
 	import se3 from '$lib/assets/se3.mp3';
@@ -628,6 +630,17 @@
 			main.style.setProperty('--trophy-image', `url(${trophy})`);
 		}
 
+		navigator.serial.getPorts().then((ports) => {
+			if (ports.length > 0) {
+				serialPort = ports[0];
+				if (!serialPort.readable) {
+					serialPort.open({ baudRate: 9600 }).then(() => {
+						Toastify({ text: '自動で早稲田式に接続しました' }).showToast();
+						initiateSerialConnection(serialPort);
+					});
+				}
+			}
+		});
 		pushLog();
 		window.addEventListener('message', processWindowMessage);
 
@@ -636,15 +649,61 @@
 
 	let serialPort = $state<SerialPort>();
 
-	async function initiateSerialConnection() {
-		serialPort = await connectToSerialPort();
+	async function initiateSerialConnection(serialPort_?: SerialPort) {
+		if (!serialPort_) {
+			try {
+				serialPort = await connectToSerialPort();
+			} catch (error) {
+				Toastify({ text: '接続に失敗しました', style: { background: '#B00000' } }).showToast();
+				console.error('接続エラー', error);
+				return;
+			}
+		}
 
 		if (!serialPort) {
 			return;
 		}
 
-		for await (const line of readFromSerialPort(serialPort)) {
-			console.log('serial:', line);
+		try {
+			for await (const line of readFromSerialPort(serialPort)) {
+				switch (line.trim()) {
+					case '91':
+						Toastify({ text: '起動（シングルチャンス）' }).showToast();
+						continue;
+					case '92':
+						Toastify({ text: '起動（ダブルチャンス）' }).showToast();
+						continue;
+					case '93':
+						Toastify({ text: '起動（エンドレスチャンス）' }).showToast();
+						continue;
+					case '94':
+						Toastify({ text: '起動（ハンデあり）' }).showToast();
+						continue;
+					case '51':
+						Toastify({ text: 'マルボタン' }).showToast();
+						continue;
+					case '52':
+						Toastify({ text: 'バツボタン' }).showToast();
+						continue;
+				}
+
+				const parts = line.split(' ').map((n) => Number.parseInt(n));
+				if (parts.length === 1 && 1 <= parts[0] && parts[0] <= 24) {
+					Toastify({ text: `解答権 ${parts[0]}` }).showToast();
+				} else if (parts.length === 2 && 101 <= parts[0] && parts[0] <= 124) {
+					Toastify({ text: `押下 ${parts[0] - 100} (+${parts[1]} ms)` }).showToast();
+				} else {
+					Toastify({ text: `serial: ${line}` }).showToast();
+					console.warn(`serial: ${line}`);
+				}
+			}
+		} catch (error) {
+			Toastify({ text: '通信エラー', style: { background: '#B00000' } }).showToast();
+			console.error('通信エラー', error);
+
+			setTimeout(() => {
+				initiateSerialConnection(serialPort);
+			}, 10000);
 		}
 	}
 
@@ -1180,7 +1239,7 @@
 			{#if enableRating}レートON{:else}レートOFF{/if}
 		</button>
 		<button onclick={openSubWindow}>操作盤表示</button>
-		<button onclick={initiateSerialConnection}>早稲田式連携</button>
+		<button onclick={() => initiateSerialConnection()}>早稲田式連携</button>
 	</div>
 {/if}
 
