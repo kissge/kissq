@@ -602,6 +602,9 @@
 
 	let serialPort = $state<SerialPort>();
 	let answerers = $state<({ rank: 1 | 2 | 'late'; delay: number } | null)[]>([]);
+	let lastButtonID = $state<number>();
+	/** attendant ID -> button ID */
+	let buttonMapping = $state<Record<number, number>>({});
 
 	async function initiateSerialConnection(serialPort_?: SerialPort) {
 		if (!serialPort_) {
@@ -637,7 +640,8 @@
 						continue;
 					case '99':
 						Toastify({ text: 'リセット' }).showToast();
-						answerers = Array.from({ length: attendants.length }, () => null);
+						answerers = Array.from({ length: 24 }, () => null);
+						lastButtonID = undefined;
 						continue;
 					case '51':
 						Toastify({ text: 'マルボタン' }).showToast();
@@ -657,7 +661,8 @@
 
 				const parts = line.split(' ').map((n) => Number.parseInt(n));
 				if (parts.length === 1 && 1 <= parts[0] && parts[0] <= 24) {
-					answerers = Array.from({ length: attendants.length }, (_, i) =>
+					lastButtonID = parts[0];
+					answerers = Array.from({ length: 24 }, (_, i) =>
 						i === parts[0] - 1
 							? { rank: 1, delay: 0 }
 							: answerers[i]?.rank === 1
@@ -665,7 +670,8 @@
 								: answerers[i]
 					);
 				} else if (parts.length === 2 && 101 <= parts[0] && parts[0] <= 124) {
-					answerers = Array.from({ length: attendants.length }, (_, i) =>
+					lastButtonID = parts[0] - 100;
+					answerers = Array.from({ length: 24 }, (_, i) =>
 						i === parts[0] - 101 ? { rank: 'late', delay: parts[1] } : answerers[i]
 					);
 				} else {
@@ -808,15 +814,18 @@
 				class={['attendant', { lizhi: att.isLizhi }]}
 				animate:flip={{ duration: 500, delay: attendantFLIPDelay }}
 			>
-				{#if answerers[i]?.rank}
-					{#if answerers[i].delay > 0}
-						<div class="answerer">
-							{#if answerers[i].delay < 3000}
-								+{answerers[i].delay} ms
-							{:else}
-								+{(answerers[i].delay / 1000).toFixed(2)} s
-							{/if}
-						</div>
+				{#if buttonMapping[i] !== null}
+					{@const j = buttonMapping[i] - 1}
+					{#if answerers[j]?.rank}
+						{#if answerers[j].delay > 0}
+							<div class="answerer">
+								{#if answerers[j].delay < 3000}
+									+{answerers[j].delay} ms
+								{:else}
+									+{(answerers[j].delay / 1000).toFixed(2)} s
+								{/if}
+							</div>
+						{/if}
 					{/if}
 				{/if}
 				{#if activeRules.length > 1}
@@ -855,9 +864,9 @@
 						{
 							blurred: screenshotModeTimer != null && i !== orderedAttendants[screenshotOffset],
 							'show-bar': showScore,
-							'answerer-1st': answerers[i]?.rank === 1,
-							'answerer-2nd': answerers[i]?.rank === 2,
-							'answerer-late': answerers[i]?.rank === 'late'
+							'answerer-1st': answerers[(buttonMapping[i] ?? 0) - 1]?.rank === 1,
+							'answerer-2nd': answerers[(buttonMapping[i] ?? 0) - 1]?.rank === 2,
+							'answerer-late': answerers[(buttonMapping[i] ?? 0) - 1]?.rank === 'late'
 						}
 					]}
 					style:writing-mode={nameDirection}
@@ -946,6 +955,23 @@
 						{@attach tooltip('このプレイヤーの得点状況を手で書き換えます。')}
 					>
 						編集
+					</button>
+					<button
+						onclick={() => {
+							buttonMapping = {
+								...Object.fromEntries(
+									Object.entries(buttonMapping).filter(([, v]) => v !== lastButtonID)
+								),
+								[i]: lastButtonID!
+							};
+							Toastify({
+								text: `ボタン${lastButtonID}は${att.name || 'このプレイヤー'}が持っています`
+							}).showToast();
+						}}
+						disabled={lastButtonID === undefined}
+						{@attach tooltip(`このプレイヤーをボタン${lastButtonID}に紐付けします。`)}
+					>
+						紐付
 					</button>
 					<button
 						onclick={() => history.push(new WinHistoryEntry(i))}
