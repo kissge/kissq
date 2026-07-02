@@ -622,8 +622,10 @@
 		}
 
 		try {
-			for await (const line of readFromSerialPort(serialPort)) {
-				switch (line.trim()) {
+			for await (let line of readFromSerialPort(serialPort)) {
+				line = line.trim();
+
+				switch (line) {
 					case '':
 						continue;
 					case '91':
@@ -639,15 +641,8 @@
 						Toastify({ text: '起動（ハンデあり）' }).showToast();
 						continue;
 					case '99':
-						Toastify({ text: 'リセット' }).showToast();
 						answerers = Array.from({ length: 24 }, () => null);
 						lastButtonID = undefined;
-						continue;
-					case '51':
-						Toastify({ text: 'マルボタン' }).showToast();
-						continue;
-					case '52':
-						Toastify({ text: 'バツボタン' }).showToast();
 						continue;
 					default:
 						if (
@@ -657,6 +652,32 @@
 						) {
 							continue;
 						}
+				}
+
+				if (line === '51' || line === '52') {
+					const answererButtonID = answerers.findIndex((a) => a?.rank === 1);
+					if (answererButtonID === -1) {
+						continue;
+					}
+
+					const answererAttendantID = Object.entries(buttonMapping).find(
+						([, id]) => id === answererButtonID + 1
+					)?.[0];
+					if (answererAttendantID !== undefined) {
+						if (line === '51') {
+							clickMaru(Number.parseInt(answererAttendantID));
+						} else {
+							clickBatsu(Number.parseInt(answererAttendantID));
+						}
+
+						answerers = [];
+					} else {
+						Toastify({
+							text: `ボタン ${answererButtonID + 1} を持っているのがどのプレイヤーか分かりません`
+						}).showToast();
+					}
+
+					continue;
 				}
 
 				const parts = line.split(' ').map((n) => Number.parseInt(n));
@@ -672,7 +693,7 @@
 				} else if (parts.length === 2 && 101 <= parts[0] && parts[0] <= 124) {
 					lastButtonID = parts[0] - 100;
 					answerers = Array.from({ length: 24 }, (_, i) =>
-						i === parts[0] - 101 ? { rank: 'late', delay: parts[1] } : answerers[i]
+						i === parts[0] - 101 && parts[1] > 0 ? { rank: 'late', delay: parts[1] } : answerers[i]
 					);
 				} else {
 					Toastify({ text: `serial: ${line}` }).showToast();
