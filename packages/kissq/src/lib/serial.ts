@@ -13,14 +13,14 @@ export async function connectToSerialPort() {
 		if (String(error).includes('No port selected by the user.')) {
 			console.error('ユーザーがポートを選択しませんでした。');
 		} else {
-			console.error('接続エラー', error);
+			throw error;
 		}
 	}
 }
 
 export async function* readFromSerialPort(port: SerialPort) {
 	if (!port.readable) {
-		return;
+		throw new Error('The serial port is not readable.');
 	}
 
 	const reader = port.readable.getReader();
@@ -45,8 +45,6 @@ export async function* readFromSerialPort(port: SerialPort) {
 				yield line;
 			}
 		}
-	} catch (error) {
-		console.error("読み取りエラー", error);
 	} finally {
 		reader.releaseLock();
 	}
