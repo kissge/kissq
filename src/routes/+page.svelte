@@ -601,6 +601,7 @@
 	});
 
 	let serialPort = $state<SerialPort>();
+	let answerers = $state<({ rank: 1 | 2 | 'late'; delay: number } | null)[]>([]);
 
 	async function initiateSerialConnection(serialPort_?: SerialPort) {
 		if (!serialPort_) {
@@ -620,6 +621,8 @@
 		try {
 			for await (const line of readFromSerialPort(serialPort)) {
 				switch (line.trim()) {
+					case '':
+						continue;
 					case '91':
 						Toastify({ text: '起動（シングルチャンス）' }).showToast();
 						continue;
@@ -632,19 +635,39 @@
 					case '94':
 						Toastify({ text: '起動（ハンデあり）' }).showToast();
 						continue;
+					case '99':
+						Toastify({ text: 'リセット' }).showToast();
+						answerers = Array.from({ length: attendants.length }, () => null);
+						continue;
 					case '51':
 						Toastify({ text: 'マルボタン' }).showToast();
 						continue;
 					case '52':
 						Toastify({ text: 'バツボタン' }).showToast();
 						continue;
+					default:
+						if (
+							line.startsWith('端子数') ||
+							line.startsWith('WASEDA') ||
+							line.startsWith('Copyright')
+						) {
+							continue;
+						}
 				}
 
 				const parts = line.split(' ').map((n) => Number.parseInt(n));
 				if (parts.length === 1 && 1 <= parts[0] && parts[0] <= 24) {
-					Toastify({ text: `解答権 ${parts[0]}` }).showToast();
+					answerers = Array.from({ length: attendants.length }, (_, i) =>
+						i === parts[0] - 1
+							? { rank: 1, delay: 0 }
+							: answerers[i]?.rank === 1
+								? null
+								: answerers[i]
+					);
 				} else if (parts.length === 2 && 101 <= parts[0] && parts[0] <= 124) {
-					Toastify({ text: `押下 ${parts[0] - 100} (+${parts[1]} ms)` }).showToast();
+					answerers = Array.from({ length: attendants.length }, (_, i) =>
+						i === parts[0] - 101 ? { rank: 'late', delay: parts[1] } : answerers[i]
+					);
 				} else {
 					Toastify({ text: `serial: ${line}` }).showToast();
 					console.warn(`serial: ${line}`);
@@ -655,7 +678,7 @@
 			console.error('通信エラー', error);
 
 			setTimeout(() => {
-				initiateSerialConnection(serialPort);
+				initiateSerialConnection();
 			}, 10000);
 		}
 	}
@@ -785,6 +808,17 @@
 				class={['attendant', { lizhi: att.isLizhi }]}
 				animate:flip={{ duration: 500, delay: attendantFLIPDelay }}
 			>
+				{#if answerers[i]?.rank}
+					{#if answerers[i].delay > 0}
+						<div class="answerer">
+							{#if answerers[i].delay < 3000}
+								+{answerers[i].delay} ms
+							{:else}
+								+{(answerers[i].delay / 1000).toFixed(2)} s
+							{/if}
+						</div>
+					{/if}
+				{/if}
 				{#if activeRules.length > 1}
 					<button
 						class="group"
@@ -820,7 +854,10 @@
 						'name',
 						{
 							blurred: screenshotModeTimer != null && i !== orderedAttendants[screenshotOffset],
-							'show-bar': showScore
+							'show-bar': showScore,
+							'answerer-1st': answerers[i]?.rank === 1,
+							'answerer-2nd': answerers[i]?.rank === 2,
+							'answerer-late': answerers[i]?.rank === 'late'
 						}
 					]}
 					style:writing-mode={nameDirection}
@@ -1359,6 +1396,19 @@
 					background-color: rgba(240 128 128 / 0.8);
 				}
 
+				.answerer {
+					display: flex;
+					position: absolute;
+					top: -0.25em;
+					left: 0;
+					justify-content: center;
+					align-items: center;
+					width: 100%;
+					color: #fff;
+					font-weight: lighter;
+					font-size: 0.4em;
+				}
+
 				.group {
 					z-index: 10;
 					transition: background-color 0.3s ease;
@@ -1391,6 +1441,25 @@
 						content: attr(placeholder);
 						color: #aaa;
 						text-wrap: initial;
+					}
+
+					&.answerer-1st {
+						animation: answerer-1st 0.3s ease infinite alternate;
+					}
+
+					&.answerer-2nd {
+						color: yellow;
+						text-shadow:
+							0px 10px 50px #aa08,
+							0px 10px 50px #aa08,
+							0px 10px 50px #aa08;
+					}
+
+					&.answerer-late {
+						text-shadow:
+							0px 10px 50px #aa08,
+							0px 10px 50px #aa08,
+							0px 10px 50px #aa08;
 					}
 
 					&.blurred {
@@ -1650,6 +1719,16 @@
 		}
 		50% {
 			opacity: 1;
+		}
+	}
+
+	@keyframes answerer-1st {
+		to {
+			color: yellow;
+			text-shadow:
+				0px 10px 50px #aa08,
+				0px 10px 50px #aa08,
+				0px 10px 50px #aa08;
 		}
 	}
 
