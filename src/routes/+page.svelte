@@ -644,7 +644,7 @@
 			{/key}
 		</div>
 		<h1>
-			kissQ
+			<span contenteditable class="editable-title"></span>
 			<button
 				onclick={helpDialog.open}
 				{@attach tooltip(
@@ -1173,6 +1173,17 @@
 
 			h1 {
 				all: unset;
+			}
+
+			.editable-title {
+				padding-right: 3px;
+
+				&:before {
+					content: 'kissQ: ';
+				}
+				&:empty:before {
+					content: 'kissQ';
+				}
 			}
 		}
 
