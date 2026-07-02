@@ -1302,7 +1302,9 @@
 			{#if enableRating}レートON{:else}レートOFF{/if}
 		</button>
 		<button onclick={openSubWindow}>操作盤表示</button>
-		<button onclick={() => initiateSerialConnection()}>早稲田式連携</button>
+		<button disabled={serialPort != null} onclick={() => initiateSerialConnection()}>
+			早稲田式連携
+		</button>
 	</div>
 {/if}
 
