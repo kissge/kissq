@@ -27,6 +27,7 @@
 	} from '$lib/historyEntry';
 	import type { LogEntry, LogStateEntry } from '$lib/logs';
 	import { Rule, type Penalty } from '$lib/rule';
+	import { connectToSerialPort, readFromSerialPort } from '$lib/serial';
 	import {
 		AttendantState,
 		GameState,
@@ -633,6 +634,20 @@
 		return () => window.removeEventListener('message', processWindowMessage);
 	});
 
+	let serialPort = $state<SerialPort>();
+
+	async function initiateSerialConnection() {
+		serialPort = await connectToSerialPort();
+
+		if (!serialPort) {
+			return;
+		}
+
+		for await (const line of readFromSerialPort(serialPort)) {
+			console.log('serial:', line);
+		}
+	}
+
 	function loadFromHash(): Attendant[] | null {
 		try {
 			const url = new URL(document.URL);
@@ -1165,6 +1180,7 @@
 			{#if enableRating}レートON{:else}レートOFF{/if}
 		</button>
 		<button onclick={openSubWindow}>操作盤表示</button>
+		<button onclick={initiateSerialConnection}>早稲田式連携</button>
 	</div>
 {/if}
 
