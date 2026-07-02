@@ -31,8 +31,7 @@
 		GameState,
 		type Attendant,
 		type AttendantStateValue,
-		type GameEvent,
-		type Life
+		type GameEvent
 	} from '$lib/state';
 	import { tooltip } from '$lib/tooltip.svelte';
 
@@ -54,7 +53,7 @@
 	let activeRules = $derived(rules.flatMap((rule, i) => (rule.isRemoved ? [] : { rule, i })));
 	let activeRulesText = $derived.by(() => {
 		if (activeRules.length === 1) {
-			return activeRules[0].rule;
+			return String(activeRules[0].rule);
 		}
 
 		return activeRules
@@ -372,6 +371,7 @@
 				timeStyle: 'long'
 			}),
 			questionCount: currentState.questionCount - 1,
+			rules: activeRulesText,
 			state: stateToLog()
 		});
 
@@ -390,6 +390,7 @@
 		}
 
 		logs.at(-1)!.questionCount = currentState.questionCount - 1;
+		logs.at(-1)!.rules = activeRulesText;
 		logs.at(-1)!.state = stateToLog();
 
 		window.localStorage.setItem('logs', JSON.stringify(logs));
