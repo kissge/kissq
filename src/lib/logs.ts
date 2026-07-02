@@ -21,5 +21,6 @@ export type LogStateEntry =
 export interface LogEntry {
 	startAt: string;
 	questionCount: number;
+	rules: string;
 	state: LogStateEntry[];
 }

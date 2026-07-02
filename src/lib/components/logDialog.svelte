@@ -23,6 +23,11 @@
 						{log.questionCount}<span>問目まで</span>
 					</td>
 				</tr>
+				<tr>
+					<td colspan="4">
+						{log.rules}
+					</td>
+				</tr>
 				{#each log.state as att, j (j)}
 					<tr>
 						<td>
