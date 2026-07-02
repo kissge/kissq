@@ -41,7 +41,7 @@
 			{ name: '', group: 0, trophyCount: 0, totalScore: { num: 0, den: 0 }, manualOrder: 1 }
 		]
 	);
-	let rules = $state([new Rule('marubatsu', 7, 3, 1, 1, null, 'constant', 0, null)]);
+	let rules = $state([new Rule('marubatsu', 7, 3, 1, 1, false, null, 'constant', 0, null)]);
 	let history = $state<HistoryEntry[]>([]);
 	let currentState = $derived(
 		history.reduce(
@@ -1131,6 +1131,8 @@
 			{effect2Name}
 		{:else if isBannerVisible.type === 'effect3'}
 			{effect3Name}
+		{:else if isBannerVisible.type === 'transit'}
+			通過席
 		{/if}
 	</div>
 {/if}
@@ -1625,7 +1627,8 @@
 		}
 		&.lizhi,
 		&.effect2,
-		&.effect3 {
+		&.effect3,
+		&.transit {
 			backdrop-filter: blur(10px);
 			background-color: rgba(240 240 175 / 0.4);
 			color: rgb(255 231 231);
