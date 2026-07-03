@@ -118,7 +118,6 @@
 						rule.isLoseNull ? null : rule.lose,
 						rule.maru,
 						rule.batsuMode === 'number' ? rule.batsu : rule.batsuMode,
-						rule.transit,
 						rule.isYasuPerMaruNull
 							? null
 							: { maru: rule.yasuPerMaruMaru, yasu: rule.yasuPerMaruYasu },
@@ -196,7 +195,6 @@
 							maru: 1,
 							batsu: 1,
 							batsuMode: 'number',
-							transit: false,
 							isYasuPerMaruNull: true,
 							yasuPerMaruMaru: 0,
 							yasuPerMaruYasu: 0,
@@ -219,7 +217,6 @@
 							maru: 1,
 							batsu: 1,
 							batsuMode: 'number',
-							transit: false,
 							isYasuPerMaruNull: true,
 							yasuPerMaruMaru: 0,
 							yasuPerMaruYasu: 0,
@@ -242,7 +239,6 @@
 							maru: 1,
 							batsu: 1,
 							batsuMode: 'number',
-							transit: false,
 							isYasuPerMaruNull: false,
 							yasuPerMaruMaru: 5,
 							yasuPerMaruYasu: 5,
@@ -265,7 +261,6 @@
 							maru: 1,
 							batsu: -1,
 							batsuMode: 'number',
-							transit: false,
 							isYasuPerMaruNull: true,
 							yasuPerMaruMaru: 0,
 							yasuPerMaruYasu: 0,
@@ -288,7 +283,6 @@
 							maru: 1,
 							batsu: 1,
 							batsuMode: 'number',
-							transit: false,
 							isYasuPerMaruNull: true,
 							yasuPerMaruMaru: 0,
 							yasuPerMaruYasu: 0,
@@ -311,7 +305,6 @@
 							maru: 1,
 							batsu: -1,
 							batsuMode: 'batsu',
-							transit: false,
 							isYasuPerMaruNull: true,
 							yasuPerMaruMaru: 0,
 							yasuPerMaruYasu: 0,
@@ -334,7 +327,6 @@
 							maru: 1,
 							batsu: -2,
 							batsuMode: 'number',
-							transit: false,
 							isYasuPerMaruNull: true,
 							yasuPerMaruMaru: 0,
 							yasuPerMaruYasu: 0,
@@ -357,7 +349,6 @@
 							maru: 1,
 							batsu: 1,
 							batsuMode: 'number',
-							transit: false,
 							isYasuPerMaruNull: true,
 							yasuPerMaruMaru: 0,
 							yasuPerMaruYasu: 0,
@@ -380,7 +371,6 @@
 							maru: 1,
 							batsu: 1,
 							batsuMode: 'number',
-							transit: false,
 							isYasuPerMaruNull: true,
 							yasuPerMaruMaru: 0,
 							yasuPerMaruYasu: 0,
@@ -403,7 +393,6 @@
 							maru: 1,
 							batsu: 1,
 							batsuMode: 'updown',
-							transit: false,
 							isYasuPerMaruNull: true,
 							yasuPerMaruMaru: 0,
 							yasuPerMaruYasu: 0,
@@ -415,29 +404,6 @@
 					}}
 				>
 					7-Updown
-				</button>
-				<button
-					onclick={() => {
-						rules[activeTab] = {
-							mode: 'score',
-							win: 4,
-							isLoseNull: true,
-							lose: 3,
-							maru: 1,
-							batsu: -1,
-							batsuMode: 'number',
-							transit: true,
-							isYasuPerMaruNull: true,
-							yasuPerMaruMaru: 0,
-							yasuPerMaruYasu: 0,
-							yasuMode: 'constant',
-							yasuPerBatsu: 0,
-							rouletteName: null,
-							isRemoved: false
-						};
-					}}
-				>
-					通過席
 				</button>
 			</div>
 
@@ -460,10 +426,6 @@
 							if (activeRule.yasuMode !== 'constant') {
 								activeRule.yasuMode = 'constant';
 							}
-
-							if (activeRule.batsuMode === 'updown') {
-								activeRule.batsuMode = 'number';
-							}
 						}}
 					/>
 					スコア
@@ -482,12 +444,8 @@
 								activeRule.batsu = 1;
 							}
 
-							if (activeRule.batsuMode === 'updown') {
+							if (activeRule.batsuMode !== 'number') {
 								activeRule.batsuMode = 'number';
-							}
-
-							if (activeRule.transit) {
-								activeRule.transit = false;
 							}
 						}}
 					/>
@@ -505,10 +463,6 @@
 
 							if (activeRule.batsuMode !== 'number') {
 								activeRule.batsuMode = 'number';
-							}
-
-							if (activeRule.transit) {
-								activeRule.transit = false;
 							}
 						}}
 					/>
@@ -531,14 +485,6 @@
 
 							if (activeRule.batsu > 0) {
 								activeRule.batsu = -1;
-							}
-
-							if (activeRule.batsuMode === 'updown') {
-								activeRule.batsuMode = 'number';
-							}
-
-							if (activeRule.transit) {
-								activeRule.transit = false;
 							}
 						}}
 					/>
@@ -615,25 +561,6 @@
 				</label>
 				<label>
 					<input type="radio" bind:group={activeRule.isYasuPerMaruNull} value={true} />
-					なし
-				</label>
-
-				<hr />
-
-				<label
-					{@attach tooltip('通過クイズ（通過席状態になってから誤答・他者が正解でスコアリセット）')}
-				>
-					<input
-						type="radio"
-						bind:group={activeRule.transit}
-						value={true}
-						disabled={activeRule.mode !== 'score'}
-					/>
-					{activeRule.win - 1}
-					ptsで通過席
-				</label>
-				<label>
-					<input type="radio" bind:group={activeRule.transit} value={false} />
 					なし
 				</label>
 			</div>

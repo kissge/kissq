@@ -37,14 +37,14 @@ export class AttendantState {
 		life: Life;
 		trophyCount: number;
 		yasuCount: number | 'next';
-		otherScoreDiff: number | 'transit';
+		otherScoreDiff: number;
 	} {
 		let maruCount = this.maruCount;
 		let score = this.score;
 		let life = this.life;
 		let trophyCount = this.trophyCount;
 		let yasuCount = this.yasuCount;
-		let otherScoreDiff: number | 'transit' = 0;
+		let otherScoreDiff = 0;
 
 		if (this.life !== 'alive') {
 			return { maruCount, score, life, trophyCount, yasuCount, otherScoreDiff };
@@ -69,10 +69,6 @@ export class AttendantState {
 					trophyCount++;
 				} else if (this.rule.yasuPerMaru && maruCount % this.rule.yasuPerMaru.maru === 0) {
 					yasuCount = this.rule.yasuPerMaru.yasu;
-				}
-
-				if (this.rule.transit !== null) {
-					otherScoreDiff = 'transit';
 				}
 				return { maruCount, score, life, trophyCount, yasuCount, otherScoreDiff };
 
@@ -143,11 +139,6 @@ export class AttendantState {
 						: this.rule.batsu === 'updown'
 							? /** dummy */ -batsuCount
 							: this.rule.batsu;
-
-				if (this.rule.transit && this.isLizhi) {
-					score = 0;
-				}
-
 				if (this.rule.yasuMode === 'roulette' && penalty?.type === 'zero') {
 					score = 0;
 				}
@@ -247,7 +238,7 @@ export class AttendantState {
 const _ = { ...({} as AttendantState) };
 export type AttendantStateValue = typeof _;
 
-export type GameEventType = 'won' | 'lizhi' | 'effect2' | 'effect3' | 'transit';
+export type GameEventType = 'won' | 'lizhi' | 'effect2' | 'effect3';
 
 export interface GameEvent {
 	type: GameEventType;

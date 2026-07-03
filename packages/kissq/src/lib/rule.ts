@@ -12,8 +12,6 @@ export class Rule {
 		public maru: number,
 		/** 1問誤答で得られるスコア（負数）またはバツ数（正数）またはその時点のバツ数 */
 		public batsu: number | 'batsu' | 'updown',
-		/** 通過席ルール */
-		public transit: boolean,
 		/** N問正解で得られる休みの数M */
 		public yasuPerMaru: { maru: number; yasu: number } | null,
 		/** 1問誤答で得られる休みの方式（定数またはその時点のマル数・バツ数） */
@@ -48,10 +46,6 @@ export class Rule {
 					str += `、誤答でゼロ○に`;
 				} else if (this.batsu < 0 && this.batsu !== -1) {
 					str += `、誤答${this.batsu}点`;
-				}
-
-				if (this.transit) {
-					str += `、${this.win - 1}点で通過席`;
 				}
 				break;
 
