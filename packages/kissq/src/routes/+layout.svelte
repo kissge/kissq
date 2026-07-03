@@ -139,5 +139,21 @@
 				}
 			}
 		}
+
+		main {
+			display: grid;
+			grid-template-rows: auto 1fr auto;
+			flex: 1 0 100dvh;
+			gap: 0 1em;
+			background-image: url('$lib/assets/wallpaper.jpg');
+			background-position: center center;
+			background-size: cover;
+			background-color: rgb(15 18 33);
+			font-size: 2rem;
+
+			> * {
+				padding: 0.7rem 1.5rem;
+			}
+		}
 	}
 </style>
