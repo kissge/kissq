@@ -18,6 +18,18 @@ export async function connectToSerialPort() {
 	}
 }
 
+export async function reconnect() {
+	const ports = await navigator.serial.getPorts();
+
+	if (ports.length > 0) {
+		const serialPort = ports[0];
+		if (!serialPort.readable) {
+			await serialPort.open({ baudRate: 9600 });
+			return serialPort;
+		}
+	}
+}
+
 export async function* readFromSerialPort(port: SerialPort) {
 	if (!port.readable) {
 		throw new Error('The serial port is not readable.');
@@ -38,7 +50,7 @@ export async function* readFromSerialPort(port: SerialPort) {
 			const text = decoder.decode(value);
 
 			buffer += text;
-			const lines = buffer.split('\n');
+			const lines = buffer.split('\r\n');
 			buffer = lines.pop() || '';
 
 			for (const line of lines) {
