@@ -8,7 +8,8 @@
 	import se2 from '$lib/assets/se2.mp3';
 	import se3 from '$lib/assets/se3.mp3';
 	import EffectEditDialog from '$lib/components/effectEditDialog.svelte';
-	import HelpDialog from '$lib/components/helpDialog.svelte';
+	import Footer from '$lib/components/footer.svelte';
+	import Header from '$lib/components/header.svelte';
 	import LogDialog from '$lib/components/logDialog.svelte';
 	import PenaltyRoulette from '$lib/components/penaltyRoulette.svelte';
 	import RuleEditDialog from '$lib/components/ruleEditDialog.svelte';
@@ -323,8 +324,6 @@
 	}
 
 	let ruleEditDialog: { open: (rules: Rule[]) => Promise<Rule[] | null> };
-	// svelte-ignore non_reactive_update ...?
-	let helpDialog: { open: () => void };
 	// svelte-ignore non_reactive_update ...?
 	let logDialog: { open: () => void };
 	let effectEditDialog: {
@@ -650,38 +649,13 @@
 <audio src={se3} preload="auto"></audio>
 
 <main style:grid-template-rows={showQuestionWindow ? 'auto auto 1fr auto' : 'auto 1fr auto'}>
-	<div class="header" bind:clientHeight={headerClientHeight}>
-		<div>
-			Next:
-			{#key currentState.questionCount}
-				<span class="crossfade" in:fade={{ delay: 500 }} out:fade>
-					Q{currentState.questionCount}
-				</span>
-			{/key}
-		</div>
-		<h1>
-			<span contenteditable class="editable-title" bind:textContent={gameTitle}></span>
-			<button
-				onclick={helpDialog.open}
-				{@attach tooltip(
-					`はじめにお読みください！！！！！！！！！！！！
-					！！！！！！！！！！！！！！！！！！！！！！！
-					！！！！！！！！！！！！！！！！！！！！！！！
-					！！！！！！！！！！！！！！！！！！！！！！！
-					！！！！！！！！！！！！！！！！！！！！！！！`
-				)}
-			>
-				？
-			</button>
-		</h1>
-		<div>
-			Rule:
-			{activeRulesText}
-			<button onclick={editRule} {@attach tooltip('ルールとルールグループを編集します。')}>
-				編集
-			</button>
-		</div>
-	</div>
+	<Header
+		bind:headerClientHeight
+		questionCount={currentState.questionCount}
+		{gameTitle}
+		{activeRulesText}
+		{editRule}
+	/>
 
 	{#if showQuestionWindow}
 		<div transition:fade>
@@ -982,33 +956,7 @@
 		{/each}
 	</div>
 
-	<footer bind:clientHeight={footerClientHeight}>
-		<div class="left">
-			<a href="https://github.com/kissge/kissq" target="_blank">ソース</a>
-			<a
-				href="https://x.com/_kidochan"
-				target="_blank"
-				{@attach tooltip('kissQの最新情報を得たり🍔をおごったりしてください')}
-			>
-				🍔作者
-			</a>
-			<a
-				href="https://docs.google.com/forms/d/e/1FAIpQLSdpwAsY5k5LKnnbntsMo1USadZczeuq-SZqlFcNMpbj255u4Q/viewform?pli=1&usp=pp_url&entry.2107805527={encodeURIComponent(
-					JSON.stringify({
-						// eslint-disable-next-line @typescript-eslint/no-unused-vars
-						a: attendants.map(({ name, ...rest }) => rest),
-						r: rules,
-						h: history
-					})
-				)}"
-				target="_blank"
-				{@attach tooltip(
-					'デバッグに役立つ情報を送れるので、バグに出会ったらなるべくすぐクリックしてほしいです＞＜'
-				)}
-			>
-				バグ・要望
-			</a>
-		</div>
+	<Footer bind:footerClientHeight {attendants} {rules} {history}>
 		<button
 			onclick={clickThrough}
 			class={{
@@ -1057,7 +1005,7 @@
 		>
 			その他 ▼
 		</button>
-	</footer>
+	</Footer>
 </main>
 
 {#if showOtherMenu}
@@ -1154,7 +1102,6 @@
 {/if}
 
 <RuleEditDialog bind:this={ruleEditDialog} />
-<HelpDialog bind:this={helpDialog} />
 <LogDialog bind:this={logDialog} />
 <EffectEditDialog bind:this={effectEditDialog} />
 <StateEditDialog bind:this={stateEditDialog} />
@@ -1162,49 +1109,6 @@
 
 <style>
 	main {
-		display: grid;
-		flex: 1 0 100dvh;
-		gap: 0 1em;
-		background-image: url('$lib/assets/wallpaper.jpg');
-		background-position: center center;
-		background-size: cover;
-		background-color: rgb(15 18 33);
-		font-size: 2rem;
-
-		> * {
-			padding: 0.7rem 1.5rem;
-		}
-
-		.header,
-		footer {
-			background: #eee;
-		}
-
-		.header {
-			display: flex;
-			justify-content: space-between;
-			gap: 1em;
-			box-sizing: border-box;
-			width: 100dvw;
-			font-weight: bold;
-			font-size: 2rem;
-
-			h1 {
-				all: unset;
-			}
-
-			.editable-title {
-				padding-right: 3px;
-
-				&:before {
-					content: 'kissQ: ';
-				}
-				&:empty:before {
-					content: 'kissQ';
-				}
-			}
-		}
-
 		.question {
 			position: relative;
 			backdrop-filter: blur(10px);
@@ -1532,45 +1436,6 @@
 
 		:has(.question) + .attendants {
 			height: calc(100dvh - 5.5em - 5em);
-		}
-
-		footer {
-			display: flex;
-			justify-content: end;
-			gap: 0.5em;
-			box-sizing: border-box;
-			width: 100dvw;
-			overflow: hidden;
-			user-select: none;
-			anchor-name: --footer;
-
-			.left {
-				display: flex;
-				flex-grow: 1;
-				gap: 1em;
-				font-size: 0.8em;
-
-				a {
-					text-decoration: none;
-				}
-
-				a:hover {
-					opacity: 0.6;
-				}
-			}
-
-			a,
-			button {
-				max-width: 10dvw;
-				overflow: hidden;
-				white-space: nowrap;
-
-				&.blink {
-					animation: blink-animation 0.5s ease infinite;
-					background-color: red;
-					color: white;
-				}
-			}
 		}
 	}
 
