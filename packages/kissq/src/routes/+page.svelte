@@ -29,7 +29,7 @@
 	} from '$lib/historyEntry';
 	import type { LogEntry, LogStateEntry } from '$lib/logs';
 	import { Rule, type Penalty } from '$lib/rule';
-	import { connectToSerialPort, readFromSerialPort } from '$lib/serial';
+	import { connectToSerialPort, readFromSerialPort, reconnect } from '$lib/serial';
 	import {
 		AttendantState,
 		GameState,
@@ -630,17 +630,17 @@
 			main.style.setProperty('--trophy-image', `url(${trophy})`);
 		}
 
-		navigator.serial.getPorts().then((ports) => {
-			if (ports.length > 0) {
-				serialPort = ports[0];
-				if (!serialPort.readable) {
-					serialPort.open({ baudRate: 9600 }).then(() => {
-						Toastify({ text: '自動で早稲田式に接続しました' }).showToast();
-						initiateSerialConnection(serialPort);
-					});
+		reconnect()
+			.then((port) => {
+				if (port) {
+					serialPort = port;
+					Toastify({ text: '自動で早稲田式に接続しました' }).showToast();
+					initiateSerialConnection(port);
 				}
-			}
-		});
+			})
+			.catch((error) => {
+				console.error('接続エラー', error);
+			});
 		pushLog();
 		window.addEventListener('message', processWindowMessage);
 
@@ -652,6 +652,7 @@
 	let lastButtonID = $state<number>();
 	/** attendant ID -> button ID */
 	let buttonMapping = $state<Record<number, number>>({});
+	let wasedashikiMode = $state<'single' | 'double' | 'endless' | 'handicap'>();
 
 	async function initiateSerialConnection(serialPort_?: SerialPort) {
 		if (!serialPort_) {
@@ -660,6 +661,8 @@
 			} catch (error) {
 				Toastify({ text: '接続に失敗しました', style: { background: '#B00000' } }).showToast();
 				console.error('接続エラー', error);
+				serialPort = undefined;
+				wasedashikiMode = undefined;
 				return;
 			}
 		}
@@ -672,38 +675,44 @@
 			for await (let line of readFromSerialPort(serialPort)) {
 				line = line.trim();
 
+				if (
+					line === '' ||
+					/.+ 24/.test(line) ||
+					line.startsWith('WASEDA') ||
+					line.startsWith('Copyright')
+				) {
+					continue;
+				}
+
+				console.log('Received line:', JSON.stringify(line));
+
 				switch (line) {
-					case '':
-						continue;
 					case '91':
 						Toastify({ text: '起動（シングルチャンス）' }).showToast();
+						wasedashikiMode = 'single';
 						continue;
 					case '92':
 						Toastify({ text: '起動（ダブルチャンス）' }).showToast();
+						wasedashikiMode = 'double';
 						continue;
 					case '93':
 						Toastify({ text: '起動（エンドレスチャンス）' }).showToast();
+						wasedashikiMode = 'endless';
 						continue;
 					case '94':
 						Toastify({ text: '起動（ハンデあり）' }).showToast();
+						wasedashikiMode = 'handicap';
 						continue;
 					case '99':
+						// リセット
 						answerers = Array.from({ length: 24 }, () => null);
-						lastButtonID = undefined;
 						continue;
-					default:
-						if (
-							line.startsWith('端子数') ||
-							line.startsWith('WASEDA') ||
-							line.startsWith('Copyright')
-						) {
-							continue;
-						}
 				}
 
 				if (line === '51' || line === '52') {
 					const answererButtonID = answerers.findIndex((a) => a?.rank === 1);
 					if (answererButtonID === -1) {
+						// 空押し
 						continue;
 					}
 
@@ -713,14 +722,13 @@
 					if (answererAttendantID !== undefined) {
 						if (line === '51') {
 							clickMaru(Number.parseInt(answererAttendantID));
+							answerers = [];
 						} else {
 							clickBatsu(Number.parseInt(answererAttendantID));
 						}
-
-						answerers = [];
 					} else {
 						Toastify({
-							text: `ボタン ${answererButtonID + 1} を持っているのがどのプレイヤーか分かりません`
+							text: `ボタン ${answererButtonID + 1} を持っているのがどのプレイヤーか分かりません。紐づけしてください`
 						}).showToast();
 					}
 
@@ -742,6 +750,13 @@
 					answerers = Array.from({ length: 24 }, (_, i) =>
 						i === parts[0] - 101 && parts[1] > 0 ? { rank: 'late', delay: parts[1] } : answerers[i]
 					);
+					if (
+						Object.entries(buttonMapping).find(([, id]) => id === lastButtonID!)?.[0] == undefined
+					) {
+						Toastify({
+							text: `ボタン ${lastButtonID} を持っているのがどのプレイヤーか分かりません。紐づけしてください`
+						}).showToast();
+					}
 				} else {
 					Toastify({ text: `serial: ${line}` }).showToast();
 					console.warn(`serial: ${line}`);
@@ -750,10 +765,8 @@
 		} catch (error) {
 			Toastify({ text: '通信エラー', style: { background: '#B00000' } }).showToast();
 			console.error('通信エラー', error);
-
-			setTimeout(() => {
-				initiateSerialConnection();
-			}, 10000);
+			serialPort = undefined;
+			wasedashikiMode = undefined;
 		}
 	}
 
@@ -834,6 +847,15 @@
 		<div>
 			Rule:
 			{activeRulesText}
+			{#if wasedashikiMode}
+				({wasedashikiMode === 'single'
+					? '1C'
+					: wasedashikiMode === 'double'
+						? '2C'
+						: wasedashikiMode === 'endless'
+							? '∞C'
+							: '1C'})
+			{/if}
 			<button onclick={editRule} {@attach tooltip('ルールとルールグループを編集します。')}>
 				編集
 			</button>
@@ -884,7 +906,7 @@
 				class={['attendant', { lizhi: att.isLizhi }]}
 				animate:flip={{ duration: 500, delay: attendantFLIPDelay }}
 			>
-				{#if buttonMapping[i] !== null}
+				{#if buttonMapping[i] != null}
 					{@const j = buttonMapping[i] - 1}
 					{#if answerers[j]?.rank}
 						{#if answerers[j].delay > 0}
@@ -898,6 +920,36 @@
 						{/if}
 					{/if}
 				{/if}
+				<button
+					class="button-mapping"
+					style={buttonMapping[i] == null
+						? undefined
+						: 1 <= buttonMapping[i] && buttonMapping[i] <= 6
+							? 'background-color: red; color: white'
+							: 7 <= buttonMapping[i] && buttonMapping[i] <= 12
+								? 'background-color: blue; color: white'
+								: 13 <= buttonMapping[i] && buttonMapping[i] <= 18
+									? 'background-color: yellow; color: black'
+									: 'background-color: green; color: white'}
+					{@attach tooltip(
+						`このプレイヤーが持っているボタンは${buttonMapping[i] == null ? '???' : buttonMapping[i]}番です。クリックで紐づけ`
+					)}
+					onclick={() => {
+						if (lastButtonID !== undefined) {
+							buttonMapping = {
+								...Object.fromEntries(
+									Object.entries(buttonMapping).filter(([, v]) => v !== lastButtonID)
+								),
+								[i]: lastButtonID!
+							};
+							Toastify({
+								text: `ボタン${lastButtonID}は${att.name || `プレイヤー${i + 1}`}が持っています`
+							}).showToast();
+						}
+					}}
+				>
+					{buttonMapping[i] ?? '?'}
+				</button>
 				{#if activeRules.length > 1}
 					<button
 						class="group"
@@ -935,8 +987,11 @@
 							blurred: screenshotModeTimer != null && i !== orderedAttendants[screenshotOffset],
 							'show-bar': showScore,
 							'answerer-1st': answerers[(buttonMapping[i] ?? 0) - 1]?.rank === 1,
-							'answerer-2nd': answerers[(buttonMapping[i] ?? 0) - 1]?.rank === 2,
-							'answerer-late': answerers[(buttonMapping[i] ?? 0) - 1]?.rank === 'late'
+							'answerer-2nd':
+								wasedashikiMode === 'endless' && answerers[(buttonMapping[i] ?? 0) - 1]?.rank === 2,
+							'answerer-late':
+								wasedashikiMode === 'endless' &&
+								answerers[(buttonMapping[i] ?? 0) - 1]?.rank === 'late'
 						}
 					]}
 					style:writing-mode={nameDirection}
@@ -1025,23 +1080,6 @@
 						{@attach tooltip('このプレイヤーの得点状況を手で書き換えます。')}
 					>
 						編集
-					</button>
-					<button
-						onclick={() => {
-							buttonMapping = {
-								...Object.fromEntries(
-									Object.entries(buttonMapping).filter(([, v]) => v !== lastButtonID)
-								),
-								[i]: lastButtonID!
-							};
-							Toastify({
-								text: `ボタン${lastButtonID}は${att.name || 'このプレイヤー'}が持っています`
-							}).showToast();
-						}}
-						disabled={lastButtonID === undefined}
-						{@attach tooltip(`このプレイヤーをボタン${lastButtonID}に紐付けします。`)}
-					>
-						紐付
 					</button>
 					<button
 						onclick={() => history.push(new WinHistoryEntry(i))}
@@ -1504,17 +1542,30 @@
 					background-color: rgba(240 128 128 / 0.8);
 				}
 
-				.answerer {
+				.answerer,
+				.button-mapping {
 					display: flex;
 					position: absolute;
-					top: -0.25em;
-					left: 0;
 					justify-content: center;
 					align-items: center;
+					font-size: 0.4em;
+				}
+				.answerer {
+					top: -0.25em;
+					left: 0;
 					width: 100%;
 					color: #fff;
 					font-weight: lighter;
-					font-size: 0.4em;
+				}
+				.button-mapping {
+					top: 0.2em;
+					right: 0.25em;
+					z-index: 20;
+					border-radius: 5em;
+					background: grey;
+					width: 1.5em;
+					height: 1.5em;
+					color: white;
 				}
 
 				.group {
