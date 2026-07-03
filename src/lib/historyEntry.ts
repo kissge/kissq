@@ -49,22 +49,10 @@ export class MaruHistoryEntry implements HistoryEntry {
 		att.yasuCount = yasuCount;
 
 		if (life === 'alive' && att.processMaru().life === 'won') {
-			if (att.rule.transit) {
-				state.latestEvent = { type: 'transit', attendantID: this.attendantID };
-			} else {
-				state.latestEvent = { type: 'lizhi', attendantID: this.attendantID };
-			}
+			state.latestEvent = { type: 'lizhi', attendantID: this.attendantID };
 		}
 
-		if (otherScoreDiff === 'transit') {
-			if (state.latestEvent?.type !== 'transit') {
-				state.attendants.forEach((a) => {
-					if (a.isLizhi) {
-						a.score = 0;
-					}
-				});
-			}
-		} else if (otherScoreDiff !== 0) {
+		if (otherScoreDiff !== 0) {
 			state.attendants.forEach((a, i) => {
 				if (i !== this.attendantID && a.life === 'alive') {
 					a.score += otherScoreDiff;
