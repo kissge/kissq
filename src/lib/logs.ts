@@ -8,6 +8,7 @@ export type LogStateEntry =
 		maruCount: number;
 		batsuCount: number;
 		life: Life;
+		i: number;
 	}
 	| {
 		mode: 'score' | 'MbyN' | 'survival';
@@ -15,11 +16,13 @@ export type LogStateEntry =
 		group: number;
 		score: number;
 		life: Life;
+		i: number;
 	};
 
 
 export interface LogEntry {
 	startAt: string;
+	gameTitle: string;
 	questionCount: number;
 	rules: string;
 	state: LogStateEntry[];

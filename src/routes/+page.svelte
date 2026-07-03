@@ -76,6 +76,7 @@
 			)
 			.join(' / ');
 	});
+	let gameTitle = $state('');
 
 	let innerWidth = $state(0);
 	let innerHeight = $state(0);
@@ -336,29 +337,37 @@
 	let penaltyRoulette: { run: (choices: Penalty[]) => Promise<number> };
 
 	function stateToLog(): LogStateEntry[] {
-		return currentState.attendants.map((att, i) => {
-			switch (att.rule.mode) {
-				case 'marubatsu':
-					return {
-						mode: 'marubatsu',
-						name: att.name,
-						group: attendants[i].group,
-						maruCount: att.maruCount,
-						batsuCount: att.batsuCount,
-						life: att.life
-					};
-				case 'score':
-				case 'MbyN':
-				case 'survival':
-					return {
-						mode: att.rule.mode,
-						name: att.name,
-						group: attendants[i].group,
-						score: att.score,
-						life: att.life
-					};
-			}
-		});
+		return currentState.attendants
+			.flatMap<LogStateEntry>((att, i) => {
+				if (att.life === 'removed') {
+					return [];
+				}
+
+				switch (att.rule.mode) {
+					case 'marubatsu':
+						return {
+							mode: 'marubatsu',
+							name: att.name,
+							group: attendants[i].group,
+							maruCount: att.maruCount,
+							batsuCount: att.batsuCount,
+							life: att.life,
+							i
+						};
+					case 'score':
+					case 'MbyN':
+					case 'survival':
+						return {
+							mode: att.rule.mode,
+							name: att.name,
+							group: attendants[i].group,
+							score: att.score,
+							life: att.life,
+							i
+						};
+				}
+			})
+			.toSorted((a, b) => currentState.ranking.indexOf(a.i) - currentState.ranking.indexOf(b.i));
 	}
 
 	function pushLog(): void {
@@ -370,6 +379,7 @@
 				dateStyle: 'short',
 				timeStyle: 'long'
 			}),
+			gameTitle,
 			questionCount: currentState.questionCount - 1,
 			rules: activeRulesText,
 			state: stateToLog()
@@ -389,9 +399,13 @@
 			return;
 		}
 
-		logs.at(-1)!.questionCount = currentState.questionCount - 1;
-		logs.at(-1)!.rules = activeRulesText;
-		logs.at(-1)!.state = stateToLog();
+		logs[logs.length - 1] = {
+			...logs[logs.length - 1],
+			gameTitle,
+			questionCount: currentState.questionCount - 1,
+			rules: activeRulesText,
+			state: stateToLog()
+		};
 
 		window.localStorage.setItem('logs', JSON.stringify(logs));
 	});
@@ -622,7 +636,9 @@
 
 <svelte:head>
 	<title>
-		kissQ - {currentState.attendants
+		kissQ -
+		{gameTitle ? gameTitle + ' - ' : ''}
+		{currentState.attendants
 			.flatMap(({ name, life }) => (life !== 'removed' ? [name.slice(0, 3) || '👤'] : []))
 			.join('・')}
 		- クイズカウンター（得点表示機）のkissQ
@@ -644,7 +660,7 @@
 			{/key}
 		</div>
 		<h1>
-			<span contenteditable class="editable-title"></span>
+			<span contenteditable class="editable-title" bind:textContent={gameTitle}></span>
 			<button
 				onclick={helpDialog.open}
 				{@attach tooltip(
