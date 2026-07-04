@@ -9,6 +9,10 @@
 			subWindow.document.body.innerHTML =
 				dialog.innerHTML +
 				`<style>
+	body {
+		font-family: sans-serif;
+	}
+
 	rt {
 		font-size: 0.3em;
 	}
