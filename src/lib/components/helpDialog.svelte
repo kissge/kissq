@@ -1,23 +1,46 @@
 <script lang="ts">
 	import { browser } from '$app/environment';
 
-	let dialog: HTMLDialogElement;
+	let dialog: HTMLDivElement;
 
 	export function open() {
-		dialog.showModal();
+		const subWindow = window.open('', 'subWindow', 'width=600,height=800,scrollbars=yes,popup=yes');
+		if (subWindow) {
+			subWindow.document.body.innerHTML =
+				dialog.innerHTML +
+				`<style>
+	rt {
+		font-size: 0.3em;
+	}
+
+	li {
+		line-height: 1.8;
+	}
+
+	em {
+		color: red;
+		font-style: normal;
+		font-weight: bold;
+		text-decoration: underline wavy red;
+	}
+
+	a {
+		text-decoration: none;
+	}
+		</sty${''}le>`;
+		}
 		dialog.scrollTop = 0;
 	}
 
-	let tag = $state('div');
+	let hide = $state(false);
 	if (browser) {
 		if (!/google/i.test(navigator.userAgent)) {
-			setTimeout(() => (tag = 'dialog'), 0);
+			setTimeout(() => (hide = true), 0);
 		}
 	}
 </script>
 
-{/* @ts-expect-error yurushite */ null}
-<svelte:element this={tag} bind:this={dialog} closedby="any">
+<div bind:this={dialog} style:display={hide ? 'none' : 'block'}>
 	<h1>❓<ruby><rb>kissQ</rb><rt>きすきゅー</rt></ruby>の使い方</h1>
 
 	<h2>ルール</h2>
@@ -117,7 +140,9 @@
 
 	<h3>モード<small>（e.g. エンドレスチャンス）</small>を切り替えるには</h3>
 	<ol>
-		<li>早稲田式早押しボタンの親機に繋がっているUSBケーブル（と電源ケーブル）を抜きます。</li>
+		<li>
+			早稲田式早押しボタンの親機に繋がっているUSBケーブル（と電源ケーブル）を抜き、電源を切ります。
+		</li>
 		<li>USBケーブルを差しなおします。</li>
 		<li>「その他」の「早稲田式連携」ボタンをクリックします。</li>
 		<li>
@@ -133,30 +158,8 @@
 	</ol>
 
 	<hr />
-	<p>© 2025 <a href="https://x.com/_kidochan" target="_blank">@_kidochan</a></p>
-
-	<div class="buttons">
-		<button onclick={() => dialog.close()}>閉じる</button>
-	</div>
-</svelte:element>
-
-<style>
-	rt {
-		font-size: 0.3em;
-	}
-
-	li {
-		line-height: 1.8;
-	}
-
-	em {
-		color: red;
-		font-style: normal;
-		font-weight: bold;
-		text-decoration: underline wavy red;
-	}
-
-	a {
-		text-decoration: none;
-	}
-</style>
+	<p>
+		© 2025–{new Date().getFullYear()}
+		<a href="https://x.com/_kidochan" target="_blank">@_kidochan</a>
+	</p>
+</div>
