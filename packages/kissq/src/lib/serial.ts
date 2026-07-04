@@ -53,9 +53,7 @@ export async function* readFromSerialPort(port: SerialPort) {
 			const lines = buffer.split('\r\n');
 			buffer = lines.pop() || '';
 
-			for (const line of lines) {
-				yield line;
-			}
+			yield* lines;
 		}
 	} finally {
 		reader.releaseLock();

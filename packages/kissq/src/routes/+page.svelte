@@ -563,11 +563,11 @@
 				break;
 
 			case 'clickMaru':
-				clickMaru(event.data.attendantID, false);
+				clickMaru(event.data.attendantID);
 				break;
 
 			case 'clickBatsu':
-				clickBatsu(event.data.attendantID, false);
+				clickBatsu(event.data.attendantID);
 				break;
 
 			case 'clickThrough':
@@ -725,10 +725,10 @@
 					)?.[0];
 					if (answererAttendantID !== undefined) {
 						if (line === '51') {
-							clickMaru(Number.parseInt(answererAttendantID));
+							clickMaru(Number.parseInt(answererAttendantID), false);
 							answerers = [];
 						} else {
-							clickBatsu(Number.parseInt(answererAttendantID));
+							clickBatsu(Number.parseInt(answererAttendantID), false);
 						}
 					} else {
 						Toastify({
