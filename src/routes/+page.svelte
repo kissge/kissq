@@ -688,19 +688,19 @@
 
 				switch (line) {
 					case '91':
-						Toastify({ text: '起動（シングルチャンス）' }).showToast();
+						Toastify({ text: '接続完了（シングルチャンス）' }).showToast();
 						wasedashikiMode = 'single';
 						continue;
 					case '92':
-						Toastify({ text: '起動（ダブルチャンス）' }).showToast();
+						Toastify({ text: '接続完了（ダブルチャンス）' }).showToast();
 						wasedashikiMode = 'double';
 						continue;
 					case '93':
-						Toastify({ text: '起動（エンドレスチャンス）' }).showToast();
+						Toastify({ text: '接続完了（エンドレスチャンス）' }).showToast();
 						wasedashikiMode = 'endless';
 						continue;
 					case '94':
-						Toastify({ text: '起動（ハンデあり）' }).showToast();
+						Toastify({ text: '接続完了（ハンデあり）' }).showToast();
 						wasedashikiMode = 'handicap';
 						continue;
 					case '99':
@@ -740,7 +740,9 @@
 					lastButtonID = parts[0];
 					answerers = Array.from({ length: 24 }, (_, i) =>
 						i === parts[0] - 1
-							? { rank: 1, delay: 0 }
+							? answerers[i] && answerers[i].delay
+								? { rank: 1, delay: answerers[i].delay }
+								: { rank: 1, delay: 0 }
 							: answerers[i]?.rank === 1
 								? null
 								: answerers[i]
@@ -763,7 +765,10 @@
 				}
 			}
 		} catch (error) {
-			Toastify({ text: '通信エラー', style: { background: '#B00000' } }).showToast();
+			Toastify({
+				text: String(error).includes('The device has been lost.') ? '切断されました' : '通信エラー',
+				style: { background: '#B00000' }
+			}).showToast();
 			console.error('通信エラー', error);
 			serialPort = undefined;
 			wasedashikiMode = undefined;
@@ -931,6 +936,7 @@
 								: 13 <= buttonMapping[i] && buttonMapping[i] <= 18
 									? 'background-color: yellow; color: black'
 									: 'background-color: green; color: white'}
+					style:opacity={lastButtonID === undefined ? 0 : 1}
 					{@attach tooltip(
 						`このプレイヤーが持っているボタンは${buttonMapping[i] == null ? '???' : buttonMapping[i]}番です。クリックで紐づけ`
 					)}
