@@ -502,13 +502,17 @@
 		}
 	}
 
-	function clickMaru(attendantID: number) {
+	function clickMaru(attendantID: number, playSounds_: boolean = true) {
 		history.push(new MaruHistoryEntry(attendantID));
-		playSound(se1);
+		if (playSounds_) {
+			playSound(se1);
+		}
 	}
 
-	async function clickBatsu(attendantID: number) {
-		playSound(se2);
+	async function clickBatsu(attendantID: number, playSounds_: boolean = true) {
+		if (playSounds_) {
+			playSound(se2);
+		}
 
 		const rule = currentState.attendants[attendantID].rule;
 		if (rule.yasuMode === 'roulette') {
@@ -559,11 +563,11 @@
 				break;
 
 			case 'clickMaru':
-				clickMaru(event.data.attendantID);
+				clickMaru(event.data.attendantID, false);
 				break;
 
 			case 'clickBatsu':
-				clickBatsu(event.data.attendantID);
+				clickBatsu(event.data.attendantID, false);
 				break;
 
 			case 'clickThrough':
