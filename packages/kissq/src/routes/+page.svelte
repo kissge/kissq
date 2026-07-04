@@ -752,16 +752,31 @@
 					answerers = Array.from({ length: 24 }, (_, i) =>
 						i === parts[0] - 101 && parts[1] > 0 ? { rank: 'late', delay: parts[1] } : answerers[i]
 					);
-					if (
-						Object.entries(buttonMapping).find(([, id]) => id === lastButtonID!)?.[0] == undefined
-					) {
+					const attendantID = Object.entries(buttonMapping).find(
+						([, id]) => id === lastButtonID!
+					)?.[0];
+					if (attendantID == undefined) {
 						Toastify({
 							text: `ボタン ${lastButtonID} を持っているのがどのプレイヤーか分かりません。紐づけしてください`
 						}).showToast();
+					} else {
+						const att = currentState.attendants[Number.parseInt(attendantID)];
+						const name = att.name || `プレイヤー${Number.parseInt(attendantID) + 1}`;
+						switch (att.life) {
+							case 'removed':
+								Toastify({ text: `${name}は削除されています` }).showToast();
+								break;
+							case 'won':
+								Toastify({ text: `${name}は勝ち抜け済みです` }).showToast();
+								break;
+							case 'lost':
+								Toastify({ text: `${name}は失格済みです` }).showToast();
+								break;
+						}
 					}
 				} else {
-					Toastify({ text: `serial: ${line}` }).showToast();
-					console.warn(`serial: ${line}`);
+					Toastify({ text: `デバッグ情報: ${JSON.stringify(line)}` }).showToast();
+					console.warn('serial:', JSON.stringify(line));
 				}
 			}
 		} catch (error) {
