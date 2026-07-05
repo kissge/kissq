@@ -310,6 +310,25 @@
 
 	let enableRating = $state(false);
 
+	let backgroundImageInputs = $state<FileList>();
+
+	$effect(() => {
+		const main = typeof document !== 'undefined' && document.getElementsByTagName('main')[0];
+		if (main) {
+			if (backgroundImageInputs?.length) {
+				const file = backgroundImageInputs[0];
+				const reader = new FileReader();
+				reader.onload = () => {
+					main.style.backgroundImage = `url(${reader.result})`;
+					window.localStorage.setItem('backgroundImage', main.style.backgroundImage);
+				};
+				reader.readAsDataURL(file);
+			} else {
+				main.style.backgroundImage = '';
+			}
+		}
+	});
+
 	function toggleScreenshotMode() {
 		if (screenshotModeTimer != null) {
 			clearInterval(screenshotModeTimer);
@@ -594,6 +613,9 @@
 	});
 
 	onMount(() => {
+		document.getElementsByTagName('main')[0].style.backgroundImage =
+			window.localStorage.getItem('backgroundImage') || '';
+
 		pushLog();
 		window.addEventListener('message', processWindowMessage);
 
@@ -1123,6 +1145,16 @@
 			{#if playSounds}🔊 ON{:else}🔇 OFF{/if}
 		</button>
 		<button
+			onclick={() => {
+				document.getElementsByTagName('main')[0].style.backgroundImage = '';
+				window.localStorage.removeItem('backgroundImage');
+				document.getElementById('imageInput')!.click();
+			}}
+		>
+			背景変更
+		</button>
+		<input accept="image/*" type="file" id="imageInput" bind:files={backgroundImageInputs} />
+		<button
 			onclick={() => (enableRating = !enableRating)}
 			{@attach tooltip('レーティング自動計算のオンオフを切り替えます')}
 		>
@@ -1599,13 +1631,20 @@
 	.other-menu {
 		position: fixed;
 		position-anchor: --footer;
+		display: flex;
 		right: anchor(right);
 		bottom: anchor(top);
+		flex-wrap: wrap;
+		gap: 3px;
 		box-shadow: -2px -2px 6px #666;
 		background: #eee;
 		padding: 0.5em;
 		font-size: 2em;
 		user-select: none;
+
+		#imageInput {
+			display: none;
+		}
 	}
 
 	.banner-bg {
