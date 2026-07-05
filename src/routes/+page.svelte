@@ -671,6 +671,14 @@
 			}
 		}
 
+		while (serialPort) {
+			console.log('Reading from serial port...');
+			await readLoopSerialPort();
+			await new Promise((resolve) => setTimeout(resolve, 5000));
+		}
+	}
+
+	async function readLoopSerialPort() {
 		if (!serialPort) {
 			return;
 		}
@@ -744,7 +752,7 @@
 					lastButtonID = parts[0];
 					answerers = Array.from({ length: 24 }, (_, i) =>
 						i === parts[0] - 1
-							? answerers[i] && answerers[i].delay
+							? answerers[i]?.delay
 								? { rank: 1, delay: answerers[i].delay }
 								: { rank: 1, delay: 0 }
 							: answerers[i]?.rank === 1
@@ -1668,6 +1676,10 @@
 					}
 				}
 
+				&:has(.answerer-1st) {
+					animation: answerer-1st-wrapper 0.3s ease infinite alternate;
+				}
+
 				&:hover,
 				&:has(.name:focus-within) {
 					backdrop-filter: blur(20px);
@@ -1913,6 +1925,12 @@
 				0px 10px 50px #aa08,
 				0px 10px 50px #aa08,
 				0px 10px 50px #aa08;
+		}
+	}
+
+	@keyframes answerer-1st-wrapper {
+		to {
+			scale: 1.05;
 		}
 	}
 
