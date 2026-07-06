@@ -23,6 +23,13 @@ export async function reconnect() {
 
 	if (ports.length > 0) {
 		const serialPort = ports[0];
+
+		try {
+			await serialPort.close();
+		} catch {
+			/** no-op */
+		}
+
 		if (!serialPort.readable) {
 			await serialPort.open({ baudRate: 9600 });
 			return serialPort;
