@@ -717,7 +717,7 @@
 						continue;
 					case '99':
 						// リセット
-						answerers = Array.from({ length: 24 }, () => null);
+						answerers = [];
 						continue;
 				}
 
@@ -964,6 +964,7 @@
 									? 'background-color: yellow; color: black'
 									: 'background-color: green; color: white'}
 					style:opacity={lastButtonID === undefined ? 0 : 1}
+					disabled={lastButtonID === undefined}
 					{@attach tooltip(
 						`このプレイヤーが持っているボタンは${buttonMapping[i] == null ? '???' : buttonMapping[i]}番です。クリックで紐づけ`
 					)}
