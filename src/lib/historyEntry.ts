@@ -5,6 +5,7 @@ abstract class HistoryEntry {
 	abstract type: string;
 	abstract toString(state: GameState): string;
 	abstract reducer(state: GameState): GameState;
+	abstract reducerTeam(state: GameState): GameState;
 }
 
 type HistoryEntryType =
@@ -77,6 +78,59 @@ export class MaruHistoryEntry implements HistoryEntry {
 
 		return state;
 	}
+
+	reducerTeam(state: GameState): GameState {
+		const { team } = state.getTeamByAttendantID(this.attendantID);
+		const att = state.attendants[this.attendantID];
+
+		state.increaseQuestionCount();
+		const { maruCount, score, life, trophyCount, yasuCount, otherScoreDiff, teamScore, teamLife } =
+			team.processMaru(this.attendantID, this.multiplier);
+
+		if (team.teamLife === 'alive' && teamLife === 'won') {
+			state.latestEvent = { type: 'won', team };
+		}
+
+		att.maruCount = maruCount;
+		att.score = score;
+		att.life = life;
+		att.trophyCount = trophyCount;
+		att.yasuCount = yasuCount;
+		team.teamScore = teamScore;
+		team.teamLife = teamLife;
+
+		if (
+			teamLife === 'alive' &&
+			team.processMaru(this.attendantID, this.multiplier).teamLife === 'won'
+		) {
+			if (att.rule.transit) {
+				state.latestEvent = { type: 'transit', team };
+			} else {
+				state.latestEvent = { type: 'lizhi', team };
+			}
+		}
+
+		// if (otherScoreDiff === 'transit') {
+		// 	if (state.latestEvent?.type !== 'transit') {
+		// 		state.attendants.forEach((a) => {
+		// 			if (a.isLizhi) {
+		// 				a.score = 0;
+		// 			}
+		// 		});
+		// 	}
+		// } else if (otherScoreDiff !== 0) {
+		// 	state.attendants.forEach((a, i) => {
+		// 		if (i !== this.attendantID && a.life === 'alive') {
+		// 			a.score += otherScoreDiff;
+		// 			if (a.score <= 0) {
+		// 				a.life = 'lost';
+		// 			}
+		// 		}
+		// 	});
+		// }
+
+		return state;
+	}
 }
 
 export class BatsuHistoryEntry implements HistoryEntry {
@@ -104,6 +158,44 @@ export class BatsuHistoryEntry implements HistoryEntry {
 
 		return state;
 	}
+
+	reducerTeam(state: GameState): GameState {
+		const { ti, team } = state.getTeamByAttendantID(this.attendantID);
+		const att = state.attendants[this.attendantID];
+
+		const { maruCount, batsuCount, score, life, yasuCount, teamScore, teamLife } =
+			team.processBatsu(this.attendantID, this.penalty);
+		att.maruCount = maruCount;
+		att.batsuCount = batsuCount;
+		att.score = score;
+		att.life = life;
+		att.yasuCount = yasuCount;
+		att.lastPenalty = this.penalty;
+		team.teamScore = teamScore;
+		team.teamLife = teamLife;
+
+		if (att.rule.mode === 'aql') {
+			// TODO: 相手チームの封鎖を解除し、1×に戻す
+			for (const [ti2, team2] of state.teams.entries()) {
+				if (ti === ti2) {
+					continue;
+				}
+
+				for (const seat of team2.attendantIDsPerSeat) {
+					for (const ai of seat) {
+						const att = state.attendants[ai];
+						if (att.life === 'lost') {
+							att.life = 'alive';
+							--att.batsuCount;
+							break;
+						}
+					}
+				}
+			}
+		}
+
+		return state;
+	}
 }
 
 export class ThroughHistoryEntry implements HistoryEntry {
@@ -114,6 +206,11 @@ export class ThroughHistoryEntry implements HistoryEntry {
 	}
 
 	reducer(state: GameState): GameState {
+		state.increaseQuestionCount();
+		return state;
+	}
+
+	reducerTeam(state: GameState): GameState {
 		state.increaseQuestionCount();
 		return state;
 	}
@@ -133,12 +230,18 @@ export class RemoveHistoryEntry implements HistoryEntry {
 		state.ranking = state.ranking.filter((i) => i !== this.attendantID);
 		return state;
 	}
+
+	reducerTeam(state: GameState): GameState {
+		state.attendants[this.attendantID].life = 'removed';
+		state.ranking = state.ranking.filter((i) => i !== this.attendantID);
+		return state;
+	}
 }
 
 export class WinHistoryEntry implements HistoryEntry {
 	type = 'win' as const;
 
-	constructor(public attendantID: number) { }
+	constructor(public attendantID: number) {}
 
 	toString(state: GameState): string {
 		return `${state.attendants[this.attendantID].name || 'プレイヤー ' + (this.attendantID + 1)} 勝利`;

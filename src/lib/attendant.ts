@@ -1,19 +1,14 @@
 export interface Attendant {
 	name: string;
 	group: number;
+	team: number;
+	seat: number;
 	trophyCount: number;
 	totalScore: { num: number; den: number };
 	manualOrder: number;
 }
 
-export interface TeamAttendant extends Attendant {
-	team: number;
-	seat: number;
-}
-
-export function loadFromHash(team: true): TeamAttendant[] | null;
-export function loadFromHash(): Attendant[] | null;
-export function loadFromHash(team: boolean = false): Attendant[] | null {
+export function loadFromHash(): Attendant[] | null {
 	try {
 		const url = new URL(document.URL);
 		if (url.hash.length > 1) {
@@ -22,7 +17,8 @@ export function loadFromHash(team: boolean = false): Attendant[] | null {
 				return names.map((name, manualOrder) => ({
 					name,
 					group: 0,
-					...(team ? { team: 0, seat: 0 } : {}),
+					team: 0,
+					seat: 0,
 					trophyCount: 0,
 					totalScore: { num: 0, den: 0 },
 					manualOrder
