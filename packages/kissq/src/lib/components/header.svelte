@@ -1,24 +1,29 @@
 <script lang="ts">
 	import { fade } from 'svelte/transition';
 	import HelpDialog from '$lib/components/helpDialog.svelte';
+	import { getActiveRulesText, type Rule } from '$lib/rule';
 	import { tooltip } from '$lib/tooltip.svelte';
 
 	let {
 		headerClientHeight = $bindable(),
 		questionCount,
 		gameTitle,
-		activeRulesText,
+		battleMode,
+		rules,
 		editRule
 	}: {
 		headerClientHeight: number;
 		questionCount: number;
 		gameTitle: string;
-		activeRulesText: string;
+		battleMode: 'single' | 'team';
+		rules: Rule[];
 		editRule: () => void;
 	} = $props();
 
 	// svelte-ignore non_reactive_update ...?
 	let helpDialog: { open: () => void };
+
+	let { activeRulesText } = $derived(getActiveRulesText(rules));
 </script>
 
 <header bind:clientHeight={headerClientHeight}>
@@ -44,6 +49,11 @@
 		>
 			？
 		</button>
+		{#if battleMode === 'single'}
+			個人戦
+		{:else}
+			チーム戦
+		{/if}
 	</h1>
 	<div>
 		Rule:

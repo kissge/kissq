@@ -7,6 +7,7 @@
 	import se1 from '$lib/assets/se1.mp3';
 	import se2 from '$lib/assets/se2.mp3';
 	import se3 from '$lib/assets/se3.mp3';
+	import { type Attendant, loadFromHash } from '$lib/attendant';
 	import EffectEditDialog from '$lib/components/effectEditDialog.svelte';
 	import Footer from '$lib/components/footer.svelte';
 	import Header from '$lib/components/header.svelte';
@@ -26,14 +27,9 @@
 		EditHistoryEntry
 	} from '$lib/historyEntry';
 	import type { LogEntry, LogStateEntry } from '$lib/logs';
-	import { Rule, type Penalty } from '$lib/rule';
-	import {
-		AttendantState,
-		GameState,
-		type Attendant,
-		type AttendantStateValue,
-		type GameEvent
-	} from '$lib/state';
+	import { Rule, type Penalty, getActiveRulesText } from '$lib/rule';
+	import { playSound } from '$lib/sound';
+	import { AttendantState, GameState, type AttendantStateValue, type GameEvent } from '$lib/state';
 	import { tooltip } from '$lib/tooltip.svelte';
 
 	let attendants = $state<Attendant[]>(
@@ -51,32 +47,7 @@
 			new GameState(attendants, rules).updateRanking()
 		)
 	);
-	let activeRules = $derived(rules.flatMap((rule, i) => (rule.isRemoved ? [] : { rule, i })));
-	let activeRulesText = $derived.by(() => {
-		if (activeRules.length === 1) {
-			return String(activeRules[0].rule);
-		}
-
-		return activeRules
-			.slice(1)
-			.reduce(
-				(acc, { rule, i }) => {
-					if (String(rule) === acc.at(-1)!.text) {
-						acc.at(-1)!.end = i;
-						return acc;
-					} else {
-						return [...acc, { start: i, end: i, text: String(rule) }];
-					}
-				},
-				[{ start: activeRules[0].i, end: activeRules[0].i, text: String(activeRules[0].rule) }]
-			)
-			.map(({ start, end, text }) =>
-				start === end
-					? String.fromCodePoint(65 + start) + ': ' + text
-					: String.fromCodePoint(65 + start) + '–' + String.fromCodePoint(65 + end) + ': ' + text
-			)
-			.join(' / ');
-	});
+	let { activeRules, activeRulesText } = $derived(getActiveRulesText(rules));
 	let gameTitle = $state('');
 
 	let innerWidth = $state(0);
@@ -299,16 +270,6 @@
 
 	let playSounds = $state(true);
 
-	function playSound(src: string) {
-		if (playSounds) {
-			const audio = new Audio(src);
-			audio.volume = 0.25;
-			audio.play().catch(() => {
-				/* noop */
-			});
-		}
-	}
-
 	let enableRating = $state(false);
 
 	function toggleScreenshotMode() {
@@ -477,11 +438,11 @@
 
 	function clickMaru(attendantID: number) {
 		history.push(new MaruHistoryEntry(attendantID));
-		playSound(se1);
+		if (playSounds) playSound(se1);
 	}
 
 	async function clickBatsu(attendantID: number) {
-		playSound(se2);
+		if (playSounds) playSound(se2);
 
 		const rule = currentState.attendants[attendantID].rule;
 		if (rule.yasuMode === 'roulette') {
@@ -494,7 +455,7 @@
 
 	function clickThrough() {
 		history.push(new ThroughHistoryEntry());
-		playSound(se3);
+		if (playSounds) playSound(se3);
 	}
 
 	function clickUndo() {
@@ -599,28 +560,6 @@
 		return () => window.removeEventListener('message', processWindowMessage);
 	});
 
-	function loadFromHash(): Attendant[] | null {
-		try {
-			const url = new URL(document.URL);
-			if (url.hash.length > 1) {
-				const names = JSON.parse(decodeURIComponent(url.hash.slice(1)));
-				if (Array.isArray(names) && names.length > 0 && names.every((n) => typeof n === 'string')) {
-					return names.map((name, manualOrder) => ({
-						name,
-						group: 0,
-						trophyCount: 0,
-						totalScore: { num: 0, den: 0 },
-						manualOrder
-					}));
-				}
-			}
-		} catch {
-			/* ignore */
-		}
-
-		return null;
-	}
-
 	function han2zen(str: string) {
 		// 全ASCII（4文字以上連続をどこかに含む場合は無視）
 		return /[!-~]{4}/gi.test(str)
@@ -653,7 +592,8 @@
 		bind:headerClientHeight
 		questionCount={currentState.questionCount}
 		{gameTitle}
-		{activeRulesText}
+		battleMode="single"
+		{rules}
 		{editRule}
 	/>
 
@@ -915,8 +855,10 @@
 							<button
 								onclick={() => {
 									history.push(new MaruHistoryEntry(i, 2));
-									playSound(se1);
-									setTimeout(() => playSound(se1), 150);
+									if (playSounds) {
+										playSound(se1);
+										setTimeout(() => playSound(se1), 150);
+									}
 									showBanner({ type: 'effect2', attendantID: i });
 								}}
 								class="maru-btn"
@@ -929,9 +871,11 @@
 							<button
 								onclick={() => {
 									history.push(new MaruHistoryEntry(i, 3));
-									playSound(se1);
-									setTimeout(() => playSound(se1), 150);
-									setTimeout(() => playSound(se1), 300);
+									if (playSounds) {
+										playSound(se1);
+										setTimeout(() => playSound(se1), 150);
+										setTimeout(() => playSound(se1), 300);
+									}
 									showBanner({ type: 'effect3', attendantID: i });
 								}}
 								class="maru-btn"
