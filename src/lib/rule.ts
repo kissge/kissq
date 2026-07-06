@@ -3,7 +3,7 @@ export type Penalty = { type: 'yasu'; count: number } | { type: 'zero' };
 export class Rule {
 	constructor(
 		/** ゲームモード */
-		public mode: 'score' | 'marubatsu' | 'MbyN' | 'survival',
+		public mode: 'score' | 'marubatsu' | 'MbyN' | 'survival' | 'aql',
 		/** 勝利に必要なスコアまたはマル数またはスコアの平方根 */
 		public win: number,
 		/** 敗北に必要なスコア（負数）またはバツ数（正数） */
@@ -109,6 +109,9 @@ export class Rule {
 				}
 				break;
 
+			case 'aql':
+				return 'AQL';
+
 			default:
 				this.mode satisfies never;
 		}
@@ -143,4 +146,38 @@ export class Rule {
 				return this.lose!;
 		}
 	}
+}
+
+export function getActiveRulesText(rules: Rule[]): {
+	activeRules: { rule: Rule; i: number }[];
+	activeRulesText: string;
+} {
+	const activeRules = rules.flatMap((rule, i) => (rule.isRemoved ? [] : { rule, i }));
+
+	if (activeRules.length === 1) {
+		return { activeRules, activeRulesText: String(activeRules[0].rule) };
+	}
+
+	return {
+		activeRules,
+		activeRulesText: activeRules
+			.slice(1)
+			.reduce(
+				(acc, { rule, i }) => {
+					if (String(rule) === acc.at(-1)!.text) {
+						acc.at(-1)!.end = i;
+						return acc;
+					} else {
+						return [...acc, { start: i, end: i, text: String(rule) }];
+					}
+				},
+				[{ start: activeRules[0].i, end: activeRules[0].i, text: String(activeRules[0].rule) }]
+			)
+			.map(({ start, end, text }) =>
+				start === end
+					? String.fromCodePoint(65 + start) + ': ' + text
+					: String.fromCodePoint(65 + start) + '–' + String.fromCodePoint(65 + end) + ': ' + text
+			)
+			.join(' / ')
+	};
 }

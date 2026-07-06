@@ -1,15 +1,7 @@
+import type { Attendant } from './attendant';
 import { Rule, type Penalty } from './rule';
 
 export type Life = 'alive' | 'won' | 'lost' | 'removed';
-
-export interface Attendant {
-	name: string;
-	group: number;
-	trophyCount: number;
-	totalScore: { num: number; den: number };
-	manualOrder: number;
-}
-
 export class AttendantState {
 	lastPenalty: Penalty | null = null;
 
@@ -27,6 +19,8 @@ export class AttendantState {
 	) {
 		if (rule.mode === 'survival') {
 			this.score = rule.lose!;
+		} else if (rule.mode === 'aql') {
+			this.score = 1;
 		}
 	}
 
@@ -93,6 +87,17 @@ export class AttendantState {
 				if (this.rule.yasuPerMaru && maruCount % this.rule.yasuPerMaru.maru === 0) {
 					yasuCount = this.rule.yasuPerMaru.yasu;
 				}
+				return { maruCount, score, life, trophyCount, yasuCount, otherScoreDiff };
+
+			case 'aql':
+				maruCount++;
+				score++;
+
+				if (score >= this.rule.win) {
+					life = 'won';
+					trophyCount++;
+				}
+
 				return { maruCount, score, life, trophyCount, yasuCount, otherScoreDiff };
 		}
 	}
@@ -198,6 +203,15 @@ export class AttendantState {
 				}
 
 				return { maruCount, batsuCount, score, life, yasuCount };
+
+			case 'aql':
+				batsuCount++;
+				score = 1;
+
+				// TODO: 1✕なら封鎖
+				// TODO: 相手チームの封鎖解除
+
+				return { maruCount, batsuCount, score, life, yasuCount };
 		}
 	}
 
@@ -238,7 +252,7 @@ export class AttendantState {
 			...this,
 			yasuDisplay: this.yasuDisplay,
 			isLizhi: this.isLizhi,
-			isLoseLizhi: this.isLoseLizhi,
+			isLoseLizhi: this.isLoseLizhi
 		};
 	}
 }
@@ -335,6 +349,10 @@ export class GameState {
 						return bWon - aWon || aLost - bLost;
 					}
 				});
+				return this;
+
+			case 'aql':
+				// TODO
 				return this;
 		}
 	}
