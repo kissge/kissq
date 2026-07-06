@@ -7,6 +7,7 @@
 	import se1 from '$lib/assets/se1.mp3';
 	import se2 from '$lib/assets/se2.mp3';
 	import se3 from '$lib/assets/se3.mp3';
+	import AppearanceDialog from '$lib/components/appearanceDialog.svelte';
 	import EffectEditDialog from '$lib/components/effectEditDialog.svelte';
 	import HelpDialog from '$lib/components/helpDialog.svelte';
 	import LogDialog from '$lib/components/logDialog.svelte';
@@ -296,6 +297,9 @@
 	let effect2Name = $state<string>();
 	let effect3Name = $state<string>();
 
+	let wallpaper = $state<string | null>(null);
+	let trophy = $state<string | null>(null);
+
 	let playSounds = $state(true);
 
 	function playSound(src: string) {
@@ -309,25 +313,6 @@
 	}
 
 	let enableRating = $state(false);
-
-	let backgroundImageInputs = $state<FileList>();
-
-	$effect(() => {
-		const main = typeof document !== 'undefined' && document.getElementsByTagName('main')[0];
-		if (main) {
-			if (backgroundImageInputs?.length) {
-				const file = backgroundImageInputs[0];
-				const reader = new FileReader();
-				reader.onload = () => {
-					main.style.backgroundImage = `url(${reader.result})`;
-					window.localStorage.setItem('backgroundImage', main.style.backgroundImage);
-				};
-				reader.readAsDataURL(file);
-			} else {
-				main.style.backgroundImage = '';
-			}
-		}
-	});
 
 	function toggleScreenshotMode() {
 		if (screenshotModeTimer != null) {
@@ -351,6 +336,12 @@
 			effect2Name: string | undefined,
 			effect3Name: string | undefined
 		) => Promise<[string | undefined, string | undefined] | null>;
+	};
+	let appearanceDialog: {
+		open: (
+			wallpaper: string | null,
+			trophy: string | null
+		) => Promise<[string | null, string | null] | null>;
 	};
 	let stateEditDialog: { open: (att: AttendantState) => Promise<AttendantStateValue | null> };
 	let penaltyRoulette: { run: (choices: Penalty[]) => Promise<number> };
@@ -488,6 +479,19 @@
 		}
 	}
 
+	async function editAppearance() {
+		const result = await appearanceDialog.open(wallpaper, trophy);
+		if (result) {
+			wallpaper = result[0];
+			trophy = result[1];
+			const main = document.querySelector('main') as HTMLElement;
+			main.style.backgroundImage = wallpaper ? `url(${wallpaper})` : '';
+			main.style.setProperty('--trophy-image', trophy ? `url(${trophy})` : '');
+			window.localStorage.setItem('wallpaper', wallpaper || '');
+			window.localStorage.setItem('trophy', trophy || '');
+		}
+	}
+
 	async function editState(attendantID: number, att: AttendantState) {
 		const result = await stateEditDialog.open(att);
 		if (result) {
@@ -613,8 +617,15 @@
 	});
 
 	onMount(() => {
-		document.getElementsByTagName('main')[0].style.backgroundImage =
-			window.localStorage.getItem('backgroundImage') || '';
+		wallpaper = window.localStorage.getItem('wallpaper');
+		trophy = window.localStorage.getItem('trophy');
+		const main = document.querySelector('main') as HTMLElement;
+		if (wallpaper) {
+			main.style.backgroundImage = `url(${wallpaper})`;
+		}
+		if (trophy) {
+			main.style.setProperty('--trophy-image', `url(${trophy})`);
+		}
 
 		pushLog();
 		window.addEventListener('message', processWindowMessage);
@@ -1144,16 +1155,9 @@
 		>
 			{#if playSounds}🔊 ON{:else}🔇 OFF{/if}
 		</button>
-		<button
-			onclick={() => {
-				document.getElementsByTagName('main')[0].style.backgroundImage = '';
-				window.localStorage.removeItem('backgroundImage');
-				document.getElementById('imageInput')!.click();
-			}}
-		>
-			背景変更
+		<button onclick={editAppearance} {@attach tooltip('外観の設定を編集します')}>
+			デザイン設定
 		</button>
-		<input accept="image/*" type="file" id="imageInput" bind:files={backgroundImageInputs} />
 		<button
 			onclick={() => (enableRating = !enableRating)}
 			{@attach tooltip('レーティング自動計算のオンオフを切り替えます')}
@@ -1189,10 +1193,15 @@
 <HelpDialog bind:this={helpDialog} />
 <LogDialog bind:this={logDialog} />
 <EffectEditDialog bind:this={effectEditDialog} />
+<AppearanceDialog bind:this={appearanceDialog} />
 <StateEditDialog bind:this={stateEditDialog} />
 <PenaltyRoulette bind:this={penaltyRoulette} />
 
 <style>
+	:global(html) {
+		--trophy-image: url('$lib/assets/trophy.png');
+	}
+
 	main {
 		display: grid;
 		flex: 1 0 100dvh;
@@ -1433,7 +1442,7 @@
 					span {
 						box-shadow: 0 0 3px #888;
 						border-radius: 50%;
-						background-image: url('$lib/assets/trophy.png');
+						background-image: var(--trophy-image);
 						background-position: center;
 						background-size: cover;
 						background-color: #ffffffaa;
@@ -1641,10 +1650,6 @@
 		padding: 0.5em;
 		font-size: 2em;
 		user-select: none;
-
-		#imageInput {
-			display: none;
-		}
 	}
 
 	.banner-bg {
