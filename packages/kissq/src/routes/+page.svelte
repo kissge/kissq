@@ -638,8 +638,12 @@
 			.then((port) => {
 				if (port) {
 					serialPort = port;
-					Toastify({ text: '自動で早稲田式に接続しました' }).showToast();
 					initiateSerialConnection(port);
+					setTimeout(() => {
+						if (connected) {
+							Toastify({ text: '自動で早稲田式に接続しました' }).showToast();
+						}
+					}, 1500);
 				}
 			})
 			.catch((error) => {
@@ -657,6 +661,7 @@
 	/** attendant ID -> button ID */
 	let buttonMapping = $state<Record<number, number>>({});
 	let wasedashikiMode = $state<'single' | 'double' | 'endless' | 'handicap'>();
+	let connected = $state(false);
 
 	async function initiateSerialConnection(serialPort_?: SerialPort) {
 		if (!serialPort_) {
@@ -667,12 +672,18 @@
 				console.error('接続エラー', error);
 				serialPort = undefined;
 				wasedashikiMode = undefined;
+				connected = false;
 				return;
 			}
 		}
 
 		while (serialPort) {
 			console.log('Reading from serial port...');
+			setTimeout(() => {
+				if (!connected) {
+					serialPort = undefined;
+				}
+			}, 2500);
 			await readLoopSerialPort();
 			await new Promise((resolve) => setTimeout(resolve, 5000));
 		}
@@ -686,6 +697,7 @@
 		try {
 			for await (let line of readFromSerialPort(serialPort)) {
 				line = line.trim();
+				connected = true;
 
 				if (
 					line === '' ||
@@ -963,7 +975,7 @@
 								: 13 <= buttonMapping[i] && buttonMapping[i] <= 18
 									? 'background-color: yellow; color: black'
 									: 'background-color: green; color: white'}
-					style:opacity={lastButtonID === undefined ? 0 : 1}
+					style:display={lastButtonID === undefined ? 'none' : ''}
 					disabled={lastButtonID === undefined}
 					{@attach tooltip(
 						`このプレイヤーが持っているボタンは${buttonMapping[i] == null ? '???' : buttonMapping[i]}番です。クリックで紐づけ`
