@@ -1742,6 +1742,14 @@
 						width: 1.375em;
 						height: 1.375em;
 					}
+
+					&:has(:nth-child(8)) span:nth-child(n + 2) {
+						margin-top: calc(-0.5 * 1.375em);
+					}
+
+					&:has(:nth-child(15)) span:nth-child(n + 2) {
+						margin-top: calc(-0.75 * 1.375em);
+					}
 				}
 
 				.score {
