@@ -695,8 +695,7 @@
 		}
 
 		try {
-			for await (let line of readFromSerialPort(serialPort)) {
-				line = line.trim();
+			for await (const line of readFromSerialPort(serialPort)) {
 				connected = true;
 
 				if (
