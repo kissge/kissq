@@ -514,12 +514,14 @@
 			playSound(se2);
 		}
 
+		const single = wasedashikiMode === 'single' || wasedashikiMode === 'handicap';
+
 		const rule = currentState.attendants[attendantID].rule;
 		if (rule.yasuMode === 'roulette') {
 			const selection = await penaltyRoulette.run(rule.roulette!.choices);
-			history.push(new BatsuHistoryEntry(attendantID, rule.roulette!.choices[selection]));
+			history.push(new BatsuHistoryEntry(attendantID, single, rule.roulette!.choices[selection]));
 		} else {
-			history.push(new BatsuHistoryEntry(attendantID));
+			history.push(new BatsuHistoryEntry(attendantID, single));
 		}
 	}
 

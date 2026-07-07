@@ -84,6 +84,7 @@ export class BatsuHistoryEntry implements HistoryEntry {
 
 	constructor(
 		public attendantID: number,
+		public increaseQuestionCount: boolean,
 		public penalty: Penalty | null = null
 	) {}
 
@@ -93,6 +94,10 @@ export class BatsuHistoryEntry implements HistoryEntry {
 
 	reducer(state: GameState): GameState {
 		const att = state.attendants[this.attendantID];
+
+		if (this.increaseQuestionCount) {
+			state.increaseQuestionCount();
+		}
 
 		const { maruCount, batsuCount, score, life, yasuCount } = att.processBatsu(this.penalty);
 		att.maruCount = maruCount;
@@ -138,7 +143,7 @@ export class RemoveHistoryEntry implements HistoryEntry {
 export class WinHistoryEntry implements HistoryEntry {
 	type = 'win' as const;
 
-	constructor(public attendantID: number) { }
+	constructor(public attendantID: number) {}
 
 	toString(state: GameState): string {
 		return `${state.attendants[this.attendantID].name || 'プレイヤー ' + (this.attendantID + 1)} 勝利`;
