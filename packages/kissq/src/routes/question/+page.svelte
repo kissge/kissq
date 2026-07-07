@@ -188,7 +188,11 @@
 					<div class="attendant">
 						{att.name || '--'}
 						{#if att.isLizhi}
-							<span class="lizhi" transition:fade>リーチ</span>
+							{#if att.isLoseLizhi}
+								<span class="lizhi" transition:fade>ダブルリーチ</span>
+							{:else}
+								<span class="lizhi" transition:fade>リーチ</span>
+							{/if}
 						{:else if att.isLoseLizhi}
 							<span class="lizhi" transition:fade>失格リーチ</span>
 						{/if}
