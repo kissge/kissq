@@ -691,6 +691,8 @@
 		}
 	}
 
+	let pushers: number[] = [];
+
 	async function readLoopSerialPort() {
 		if (!serialPort) {
 			return;
@@ -731,6 +733,7 @@
 					case '99':
 						// リセット
 						answerers = [];
+						pushers = [];
 						continue;
 				}
 
@@ -763,6 +766,8 @@
 				const parts = line.split(' ').map((n) => Number.parseInt(n));
 				if (parts.length === 1 && 1 <= parts[0] && parts[0] <= 24) {
 					lastButtonID = parts[0];
+					pushers.shift();
+					const second = pushers[0];
 					answerers = Array.from({ length: 24 }, (_, i) =>
 						i === parts[0] - 1
 							? answerers[i]?.delay
@@ -770,12 +775,9 @@
 								: { rank: 1, delay: 0 }
 							: answerers[i]?.rank === 1
 								? null
-								: answerers[i]
-					);
-				} else if (parts.length === 2 && 101 <= parts[0] && parts[0] <= 124) {
-					lastButtonID = parts[0] - 100;
-					answerers = Array.from({ length: 24 }, (_, i) =>
-						i === parts[0] - 101 && parts[1] > 0 ? { rank: 'late', delay: parts[1] } : answerers[i]
+								: i + 1 === second
+									? { rank: 2, delay: answerers[i]!.delay }
+									: answerers[i]
 					);
 					const attendantID = Object.entries(buttonMapping).find(
 						([, id]) => id === lastButtonID!
@@ -799,6 +801,20 @@
 								break;
 						}
 					}
+				} else if (parts.length === 2 && 101 <= parts[0] && parts[0] <= 124) {
+					let rank: 1 | 2 | 'late' = 'late';
+					if (parts[1] === 0) {
+						rank = 1;
+					} else {
+						if (pushers.length === 0) {
+							rank = 2;
+						}
+						pushers.push(parts[0] - 100);
+					}
+
+					answerers = Array.from({ length: 24 }, (_, i) =>
+						i === parts[0] - 101 && parts[1] > 0 ? { rank, delay: parts[1] } : answerers[i]
+					);
 				} else {
 					Toastify({ text: `デバッグ情報: ${JSON.stringify(line)}` }).showToast();
 					console.warn('serial:', JSON.stringify(line));
@@ -1035,7 +1051,8 @@
 							'show-bar': showScore,
 							'answerer-1st': answerers[(buttonMapping[i] ?? 0) - 1]?.rank === 1,
 							'answerer-2nd':
-								wasedashikiMode === 'endless' && answerers[(buttonMapping[i] ?? 0) - 1]?.rank === 2,
+								(wasedashikiMode === 'endless' || wasedashikiMode === 'double') &&
+								answerers[(buttonMapping[i] ?? 0) - 1]?.rank === 2,
 							'answerer-late':
 								wasedashikiMode === 'endless' &&
 								answerers[(buttonMapping[i] ?? 0) - 1]?.rank === 'late'
