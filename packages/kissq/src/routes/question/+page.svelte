@@ -41,11 +41,14 @@
 
 	function processKeyboardInput(event: KeyboardEvent) {
 		if (isKeyboardEnabled) {
-			(
-				document.querySelector(
-					`button.labeled[data-label="${event.key.toUpperCase()}"]`
-				) as HTMLElement | null
-			)?.click();
+			const button = document.querySelector(
+				`button.labeled[data-label="${event.key.toUpperCase()}"]`
+			) as HTMLElement | null;
+			if (button) {
+				button.click();
+				button.classList.add('active');
+				setTimeout(() => button.classList.remove('active'), 500);
+			}
 		}
 	}
 
