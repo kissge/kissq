@@ -52,7 +52,7 @@
 		{#if battleMode === 'single'}
 			個人戦
 		{:else}
-			<!-- チーム戦 -->
+			チーム戦
 		{/if}
 	</h1>
 	<div>
