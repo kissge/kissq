@@ -110,7 +110,7 @@ export class Rule {
 				break;
 
 			case 'aql':
-				return 'AQL';
+				return `AQL（${this.win}点先取）`;
 
 			default:
 				this.mode satisfies never;
@@ -137,6 +137,7 @@ export class Rule {
 		switch (this.mode) {
 			case 'marubatsu':
 			case 'score':
+			case 'aql':
 				return this.win;
 
 			case 'MbyN':

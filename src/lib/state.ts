@@ -91,11 +91,6 @@ export class AttendantState {
 				maruCount++;
 				score++;
 
-				if (score >= this.rule.win) {
-					life = 'won';
-					trophyCount++;
-				}
-
 				return { maruCount, score, life, trophyCount, yasuCount, otherScoreDiff };
 		}
 	}

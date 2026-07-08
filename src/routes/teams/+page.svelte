@@ -2,10 +2,16 @@
 	import { fade } from 'svelte/transition';
 	import se1 from '$lib/assets/se1.mp3';
 	import se2 from '$lib/assets/se2.mp3';
+	import se3 from '$lib/assets/se3.mp3';
 	import { loadFromHash, type Attendant } from '$lib/attendant';
 	import Footer from '$lib/components/footer.svelte';
 	import Header from '$lib/components/header.svelte';
-	import { BatsuHistoryEntry, MaruHistoryEntry, type HistoryEntry } from '$lib/historyEntry';
+	import {
+		BatsuHistoryEntry,
+		MaruHistoryEntry,
+		ThroughHistoryEntry,
+		type HistoryEntry
+	} from '$lib/historyEntry';
 	import { Rule } from '$lib/rule';
 	import { playSound } from '$lib/sound';
 	import { GameState } from '$lib/state';
@@ -53,10 +59,8 @@
 	let gridRows = $derived.by(() => {
 		let max = 0;
 		for (let ti = 0; ti < 2; ++ti) {
-			for (let seat = 0; seat < 5; ++seat) {
-				const atts = attendants.flatMap((att, i) =>
-					att.team === ti && att.seat === seat ? [{ att, i }] : []
-				);
+			for (let si = 0; si < 5; ++si) {
+				const atts = attendants.filter((att) => att.team === ti && att.seat === si);
 				max = Math.max(max, atts.length);
 			}
 		}
@@ -76,9 +80,17 @@
 	}
 
 	async function clickBatsu(attendantID: number) {
-		if (playSounds) playSound(se2);
-
 		history.push(new BatsuHistoryEntry(attendantID));
+		if (playSounds) playSound(se2);
+	}
+
+	function clickThrough() {
+		history.push(new ThroughHistoryEntry());
+		if (playSounds) playSound(se3);
+	}
+
+	function clickUndo() {
+		history.pop();
 	}
 </script>
 

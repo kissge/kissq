@@ -34,8 +34,24 @@
 
 	let attendants = $state<Attendant[]>(
 		loadFromHash() ?? [
-			{ name: '', group: 0, trophyCount: 0, totalScore: { num: 0, den: 0 }, manualOrder: 0 },
-			{ name: '', group: 0, trophyCount: 0, totalScore: { num: 0, den: 0 }, manualOrder: 1 }
+			{
+				name: '',
+				group: 0,
+				team: 0,
+				seat: 0,
+				trophyCount: 0,
+				totalScore: { num: 0, den: 0 },
+				manualOrder: 0
+			},
+			{
+				name: '',
+				group: 0,
+				team: 0,
+				seat: 0,
+				trophyCount: 0,
+				totalScore: { num: 0, den: 0 },
+				manualOrder: 1
+			}
 		]
 	);
 	let rules = $state([new Rule('marubatsu', 7, 3, 1, 1, false, null, 'constant', 0, null)]);
@@ -165,6 +181,8 @@
 					case 'MbyN':
 					case 'survival':
 						return currentState.attendants[i].score;
+					case 'aql':
+						throw new Error();
 				}
 			})();
 			barHeightRatioArray[i].set(ratio);
@@ -217,6 +235,8 @@
 		attendants.push({
 			name: han2zen(name),
 			group: 0,
+			team: 0,
+			seat: 0,
 			trophyCount: 0,
 			totalScore: { num: 0, den: 0 },
 			manualOrder: attendants.length
@@ -325,6 +345,8 @@
 							life: att.life,
 							i
 						};
+					case 'aql':
+						throw new Error();
 				}
 			})
 			.toSorted((a, b) => currentState.ranking.indexOf(a.i) - currentState.ranking.indexOf(b.i));

@@ -252,6 +252,12 @@ export class WinHistoryEntry implements HistoryEntry {
 		state.attendants[this.attendantID].trophyCount++;
 		return state;
 	}
+
+	reducerTeam(state: GameState): GameState {
+		const { team } = state.getTeamByAttendantID(this.attendantID);
+		team.teamLife = 'won';
+		return state;
+	}
 }
 
 export class LoseHistoryEntry implements HistoryEntry {
@@ -265,6 +271,12 @@ export class LoseHistoryEntry implements HistoryEntry {
 
 	reducer(state: GameState): GameState {
 		state.attendants[this.attendantID].life = 'lost';
+		return state;
+	}
+
+	reducerTeam(state: GameState): GameState {
+		const { team } = state.getTeamByAttendantID(this.attendantID);
+		team.teamLife = 'lost';
 		return state;
 	}
 }
@@ -289,5 +301,9 @@ export class EditHistoryEntry implements HistoryEntry {
 		state.attendants[this.attendantID].yasuCount = this.newState.yasuCount;
 		state.attendants[this.attendantID].score = this.newState.score;
 		return state;
+	}
+
+	reducerTeam(): GameState {
+		throw new Error('Not implemented');
 	}
 }
