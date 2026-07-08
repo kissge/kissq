@@ -182,6 +182,7 @@
 					case 'survival':
 						return currentState.attendants[i].score;
 					case 'aql':
+					case 'product':
 						throw new Error();
 				}
 			})();
@@ -346,7 +347,8 @@
 							i
 						};
 					case 'aql':
-						throw new Error();
+					case 'product':
+						throw new Error(); // TODO
 				}
 			})
 			.toSorted((a, b) => currentState.ranking.indexOf(a.i) - currentState.ranking.indexOf(b.i));

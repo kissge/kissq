@@ -35,8 +35,8 @@
 			{
 				name: '',
 				group: 0,
-				team: 0,
-				seat: 1,
+				team: 1,
+				seat: 0,
 				trophyCount: 0,
 				totalScore: { num: 0, den: 0 },
 				manualOrder: 1
@@ -45,27 +45,42 @@
 	);
 	let teams = $state([null, null]);
 
-	let rules = $state([new Rule('aql', 200, 3, 1, 'updown', false, null, 'constant', 0, null)]);
+	let rules = $state([new Rule('product', 36, 3, 1, 'updown', false, null, 'constant', 0, null)]);
 
 	let history = $state<HistoryEntry[]>([]);
 	let currentState = $derived(
 		history.reduce(
-			(state, entry) =>
-				entry.reducerTeam(state.clearLatestEvent()).checkIfLastSurvivor().updateRanking(),
-			new GameState(attendants, rules).updateRanking()
+			(state, entry) => entry.reducerTeam(state.clearLatestEvent()).updateRanking(),
+			new GameState(attendants, rules, teams).updateRanking()
 		)
 	);
+	let attendantsPerTeam = $derived.by(() => {
+		const atts = attendants.reduce<{ att: Attendant; i: number; j: number }[][][]>(
+			(acc, att, i) => {
+				acc[att.team] ??= [];
+				acc[att.team][att.seat] ??= [];
+				acc[att.team][att.seat].push({ att, i, j: 0 });
+				return acc;
+			},
+			teams.map(() => [])
+		);
+
+		let j = 0;
+		atts.forEach((team) => team.forEach((seat) => seat.forEach((att) => (att.j = j++))));
+
+		return atts;
+	});
+	let activeRuleMode = $derived(currentState.attendants[0].rule.mode);
 
 	let gridRows = $derived.by(() => {
 		let max = 0;
-		for (let ti = 0; ti < 2; ++ti) {
-			for (let si = 0; si < 5; ++si) {
-				const atts = attendants.filter((att) => att.team === ti && att.seat === si);
-				max = Math.max(max, atts.length);
+		for (let ti = 0; ti < attendantsPerTeam.length; ++ti) {
+			for (let si = 0; si < attendantsPerTeam[ti].length; ++si) {
+				max = Math.max(max, attendantsPerTeam[ti][si].length);
 			}
 		}
 
-		return `100px 50px repeat(${max}, minmax(calc((100dvh - 400px) / ${max}), auto)) 2em`;
+		return `100px ${activeRuleMode === 'aql' ? '50px' : ''} repeat(${max}, minmax(calc((100dvh - 400px) / ${max}), auto)) 2em`;
 	});
 
 	function editRule() {
@@ -107,38 +122,93 @@
 	<div
 		class="attendants"
 		style:height={`calc(100vh - ${headerClientHeight + footerClientHeight}px - 200px)`}
-		style:grid-template-rows={gridRows}
+		style:grid-template-columns={`repeat(${teams.length}, auto)`}
 	>
+		<!--
+		style:grid-template-rows={gridRows}
+		style:grid-template-columns={activeRuleMode === 'aql'
+			? 'repeat(10, auto)'
+			: `repeat(${attendants.length}, minmax(10px, 1fr))`}
+>-->
+		{#each attendantsPerTeam as seats, ti (ti)}
+			<div style="grid-rows: 1 / -1; grid-columns: span 1;">
+				<h2>{teams[ti] || `チーム${ti + 1}`}</h2>
+				<div class="score">{currentState.teams[ti].teamScore}</div>
+				<ul>
+					{#each seats as atts, si (si)}
+						<li>枠{si + 1}</li>
+						<ul>
+							{#each atts as { att, i }, ai (ai)}
+								<li>
+									{att.name || `プレイヤー${i + 1}`}:
+									{currentState.attendants[i].score}
+									<button onclick={() => clickMaru(i)}>O</button>
+									<button onclick={() => clickBatsu(i)}>X</button>
+								</li>
+							{/each}
+							<li>
+								<button
+									onclick={() =>
+										attendants.push({
+											name: '',
+											group: 0,
+											team: ti,
+											seat: activeRuleMode === 'aql' ? si : seats.length,
+											trophyCount: 0,
+											totalScore: { num: 0, den: 0 },
+											manualOrder: attendants.length
+										})}
+								>
+									追加
+								</button>
+							</li>
+						</ul>
+					{/each}
+				</ul>
+			</div>
+		{/each}
+		<!--
 		<div class="team">
-			<!-- eslint-disable-next-line @typescript-eslint/no-unused-vars -->
-			{#each teams as _, ti (ti)}
-				<div>
-					<input placeholder={`${['Red', 'Blue'][ti]}`} bind:value={teams[ti]} />
+			<!-- eslint-disable-next-line @typescript-eslint/no-unused-vars --
+			{#each attendantsPerTeam as seats, ti (ti)}
+				<div style:grid-column={activeRuleMode === 'aql' ? 'span 5' : `span ${seats.length}`}>
+					<input
+						placeholder={['Red', 'Blue', 'Green', 'Yellow', 'Purple'][ti] ?? `Team ${ti + 1}`}
+						bind:value={teams[ti]}
+					/>
 					<div class="score">{currentState.teams[ti].teamScore}</div>
+					<button
+						onclick={() => {
+							teams.push(null);
+						}}>追加</button
+					>
 				</div>
 			{/each}
 		</div>
 		<div class="seat">
-			<!-- eslint-disable-next-line @typescript-eslint/no-unused-vars -->
-			{#each Array.from({ length: 2 }) as _, team (team)}
-				<!-- eslint-disable-next-line @typescript-eslint/no-unused-vars -->
-				{#each Array.from({ length: 5 }) as _, seat (seat)}
-					{@const atts = attendants.flatMap((att, i) =>
-						att.team === team && att.seat === seat ? [{ att, i }] : []
-					)}
-					<div class="seat-total">
-						{atts.reduce((sum, { i }) => sum + currentState.attendants[i].score, 1)}
-						{'✕'.repeat(
-							atts.reduce((sum, { i }) => sum + currentState.attendants[i].batsuCount, 0)
-						)}
-					</div>
-					{#each atts as { att, i }, ai (i)}
-						<div class="attendant" style:grid-column={team * 5 + seat + 1} style:grid-row={ai + 2}>
+			<!-- eslint-disable-next-line @typescript-eslint/no-unused-vars --
+			{#each attendantsPerTeam as seats, ti (ti)}
+				<!-- eslint-disable-next-line @typescript-eslint/no-unused-vars --
+				{#each activeRuleMode === 'aql' ? Array.from({ length: 5 }, (_, i) => attendantsPerTeam[ti][i] || []) : seats as seat, si (si)}
+					{#if activeRuleMode === 'aql'}
+						<div class="seat-total">
+							{seat.reduce((sum, { i }) => sum + currentState.attendants[i].score, 1)}
+							{'✕'.repeat(
+								seat.reduce((sum, { i }) => sum + currentState.attendants[i].batsuCount, 0)
+							)}
+						</div>
+					{/if}
+					{#each seat as { att, i, j }, ai (i)}
+						<div
+							class="attendant"
+							style:grid-column={activeRuleMode === 'aql' ? ti * 5 + si + 1 : j + 1}
+							style:grid-row={activeRuleMode === 'aql' ? ai + 2 : ai + 1}
+						>
 							<input placeholder={`プレイヤー${i + 1}`} bind:value={att.name} />
 							<div>
 								{currentState.attendants[i].score}
 							</div>
-							{#if !atts.some(({ i }) => currentState.attendants[i].life === 'lost')}
+							{#if !seat.some(({ i }) => currentState.attendants[i].life === 'lost')}
 								<div>
 									<button onclick={() => clickMaru(i)}>O</button>
 									<button onclick={() => clickBatsu(i)}>X</button>
@@ -146,24 +216,29 @@
 							{/if}
 						</div>
 					{/each}
-					<div style:grid-column={team * 5 + seat + 1} style:grid-row="-1 / span 1">
-						<button
-							onclick={() => {
-								attendants.push({
-									name: '',
-									group: 0,
-									team,
-									seat,
-									trophyCount: 0,
-									totalScore: { num: 0, den: 0 },
-									manualOrder: attendants.length
-								});
-							}}>追加</button
-						>
+					<div style:grid-column="span 1" style:grid-row="-1 / span 1">
+						{#if activeRuleMode === 'aql' || si === seats.length - 1}
+							<button
+								onclick={() => {
+									attendants.push({
+										name: '',
+										group: 0,
+										team: ti,
+										seat: activeRuleMode === 'aql' ? si : attendantsPerTeam[ti].length,
+										trophyCount: 0,
+										totalScore: { num: 0, den: 0 },
+										manualOrder: attendants.length
+									});
+								}}
+							>
+								追加
+							</button>
+						{/if}
 					</div>
 				{/each}
 			{/each}
 		</div>
+		-->
 	</div>
 
 	<Footer bind:footerClientHeight {attendants} {rules} {history}>
@@ -192,7 +267,6 @@
 				<span in:fade>{history.at(-1)?.toString(currentState) || 'この世の始まり'}</span>を元に戻す
 			{/key}
 		</button>
-		<button onclick={() => addAttendant()} style="max-width: 20dvw">＋ プレイヤー追加</button>
 		<button
 			onclick={() => {
 				if (
@@ -214,7 +288,6 @@
 <style>
 	.attendants {
 		display: grid;
-		grid-template-columns: repeat(10, auto);
 		gap: 5px;
 		user-select: none;
 
@@ -242,7 +315,6 @@
 
 		> div {
 			display: flex;
-			grid-column: span 5;
 			justify-content: center;
 			align-items: center;
 			background: #eee3;

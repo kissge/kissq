@@ -3,7 +3,7 @@ export type Penalty = { type: 'yasu'; count: number } | { type: 'zero' };
 export class Rule {
 	constructor(
 		/** ゲームモード */
-		public mode: 'score' | 'marubatsu' | 'MbyN' | 'survival' | 'aql',
+		public mode: 'score' | 'marubatsu' | 'MbyN' | 'survival' | 'aql' | 'product',
 		/** 勝利に必要なスコアまたはマル数またはスコアの平方根 */
 		public win: number,
 		/** 敗北に必要なスコア（負数）またはバツ数（正数） */
@@ -112,6 +112,9 @@ export class Rule {
 			case 'aql':
 				return `AQL（${this.win}点先取）`;
 
+			case 'product':
+				return `掛け算して${this.win}点先取`;
+
 			default:
 				this.mode satisfies never;
 		}
@@ -138,6 +141,7 @@ export class Rule {
 			case 'marubatsu':
 			case 'score':
 			case 'aql':
+			case 'product':
 				return this.win;
 
 			case 'MbyN':
