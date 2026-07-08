@@ -35,6 +35,24 @@
 			{
 				name: '',
 				group: 0,
+				team: 0,
+				seat: 0,
+				trophyCount: 0,
+				totalScore: { num: 0, den: 0 },
+				manualOrder: 0
+			},
+			{
+				name: '',
+				group: 0,
+				team: 0,
+				seat: 1,
+				trophyCount: 0,
+				totalScore: { num: 0, den: 0 },
+				manualOrder: 0
+			},
+			{
+				name: '',
+				group: 0,
 				team: 1,
 				seat: 0,
 				trophyCount: 0,
@@ -45,7 +63,7 @@
 	);
 	let teams = $state([null, null]);
 
-	let rules = $state([new Rule('product', 36, 3, 1, 'updown', false, null, 'constant', 0, null)]);
+	let rules = $state([new Rule('aql', 200, 3, 1, 'updown', false, null, 'constant', 0, null)]);
 
 	let history = $state<HistoryEntry[]>([]);
 	let currentState = $derived(
@@ -70,18 +88,7 @@
 
 		return atts;
 	});
-	let activeRuleMode = $derived(currentState.attendants[0].rule.mode);
-
-	let gridRows = $derived.by(() => {
-		let max = 0;
-		for (let ti = 0; ti < attendantsPerTeam.length; ++ti) {
-			for (let si = 0; si < attendantsPerTeam[ti].length; ++si) {
-				max = Math.max(max, attendantsPerTeam[ti][si].length);
-			}
-		}
-
-		return `100px ${activeRuleMode === 'aql' ? '50px' : ''} repeat(${max}, minmax(calc((100dvh - 400px) / ${max}), auto)) 2em`;
-	});
+	let activeRuleMode = $derived(currentState.defaultRule.mode);
 
 	function editRule() {
 		console.log('editRule');
@@ -107,6 +114,10 @@
 	function clickUndo() {
 		history.pop();
 	}
+
+	function clearHistory() {
+		history = [];
+	}
 </script>
 
 <main>
@@ -121,32 +132,37 @@
 
 	<div
 		class="attendants"
-		style:height={`calc(100vh - ${headerClientHeight + footerClientHeight}px - 200px)`}
+		style:height={`calc(100vh - ${headerClientHeight + footerClientHeight}px - 30px)`}
 		style:grid-template-columns={`repeat(${teams.length}, auto)`}
 	>
-		<!--
-		style:grid-template-rows={gridRows}
-		style:grid-template-columns={activeRuleMode === 'aql'
-			? 'repeat(10, auto)'
-			: `repeat(${attendants.length}, minmax(10px, 1fr))`}
->-->
 		{#each attendantsPerTeam as seats, ti (ti)}
-			<div style="grid-rows: 1 / -1; grid-columns: span 1;">
-				<h2>{teams[ti] || `チーム${ti + 1}`}</h2>
+			<div class="team">
+				<div class="team-name">
+					<input placeholder={`チーム${ti + 1}`} bind:value={teams[ti]} />
+				</div>
 				<div class="score">{currentState.teams[ti].teamScore}</div>
-				<ul>
+				<div class="members" class:with-seat={activeRuleMode === 'aql'}>
 					{#each seats as atts, si (si)}
-						<li>枠{si + 1}</li>
-						<ul>
-							{#each atts as { att, i }, ai (ai)}
-								<li>
-									{att.name || `プレイヤー${i + 1}`}:
-									{currentState.attendants[i].score}
+						{@const rowStart = seats
+							.slice(0, si)
+							.reduce((sum, seatAtts) => sum + seatAtts.length, 1)}
+						<div class="seat-total" style:grid-row={`${rowStart} / span ${atts.length}`}>
+							{atts.reduce((sum, { i }) => sum + currentState.attendants[i].score, 1)}
+						</div>
+						{#each atts as { att, i }, ai (ai)}
+							<div class="member" style:grid-row-start={rowStart + ai}>
+								<div class="seat">
+									{si + 1}
+								</div>
+								<div>
+									{att.name || `プレイヤー${i + 1}`}
 									<button onclick={() => clickMaru(i)}>O</button>
 									<button onclick={() => clickBatsu(i)}>X</button>
-								</li>
-							{/each}
-							<li>
+								</div>
+								<div class="score">{currentState.attendants[i].score}</div>
+							</div>
+						{/each}
+						<!-- <li>
 								<button
 									onclick={() =>
 										attendants.push({
@@ -161,84 +177,11 @@
 								>
 									追加
 								</button>
-							</li>
-						</ul>
+							</li> -->
 					{/each}
-				</ul>
+				</div>
 			</div>
 		{/each}
-		<!--
-		<div class="team">
-			<!-- eslint-disable-next-line @typescript-eslint/no-unused-vars --
-			{#each attendantsPerTeam as seats, ti (ti)}
-				<div style:grid-column={activeRuleMode === 'aql' ? 'span 5' : `span ${seats.length}`}>
-					<input
-						placeholder={['Red', 'Blue', 'Green', 'Yellow', 'Purple'][ti] ?? `Team ${ti + 1}`}
-						bind:value={teams[ti]}
-					/>
-					<div class="score">{currentState.teams[ti].teamScore}</div>
-					<button
-						onclick={() => {
-							teams.push(null);
-						}}>追加</button
-					>
-				</div>
-			{/each}
-		</div>
-		<div class="seat">
-			<!-- eslint-disable-next-line @typescript-eslint/no-unused-vars --
-			{#each attendantsPerTeam as seats, ti (ti)}
-				<!-- eslint-disable-next-line @typescript-eslint/no-unused-vars --
-				{#each activeRuleMode === 'aql' ? Array.from({ length: 5 }, (_, i) => attendantsPerTeam[ti][i] || []) : seats as seat, si (si)}
-					{#if activeRuleMode === 'aql'}
-						<div class="seat-total">
-							{seat.reduce((sum, { i }) => sum + currentState.attendants[i].score, 1)}
-							{'✕'.repeat(
-								seat.reduce((sum, { i }) => sum + currentState.attendants[i].batsuCount, 0)
-							)}
-						</div>
-					{/if}
-					{#each seat as { att, i, j }, ai (i)}
-						<div
-							class="attendant"
-							style:grid-column={activeRuleMode === 'aql' ? ti * 5 + si + 1 : j + 1}
-							style:grid-row={activeRuleMode === 'aql' ? ai + 2 : ai + 1}
-						>
-							<input placeholder={`プレイヤー${i + 1}`} bind:value={att.name} />
-							<div>
-								{currentState.attendants[i].score}
-							</div>
-							{#if !seat.some(({ i }) => currentState.attendants[i].life === 'lost')}
-								<div>
-									<button onclick={() => clickMaru(i)}>O</button>
-									<button onclick={() => clickBatsu(i)}>X</button>
-								</div>
-							{/if}
-						</div>
-					{/each}
-					<div style:grid-column="span 1" style:grid-row="-1 / span 1">
-						{#if activeRuleMode === 'aql' || si === seats.length - 1}
-							<button
-								onclick={() => {
-									attendants.push({
-										name: '',
-										group: 0,
-										team: ti,
-										seat: activeRuleMode === 'aql' ? si : attendantsPerTeam[ti].length,
-										trophyCount: 0,
-										totalScore: { num: 0, den: 0 },
-										manualOrder: attendants.length
-									});
-								}}
-							>
-								追加
-							</button>
-						{/if}
-					</div>
-				{/each}
-			{/each}
-		</div>
-		-->
 	</div>
 
 	<Footer bind:footerClientHeight {attendants} {rules} {history}>
@@ -288,7 +231,7 @@
 <style>
 	.attendants {
 		display: grid;
-		gap: 5px;
+		gap: 1em;
 		user-select: none;
 
 		input {
@@ -302,8 +245,22 @@
 	}
 
 	.team {
-		display: contents;
-		text-align: center;
+		display: grid;
+		grid-template-rows: 5em 1fr;
+		grid-template-columns: 1fr 5em;
+		row-gap: 0.5em;
+		backdrop-filter: blur(10px);
+		transition:
+			background-color 0.3s ease,
+			backdrop-filter 0.3s ease;
+		box-shadow: 0 0 15px #eeea;
+		border-radius: 1.5em 0 1em 0;
+		background-color: #ffffff40;
+		padding: 0.5em;
+		color: #fff;
+		text-shadow:
+			0px 10px 50px #444,
+			0px 10px 50px #444;
 
 		input {
 			flex: 1 1 3em;
@@ -313,81 +270,86 @@
 			}
 		}
 
-		> div {
+		.team-name {
 			display: flex;
 			justify-content: center;
 			align-items: center;
-			background: #eee3;
-			padding: 0;
-
-			&:first-child {
-				flex-direction: row;
-				border-radius: 2em 0 0 0;
-
-				.score {
-					color: rgb(255 64 64);
-				}
-			}
-
-			&:last-child {
-				flex-direction: row-reverse;
-				border-radius: 0 2em 0 0;
-
-				.score {
-					left: 0;
-					color: rgb(154 154 255);
-				}
-			}
+			padding: 0 0.5em;
+			font-size: 2em;
+			text-align: center;
 		}
 
 		.score {
 			display: flex;
 			justify-content: center;
 			align-items: center;
-			width: 2em;
+			border-radius: 0.5em;
+			background: #000;
 			font-weight: bold;
 			font-size: 2em;
-			text-shadow:
-				0 0 5px #0005,
-				0 0 10px #0005;
-		}
-	}
-
-	.seat {
-		display: grid;
-		grid-template-rows: subgrid;
-		grid-template-columns: subgrid;
-		grid-row: 2 / -1;
-		grid-column: 1 / -1;
-
-		> div {
-			display: flex;
-			flex-direction: column;
-			justify-content: center;
-			align-items: center;
+			text-align: center;
 		}
 
-		.seat-total {
-			background: #eee3;
+		.members {
+			display: grid;
+			grid-template-columns: 1fr 3em;
+			grid-column: 1 / -1;
+			align-content: start;
+			gap: 0.5em;
+
+			&.with-seat {
+				grid-template-columns: 2em 1fr 3em 3em;
+
+				.member {
+					grid-column: 1 / -2;
+				}
+			}
+
+			.seat-total {
+				display: flex;
+				position: relative;
+				grid-column: -2 / -1;
+				justify-content: center;
+				align-items: center;
+				padding-right: 0.5em;
+				font-weight: bold;
+
+				&:before {
+					position: absolute;
+					top: 0;
+					left: -2em;
+					rotate: 180deg;
+					border-left: 10px solid #fff;
+					border-radius: 0.75em;
+					width: 2em;
+					height: 100%;
+					content: '';
+				}
+			}
 		}
 
-		.attendant {
-			display: flex;
-			flex-direction: column;
-			justify-content: center;
-			align-items: center;
-			border-radius: 0.5em;
-			background: #eee3;
-		}
+		.member {
+			display: grid;
+			grid-template-columns: subgrid;
+			grid-column: 1 / -1;
+			border-radius: 1em;
+			background: #fff4;
+			height: 3em;
 
-		input {
-			flex: 1 1 3em;
-			margin-top: 0.25em;
-			margin-left: -0.2em;
-			width: min(3em, 50%);
-			height: 2em;
-			writing-mode: vertical-rl;
-			text-align: left;
+			& > div {
+				display: flex;
+				justify-content: center;
+				align-items: center;
+			}
+
+			.score {
+				border-radius: 0 0.5em 0.5em 0;
+			}
+
+			.seat {
+				border-radius: 1em 0 0 1em;
+				background: #0008;
+			}
 		}
 	}
 </style>
