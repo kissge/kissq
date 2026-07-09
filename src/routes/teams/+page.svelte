@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { watch } from 'runed';
-	import { untrack } from 'svelte';
+	import { onMount, untrack } from 'svelte';
 	import { fade, slide } from 'svelte/transition';
 	import se1 from '$lib/assets/se1.mp3';
 	import se2 from '$lib/assets/se2.mp3';
@@ -26,190 +26,188 @@
 	let footerClientHeight = $state(0);
 	let gameTitle = $state('');
 
-	let attendants = $state<Attendant[]>(
-		loadFromHash(true) ?? [
-			{
-				name: '',
-				group: 0,
-				team: 0,
-				seat: 0,
-				trophyCount: 0,
-				totalScore: { num: 0, den: 0 },
-				manualOrder: 0
-			},
-			{
-				name: '',
-				group: 0,
-				team: 0,
-				seat: 0,
-				trophyCount: 0,
-				totalScore: { num: 0, den: 0 },
-				manualOrder: 0
-			},
-			{
-				name: '',
-				group: 0,
-				team: 0,
-				seat: 1,
-				trophyCount: 0,
-				totalScore: { num: 0, den: 0 },
-				manualOrder: 0
-			},
-			{
-				name: '',
-				group: 0,
-				team: 0,
-				seat: 1,
-				trophyCount: 0,
-				totalScore: { num: 0, den: 0 },
-				manualOrder: 0
-			},
-			{
-				name: '',
-				group: 0,
-				team: 0,
-				seat: 2,
-				trophyCount: 0,
-				totalScore: { num: 0, den: 0 },
-				manualOrder: 0
-			},
-			{
-				name: '',
-				group: 0,
-				team: 0,
-				seat: 2,
-				trophyCount: 0,
-				totalScore: { num: 0, den: 0 },
-				manualOrder: 0
-			},
-			{
-				name: '',
-				group: 0,
-				team: 0,
-				seat: 3,
-				trophyCount: 0,
-				totalScore: { num: 0, den: 0 },
-				manualOrder: 0
-			},
-			{
-				name: '',
-				group: 0,
-				team: 0,
-				seat: 3,
-				trophyCount: 0,
-				totalScore: { num: 0, den: 0 },
-				manualOrder: 0
-			},
-			{
-				name: '',
-				group: 0,
-				team: 0,
-				seat: 4,
-				trophyCount: 0,
-				totalScore: { num: 0, den: 0 },
-				manualOrder: 0
-			},
-			{
-				name: '',
-				group: 0,
-				team: 0,
-				seat: 4,
-				trophyCount: 0,
-				totalScore: { num: 0, den: 0 },
-				manualOrder: 0
-			},
-			{
-				name: '',
-				group: 0,
-				team: 1,
-				seat: 0,
-				trophyCount: 0,
-				totalScore: { num: 0, den: 0 },
-				manualOrder: 0
-			},
-			{
-				name: '',
-				group: 0,
-				team: 1,
-				seat: 0,
-				trophyCount: 0,
-				totalScore: { num: 0, den: 0 },
-				manualOrder: 0
-			},
-			{
-				name: '',
-				group: 0,
-				team: 1,
-				seat: 1,
-				trophyCount: 0,
-				totalScore: { num: 0, den: 0 },
-				manualOrder: 0
-			},
-			{
-				name: '',
-				group: 0,
-				team: 1,
-				seat: 1,
-				trophyCount: 0,
-				totalScore: { num: 0, den: 0 },
-				manualOrder: 0
-			},
-			{
-				name: '',
-				group: 0,
-				team: 1,
-				seat: 2,
-				trophyCount: 0,
-				totalScore: { num: 0, den: 0 },
-				manualOrder: 0
-			},
-			{
-				name: '',
-				group: 0,
-				team: 1,
-				seat: 2,
-				trophyCount: 0,
-				totalScore: { num: 0, den: 0 },
-				manualOrder: 0
-			},
-			{
-				name: '',
-				group: 0,
-				team: 1,
-				seat: 3,
-				trophyCount: 0,
-				totalScore: { num: 0, den: 0 },
-				manualOrder: 0
-			},
-			{
-				name: '',
-				group: 0,
-				team: 1,
-				seat: 3,
-				trophyCount: 0,
-				totalScore: { num: 0, den: 0 },
-				manualOrder: 0
-			},
-			{
-				name: '',
-				group: 0,
-				team: 1,
-				seat: 4,
-				trophyCount: 0,
-				totalScore: { num: 0, den: 0 },
-				manualOrder: 0
-			},
-			{
-				name: '',
-				group: 0,
-				team: 1,
-				seat: 4,
-				trophyCount: 0,
-				totalScore: { num: 0, den: 0 },
-				manualOrder: 0
-			}
-		]
-	);
+	let attendants = $state<Attendant[]>([
+		{
+			name: '',
+			group: 0,
+			team: 0,
+			seat: 0,
+			trophyCount: 0,
+			totalScore: { num: 0, den: 0 },
+			manualOrder: 0
+		},
+		{
+			name: '',
+			group: 0,
+			team: 0,
+			seat: 0,
+			trophyCount: 0,
+			totalScore: { num: 0, den: 0 },
+			manualOrder: 0
+		},
+		{
+			name: '',
+			group: 0,
+			team: 0,
+			seat: 1,
+			trophyCount: 0,
+			totalScore: { num: 0, den: 0 },
+			manualOrder: 0
+		},
+		{
+			name: '',
+			group: 0,
+			team: 0,
+			seat: 1,
+			trophyCount: 0,
+			totalScore: { num: 0, den: 0 },
+			manualOrder: 0
+		},
+		{
+			name: '',
+			group: 0,
+			team: 0,
+			seat: 2,
+			trophyCount: 0,
+			totalScore: { num: 0, den: 0 },
+			manualOrder: 0
+		},
+		{
+			name: '',
+			group: 0,
+			team: 0,
+			seat: 2,
+			trophyCount: 0,
+			totalScore: { num: 0, den: 0 },
+			manualOrder: 0
+		},
+		{
+			name: '',
+			group: 0,
+			team: 0,
+			seat: 3,
+			trophyCount: 0,
+			totalScore: { num: 0, den: 0 },
+			manualOrder: 0
+		},
+		{
+			name: '',
+			group: 0,
+			team: 0,
+			seat: 3,
+			trophyCount: 0,
+			totalScore: { num: 0, den: 0 },
+			manualOrder: 0
+		},
+		{
+			name: '',
+			group: 0,
+			team: 0,
+			seat: 4,
+			trophyCount: 0,
+			totalScore: { num: 0, den: 0 },
+			manualOrder: 0
+		},
+		{
+			name: '',
+			group: 0,
+			team: 0,
+			seat: 4,
+			trophyCount: 0,
+			totalScore: { num: 0, den: 0 },
+			manualOrder: 0
+		},
+		{
+			name: '',
+			group: 0,
+			team: 1,
+			seat: 0,
+			trophyCount: 0,
+			totalScore: { num: 0, den: 0 },
+			manualOrder: 0
+		},
+		{
+			name: '',
+			group: 0,
+			team: 1,
+			seat: 0,
+			trophyCount: 0,
+			totalScore: { num: 0, den: 0 },
+			manualOrder: 0
+		},
+		{
+			name: '',
+			group: 0,
+			team: 1,
+			seat: 1,
+			trophyCount: 0,
+			totalScore: { num: 0, den: 0 },
+			manualOrder: 0
+		},
+		{
+			name: '',
+			group: 0,
+			team: 1,
+			seat: 1,
+			trophyCount: 0,
+			totalScore: { num: 0, den: 0 },
+			manualOrder: 0
+		},
+		{
+			name: '',
+			group: 0,
+			team: 1,
+			seat: 2,
+			trophyCount: 0,
+			totalScore: { num: 0, den: 0 },
+			manualOrder: 0
+		},
+		{
+			name: '',
+			group: 0,
+			team: 1,
+			seat: 2,
+			trophyCount: 0,
+			totalScore: { num: 0, den: 0 },
+			manualOrder: 0
+		},
+		{
+			name: '',
+			group: 0,
+			team: 1,
+			seat: 3,
+			trophyCount: 0,
+			totalScore: { num: 0, den: 0 },
+			manualOrder: 0
+		},
+		{
+			name: '',
+			group: 0,
+			team: 1,
+			seat: 3,
+			trophyCount: 0,
+			totalScore: { num: 0, den: 0 },
+			manualOrder: 0
+		},
+		{
+			name: '',
+			group: 0,
+			team: 1,
+			seat: 4,
+			trophyCount: 0,
+			totalScore: { num: 0, den: 0 },
+			manualOrder: 0
+		},
+		{
+			name: '',
+			group: 0,
+			team: 1,
+			seat: 4,
+			trophyCount: 0,
+			totalScore: { num: 0, den: 0 },
+			manualOrder: 0
+		}
+	]);
 	let teams = $state([null, null]);
 
 	let rules = $state([new Rule('aql', 200, 3, 1, 'updown', false, null, 'constant', 0, null)]);
@@ -318,6 +316,14 @@
 		attendants = attendants.filter((_, i) => currentState.attendants[i].life !== 'removed');
 		history = [];
 	}
+
+	onMount(() => {
+		const data = loadFromHash(true);
+		if (data) {
+			attendants = data;
+			teams = Array.from(new Set(data.map(({ team }) => team)), () => null);
+		}
+	});
 
 	$effect(() => {
 		let data = currentState.teams.map((team) =>
@@ -500,8 +506,19 @@
 				<span in:fade>{history.at(-1)?.toString(currentState) || 'この世の始まり'}</span>を元に戻す
 			{/key}
 		</button>
-		<button disabled={activeRuleMode === 'aql'} onclick={() => teams.push(null)}
-			>＋ チーム追加</button
+		<button
+			onclick={() => {
+				teams.push(null);
+				attendants.push({
+					name: '',
+					group: 0,
+					team: teams.length - 1,
+					seat: 0,
+					trophyCount: 0,
+					totalScore: { num: 0, den: 0 },
+					manualOrder: attendants.length
+				});
+			}}>＋ チーム追加</button
 		>
 		<button
 			onclick={() => {
