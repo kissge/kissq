@@ -591,7 +591,8 @@
 			case 'ping':
 				subWindow?.postMessage({
 					command: 'syncState',
-					currentState: JSON.parse(JSON.stringify(currentState))
+					currentState: JSON.parse(JSON.stringify(currentState)),
+					orderedAttendants
 				});
 				break;
 		}
@@ -604,7 +605,8 @@
 		if (subWindow && !subWindow.closed) {
 			subWindow.postMessage({
 				command: 'syncState',
-				currentState: JSON.parse(JSON.stringify(currentState))
+				currentState: JSON.parse(JSON.stringify(currentState)),
+				orderedAttendants
 			});
 		}
 	});
