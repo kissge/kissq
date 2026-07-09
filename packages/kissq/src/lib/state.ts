@@ -89,6 +89,7 @@ export class AttendantState {
 
 			case 'aql':
 			case 'product':
+			case 'sum':
 				maruCount++;
 				score++;
 
@@ -217,6 +218,12 @@ export class AttendantState {
 			case 'product':
 				++batsuCount;
 				score = Math.max(score - 1, 0); // 本当？
+
+				return { maruCount, batsuCount, score, life, yasuCount };
+
+			case 'sum':
+				++batsuCount;
+				--score; // 本当？
 
 				return { maruCount, batsuCount, score, life, yasuCount };
 		}
@@ -362,6 +369,35 @@ export class TeamState {
 					teamLife
 				};
 
+			case 'sum':
+				teamScore = this.attendantIDsPerSeat.reduce(
+					(sum, seat) =>
+						sum +
+						(seat ?? []).reduce(
+							(sum, id) =>
+								sum +
+								(this.attendants[id].life === 'removed'
+									? 0
+									: id === attendantID
+										? score
+										: this.attendants[id].score),
+							0
+						),
+					0
+				);
+				teamLife = win <= teamScore ? 'won' : this.teamLife;
+
+				return {
+					maruCount,
+					score,
+					life,
+					trophyCount,
+					yasuCount,
+					otherScoreDiff,
+					teamScore,
+					teamLife
+				};
+
 			case 'marubatsu':
 			case 'MbyN':
 			case 'score':
@@ -437,6 +473,26 @@ export class TeamState {
 
 				return { maruCount, batsuCount, score, life, yasuCount, teamScore, teamLife };
 
+			case 'sum':
+				teamScore = this.attendantIDsPerSeat.reduce(
+					(sum, seat) =>
+						sum +
+						(seat ?? []).reduce(
+							(sum, id) =>
+								sum +
+								(this.attendants[id].life === 'removed'
+									? 0
+									: id === attendantID
+										? score
+										: this.attendants[id].score),
+							0
+						),
+					0
+				);
+				teamLife = this.teamLife;
+
+				return { maruCount, batsuCount, score, life, yasuCount, teamScore, teamLife };
+
 			case 'marubatsu':
 			case 'MbyN':
 			case 'score':
@@ -484,7 +540,9 @@ export class GameState {
 			.map((attendantIDsPerSeat) => new TeamState(attendantIDsPerSeat, this.attendants));
 		this.defaultRule = rules[0];
 		this.ranking = (
-			this.defaultRule.mode === 'aql' || this.defaultRule.mode === 'product'
+			this.defaultRule.mode === 'aql' ||
+			this.defaultRule.mode === 'product' ||
+			this.defaultRule.mode === 'sum'
 				? this.teams
 				: this.attendants
 		).map((_, i) => i);
@@ -559,6 +617,7 @@ export class GameState {
 
 			case 'aql':
 			case 'product':
+			case 'sum':
 				this.ranking.sort((ai, bi) => {
 					const a = this.teams[ai];
 					const b = this.teams[bi];
@@ -607,7 +666,7 @@ export class GameState {
 
 	getTeamByAttendantID(attendantID: number) {
 		const ti = this.teams.findIndex((team) =>
-			team.attendantIDsPerSeat.some((ids) => ids.includes(attendantID))
+			team.attendantIDsPerSeat.some((ids) => ids?.includes(attendantID))
 		);
 
 		return { ti, team: this.teams[ti] };

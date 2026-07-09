@@ -183,6 +183,7 @@
 						return currentState.attendants[i].score;
 					case 'aql':
 					case 'product':
+					case 'sum':
 						throw new Error();
 				}
 			})();
@@ -220,7 +221,14 @@
 	watch(
 		() => currentState.latestEvent,
 		(curr, prev) => {
-			if (curr?.type !== prev?.type || curr?.attendantID !== prev?.attendantID) {
+			if (
+				curr?.type !== prev?.type ||
+				(curr &&
+					prev &&
+					'attendantID' in curr &&
+					'attendantID' in prev &&
+					curr?.attendantID !== prev?.attendantID)
+			) {
 				showBanner(curr);
 			}
 		}
@@ -348,6 +356,7 @@
 						};
 					case 'aql':
 					case 'product':
+					case 'sum':
 						throw new Error(); // TODO
 				}
 			})
@@ -1053,8 +1062,10 @@
 		<Stars />
 	</div>
 	<div class={['banner', isBannerVisible.type]} transition:slide={{ axis: 'x' }}>
-		{attendants[isBannerVisible.attendantID].name ||
-			'プレイヤー ' + (isBannerVisible.attendantID + 1)}
+		{#if 'attendantID' in isBannerVisible}
+			{attendants[isBannerVisible.attendantID].name ||
+				'プレイヤー ' + (isBannerVisible.attendantID + 1)}
+		{/if}
 		{#if isBannerVisible.type === 'won'}
 			勝ち抜け
 		{:else if isBannerVisible.type === 'lizhi'}
