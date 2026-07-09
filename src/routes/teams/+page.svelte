@@ -1,11 +1,14 @@
 <script lang="ts">
-	import { fade } from 'svelte/transition';
+	import { watch } from 'runed';
+	import { fade, slide } from 'svelte/transition';
 	import se1 from '$lib/assets/se1.mp3';
 	import se2 from '$lib/assets/se2.mp3';
 	import se3 from '$lib/assets/se3.mp3';
 	import { loadFromHash, type Attendant } from '$lib/attendant';
 	import Footer from '$lib/components/footer.svelte';
 	import Header from '$lib/components/header.svelte';
+	import RuleTeamEditDialog from '$lib/components/ruleTeamEditDialog.svelte';
+	import Stars from '$lib/components/stars.svelte';
 	import {
 		BatsuHistoryEntry,
 		MaruHistoryEntry,
@@ -14,7 +17,7 @@
 	} from '$lib/historyEntry';
 	import { Rule } from '$lib/rule';
 	import { playSound } from '$lib/sound';
-	import { GameState } from '$lib/state';
+	import { GameState, type GameEvent } from '$lib/state';
 	import { tooltip } from '$lib/tooltip.svelte';
 
 	let headerClientHeight = $state(0);
@@ -53,11 +56,155 @@
 			{
 				name: '',
 				group: 0,
+				team: 0,
+				seat: 1,
+				trophyCount: 0,
+				totalScore: { num: 0, den: 0 },
+				manualOrder: 0
+			},
+			{
+				name: '',
+				group: 0,
+				team: 0,
+				seat: 2,
+				trophyCount: 0,
+				totalScore: { num: 0, den: 0 },
+				manualOrder: 0
+			},
+			{
+				name: '',
+				group: 0,
+				team: 0,
+				seat: 2,
+				trophyCount: 0,
+				totalScore: { num: 0, den: 0 },
+				manualOrder: 0
+			},
+			{
+				name: '',
+				group: 0,
+				team: 0,
+				seat: 3,
+				trophyCount: 0,
+				totalScore: { num: 0, den: 0 },
+				manualOrder: 0
+			},
+			{
+				name: '',
+				group: 0,
+				team: 0,
+				seat: 3,
+				trophyCount: 0,
+				totalScore: { num: 0, den: 0 },
+				manualOrder: 0
+			},
+			{
+				name: '',
+				group: 0,
+				team: 0,
+				seat: 4,
+				trophyCount: 0,
+				totalScore: { num: 0, den: 0 },
+				manualOrder: 0
+			},
+			{
+				name: '',
+				group: 0,
+				team: 0,
+				seat: 4,
+				trophyCount: 0,
+				totalScore: { num: 0, den: 0 },
+				manualOrder: 0
+			},
+			{
+				name: '',
+				group: 0,
 				team: 1,
 				seat: 0,
 				trophyCount: 0,
 				totalScore: { num: 0, den: 0 },
-				manualOrder: 1
+				manualOrder: 0
+			},
+			{
+				name: '',
+				group: 0,
+				team: 1,
+				seat: 0,
+				trophyCount: 0,
+				totalScore: { num: 0, den: 0 },
+				manualOrder: 0
+			},
+			{
+				name: '',
+				group: 0,
+				team: 1,
+				seat: 1,
+				trophyCount: 0,
+				totalScore: { num: 0, den: 0 },
+				manualOrder: 0
+			},
+			{
+				name: '',
+				group: 0,
+				team: 1,
+				seat: 1,
+				trophyCount: 0,
+				totalScore: { num: 0, den: 0 },
+				manualOrder: 0
+			},
+			{
+				name: '',
+				group: 0,
+				team: 1,
+				seat: 2,
+				trophyCount: 0,
+				totalScore: { num: 0, den: 0 },
+				manualOrder: 0
+			},
+			{
+				name: '',
+				group: 0,
+				team: 1,
+				seat: 2,
+				trophyCount: 0,
+				totalScore: { num: 0, den: 0 },
+				manualOrder: 0
+			},
+			{
+				name: '',
+				group: 0,
+				team: 1,
+				seat: 3,
+				trophyCount: 0,
+				totalScore: { num: 0, den: 0 },
+				manualOrder: 0
+			},
+			{
+				name: '',
+				group: 0,
+				team: 1,
+				seat: 3,
+				trophyCount: 0,
+				totalScore: { num: 0, den: 0 },
+				manualOrder: 0
+			},
+			{
+				name: '',
+				group: 0,
+				team: 1,
+				seat: 4,
+				trophyCount: 0,
+				totalScore: { num: 0, den: 0 },
+				manualOrder: 0
+			},
+			{
+				name: '',
+				group: 0,
+				team: 1,
+				seat: 4,
+				trophyCount: 0,
+				totalScore: { num: 0, den: 0 },
+				manualOrder: 0
 			}
 		]
 	);
@@ -90,8 +237,58 @@
 	});
 	let activeRuleMode = $derived(currentState.defaultRule.mode);
 
-	function editRule() {
-		console.log('editRule');
+	let ruleTeamEditDialog: { open: (rules: Rule[]) => Promise<Rule[] | null> };
+
+	async function editRule() {
+		const result = await ruleTeamEditDialog.open(rules);
+
+		if (result) {
+			if (
+				history.length > 0 &&
+				confirm(
+					'全員のスコアのリセットも行いますか？\n\n※ しない場合、トロフィーが消えることなどがあります\n※ まだゲームの途中であれば無視してください'
+				)
+			) {
+				clearHistory();
+			}
+
+			// const activeRuleCount = result.filter(({ isRemoved }) => !isRemoved).length;
+			// if (activeRuleCount === 1) {
+			// 	rules = result.filter(({ isRemoved }) => !isRemoved);
+			// 	attendants.forEach((att) => {
+			// 		att.group = 0;
+			// 	});
+			// } else {
+			rules = result;
+			// 	attendants.forEach((att) => {
+			// 		while (rules[att.group].isRemoved) {
+			// 			att.group = (att.group - 1 + rules.length) % rules.length;
+			// 		}
+			// 	});
+			// }
+
+			// showMarubatsuOverride = false;
+			// showScore = true;
+		}
+	}
+
+	let isBannerVisible = $state<GameEvent | null>(null);
+	watch(
+		() => currentState.latestEvent,
+		(curr, prev) => {
+			if (
+				curr?.type !== prev?.type ||
+				(curr && prev && 'teamID' in curr && 'teamID' in prev && curr?.teamID !== prev?.teamID)
+			) {
+				showBanner(curr);
+			}
+		}
+	);
+	let showBannerTimeout = 0;
+	function showBanner(event: GameEvent | null, duration: number = 3000) {
+		isBannerVisible = event;
+		clearTimeout(showBannerTimeout);
+		showBannerTimeout = setTimeout(() => (isBannerVisible = null), duration);
 	}
 
 	let playSounds = $state(true);
@@ -116,6 +313,7 @@
 	}
 
 	function clearHistory() {
+		attendants = attendants.filter((_, i) => currentState.attendants[i].life !== 'removed');
 		history = [];
 	}
 </script>
@@ -133,10 +331,17 @@
 	<div
 		class="attendants"
 		style:height={`calc(100vh - ${headerClientHeight + footerClientHeight}px - 30px)`}
-		style:grid-template-columns={`repeat(${teams.length}, auto)`}
+		style:grid-template-columns={`repeat(${Math.min(3, teams.length)}, auto)`}
 	>
 		{#each attendantsPerTeam as seats, ti (ti)}
-			<div class="team">
+			<div class="team" class:lizhi={/** TODO */ false}>
+				<div class="life">
+					{#if currentState.teams[ti].teamLife === 'won'}
+						<div class="won">{currentState.ranking.indexOf(ti) + 1}位</div>
+					{:else if currentState.teams[ti].teamLife === 'lost'}
+						<div class="lost">失格</div>
+					{/if}
+				</div>
 				<div class="team-name">
 					<input placeholder={`チーム${ti + 1}`} bind:value={teams[ti]} />
 				</div>
@@ -161,16 +366,25 @@
 						<div
 							class="seat-total"
 							style:grid-row={`${rowStart} / span ${atts?.length}`}
-							style:opacity={atts?.length > 0 ? 1 : 0}
+							style:display={atts?.length > 0 && activeRuleMode === 'aql' ? '' : 'none'}
 						>
 							<div>{atts?.reduce((sum, { i }) => sum + currentState.attendants[i].score, 1)}</div>
 							<div class="batsu-count">
 								{'✕'.repeat(batsuCount)}
 							</div>
 						</div>
-						{#each atts as { att, i }, ai (ai)}
-							<div class="member" style:grid-row-start={rowStart + ai}>
-								<div class="seat">
+						{#each atts?.filter(({ i }) => currentState.attendants[i].life !== 'removed') as { att, i }, ai (ai)}
+							<div
+								class="member"
+								style:grid-row-start={rowStart + ai}
+								class:lost={currentState.attendants[i].life === 'lost' ||
+									(activeRuleMode === 'aql' && batsuCount >= 2)}
+							>
+								<div
+									class="seat"
+									style:display={activeRuleMode === 'aql' ? '' : 'none'}
+									{@attach tooltip('枠を変更します')}
+								>
 									<select bind:value={attendants[i].seat}>
 										{#each Array.from({ length: maxSeat + 2 }, (_, si) => si) as si (si)}
 											<option value={si}>{si + 1}</option>
@@ -179,33 +393,42 @@
 								</div>
 								<div>
 									<input bind:value={att.name} placeholder={`プレイヤー${i + 1}`} />
-									{#if batsuCount < 2}
-										<button onclick={() => clickMaru(i)}>O</button>
-										<button onclick={() => clickBatsu(i)}>X</button>
-									{/if}
 								</div>
 								<div class="score">
 									{currentState.attendants[i].score}
 								</div>
+								{#if currentState.teams[ti].teamLife === 'alive' && (activeRuleMode === 'aql' ? batsuCount < 2 : true)}
+									<div class="buttons">
+										<button
+											disabled={currentState.teams[ti].attendantIDsPerSeat.flat().length <= 1}
+											onclick={() => attendants.splice(i, 1)}
+											{@attach tooltip('このプレイヤーをリストから削除します。')}
+										>
+											削除
+										</button>
+										<button onclick={() => clickMaru(i)}>O</button>
+										<button onclick={() => clickBatsu(i)}>X</button>
+									</div>
+								{/if}
 							</div>
 						{/each}
-						<!-- <li>
-								<button
-									onclick={() =>
-										attendants.push({
-											name: '',
-											group: 0,
-											team: ti,
-											seat: activeRuleMode === 'aql' ? si : seats.length,
-											trophyCount: 0,
-											totalScore: { num: 0, den: 0 },
-											manualOrder: attendants.length
-										})}
-								>
-									追加
-								</button>
-							</li> -->
 					{/each}
+					<div class="add-button-wrapper">
+						<button
+							onclick={() =>
+								attendants.push({
+									name: '',
+									group: 0,
+									team: ti,
+									seat: activeRuleMode === 'aql' ? seats.length - 1 : seats.length,
+									trophyCount: 0,
+									totalScore: { num: 0, den: 0 },
+									manualOrder: attendants.length
+								})}
+						>
+							追加
+						</button>
+					</div>
 				</div>
 			</div>
 		{/each}
@@ -237,6 +460,9 @@
 				<span in:fade>{history.at(-1)?.toString(currentState) || 'この世の始まり'}</span>を元に戻す
 			{/key}
 		</button>
+		<button disabled={activeRuleMode === 'aql'} onclick={() => teams.push(null)}
+			>＋ チーム追加</button
+		>
 		<button
 			onclick={() => {
 				if (
@@ -254,6 +480,33 @@
 		</button>
 	</Footer>
 </main>
+
+{#if isBannerVisible}
+	<div class="banner-bg" transition:fade>
+		<Stars />
+	</div>
+	<div class={['banner', isBannerVisible.type]} transition:slide={{ axis: 'x' }}>
+		{#if 'attendantID' in isBannerVisible}
+			{attendants[isBannerVisible.attendantID].name ||
+				'プレイヤー ' + (isBannerVisible.attendantID + 1)}
+		{:else}
+			{teams[isBannerVisible.teamID] || 'チーム ' + (isBannerVisible.teamID + 1)}
+		{/if}
+		{#if isBannerVisible.type === 'won'}
+			勝ち抜け
+		{:else if isBannerVisible.type === 'lizhi'}
+			リーチ
+		{:else if isBannerVisible.type === 'effect2'}
+			!!
+		{:else if isBannerVisible.type === 'effect3'}
+			!!
+		{:else if isBannerVisible.type === 'transit'}
+			通過席
+		{/if}
+	</div>
+{/if}
+
+<RuleTeamEditDialog bind:this={ruleTeamEditDialog} />
 
 <style>
 	.attendants {
@@ -273,9 +526,9 @@
 
 	.team {
 		display: grid;
-		grid-template-rows: 4em 1fr;
-		grid-template-columns: minmax(0, 1fr) 4em;
-		row-gap: 0.5em;
+		grid-template-rows: 2em 1fr;
+		grid-template-columns: 2em minmax(0, 1fr) 2em;
+		row-gap: 0.25em;
 		backdrop-filter: blur(10px);
 		transition:
 			background-color 0.3s ease,
@@ -283,7 +536,7 @@
 		box-shadow: 0 0 15px #eeea;
 		border-radius: 1.5em 0 1em 0;
 		background-color: #ffffff40;
-		padding: 0.5em;
+		padding: 0.25em;
 		min-width: 0;
 		color: #fff;
 		text-shadow:
@@ -300,13 +553,41 @@
 			}
 		}
 
+		&.lizhi {
+			box-shadow: 0 2px 2px 6px rgb(230 230 37);
+			background-color: rgba(255 255 158 / 0.5);
+		}
+		&:has(.won) {
+			box-shadow: 0 2px 2px 6px rgb(61 184 61);
+			background-color: rgba(114 250 114 / 0.5);
+		}
+		&:has(.yasu) {
+			opacity: 0.7;
+			backdrop-filter: blur(5px);
+			background-color: rgba(128 128 128 / 0.3);
+		}
+		&:has(& > .lost) {
+			background-color: rgba(240 128 128 / 0.8);
+		}
+
+		.life {
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			color: #fff;
+			font-weight: bold;
+			font-size: 0.8em;
+			text-shadow:
+				0px 10px 50px #444,
+				0px 10px 50px #444;
+		}
+
 		.team-name {
 			display: flex;
 			justify-content: center;
 			align-items: center;
 			padding: 0 0.5em;
 			min-width: 0;
-			font-size: 2em;
 			text-align: center;
 		}
 
@@ -317,7 +598,6 @@
 			border-radius: 0.5em;
 			background: #000;
 			font-weight: bold;
-			font-size: 2em;
 			text-align: center;
 		}
 
@@ -326,7 +606,7 @@
 			grid-template-columns: 1fr 3em;
 			grid-column: 1 / -1;
 			align-content: start;
-			gap: 0.5em;
+			gap: 0.125em;
 
 			&.with-seat {
 				grid-template-columns: 2em 1fr 3em 2.5em;
@@ -350,9 +630,9 @@
 				&:before {
 					position: absolute;
 					top: 0;
-					left: -2em;
+					left: -1.75em;
 					rotate: 180deg;
-					border-left: 10px solid #fff;
+					border-left: 5px solid #fff;
 					border-radius: 0.75em;
 					width: 2em;
 					height: 100%;
@@ -370,9 +650,15 @@
 			display: grid;
 			grid-template-columns: subgrid;
 			grid-column: 1 / -1;
-			border-radius: 1em;
-			background: #fff4;
-			height: 3em;
+			backdrop-filter: blur(10px);
+			box-shadow: 0 0 15px #eeea;
+			border-radius: 2em;
+			background-color: #ffffff40;
+			height: 1.25em;
+			color: #fff;
+			text-shadow:
+				0px 10px 50px #444,
+				0px 10px 50px #444;
 
 			& > div {
 				display: flex;
@@ -380,11 +666,15 @@
 				align-items: center;
 			}
 
+			&.lost {
+				opacity: 0.2;
+			}
+
 			.score {
 				display: flex;
 				flex-direction: column;
-				border-radius: 0 0.5em 0.5em 0;
-				font-size: 1.2em;
+				border-radius: 0 1em 1em 0;
+				font-size: 0.8em;
 			}
 
 			.seat {
@@ -405,6 +695,40 @@
 						background: #000;
 					}
 				}
+			}
+
+			.buttons {
+				display: flex;
+				position: absolute;
+				right: 0em;
+				align-items: center;
+				gap: 2px;
+				opacity: 0;
+				height: 100%;
+
+				&:is(:hover > *) {
+					opacity: 1;
+				}
+
+				button {
+					height: 2em;
+					font-size: 0.5em;
+				}
+			}
+		}
+
+		.add-button-wrapper {
+			display: flex;
+			position: absolute;
+			right: 0;
+			bottom: 0;
+			grid-column: 1 / -1;
+			justify-content: center;
+			align-items: center;
+			opacity: 0;
+
+			&:is(:hover > *) {
+				opacity: 1;
 			}
 		}
 	}

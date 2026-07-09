@@ -99,7 +99,7 @@ export class AttendantState {
 	/** バツを受けた場合のstateの変化を求める（破壊的にはしない） */
 	processBatsu(
 		penalty: Penalty | null = null,
-		attendantsPerSeat: AttendantState[][] = []
+		attendantsPerSeat: (AttendantState[] | undefined)[] = []
 	): {
 		maruCount: number;
 		batsuCount: number;
@@ -205,7 +205,7 @@ export class AttendantState {
 				++batsuCount;
 				if (
 					attendantsPerSeat
-						.find((seat) => seat.includes(this))!
+						.find((seat) => seat?.includes(this))!
 						.reduce((sum, att) => sum + att.batsuCount, 1) >= 2
 				) {
 					life = 'lost';
@@ -216,7 +216,7 @@ export class AttendantState {
 
 			case 'product':
 				++batsuCount;
-				--score; // 本当？
+				score = Math.max(score - 1, 0); // 本当？
 
 				return { maruCount, batsuCount, score, life, yasuCount };
 		}
@@ -273,7 +273,7 @@ export class TeamState {
 	teamLife: Life = 'alive';
 
 	constructor(
-		public attendantIDsPerSeat: number[][],
+		public attendantIDsPerSeat: (number[] | undefined)[],
 		public attendants: AttendantState[]
 	) {
 		if (this.attendants[0].rule.mode === 'aql') {
@@ -306,8 +306,14 @@ export class TeamState {
 					this.attendantIDsPerSeat.reduce(
 						(prod, seat) =>
 							prod *
-							seat.reduce(
-								(sum, id) => sum + (id === attendantID ? score : this.attendants[id].score),
+							(seat ?? []).reduce(
+								(sum, id) =>
+									sum +
+									(this.attendants[id].life === 'removed'
+										? 0
+										: id === attendantID
+											? score
+											: this.attendants[id].score),
 								1
 							),
 						1
@@ -331,8 +337,14 @@ export class TeamState {
 				teamScore = this.attendantIDsPerSeat.reduce(
 					(prod, seat) =>
 						prod *
-						seat.reduce(
-							(sum, id) => sum + (id === attendantID ? score : this.attendants[id].score),
+						(seat ?? []).reduce(
+							(sum, id) =>
+								sum +
+								(this.attendants[id].life === 'removed'
+									? 0
+									: id === attendantID
+										? score
+										: this.attendants[id].score),
 							0
 						),
 					1
@@ -374,7 +386,7 @@ export class TeamState {
 			attendantID
 		].processBatsu(
 			penalty,
-			this.attendantIDsPerSeat.map((seat) => seat.map((id) => this.attendants[id]))
+			this.attendantIDsPerSeat.map((seat) => seat?.map((id) => this.attendants[id]))
 		);
 
 		let teamScore, teamLife;
@@ -387,8 +399,14 @@ export class TeamState {
 					this.attendantIDsPerSeat.reduce(
 						(prod, seat) =>
 							prod *
-							seat.reduce(
-								(sum, id) => sum + (id === attendantID ? score : this.attendants[id].score),
+							(seat ?? []).reduce(
+								(sum, id) =>
+									sum +
+									(this.attendants[id].life === 'removed'
+										? 0
+										: id === attendantID
+											? score
+											: this.attendants[id].score),
 								1
 							),
 						1
@@ -403,8 +421,14 @@ export class TeamState {
 				teamScore = this.attendantIDsPerSeat.reduce(
 					(prod, seat) =>
 						prod *
-						seat.reduce(
-							(sum, id) => sum + (id === attendantID ? score : this.attendants[id].score),
+						(seat ?? []).reduce(
+							(sum, id) =>
+								sum +
+								(this.attendants[id].life === 'removed'
+									? 0
+									: id === attendantID
+										? score
+										: this.attendants[id].score),
 							0
 						),
 					1
@@ -424,10 +448,15 @@ export class TeamState {
 
 export type GameEventType = 'won' | 'lizhi' | 'effect2' | 'effect3' | 'transit';
 
-export interface GameEvent {
-	type: GameEventType;
-	attendantID: number;
-}
+export type GameEvent =
+	| {
+			type: GameEventType;
+			attendantID: number;
+	  }
+	| {
+			type: GameEventType;
+			teamID: number;
+	  };
 
 export class GameState {
 	attendants: AttendantState[];
@@ -454,7 +483,11 @@ export class GameState {
 			)
 			.map((attendantIDsPerSeat) => new TeamState(attendantIDsPerSeat, this.attendants));
 		this.defaultRule = rules[0];
-		this.ranking = this.attendants.map((_, i) => i);
+		this.ranking = (
+			this.defaultRule.mode === 'aql' || this.defaultRule.mode === 'product'
+				? this.teams
+				: this.attendants
+		).map((_, i) => i);
 	}
 
 	increaseQuestionCount(): void {
@@ -526,7 +559,23 @@ export class GameState {
 
 			case 'aql':
 			case 'product':
-				// TODO
+				this.ranking.sort((ai, bi) => {
+					const a = this.teams[ai];
+					const b = this.teams[bi];
+
+					const bothAlive = a.teamLife === 'alive' && b.teamLife === 'alive';
+
+					if (bothAlive) {
+						// 両方生存している場合はスコア順
+						return b.teamScore - a.teamScore;
+					} else {
+						const aWon = a.teamLife === 'won' ? 1 : 0;
+						const bWon = b.teamLife === 'won' ? 1 : 0;
+						const aLost = a.teamLife === 'lost' ? 1 : 0;
+						const bLost = b.teamLife === 'lost' ? 1 : 0;
+						return bWon - aWon || aLost - bLost;
+					}
+				});
 				return this;
 		}
 	}
