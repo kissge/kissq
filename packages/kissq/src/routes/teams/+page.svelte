@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { watch } from 'runed';
+	import { untrack } from 'svelte';
 	import { fade, slide } from 'svelte/transition';
 	import se1 from '$lib/assets/se1.mp3';
 	import se2 from '$lib/assets/se2.mp3';
@@ -12,6 +13,7 @@
 	import {
 		BatsuHistoryEntry,
 		MaruHistoryEntry,
+		RemoveHistoryEntry,
 		ThroughHistoryEntry,
 		type HistoryEntry
 	} from '$lib/historyEntry';
@@ -25,7 +27,7 @@
 	let gameTitle = $state('');
 
 	let attendants = $state<Attendant[]>(
-		loadFromHash() ?? [
+		loadFromHash(true) ?? [
 			{
 				name: '',
 				group: 0,
@@ -316,6 +318,22 @@
 		attendants = attendants.filter((_, i) => currentState.attendants[i].life !== 'removed');
 		history = [];
 	}
+
+	$effect(() => {
+		let data = currentState.teams.map((team) =>
+			team.attendantIDsPerSeat.flatMap((seat) => seat?.map((id) => attendants[id].name))
+		);
+		untrack(() => {
+			if (data.every((ns) => ns.every((n) => n === ''))) {
+				window.history.replaceState(null, '', ' ');
+			} else {
+				// eslint-disable-next-line svelte/prefer-svelte-reactivity
+				const url = new URL(document.URL);
+				url.hash = encodeURIComponent(JSON.stringify(data));
+				location.replace(url);
+			}
+		});
+	});
 </script>
 
 <main>
@@ -324,6 +342,7 @@
 		questionCount={currentState.questionCount}
 		{gameTitle}
 		battleMode="team"
+		otherModeMembers={attendants.map(({ name }) => name)}
 		{rules}
 		{editRule}
 	/>
@@ -401,7 +420,7 @@
 									<div class="buttons">
 										<button
 											disabled={currentState.teams[ti].attendantIDsPerSeat.flat().length <= 1}
-											onclick={() => attendants.splice(i, 1)}
+											onclick={() => history.push(new RemoveHistoryEntry(i))}
 											{@attach tooltip('このプレイヤーをリストから削除します。')}
 										>
 											削除

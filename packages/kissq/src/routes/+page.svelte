@@ -626,6 +626,15 @@
 		questionCount={currentState.questionCount}
 		{gameTitle}
 		battleMode="single"
+		otherModeMembers={attendants.length < 2
+			? null
+			: attendants.reduce<string[][]>(
+					(acc, { name }, i) => {
+						acc[i >= attendants.length / 2 ? 1 : 0].push(name);
+						return acc;
+					},
+					[[], []]
+				)}
 		{rules}
 		{editRule}
 	/>
