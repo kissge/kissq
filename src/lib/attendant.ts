@@ -11,7 +11,6 @@ export interface Attendant {
 export function loadFromHash(team?: boolean): Attendant[] | null {
 	try {
 		const url = new URL(document.URL);
-		console.log(decodeURIComponent(url.hash.slice(1)));
 		if (url.hash.length > 1) {
 			const names = JSON.parse(decodeURIComponent(url.hash.slice(1)));
 			if (team) {
