@@ -15,6 +15,21 @@
 	let isKeyboardEnabled = $state(true);
 
 	let currentState = $state<GameState>();
+	let mainScreenOrder = $state<number[]>();
+	let order = $state<'added' | 'same' | 'reverse'>('added');
+
+	let orderedAttendants = $derived.by(() => {
+		switch (order) {
+			case 'added':
+				return currentState?.attendants.map((att, i) => ({ att, i }));
+			case 'same':
+				return mainScreenOrder?.map((i) => ({ att: currentState!.attendants[i], i }));
+			case 'reverse':
+				return mainScreenOrder?.map((i) => ({ att: currentState!.attendants[i], i })).reverse();
+			default:
+				order satisfies never;
+		}
+	});
 
 	let inputDialog: HTMLDialogElement;
 
@@ -35,6 +50,7 @@
 		switch (event.data.command) {
 			case 'syncState':
 				currentState = event.data.currentState;
+				mainScreenOrder = event.data.orderedAttendants;
 				break;
 		}
 	}
@@ -169,6 +185,14 @@
 			次の問題へ →
 		</button>
 		<div class="spacer"></div>
+		<div>
+			プレイヤーの表示順
+			<select bind:value={order}>
+				<option value="added">追加順</option>
+				<option value="same">画面と同じ</option>
+				<option value="reverse">画面の逆順</option>
+			</select>
+		</div>
 		<label>
 			<input type="checkbox" bind:checked={isKeyboardEnabled} />
 			キーボード操作
@@ -181,9 +205,9 @@
 			問題ウィンドウを表示・非表示
 		</button>
 	</div>
-	{#if currentState}
+	{#if currentState && orderedAttendants}
 		<div>
-			{#each currentState.attendants as att, i (i)}
+			{#each orderedAttendants as { att, i }, j (i)}
 				{#if att.life !== 'removed'}
 					<div class="attendant">
 						{att.name || '--'}
@@ -206,14 +230,14 @@
 						{:else}
 							<button
 								class="labeled"
-								data-label={Keys[i]?.[0] || ''}
+								data-label={Keys[j]?.[0] || ''}
 								onclick={() => opener.postMessage({ command: 'clickMaru', attendantID: i })}
 							>
 								O
 							</button>
 							<button
 								class="labeled"
-								data-label={Keys[i]?.[1] || ''}
+								data-label={Keys[j]?.[1] || ''}
 								onclick={() => opener.postMessage({ command: 'clickBatsu', attendantID: i })}
 							>
 								X
