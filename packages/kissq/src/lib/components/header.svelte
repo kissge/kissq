@@ -39,6 +39,23 @@
 	</div>
 	<h1>
 		<span contenteditable class="editable-title" bind:textContent={gameTitle}></span>
+		{#if battleMode === 'single'}
+			<a
+				href="./teams#{encodeURIComponent(JSON.stringify(otherModeMembers))}"
+				target="_blank"
+				{@attach tooltip('団体戦に切り替えます')}
+			>
+				個人戦
+			</a>
+		{:else}
+			<a
+				href="../#{encodeURIComponent(JSON.stringify(otherModeMembers))}"
+				target="_blank"
+				{@attach tooltip('個人戦に切り替えます')}
+			>
+				団体戦 <small>β版</small>
+			</a>
+		{/if}
 		<button
 			onclick={helpDialog.open}
 			{@attach tooltip(
@@ -51,23 +68,6 @@
 		>
 			？
 		</button>
-		{#if battleMode === 'single'}
-			<a
-				href="./teams#{encodeURIComponent(JSON.stringify(otherModeMembers))}"
-				target="_blank"
-				{@attach tooltip('チーム戦に切り替えます')}
-			>
-				個人戦
-			</a>
-		{:else}
-			<a
-				href="../#{encodeURIComponent(JSON.stringify(otherModeMembers))}"
-				target="_blank"
-				{@attach tooltip('個人戦に切り替えます')}
-			>
-				チーム戦 <small>β版</small>
-			</a>
-		{/if}
 	</h1>
 	<div>
 		Rule:
@@ -97,6 +97,7 @@
 
 		.editable-title {
 			padding-right: 3px;
+			anchor-name: --title;
 
 			&:before {
 				content: 'kissQ: ';
@@ -108,6 +109,11 @@
 	}
 
 	a {
+		position: absolute;
+		position-anchor: --title;
+		top: calc(anchor(bottom) - 0.5em);
+		left: anchor(left);
+		z-index: 9999;
 		color: blue;
 		font-size: 0.6em;
 	}

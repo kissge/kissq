@@ -366,7 +366,7 @@
 				</div>
 				<div class="score">{currentState.teams[ti].teamScore}</div>
 				<div class="members" class:with-seat={activeRuleMode === 'aql'}>
-					{#each seats as atts, si (si)}
+					{#each seats as atts, si (JSON.stringify(atts ?? si))}
 						{@const rowStart = seats
 							.slice(0, si)
 							.reduce((sum, seatAtts) => sum + seatAtts.length, 1)}
@@ -382,55 +382,57 @@
 							(sum, { i }) => sum + currentState.attendants[i].batsuCount,
 							0
 						)}
-						<div
-							class="seat-total"
-							style:grid-row={`${rowStart} / span ${atts?.length}`}
-							style:display={atts?.length > 0 && activeRuleMode === 'aql' ? '' : 'none'}
-						>
-							<div>{atts?.reduce((sum, { i }) => sum + currentState.attendants[i].score, 1)}</div>
-							<div class="batsu-count">
-								{'✕'.repeat(batsuCount)}
-							</div>
-						</div>
-						{#each atts?.filter(({ i }) => currentState.attendants[i].life !== 'removed') as { att, i }, ai (ai)}
+						<div class="grid-wrapper">
 							<div
-								class="member"
-								style:grid-row-start={rowStart + ai}
-								class:lost={currentState.attendants[i].life === 'lost' ||
-									(activeRuleMode === 'aql' && batsuCount >= 2)}
+								class="seat-total"
+								style:grid-row={`${rowStart} / span ${atts?.length}`}
+								style:display={atts?.length > 0 && activeRuleMode === 'aql' ? '' : 'none'}
 							>
-								<div
-									class="seat"
-									style:display={activeRuleMode === 'aql' ? '' : 'none'}
-									{@attach tooltip('枠を変更します')}
-								>
-									<select bind:value={attendants[i].seat}>
-										{#each Array.from({ length: maxSeat + 2 }, (_, si) => si) as si (si)}
-											<option value={si}>{si + 1}</option>
-										{/each}
-									</select>
+								<div>{atts?.reduce((sum, { i }) => sum + currentState.attendants[i].score, 1)}</div>
+								<div class="batsu-count">
+									{'✕'.repeat(batsuCount)}
 								</div>
-								<div>
-									<input bind:value={att.name} placeholder={`プレイヤー${i + 1}`} />
-								</div>
-								<div class="score">
-									{currentState.attendants[i].score}
-								</div>
-								{#if currentState.teams[ti].teamLife === 'alive' && (activeRuleMode === 'aql' ? batsuCount < 2 : true)}
-									<div class="buttons">
-										<button
-											disabled={currentState.teams[ti].attendantIDsPerSeat.flat().length <= 1}
-											onclick={() => history.push(new RemoveHistoryEntry(i))}
-											{@attach tooltip('このプレイヤーをリストから削除します。')}
-										>
-											削除
-										</button>
-										<button onclick={() => clickMaru(i)}>O</button>
-										<button onclick={() => clickBatsu(i)}>X</button>
-									</div>
-								{/if}
 							</div>
-						{/each}
+							{#each atts?.filter(({ i }) => currentState.attendants[i].life !== 'removed') as { att, i }, ai (ai)}
+								<div
+									class="member"
+									style:grid-row-start={rowStart + ai}
+									class:lost={currentState.attendants[i].life === 'lost' ||
+										(activeRuleMode === 'aql' && batsuCount >= 2)}
+								>
+									<div
+										class="seat"
+										style:display={activeRuleMode === 'aql' ? '' : 'none'}
+										{@attach tooltip('枠を変更します')}
+									>
+										<select bind:value={attendants[i].seat}>
+											{#each Array.from({ length: maxSeat + 2 }, (_, si) => si) as si (si)}
+												<option value={si}>{si + 1}</option>
+											{/each}
+										</select>
+									</div>
+									<div>
+										<input bind:value={att.name} placeholder={`プレイヤー${i + 1}`} />
+									</div>
+									<div class="score">
+										{currentState.attendants[i].score}
+									</div>
+									{#if currentState.teams[ti].teamLife === 'alive' && (activeRuleMode === 'aql' ? batsuCount < 2 : true)}
+										<div class="buttons">
+											<button
+												disabled={currentState.teams[ti].attendantIDsPerSeat.flat().length <= 1}
+												onclick={() => history.push(new RemoveHistoryEntry(i))}
+												{@attach tooltip('このプレイヤーをリストから削除します。')}
+											>
+												削除
+											</button>
+											<button onclick={() => clickMaru(i)}>O</button>
+											<button onclick={() => clickBatsu(i)}>X</button>
+										</div>
+									{/if}
+								</div>
+							{/each}
+						</div>
 					{/each}
 					<div class="add-button-wrapper">
 						<button
@@ -633,6 +635,10 @@
 				.member {
 					grid-column: 1 / -2;
 				}
+			}
+
+			.grid-wrapper {
+				display: contents;
 			}
 
 			.seat-total {
