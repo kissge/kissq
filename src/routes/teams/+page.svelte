@@ -366,7 +366,7 @@
 				</div>
 				<div class="score">{currentState.teams[ti].teamScore}</div>
 				<div class="members" class:with-seat={activeRuleMode === 'aql'}>
-					{#each seats as atts, si (JSON.stringify(atts ?? si))}
+					{#each seats as atts, si (si)}
 						{@const rowStart = seats
 							.slice(0, si)
 							.reduce((sum, seatAtts) => sum + seatAtts.length, 1)}
