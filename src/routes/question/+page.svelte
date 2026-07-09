@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { csv2json } from 'json-2-csv';
 	import { onMount } from 'svelte';
+	import { flip } from 'svelte/animate';
 	import { fade } from 'svelte/transition';
 	import type { GameState } from '$lib/state';
 
@@ -208,8 +209,8 @@
 	{#if currentState && orderedAttendants}
 		<div>
 			{#each orderedAttendants as { att, i }, j (i)}
-				{#if att.life !== 'removed'}
-					<div class="attendant">
+				<div class="attendant" animate:flip={{ duration: 500 }}>
+					{#if att.life !== 'removed'}
 						{att.name || '--'}
 						{#if att.isLizhi}
 							{#if att.isLoseLizhi}
@@ -243,8 +244,8 @@
 								X
 							</button>
 						{/if}
-					</div>
-				{/if}
+					{/if}
+				</div>
 			{/each}
 		</div>
 	{/if}
