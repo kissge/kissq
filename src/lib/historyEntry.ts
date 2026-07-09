@@ -161,7 +161,7 @@ export class BatsuHistoryEntry implements HistoryEntry {
 				}
 
 				for (const seat of team2.attendantIDsPerSeat) {
-					for (const ai of seat) {
+					for (const ai of seat ?? []) {
 						const att = state.attendants[ai];
 						if (att.life === 'lost') {
 							att.life = 'alive';
