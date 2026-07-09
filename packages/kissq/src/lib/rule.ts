@@ -113,7 +113,7 @@ export class Rule {
 				return `AQL（${this.win}点先取）`;
 
 			case 'product':
-				return `掛け算して${this.win}点先取`;
+				return `掛けて${this.win}点先取`;
 
 			default:
 				this.mode satisfies never;

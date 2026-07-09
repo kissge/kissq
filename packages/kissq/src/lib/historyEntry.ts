@@ -80,15 +80,15 @@ export class MaruHistoryEntry implements HistoryEntry {
 	}
 
 	reducerTeam(state: GameState): GameState {
-		const { team } = state.getTeamByAttendantID(this.attendantID);
+		const { ti, team } = state.getTeamByAttendantID(this.attendantID);
 		const att = state.attendants[this.attendantID];
 
 		state.increaseQuestionCount();
-		const { maruCount, score, life, trophyCount, yasuCount, otherScoreDiff, teamScore, teamLife } =
+		const { maruCount, score, life, trophyCount, yasuCount, teamScore, teamLife } =
 			team.processMaru(this.attendantID, this.multiplier);
 
 		if (team.teamLife === 'alive' && teamLife === 'won') {
-			state.latestEvent = { type: 'won', team };
+			state.latestEvent = { type: 'won', teamID: ti };
 		}
 
 		att.maruCount = maruCount;
@@ -101,34 +101,14 @@ export class MaruHistoryEntry implements HistoryEntry {
 
 		if (
 			teamLife === 'alive' &&
-			team.processMaru(this.attendantID, this.multiplier).teamLife === 'won'
+			team.processMaru(this.attendantID /** TODO: FIXME */, this.multiplier).teamLife === 'won'
 		) {
 			if (att.rule.transit) {
-				state.latestEvent = { type: 'transit', team };
+				state.latestEvent = { type: 'transit', teamID: ti };
 			} else {
-				state.latestEvent = { type: 'lizhi', team };
+				state.latestEvent = { type: 'lizhi', teamID: ti };
 			}
 		}
-
-		// if (otherScoreDiff === 'transit') {
-		// 	if (state.latestEvent?.type !== 'transit') {
-		// 		state.attendants.forEach((a) => {
-		// 			if (a.isLizhi) {
-		// 				a.score = 0;
-		// 			}
-		// 		});
-		// 	}
-		// } else if (otherScoreDiff !== 0) {
-		// 	state.attendants.forEach((a, i) => {
-		// 		if (i !== this.attendantID && a.life === 'alive') {
-		// 			a.score += otherScoreDiff;
-		// 			if (a.score <= 0) {
-		// 				a.life = 'lost';
-		// 			}
-		// 		}
-		// 	});
-		// }
-
 		return state;
 	}
 }
@@ -175,7 +155,6 @@ export class BatsuHistoryEntry implements HistoryEntry {
 		team.teamLife = teamLife;
 
 		if (att.rule.mode === 'aql') {
-			// TODO: 相手チームの封鎖を解除し、1×に戻す
 			for (const [ti2, team2] of state.teams.entries()) {
 				if (ti === ti2) {
 					continue;

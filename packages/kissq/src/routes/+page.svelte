@@ -1441,49 +1441,6 @@
 		user-select: none;
 	}
 
-	.banner-bg {
-		position: fixed;
-		z-index: 9998;
-		inset: 0;
-		background-color: rgba(0, 0, 0, 0.3);
-	}
-
-	.banner {
-		display: flex;
-		position: fixed;
-		top: calc(50% - 0.7em);
-		right: 0;
-		bottom: calc(50% - 0.7em);
-		left: 0;
-		justify-content: center;
-		align-items: center;
-		z-index: 9999;
-		box-shadow: 0 0 20px #222;
-		overflow: hidden;
-		pointer-events: none;
-		font-weight: bold;
-		font-size: min(8dvw, 20dvh);
-		line-height: 1;
-		user-select: none;
-		text-align: center;
-		text-shadow: 0 0 15px #444;
-		white-space: nowrap;
-
-		&.won {
-			backdrop-filter: blur(10px);
-			background-color: rgba(255 100 100 / 0.3);
-			color: white;
-		}
-		&.lizhi,
-		&.effect2,
-		&.effect3,
-		&.transit {
-			backdrop-filter: blur(10px);
-			background-color: rgba(240 240 175 / 0.4);
-			color: rgb(255 231 231);
-		}
-	}
-
 	audio {
 		display: none;
 	}
