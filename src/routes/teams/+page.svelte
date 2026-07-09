@@ -150,12 +150,23 @@
 							(max, atts) =>
 								Math.max(
 									max,
-									atts.reduce((m, { att }) => Math.max(m, att.seat), 0)
+									atts?.reduce((m, { att }) => Math.max(m, att.seat), 0)
 								),
 							0
 						)}
-						<div class="seat-total" style:grid-row={`${rowStart} / span ${atts.length}`}>
-							{atts.reduce((sum, { i }) => sum + currentState.attendants[i].score, 1)}
+						{@const batsuCount = atts?.reduce(
+							(sum, { i }) => sum + currentState.attendants[i].batsuCount,
+							0
+						)}
+						<div
+							class="seat-total"
+							style:grid-row={`${rowStart} / span ${atts?.length}`}
+							style:opacity={atts?.length > 0 ? 1 : 0}
+						>
+							<div>{atts?.reduce((sum, { i }) => sum + currentState.attendants[i].score, 1)}</div>
+							<div class="batsu-count">
+								{'✕'.repeat(batsuCount)}
+							</div>
 						</div>
 						{#each atts as { att, i }, ai (ai)}
 							<div class="member" style:grid-row-start={rowStart + ai}>
@@ -167,11 +178,15 @@
 									</select>
 								</div>
 								<div>
-									{att.name || `プレイヤー${i + 1}`}
-									<button onclick={() => clickMaru(i)}>O</button>
-									<button onclick={() => clickBatsu(i)}>X</button>
+									<input bind:value={att.name} placeholder={`プレイヤー${i + 1}`} />
+									{#if batsuCount < 2}
+										<button onclick={() => clickMaru(i)}>O</button>
+										<button onclick={() => clickBatsu(i)}>X</button>
+									{/if}
 								</div>
-								<div class="score">{currentState.attendants[i].score}</div>
+								<div class="score">
+									{currentState.attendants[i].score}
+								</div>
 							</div>
 						{/each}
 						<!-- <li>
@@ -258,8 +273,8 @@
 
 	.team {
 		display: grid;
-		grid-template-rows: 5em 1fr;
-		grid-template-columns: 1fr 5em;
+		grid-template-rows: 4em 1fr;
+		grid-template-columns: minmax(0, 1fr) 4em;
 		row-gap: 0.5em;
 		backdrop-filter: blur(10px);
 		transition:
@@ -269,6 +284,7 @@
 		border-radius: 1.5em 0 1em 0;
 		background-color: #ffffff40;
 		padding: 0.5em;
+		min-width: 0;
 		color: #fff;
 		text-shadow:
 			0px 10px 50px #444,
@@ -276,6 +292,8 @@
 
 		input {
 			flex: 1 1 3em;
+			width: 100%;
+			min-width: 0;
 
 			&::placeholder {
 				color: #fff;
@@ -287,6 +305,7 @@
 			justify-content: center;
 			align-items: center;
 			padding: 0 0.5em;
+			min-width: 0;
 			font-size: 2em;
 			text-align: center;
 		}
@@ -310,7 +329,7 @@
 			gap: 0.5em;
 
 			&.with-seat {
-				grid-template-columns: 2em 1fr 3em 3em;
+				grid-template-columns: 2em 1fr 3em 2.5em;
 
 				.member {
 					grid-column: 1 / -2;
@@ -321,8 +340,10 @@
 				display: flex;
 				position: relative;
 				grid-column: -2 / -1;
+				flex-direction: column;
 				justify-content: center;
 				align-items: center;
+				gap: 0;
 				padding-right: 0.5em;
 				font-weight: bold;
 
@@ -336,6 +357,11 @@
 					width: 2em;
 					height: 100%;
 					content: '';
+				}
+
+				.batsu-count {
+					color: #f55;
+					font-size: 0.8em;
 				}
 			}
 		}
@@ -355,7 +381,10 @@
 			}
 
 			.score {
+				display: flex;
+				flex-direction: column;
 				border-radius: 0 0.5em 0.5em 0;
+				font-size: 1.2em;
 			}
 
 			.seat {
