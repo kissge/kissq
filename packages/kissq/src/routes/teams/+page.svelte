@@ -419,8 +419,22 @@
 									</div>
 									{#if currentState.teams[ti].teamLife === 'alive' && (activeRuleMode === 'aql' ? batsuCount < 2 : true)}
 										<div class="buttons">
+											<select
+												disabled={currentState.teams[ti].attendantIDsPerSeat
+													.flat()
+													.filter((a) => a != null && currentState.attendants[a].life !== 'removed')
+													.length <= 1}
+												bind:value={attendants[i].team}
+											>
+												{#each teams as team, j (j)}
+													<option value={j}>{team || `チーム${j + 1}`}</option>
+												{/each}
+											</select>
 											<button
-												disabled={currentState.teams[ti].attendantIDsPerSeat.flat().length <= 1}
+												disabled={currentState.teams[ti].attendantIDsPerSeat
+													.flat()
+													.filter((a) => a != null && currentState.attendants[a].life !== 'removed')
+													.length <= 1}
 												onclick={() => history.push(new RemoveHistoryEntry(i))}
 												{@attach tooltip('このプレイヤーをリストから削除します。')}
 											>
@@ -735,7 +749,8 @@
 					opacity: 1;
 				}
 
-				button {
+				button,
+				select {
 					height: 2em;
 					font-size: 0.5em;
 				}
