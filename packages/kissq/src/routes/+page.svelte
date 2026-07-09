@@ -468,6 +468,8 @@
 						att.group = (att.group - 1 + rules.length) % rules.length;
 					}
 				});
+				const lastActiveRuleIndex = rules.findLastIndex(({ isRemoved }) => !isRemoved);
+				rules = rules.slice(0, lastActiveRuleIndex + 1);
 			}
 
 			showMarubatsuOverride = false;
