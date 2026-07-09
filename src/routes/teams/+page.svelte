@@ -425,6 +425,11 @@
 													.filter((a) => a != null && currentState.attendants[a].life !== 'removed')
 													.length <= 1}
 												bind:value={attendants[i].team}
+												onchange={() => {
+													attendants[i].seat =
+														currentState.teams[attendants[i].team].attendantIDsPerSeat.length;
+												}}
+												{@attach tooltip('このプレイヤーのチームを変更します')}
 											>
 												{#each teams as team, j (j)}
 													<option value={j}>{team || `チーム${j + 1}`}</option>
