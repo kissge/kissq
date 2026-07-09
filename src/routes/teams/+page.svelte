@@ -146,13 +146,25 @@
 						{@const rowStart = seats
 							.slice(0, si)
 							.reduce((sum, seatAtts) => sum + seatAtts.length, 1)}
+						{@const maxSeat = seats.reduce(
+							(max, atts) =>
+								Math.max(
+									max,
+									atts.reduce((m, { att }) => Math.max(m, att.seat), 0)
+								),
+							0
+						)}
 						<div class="seat-total" style:grid-row={`${rowStart} / span ${atts.length}`}>
 							{atts.reduce((sum, { i }) => sum + currentState.attendants[i].score, 1)}
 						</div>
 						{#each atts as { att, i }, ai (ai)}
 							<div class="member" style:grid-row-start={rowStart + ai}>
 								<div class="seat">
-									{si + 1}
+									<select bind:value={attendants[i].seat}>
+										{#each Array.from({ length: maxSeat + 2 }, (_, si) => si) as si (si)}
+											<option value={si}>{si + 1}</option>
+										{/each}
+									</select>
 								</div>
 								<div>
 									{att.name || `プレイヤー${i + 1}`}
@@ -349,6 +361,21 @@
 			.seat {
 				border-radius: 1em 0 0 1em;
 				background: #0008;
+				color: #fff;
+
+				select {
+					cursor: pointer;
+					border: none;
+					background: transparent;
+					width: 100%;
+					color: #fff;
+					font-size: inherit;
+					text-align: center;
+
+					option {
+						background: #000;
+					}
+				}
 			}
 		}
 	}
