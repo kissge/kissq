@@ -9,6 +9,7 @@
 		questionCount,
 		gameTitle,
 		battleMode,
+		otherModeMembers,
 		rules,
 		editRule
 	}: {
@@ -16,6 +17,7 @@
 		questionCount: number;
 		gameTitle: string;
 		battleMode: 'single' | 'team';
+		otherModeMembers: unknown;
 		rules: Rule[];
 		editRule: () => void;
 	} = $props();
@@ -50,9 +52,21 @@
 			？
 		</button>
 		{#if battleMode === 'single'}
-			個人戦
+			<a
+				href="./teams#{encodeURIComponent(JSON.stringify(otherModeMembers))}"
+				target="_blank"
+				{@attach tooltip('チーム戦に切り替えます')}
+			>
+				個人戦
+			</a>
 		{:else}
-			チーム戦 <small>β版</small>
+			<a
+				href="../#{encodeURIComponent(JSON.stringify(otherModeMembers))}"
+				target="_blank"
+				{@attach tooltip('個人戦に切り替えます')}
+			>
+				チーム戦 <small>β版</small>
+			</a>
 		{/if}
 	</h1>
 	<div>
@@ -91,5 +105,15 @@
 				content: 'kissQ';
 			}
 		}
+	}
+
+	a {
+		color: blue;
+		font-size: 0.6em;
+	}
+
+	a:not(:focus, :hover) {
+		color: inherit;
+		text-decoration: none;
 	}
 </style>
