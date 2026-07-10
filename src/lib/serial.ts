@@ -1,3 +1,5 @@
+export type WasedashikiMode = 'single' | 'double' | 'endless' | 'handicap';
+
 export async function connectToSerialPort() {
 	try {
 		const serial = navigator.serial;

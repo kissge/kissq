@@ -31,7 +31,12 @@
 	} from '$lib/historyEntry';
 	import type { LogEntry, LogStateEntry } from '$lib/logs';
 	import { Rule, type Penalty, getActiveRulesText } from '$lib/rule';
-	import { connectToSerialPort, readFromSerialPort, reconnect } from '$lib/serial';
+	import {
+		connectToSerialPort,
+		readFromSerialPort,
+		reconnect,
+		type WasedashikiMode
+	} from '$lib/serial';
 	import { playSound } from '$lib/sound';
 	import { AttendantState, GameState, type AttendantStateValue, type GameEvent } from '$lib/state';
 	import { tooltip } from '$lib/tooltip.svelte';
@@ -659,7 +664,7 @@
 	let lastButtonID = $state<number>();
 	/** attendant ID -> button ID */
 	let buttonMapping = $state<Record<number, number>>({});
-	let wasedashikiMode = $state<'single' | 'double' | 'endless' | 'handicap'>();
+	let wasedashikiMode = $state<WasedashikiMode>();
 	let connected = $state(false);
 
 	async function initiateSerialConnection(serialPort_?: SerialPort) {
@@ -870,6 +875,7 @@
 					},
 					[[], []]
 				)}
+		{wasedashikiMode}
 		{rules}
 		{editRule}
 	/>
