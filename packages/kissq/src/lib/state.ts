@@ -92,8 +92,12 @@ export class AttendantState {
 			case 'aql':
 			case 'product':
 			case 'sum':
+				if (this.rule.yasuPerMaru && maruCount % this.rule.yasuPerMaru.maru === 0) {
+					yasuCount = this.rule.yasuPerMaru.yasu;
+				}
+
 				maruCount++;
-				score++;
+				score += this.rule.maru * multiplier;
 
 				return { maruCount, score, life, trophyCount, yasuCount, otherScoreDiff };
 		}

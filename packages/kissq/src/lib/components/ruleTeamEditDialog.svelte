@@ -192,8 +192,8 @@
 							batsuMode: 'number',
 							transit: false,
 							isYasuPerMaruNull: true,
-							yasuPerMaruMaru: 0,
-							yasuPerMaruYasu: 0,
+							yasuPerMaruMaru: 5,
+							yasuPerMaruYasu: 5,
 							yasuMode: 'constant',
 							yasuPerBatsu: 0,
 							rouletteName: null,
@@ -215,8 +215,8 @@
 							batsuMode: 'number',
 							transit: false,
 							isYasuPerMaruNull: true,
-							yasuPerMaruMaru: 0,
-							yasuPerMaruYasu: 0,
+							yasuPerMaruMaru: 5,
+							yasuPerMaruYasu: 5,
 							yasuMode: 'constant',
 							yasuPerBatsu: 0,
 							rouletteName: null,
@@ -238,8 +238,8 @@
 							batsuMode: 'number',
 							transit: false,
 							isYasuPerMaruNull: true,
-							yasuPerMaruMaru: 0,
-							yasuPerMaruYasu: 0,
+							yasuPerMaruMaru: 5,
+							yasuPerMaruYasu: 5,
 							yasuMode: 'constant',
 							yasuPerBatsu: 0,
 							rouletteName: null,
@@ -261,8 +261,8 @@
 							batsuMode: 'number',
 							transit: false,
 							isYasuPerMaruNull: true,
-							yasuPerMaruMaru: 0,
-							yasuPerMaruYasu: 0,
+							yasuPerMaruMaru: 5,
+							yasuPerMaruYasu: 5,
 							yasuMode: 'constant',
 							yasuPerBatsu: 0,
 							rouletteName: null,
@@ -284,8 +284,8 @@
 							batsuMode: 'number',
 							transit: false,
 							isYasuPerMaruNull: true,
-							yasuPerMaruMaru: 0,
-							yasuPerMaruYasu: 0,
+							yasuPerMaruMaru: 5,
+							yasuPerMaruYasu: 5,
 							yasuMode: 'constant',
 							yasuPerBatsu: 0,
 							rouletteName: null,
@@ -338,51 +338,35 @@
 				</label>
 			</div>
 
-			{#if activeRule.mode === 'survival'}
-				<div>初期スコア</div>
-				<div>
-					<input type="number" bind:value={activeRule.lose} min="1" /> pts
-				</div>
-			{:else}
-				<div>勝利条件</div>
-				<div>
-					<input type="number" bind:value={activeRule.win} min="1" />
-					{activeRule.mode === 'MbyN' ? '²' : ''}
-					{activeRule.mode !== 'marubatsu' ? 'pts' : '○'} 以上
-				</div>
+			<div>勝利条件</div>
+			<div>
+				<input type="number" bind:value={activeRule.win} min="1" />
+				点以上
+			</div>
 
-				{#if activeRule.mode === 'sum'}
-					<div>失格条件</div>
-					<div>
-						<label {@attach tooltip('失格スコアを負の数で入力')}>
-							<input type="radio" bind:group={activeRule.isLoseNull} value={false} />
-							個人
-							<input
-								type="number"
-								bind:value={activeRule.lose}
-								onfocus={() => (activeRule.isLoseNull = false)}
-							/>
-							点以下
-						</label>
-						<label>
-							<input type="radio" bind:group={activeRule.isLoseNull} value={true} />失格なし
-						</label>
-					</div>
-				{/if}
+			{#if activeRule.mode === 'sum'}
+				<div>失格条件</div>
+				<div>
+					<label {@attach tooltip('失格スコアを負の数で入力')}>
+						<input type="radio" bind:group={activeRule.isLoseNull} value={false} />
+						個人
+						<input
+							type="number"
+							bind:value={activeRule.lose}
+							onfocus={() => (activeRule.isLoseNull = false)}
+						/>
+						点以下
+					</label>
+					<label>
+						<input type="radio" bind:group={activeRule.isLoseNull} value={true} />失格なし
+					</label>
+				</div>
 			{/if}
-
-			<!--
 
 			<div>1問正解で</div>
 			<div>
-				{#if activeRule.mode === 'survival'}
-					自分以外全員のスコアから
-					<input type="number" bind:value={activeRule.maru} min="1" />
-					pts 減らす
-				{:else}
-					<input type="number" bind:value={activeRule.maru} />
-					{activeRule.mode === 'score' ? 'pts' : '○'} 獲得できる
-				{/if}
+				<input type="number" bind:value={activeRule.maru} />
+				点獲得できる
 
 				<hr />
 
@@ -406,26 +390,8 @@
 					<input type="radio" bind:group={activeRule.isYasuPerMaruNull} value={true} />
 					なし
 				</label>
-
-				<hr />
-
-				<label
-					{@attach tooltip('通過クイズ（通過席状態になってから誤答・他者が正解でスコアリセット）')}
-				>
-					<input
-						type="radio"
-						bind:group={activeRule.transit}
-						value={true}
-						disabled={activeRule.mode !== 'score'}
-					/>
-					{activeRule.win - 1}
-					ptsで通過席
-				</label>
-				<label>
-					<input type="radio" bind:group={activeRule.transit} value={false} />
-					なし
-				</label>
 			</div>
+			<!--
 
 			<div>1問誤答で</div>
 			<div>
