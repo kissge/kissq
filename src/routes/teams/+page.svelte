@@ -485,12 +485,13 @@
 								</div>
 							</div>
 							{#each atts?.filter(({ i }) => currentState.attendants[i].life !== 'removed') as { att, i }, ai (ai)}
+								{@const sAtt = currentState.attendants[i]}
 								<div
 									class="member"
 									style:grid-row-start={rowStart + ai}
-									class:lizhi={currentState.attendants[i].isLizhi}
-									class:lost={currentState.attendants[i].life === 'lost' ||
-										(activeRuleMode === 'aql' && batsuCount >= 2)}
+									class:lizhi={sAtt.isLizhi}
+									class:yasu={sAtt.yasuDisplay > 0}
+									class:lost={sAtt.life === 'lost' || (activeRuleMode === 'aql' && batsuCount >= 2)}
 								>
 									<div
 										class="seat"
@@ -552,11 +553,18 @@
 											bind:value={att.name}
 											placeholder={`プレイヤー${i + 1}`}
 										/>
+										<small class="yasu">
+											{#if sAtt.yasuDisplay > 0}
+												{#if sAtt.yasuCount === 'next'}次{/if}
+												{sAtt.yasuDisplay}
+												休
+											{/if}
+										</small>
 									</div>
 									<div class="score">
-										{currentState.attendants[i].score}
+										{sAtt.score}
 									</div>
-									{#if currentState.teams[ti].teamLife === 'alive' && (activeRuleMode === 'aql' ? batsuCount < 2 : true) && currentState.attendants[i].life === 'alive'}
+									{#if currentState.teams[ti].teamLife === 'alive' && (activeRuleMode === 'aql' ? batsuCount < 2 : true) && sAtt.life === 'alive' && sAtt.yasuDisplay === 0}
 										<div class="buttons">
 											<select
 												disabled={currentState.teams[ti].attendantIDsPerSeat
@@ -754,14 +762,6 @@
 			box-shadow: 0 2px 2px 6px rgb(61 184 61);
 			background-color: rgba(114 250 114 / 0.5);
 		}
-		&:has(.yasu) {
-			opacity: 0.7;
-			backdrop-filter: blur(5px);
-			background-color: rgba(128 128 128 / 0.3);
-		}
-		&:has(& > .lost) {
-			background-color: rgba(240 128 128 / 0.8);
-		}
 
 		.life {
 			display: flex;
@@ -848,6 +848,7 @@
 			grid-template-columns: subgrid;
 			grid-column: 1 / -1;
 			backdrop-filter: blur(10px);
+			transition: opacity 1s ease;
 			box-shadow: 0 0 15px #eeea;
 			border-radius: 2em;
 			background-color: #ffffff40;
@@ -861,6 +862,12 @@
 				display: flex;
 				justify-content: center;
 				align-items: center;
+			}
+
+			&.yasu {
+				opacity: 0.7;
+				backdrop-filter: blur(5px);
+				background-color: rgba(128 128 128 / 0.3);
 			}
 
 			&.lost {
@@ -912,6 +919,11 @@
 				&::placeholder {
 					color: #888;
 				}
+			}
+
+			.yasu {
+				position: absolute;
+				right: 3em;
 			}
 
 			.score {
