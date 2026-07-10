@@ -876,23 +876,10 @@
 				animation: answerer-1st-wrapper 0.3s ease infinite alternate;
 			}
 
-			.answerer,
 			.button-mapping {
 				display: flex;
 				justify-content: center;
 				align-items: center;
-			}
-			.answerer {
-				position: absolute;
-				top: -0.75em;
-				left: 0;
-				border-radius: 1em;
-				background: black;
-				width: 100%;
-				color: #fff;
-				font-size: 0.5em;
-			}
-			.button-mapping {
 				z-index: 20;
 				border-radius: 5em;
 				background: grey;
@@ -920,6 +907,10 @@
 						0px 10px 50px #aa08,
 						0px 10px 50px #aa08,
 						0px 10px 50px #aa08;
+				}
+
+				&::placeholder {
+					color: #888;
 				}
 			}
 
