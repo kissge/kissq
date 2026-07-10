@@ -218,7 +218,7 @@
 	]);
 	let teams = $state([null, null]);
 
-	let rules = $state([new Rule('aql', 200, 3, 1, 'updown', false, null, 'constant', 0, null)]);
+	let rules = $state([new Rule('aql', 200, null, 1, 'updown', false, null, 'constant', 0, null)]);
 
 	let history = $state<HistoryEntry[]>([]);
 	let currentState = $derived(
@@ -556,7 +556,7 @@
 									<div class="score">
 										{currentState.attendants[i].score}
 									</div>
-									{#if currentState.teams[ti].teamLife === 'alive' && (activeRuleMode === 'aql' ? batsuCount < 2 : true)}
+									{#if currentState.teams[ti].teamLife === 'alive' && (activeRuleMode === 'aql' ? batsuCount < 2 : true) && currentState.attendants[i].life === 'alive'}
 										<div class="buttons">
 											<select
 												disabled={currentState.teams[ti].attendantIDsPerSeat
