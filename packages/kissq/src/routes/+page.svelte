@@ -976,11 +976,7 @@
 					{#if answerers[j]?.rank}
 						{#if answerers[j].delay > 0}
 							<div class="answerer">
-								{#if answerers[j].delay < 3000}
-									+{answerers[j].delay} ms
-								{:else}
-									+{(answerers[j].delay / 1000).toFixed(2)} s
-								{/if}
+								+&thinsp;{(answerers[j].delay / 1000).toFixed(3)} s
 							</div>
 						{/if}
 					{/if}
@@ -1626,14 +1622,15 @@
 					position: absolute;
 					justify-content: center;
 					align-items: center;
-					font-size: 0.4em;
 				}
 				.answerer {
-					top: -0.25em;
+					top: -0.75em;
 					left: 0;
+					border-radius: 1em;
+					background: black;
 					width: 100%;
 					color: #fff;
-					font-weight: lighter;
+					font-size: 0.5em;
 				}
 				.button-mapping {
 					top: 0.2em;
@@ -1644,6 +1641,7 @@
 					width: 1.5em;
 					height: 1.5em;
 					color: white;
+					font-size: 0.4em;
 				}
 
 				.group {
@@ -1766,6 +1764,7 @@
 					flex-direction: column;
 
 					span {
+						transition: margin-top 0.3s ease;
 						box-shadow: 0 0 3px #888;
 						border-radius: 50%;
 						background-image: var(--trophy-image);
