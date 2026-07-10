@@ -2,6 +2,8 @@
 	import { watch } from 'runed';
 	import { onMount, untrack } from 'svelte';
 	import { fade, slide } from 'svelte/transition';
+	import Toastify from 'toastify-js';
+	import 'toastify-js/src/toastify.css';
 	import se1 from '$lib/assets/se1.mp3';
 	import se2 from '$lib/assets/se2.mp3';
 	import se3 from '$lib/assets/se3.mp3';
@@ -18,6 +20,12 @@
 		type HistoryEntry
 	} from '$lib/historyEntry';
 	import { Rule } from '$lib/rule';
+	import {
+		connectToSerialPort,
+		readFromSerialPort,
+		reconnect,
+		type WasedashikiMode
+	} from '$lib/serial';
 	import { playSound } from '$lib/sound';
 	import { GameState, type GameEvent } from '$lib/state';
 	import { tooltip } from '$lib/tooltip.svelte';
@@ -293,14 +301,20 @@
 
 	let playSounds = $state(true);
 
-	function clickMaru(attendantID: number) {
+	function clickMaru(attendantID: number, playSounds_: boolean = true) {
 		history.push(new MaruHistoryEntry(attendantID));
-		if (playSounds) playSound(se1);
+		if (playSounds && playSounds_) {
+			playSound(se1);
+		}
 	}
 
-	async function clickBatsu(attendantID: number) {
-		history.push(new BatsuHistoryEntry(attendantID));
-		if (playSounds) playSound(se2);
+	async function clickBatsu(attendantID: number, playSounds_: boolean = true) {
+		const single = wasedashikiMode === 'single' || wasedashikiMode === 'handicap';
+
+		history.push(new BatsuHistoryEntry(attendantID, single));
+		if (playSounds && playSounds_) {
+			playSound(se2);
+		}
 	}
 
 	function clickThrough() {
@@ -317,12 +331,202 @@
 		history = [];
 	}
 
+	let serialPort = $state<SerialPort>();
+	let answerers = $state<({ rank: 1 | 2 | 'late'; delay: number } | null)[]>([]);
+	let lastButtonID = $state<number>();
+	/** attendant ID -> button ID */
+	let buttonMapping = $state<Record<number, number>>({});
+	let wasedashikiMode = $state<WasedashikiMode>();
+	let connected = $state(false);
+
+	async function initiateSerialConnection(serialPort_?: SerialPort) {
+		if (!serialPort_) {
+			try {
+				serialPort = await connectToSerialPort();
+			} catch (error) {
+				Toastify({ text: '接続に失敗しました', style: { background: '#B00000' } }).showToast();
+				console.error('接続エラー', error);
+				serialPort = undefined;
+				wasedashikiMode = undefined;
+				connected = false;
+				return;
+			}
+		}
+
+		while (serialPort) {
+			console.log('Reading from serial port...');
+			setTimeout(() => {
+				if (!connected) {
+					serialPort = undefined;
+				}
+			}, 2500);
+			await readLoopSerialPort();
+			await new Promise((resolve) => setTimeout(resolve, 5000));
+		}
+	}
+
+	let pushers: number[] = [];
+
+	async function readLoopSerialPort() {
+		if (!serialPort) {
+			return;
+		}
+
+		try {
+			for await (const line of readFromSerialPort(serialPort)) {
+				connected = true;
+
+				if (
+					line === '' ||
+					/.+ 24/.test(line) ||
+					line.startsWith('WASEDA') ||
+					line.startsWith('Copyright')
+				) {
+					continue;
+				}
+
+				console.log('Received line:', JSON.stringify(line));
+
+				switch (line) {
+					case '91':
+						Toastify({ text: '接続完了（シングルチャンス）' }).showToast();
+						wasedashikiMode = 'single';
+						continue;
+					case '92':
+						Toastify({ text: '接続完了（ダブルチャンス）' }).showToast();
+						wasedashikiMode = 'double';
+						continue;
+					case '93':
+						Toastify({ text: '接続完了（エンドレスチャンス）' }).showToast();
+						wasedashikiMode = 'endless';
+						continue;
+					case '94':
+						Toastify({ text: '接続完了（ハンデあり）' }).showToast();
+						wasedashikiMode = 'handicap';
+						continue;
+					case '99':
+						// リセット
+						answerers = [];
+						pushers = [];
+						continue;
+				}
+
+				if (line === '51' || line === '52') {
+					const answererButtonID = answerers.findIndex((a) => a?.rank === 1);
+					if (answererButtonID === -1) {
+						// 空押し
+						continue;
+					}
+
+					const answererAttendantID = Object.entries(buttonMapping).find(
+						([, id]) => id === answererButtonID + 1
+					)?.[0];
+					if (answererAttendantID !== undefined) {
+						if (line === '51') {
+							clickMaru(Number.parseInt(answererAttendantID), false);
+							answerers = [];
+						} else {
+							clickBatsu(Number.parseInt(answererAttendantID), false);
+						}
+					} else {
+						Toastify({
+							text: `ボタン ${answererButtonID + 1} を持っているのがどのプレイヤーか分かりません。紐づけしてください`
+						}).showToast();
+					}
+
+					continue;
+				}
+
+				const parts = line.split(' ').map((n) => Number.parseInt(n));
+				if (parts.length === 1 && 1 <= parts[0] && parts[0] <= 24) {
+					lastButtonID = parts[0];
+					pushers.shift();
+					const second = pushers[0];
+					answerers = Array.from({ length: 24 }, (_, i) =>
+						i === parts[0] - 1
+							? answerers[i]?.delay
+								? { rank: 1, delay: answerers[i].delay }
+								: { rank: 1, delay: 0 }
+							: answerers[i]?.rank === 1
+								? null
+								: i + 1 === second
+									? { rank: 2, delay: answerers[i]!.delay }
+									: answerers[i]
+					);
+					const attendantID = Object.entries(buttonMapping).find(
+						([, id]) => id === lastButtonID!
+					)?.[0];
+					if (attendantID == undefined) {
+						Toastify({
+							text: `ボタン ${lastButtonID} を持っているのがどのプレイヤーか分かりません。紐づけしてください`
+						}).showToast();
+					} else {
+						const att = currentState.attendants[Number.parseInt(attendantID)];
+						const name = att.name || `プレイヤー${Number.parseInt(attendantID) + 1}`;
+						switch (att.life) {
+							case 'removed':
+								Toastify({ text: `${name}は削除されています` }).showToast();
+								break;
+							case 'won':
+								Toastify({ text: `${name}は勝ち抜け済みです` }).showToast();
+								break;
+							case 'lost':
+								Toastify({ text: `${name}は失格済みです` }).showToast();
+								break;
+						}
+					}
+				} else if (parts.length === 2 && 101 <= parts[0] && parts[0] <= 124) {
+					let rank: 1 | 2 | 'late' = 'late';
+					if (parts[1] === 0) {
+						rank = 1;
+					} else {
+						if (pushers.length === 0) {
+							rank = 2;
+						}
+						pushers.push(parts[0] - 100);
+					}
+
+					answerers = Array.from({ length: 24 }, (_, i) =>
+						i === parts[0] - 101 && parts[1] > 0 ? { rank, delay: parts[1] } : answerers[i]
+					);
+				} else {
+					Toastify({ text: `デバッグ情報: ${JSON.stringify(line)}` }).showToast();
+					console.warn('serial:', JSON.stringify(line));
+				}
+			}
+		} catch (error) {
+			Toastify({
+				text: String(error).includes('The device has been lost.') ? '切断されました' : '通信エラー',
+				style: { background: '#B00000' }
+			}).showToast();
+			console.error('通信エラー', error);
+			serialPort = undefined;
+			wasedashikiMode = undefined;
+		}
+	}
+
 	onMount(() => {
 		const data = loadFromHash(true);
 		if (data) {
 			attendants = data;
 			teams = Array.from(new Set(data.map(({ team }) => team)), () => null);
 		}
+
+		reconnect()
+			.then((port) => {
+				if (port) {
+					serialPort = port;
+					initiateSerialConnection(port);
+					setTimeout(() => {
+						if (connected) {
+							Toastify({ text: '自動で早稲田式に接続しました' }).showToast();
+						}
+					}, 1500);
+				}
+			})
+			.catch((error) => {
+				console.error('接続エラー', error);
+			});
 	});
 
 	$effect(() => {
@@ -349,6 +553,7 @@
 		{gameTitle}
 		battleMode="team"
 		otherModeMembers={attendants.map(({ name }) => name)}
+		{wasedashikiMode}
 		{rules}
 		{editRule}
 	/>
@@ -418,7 +623,54 @@
 										</select>
 									</div>
 									<div>
-										<input bind:value={att.name} placeholder={`プレイヤー${i + 1}`} />
+										<button
+											class="button-mapping"
+											style={buttonMapping[i] == null
+												? undefined
+												: 1 <= buttonMapping[i] && buttonMapping[i] <= 6
+													? 'background-color: red; color: white'
+													: 7 <= buttonMapping[i] && buttonMapping[i] <= 12
+														? 'background-color: blue; color: white'
+														: 13 <= buttonMapping[i] && buttonMapping[i] <= 18
+															? 'background-color: yellow; color: black'
+															: 'background-color: green; color: white'}
+											style:display={lastButtonID === undefined ? 'none' : ''}
+											disabled={lastButtonID === undefined}
+											{@attach tooltip(
+												`このプレイヤーが持っているボタンは${buttonMapping[i] == null ? '???' : buttonMapping[i]}番です。クリックで紐づけ`
+											)}
+											onclick={() => {
+												if (lastButtonID !== undefined) {
+													buttonMapping = {
+														...Object.fromEntries(
+															Object.entries(buttonMapping).filter(([, v]) => v !== lastButtonID)
+														),
+														[i]: lastButtonID!
+													};
+													Toastify({
+														text: `ボタン${lastButtonID}は${att.name || `プレイヤー${i + 1}`}が持っています`
+													}).showToast();
+												}
+											}}
+										>
+											{buttonMapping[i] ?? '?'}
+										</button>
+										<input
+											class={[
+												'name',
+												{
+													'answerer-1st': answerers[(buttonMapping[i] ?? 0) - 1]?.rank === 1,
+													'answerer-2nd':
+														(wasedashikiMode === 'endless' || wasedashikiMode === 'double') &&
+														answerers[(buttonMapping[i] ?? 0) - 1]?.rank === 2,
+													'answerer-late':
+														wasedashikiMode === 'endless' &&
+														answerers[(buttonMapping[i] ?? 0) - 1]?.rank === 'late'
+												}
+											]}
+											bind:value={att.name}
+											placeholder={`プレイヤー${i + 1}`}
+										/>
 									</div>
 									<div class="score">
 										{currentState.attendants[i].score}
@@ -534,6 +786,9 @@
 			{@attach tooltip('全員のスコアだけをリセットします。')}
 		>
 			全員リセット
+		</button>
+		<button disabled={serialPort != null} onclick={() => initiateSerialConnection()}>
+			早稲田式連携
 		</button>
 	</Footer>
 </main>
@@ -731,6 +986,57 @@
 				opacity: 0.2;
 			}
 
+			&:has(.answerer-1st) {
+				animation: answerer-1st-wrapper 0.3s ease infinite alternate;
+			}
+
+			.answerer,
+			.button-mapping {
+				display: flex;
+				justify-content: center;
+				align-items: center;
+			}
+			.answerer {
+				position: absolute;
+				top: -0.75em;
+				left: 0;
+				border-radius: 1em;
+				background: black;
+				width: 100%;
+				color: #fff;
+				font-size: 0.5em;
+			}
+			.button-mapping {
+				z-index: 20;
+				border-radius: 5em;
+				background: grey;
+				width: 2.5em;
+				height: 2.5em;
+				color: white;
+				font-size: 0.4em;
+			}
+
+			.name {
+				&.answerer-1st {
+					animation: answerer-1st 0.3s ease infinite alternate;
+				}
+
+				&.answerer-2nd {
+					color: yellow;
+					text-shadow:
+						0px 10px 50px #aa08,
+						0px 10px 50px #aa08,
+						0px 10px 50px #aa08;
+				}
+
+				&.answerer-late {
+					text-shadow:
+						0px 10px 50px #aa08,
+						0px 10px 50px #aa08,
+						0px 10px 50px #aa08;
+				}
+			}
+
 			.score {
 				display: flex;
 				flex-direction: column;
@@ -792,6 +1098,22 @@
 			&:is(:hover > *) {
 				opacity: 1;
 			}
+		}
+	}
+
+	@keyframes answerer-1st {
+		to {
+			color: yellow;
+			text-shadow:
+				0px 10px 50px #aa08,
+				0px 10px 50px #aa08,
+				0px 10px 50px #aa08;
+		}
+	}
+
+	@keyframes answerer-1st-wrapper {
+		to {
+			scale: 1.05;
 		}
 	}
 </style>

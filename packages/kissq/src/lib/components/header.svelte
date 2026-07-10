@@ -2,6 +2,7 @@
 	import { fade } from 'svelte/transition';
 	import HelpDialog from '$lib/components/helpDialog.svelte';
 	import { getActiveRulesText, type Rule } from '$lib/rule';
+	import type { WasedashikiMode } from '$lib/serial';
 	import { tooltip } from '$lib/tooltip.svelte';
 
 	let {
@@ -10,6 +11,7 @@
 		gameTitle,
 		battleMode,
 		otherModeMembers,
+		wasedashikiMode,
 		rules,
 		editRule
 	}: {
@@ -18,6 +20,7 @@
 		gameTitle: string;
 		battleMode: 'single' | 'team';
 		otherModeMembers: unknown;
+		wasedashikiMode: WasedashikiMode;
 		rules: Rule[];
 		editRule: () => void;
 	} = $props();
@@ -72,6 +75,15 @@
 	<div>
 		Rule:
 		{activeRulesText}
+		{#if wasedashikiMode}
+			({wasedashikiMode === 'single'
+				? '1C'
+				: wasedashikiMode === 'double'
+					? '2C'
+					: wasedashikiMode === 'endless'
+						? '∞C'
+						: '1C'})
+		{/if}
 		<button onclick={editRule} {@attach tooltip('ルールとルールグループを編集します。')}>
 			編集
 		</button>
