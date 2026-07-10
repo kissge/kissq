@@ -4,10 +4,13 @@
 	import { flip } from 'svelte/animate';
 	import { Spring } from 'svelte/motion';
 	import { fade, fly, slide } from 'svelte/transition';
+	import Toastify from 'toastify-js';
+	import 'toastify-js/src/toastify.css';
 	import se1 from '$lib/assets/se1.mp3';
 	import se2 from '$lib/assets/se2.mp3';
 	import se3 from '$lib/assets/se3.mp3';
 	import { type Attendant, loadFromHash } from '$lib/attendant';
+	import AppearanceDialog from '$lib/components/appearanceDialog.svelte';
 	import EffectEditDialog from '$lib/components/effectEditDialog.svelte';
 	import Footer from '$lib/components/footer.svelte';
 	import Header from '$lib/components/header.svelte';
@@ -28,6 +31,7 @@
 	} from '$lib/historyEntry';
 	import type { LogEntry, LogStateEntry } from '$lib/logs';
 	import { Rule, type Penalty, getActiveRulesText } from '$lib/rule';
+	import { connectToSerialPort, readFromSerialPort, reconnect } from '$lib/serial';
 	import { playSound } from '$lib/sound';
 	import { AttendantState, GameState, type AttendantStateValue, type GameEvent } from '$lib/state';
 	import { tooltip } from '$lib/tooltip.svelte';
@@ -297,6 +301,9 @@
 	let effect2Name = $state<string>();
 	let effect3Name = $state<string>();
 
+	let wallpaper = $state<string | null>(null);
+	let trophy = $state<string | null>(null);
+
 	let playSounds = $state(true);
 
 	let enableRating = $state(false);
@@ -321,6 +328,12 @@
 			effect2Name: string | undefined,
 			effect3Name: string | undefined
 		) => Promise<[string | undefined, string | undefined] | null>;
+	};
+	let appearanceDialog: {
+		open: (
+			wallpaper: string | null,
+			trophy: string | null
+		) => Promise<[string | null, string | null] | null>;
 	};
 	let stateEditDialog: { open: (att: AttendantState) => Promise<AttendantStateValue | null> };
 	let penaltyRoulette: { run: (choices: Penalty[]) => Promise<number> };
@@ -448,6 +461,8 @@
 						att.group = (att.group - 1 + rules.length) % rules.length;
 					}
 				});
+				const lastActiveRuleIndex = rules.findLastIndex(({ isRemoved }) => !isRemoved);
+				rules = rules.slice(0, lastActiveRuleIndex + 1);
 			}
 
 			showMarubatsuOverride = false;
@@ -462,6 +477,19 @@
 		}
 	}
 
+	async function editAppearance() {
+		const result = await appearanceDialog.open(wallpaper, trophy);
+		if (result) {
+			wallpaper = result[0];
+			trophy = result[1];
+			const main = document.querySelector('main') as HTMLElement;
+			main.style.backgroundImage = wallpaper ? `url(${wallpaper})` : '';
+			main.style.setProperty('--trophy-image', trophy ? `url(${trophy})` : '');
+			window.localStorage.setItem('wallpaper', wallpaper || '');
+			window.localStorage.setItem('trophy', trophy || '');
+		}
+	}
+
 	async function editState(attendantID: number, att: AttendantState) {
 		const result = await stateEditDialog.open(att);
 		if (result) {
@@ -469,20 +497,26 @@
 		}
 	}
 
-	function clickMaru(attendantID: number) {
+	function clickMaru(attendantID: number, playSounds_: boolean = true) {
 		history.push(new MaruHistoryEntry(attendantID));
-		if (playSounds) playSound(se1);
+		if (playSounds && playSounds_) {
+			playSound(se1);
+		}
 	}
 
-	async function clickBatsu(attendantID: number) {
-		if (playSounds) playSound(se2);
+	async function clickBatsu(attendantID: number, playSounds_: boolean = true) {
+		if (playSounds && playSounds_) {
+			playSound(se2);
+		}
+
+		const single = wasedashikiMode === 'single' || wasedashikiMode === 'handicap';
 
 		const rule = currentState.attendants[attendantID].rule;
 		if (rule.yasuMode === 'roulette') {
 			const selection = await penaltyRoulette.run(rule.roulette!.choices);
-			history.push(new BatsuHistoryEntry(attendantID, rule.roulette!.choices[selection]));
+			history.push(new BatsuHistoryEntry(attendantID, single, rule.roulette!.choices[selection]));
 		} else {
-			history.push(new BatsuHistoryEntry(attendantID));
+			history.push(new BatsuHistoryEntry(attendantID, single));
 		}
 	}
 
@@ -552,7 +586,8 @@
 			case 'ping':
 				subWindow?.postMessage({
 					command: 'syncState',
-					currentState: JSON.parse(JSON.stringify(currentState))
+					currentState: JSON.parse(JSON.stringify(currentState)),
+					orderedAttendants
 				});
 				break;
 		}
@@ -565,7 +600,8 @@
 		if (subWindow && !subWindow.closed) {
 			subWindow.postMessage({
 				command: 'syncState',
-				currentState: JSON.parse(JSON.stringify(currentState))
+				currentState: JSON.parse(JSON.stringify(currentState)),
+				orderedAttendants
 			});
 		}
 	});
@@ -587,11 +623,210 @@
 	});
 
 	onMount(() => {
+		wallpaper = window.localStorage.getItem('wallpaper');
+		trophy = window.localStorage.getItem('trophy');
+		const main = document.querySelector('main') as HTMLElement;
+		if (wallpaper) {
+			main.style.backgroundImage = `url(${wallpaper})`;
+		}
+		if (trophy) {
+			main.style.setProperty('--trophy-image', `url(${trophy})`);
+		}
+
+		reconnect()
+			.then((port) => {
+				if (port) {
+					serialPort = port;
+					initiateSerialConnection(port);
+					setTimeout(() => {
+						if (connected) {
+							Toastify({ text: '自動で早稲田式に接続しました' }).showToast();
+						}
+					}, 1500);
+				}
+			})
+			.catch((error) => {
+				console.error('接続エラー', error);
+			});
 		pushLog();
 		window.addEventListener('message', processWindowMessage);
 
 		return () => window.removeEventListener('message', processWindowMessage);
 	});
+
+	let serialPort = $state<SerialPort>();
+	let answerers = $state<({ rank: 1 | 2 | 'late'; delay: number } | null)[]>([]);
+	let lastButtonID = $state<number>();
+	/** attendant ID -> button ID */
+	let buttonMapping = $state<Record<number, number>>({});
+	let wasedashikiMode = $state<'single' | 'double' | 'endless' | 'handicap'>();
+	let connected = $state(false);
+
+	async function initiateSerialConnection(serialPort_?: SerialPort) {
+		if (!serialPort_) {
+			try {
+				serialPort = await connectToSerialPort();
+			} catch (error) {
+				Toastify({ text: '接続に失敗しました', style: { background: '#B00000' } }).showToast();
+				console.error('接続エラー', error);
+				serialPort = undefined;
+				wasedashikiMode = undefined;
+				connected = false;
+				return;
+			}
+		}
+
+		while (serialPort) {
+			console.log('Reading from serial port...');
+			setTimeout(() => {
+				if (!connected) {
+					serialPort = undefined;
+				}
+			}, 2500);
+			await readLoopSerialPort();
+			await new Promise((resolve) => setTimeout(resolve, 5000));
+		}
+	}
+
+	let pushers: number[] = [];
+
+	async function readLoopSerialPort() {
+		if (!serialPort) {
+			return;
+		}
+
+		try {
+			for await (const line of readFromSerialPort(serialPort)) {
+				connected = true;
+
+				if (
+					line === '' ||
+					/.+ 24/.test(line) ||
+					line.startsWith('WASEDA') ||
+					line.startsWith('Copyright')
+				) {
+					continue;
+				}
+
+				console.log('Received line:', JSON.stringify(line));
+
+				switch (line) {
+					case '91':
+						Toastify({ text: '接続完了（シングルチャンス）' }).showToast();
+						wasedashikiMode = 'single';
+						continue;
+					case '92':
+						Toastify({ text: '接続完了（ダブルチャンス）' }).showToast();
+						wasedashikiMode = 'double';
+						continue;
+					case '93':
+						Toastify({ text: '接続完了（エンドレスチャンス）' }).showToast();
+						wasedashikiMode = 'endless';
+						continue;
+					case '94':
+						Toastify({ text: '接続完了（ハンデあり）' }).showToast();
+						wasedashikiMode = 'handicap';
+						continue;
+					case '99':
+						// リセット
+						answerers = [];
+						pushers = [];
+						continue;
+				}
+
+				if (line === '51' || line === '52') {
+					const answererButtonID = answerers.findIndex((a) => a?.rank === 1);
+					if (answererButtonID === -1) {
+						// 空押し
+						continue;
+					}
+
+					const answererAttendantID = Object.entries(buttonMapping).find(
+						([, id]) => id === answererButtonID + 1
+					)?.[0];
+					if (answererAttendantID !== undefined) {
+						if (line === '51') {
+							clickMaru(Number.parseInt(answererAttendantID), false);
+							answerers = [];
+						} else {
+							clickBatsu(Number.parseInt(answererAttendantID), false);
+						}
+					} else {
+						Toastify({
+							text: `ボタン ${answererButtonID + 1} を持っているのがどのプレイヤーか分かりません。紐づけしてください`
+						}).showToast();
+					}
+
+					continue;
+				}
+
+				const parts = line.split(' ').map((n) => Number.parseInt(n));
+				if (parts.length === 1 && 1 <= parts[0] && parts[0] <= 24) {
+					lastButtonID = parts[0];
+					pushers.shift();
+					const second = pushers[0];
+					answerers = Array.from({ length: 24 }, (_, i) =>
+						i === parts[0] - 1
+							? answerers[i]?.delay
+								? { rank: 1, delay: answerers[i].delay }
+								: { rank: 1, delay: 0 }
+							: answerers[i]?.rank === 1
+								? null
+								: i + 1 === second
+									? { rank: 2, delay: answerers[i]!.delay }
+									: answerers[i]
+					);
+					const attendantID = Object.entries(buttonMapping).find(
+						([, id]) => id === lastButtonID!
+					)?.[0];
+					if (attendantID == undefined) {
+						Toastify({
+							text: `ボタン ${lastButtonID} を持っているのがどのプレイヤーか分かりません。紐づけしてください`
+						}).showToast();
+					} else {
+						const att = currentState.attendants[Number.parseInt(attendantID)];
+						const name = att.name || `プレイヤー${Number.parseInt(attendantID) + 1}`;
+						switch (att.life) {
+							case 'removed':
+								Toastify({ text: `${name}は削除されています` }).showToast();
+								break;
+							case 'won':
+								Toastify({ text: `${name}は勝ち抜け済みです` }).showToast();
+								break;
+							case 'lost':
+								Toastify({ text: `${name}は失格済みです` }).showToast();
+								break;
+						}
+					}
+				} else if (parts.length === 2 && 101 <= parts[0] && parts[0] <= 124) {
+					let rank: 1 | 2 | 'late' = 'late';
+					if (parts[1] === 0) {
+						rank = 1;
+					} else {
+						if (pushers.length === 0) {
+							rank = 2;
+						}
+						pushers.push(parts[0] - 100);
+					}
+
+					answerers = Array.from({ length: 24 }, (_, i) =>
+						i === parts[0] - 101 && parts[1] > 0 ? { rank, delay: parts[1] } : answerers[i]
+					);
+				} else {
+					Toastify({ text: `デバッグ情報: ${JSON.stringify(line)}` }).showToast();
+					console.warn('serial:', JSON.stringify(line));
+				}
+			}
+		} catch (error) {
+			Toastify({
+				text: String(error).includes('The device has been lost.') ? '切断されました' : '通信エラー',
+				style: { background: '#B00000' }
+			}).showToast();
+			console.error('通信エラー', error);
+			serialPort = undefined;
+			wasedashikiMode = undefined;
+		}
+	}
 
 	function han2zen(str: string) {
 		// 全ASCII（4文字以上連続をどこかに含む場合は無視）
@@ -683,6 +918,48 @@
 				class={['attendant', { lizhi: att.isLizhi }]}
 				animate:flip={{ duration: 500, delay: attendantFLIPDelay }}
 			>
+				{#if buttonMapping[i] != null}
+					{@const j = buttonMapping[i] - 1}
+					{#if answerers[j]?.rank}
+						{#if answerers[j].delay > 0}
+							<div class="answerer">
+								+&thinsp;{(answerers[j].delay / 1000).toFixed(3)} s
+							</div>
+						{/if}
+					{/if}
+				{/if}
+				<button
+					class="button-mapping"
+					style={buttonMapping[i] == null
+						? undefined
+						: 1 <= buttonMapping[i] && buttonMapping[i] <= 6
+							? 'background-color: red; color: white'
+							: 7 <= buttonMapping[i] && buttonMapping[i] <= 12
+								? 'background-color: blue; color: white'
+								: 13 <= buttonMapping[i] && buttonMapping[i] <= 18
+									? 'background-color: yellow; color: black'
+									: 'background-color: green; color: white'}
+					style:display={lastButtonID === undefined ? 'none' : ''}
+					disabled={lastButtonID === undefined}
+					{@attach tooltip(
+						`このプレイヤーが持っているボタンは${buttonMapping[i] == null ? '???' : buttonMapping[i]}番です。クリックで紐づけ`
+					)}
+					onclick={() => {
+						if (lastButtonID !== undefined) {
+							buttonMapping = {
+								...Object.fromEntries(
+									Object.entries(buttonMapping).filter(([, v]) => v !== lastButtonID)
+								),
+								[i]: lastButtonID!
+							};
+							Toastify({
+								text: `ボタン${lastButtonID}は${att.name || `プレイヤー${i + 1}`}が持っています`
+							}).showToast();
+						}
+					}}
+				>
+					{buttonMapping[i] ?? '?'}
+				</button>
 				{#if activeRules.length > 1}
 					<button
 						class="group"
@@ -718,7 +995,14 @@
 						'name',
 						{
 							blurred: screenshotModeTimer != null && i !== orderedAttendants[screenshotOffset],
-							'show-bar': showScore
+							'show-bar': showScore,
+							'answerer-1st': answerers[(buttonMapping[i] ?? 0) - 1]?.rank === 1,
+							'answerer-2nd':
+								(wasedashikiMode === 'endless' || wasedashikiMode === 'double') &&
+								answerers[(buttonMapping[i] ?? 0) - 1]?.rank === 2,
+							'answerer-late':
+								wasedashikiMode === 'endless' &&
+								answerers[(buttonMapping[i] ?? 0) - 1]?.rank === 'late'
 						}
 					]}
 					style:writing-mode={nameDirection}
@@ -823,26 +1107,36 @@
 						失格
 					</button>
 					<button
-						{@attach tooltip('並び順を左に移動します。')}
-						disabled={orderingMode !== 'manual' || ord === 0}
+						{@attach tooltip(`並び順を${ord === 0 ? '一番右' : '左'}に移動します。`)}
+						disabled={orderingMode !== 'manual'}
 						onclick={() => {
-							[attendants[orderedAttendants[ord - 1]].manualOrder, attendants[i].manualOrder] = [
-								attendants[i].manualOrder,
-								attendants[orderedAttendants[ord - 1]].manualOrder
-							];
+							if (ord === 0) {
+								attendants[i].manualOrder = orderedAttendants.length;
+							} else {
+								[attendants[orderedAttendants[ord - 1]].manualOrder, attendants[i].manualOrder] = [
+									attendants[i].manualOrder,
+									attendants[orderedAttendants[ord - 1]].manualOrder
+								];
+							}
 							orderedAttendants.forEach((a, i) => (attendants[a].manualOrder = i));
 						}}
 					>
 						◀
 					</button>
 					<button
-						{@attach tooltip('並び順を右に移動します。')}
-						disabled={orderingMode !== 'manual' || ord === orderedAttendants.length - 1}
+						{@attach tooltip(
+							`並び順を${ord === orderedAttendants.length - 1 ? '一番左' : '右'}に移動します。`
+						)}
+						disabled={orderingMode !== 'manual'}
 						onclick={() => {
-							[attendants[orderedAttendants[ord + 1]].manualOrder, attendants[i].manualOrder] = [
-								attendants[i].manualOrder,
-								attendants[orderedAttendants[ord + 1]].manualOrder
-							];
+							if (ord === orderedAttendants.length - 1) {
+								attendants[i].manualOrder = -1;
+							} else {
+								[attendants[orderedAttendants[ord + 1]].manualOrder, attendants[i].manualOrder] = [
+									attendants[i].manualOrder,
+									attendants[orderedAttendants[ord + 1]].manualOrder
+								];
+							}
 							orderedAttendants.forEach((a, i) => (attendants[a].manualOrder = i));
 						}}
 					>
@@ -1056,6 +1350,9 @@
 		>
 			{#if playSounds}🔊 ON{:else}🔇 OFF{/if}
 		</button>
+		<button onclick={editAppearance} {@attach tooltip('外観の設定を編集します')}>
+			デザイン設定
+		</button>
 		<button
 			onclick={() => (enableRating = !enableRating)}
 			{@attach tooltip('レーティング自動計算のオンオフを切り替えます')}
@@ -1063,6 +1360,9 @@
 			{#if enableRating}レートON{:else}レートOFF{/if}
 		</button>
 		<button onclick={openSubWindow}>操作盤表示</button>
+		<button disabled={serialPort != null} onclick={() => initiateSerialConnection()}>
+			早稲田式連携
+		</button>
 	</div>
 {/if}
 
@@ -1092,10 +1392,14 @@
 <RuleEditDialog bind:this={ruleEditDialog} />
 <LogDialog bind:this={logDialog} />
 <EffectEditDialog bind:this={effectEditDialog} />
+<AppearanceDialog bind:this={appearanceDialog} />
 <StateEditDialog bind:this={stateEditDialog} />
 <PenaltyRoulette bind:this={penaltyRoulette} />
 
 <style>
+	:global(html) {
+		--trophy-image: url('$lib/assets/trophy.png');
+	}
 	main {
 		.question {
 			position: relative;
@@ -1194,6 +1498,34 @@
 					background-color: rgba(240 128 128 / 0.8);
 				}
 
+				.answerer,
+				.button-mapping {
+					display: flex;
+					position: absolute;
+					justify-content: center;
+					align-items: center;
+				}
+				.answerer {
+					top: -0.75em;
+					left: 0;
+					border-radius: 1em;
+					background: black;
+					width: 100%;
+					color: #fff;
+					font-size: 0.5em;
+				}
+				.button-mapping {
+					top: 0.2em;
+					right: 0.25em;
+					z-index: 20;
+					border-radius: 5em;
+					background: grey;
+					width: 1.5em;
+					height: 1.5em;
+					color: white;
+					font-size: 0.4em;
+				}
+
 				.group {
 					z-index: 10;
 					transition: background-color 0.3s ease;
@@ -1228,6 +1560,25 @@
 						text-wrap: initial;
 					}
 
+					&.answerer-1st {
+						animation: answerer-1st 0.3s ease infinite alternate;
+					}
+
+					&.answerer-2nd {
+						color: yellow;
+						text-shadow:
+							0px 10px 50px #aa08,
+							0px 10px 50px #aa08,
+							0px 10px 50px #aa08;
+					}
+
+					&.answerer-late {
+						text-shadow:
+							0px 10px 50px #aa08,
+							0px 10px 50px #aa08,
+							0px 10px 50px #aa08;
+					}
+
 					&.blurred {
 						filter: blur(15px);
 					}
@@ -1248,6 +1599,10 @@
 					&:focus:after {
 						display: none;
 					}
+				}
+
+				&:has(.answerer-1st) {
+					animation: answerer-1st-wrapper 0.3s ease infinite alternate;
 				}
 
 				&:hover,
@@ -1291,14 +1646,23 @@
 					flex-direction: column;
 
 					span {
+						transition: margin-top 0.3s ease;
 						box-shadow: 0 0 3px #888;
 						border-radius: 50%;
-						background-image: url('$lib/assets/trophy.png');
+						background-image: var(--trophy-image);
 						background-position: center;
 						background-size: cover;
 						background-color: #ffffffaa;
 						width: 1.375em;
 						height: 1.375em;
+					}
+
+					&:has(:nth-child(8)) span:nth-child(n + 2) {
+						margin-top: calc(-0.5 * 1.375em);
+					}
+
+					&:has(:nth-child(15)) span:nth-child(n + 2) {
+						margin-top: calc(-0.75 * 1.375em);
 					}
 				}
 
@@ -1449,11 +1813,30 @@
 		}
 	}
 
+	@keyframes answerer-1st {
+		to {
+			color: yellow;
+			text-shadow:
+				0px 10px 50px #aa08,
+				0px 10px 50px #aa08,
+				0px 10px 50px #aa08;
+		}
+	}
+
+	@keyframes answerer-1st-wrapper {
+		to {
+			scale: 1.05;
+		}
+	}
+
 	.other-menu {
 		position: fixed;
 		position-anchor: --footer;
+		display: flex;
 		right: anchor(right);
 		bottom: anchor(top);
+		flex-wrap: wrap;
+		gap: 3px;
 		box-shadow: -2px -2px 6px #666;
 		background: #eee;
 		padding: 0.5em;

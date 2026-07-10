@@ -40,7 +40,8 @@
 					box-shadow: 3px 3px 5px 3px #ccc;
 				}
 
-				&:active {
+				&:active,
+				&.active {
 					box-shadow: inset 3px 3px 5px 3px #ccc;
 				}
 			}
