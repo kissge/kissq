@@ -33,7 +33,6 @@
 	import { Rule, type Penalty, getActiveRulesText } from '$lib/rule';
 	import {
 		connectToSerialPort,
-		readFromSerialPort,
 		readLoopSerialPort,
 		reconnect,
 		type WasedashikiMode

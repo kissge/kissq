@@ -101,7 +101,9 @@ export class MaruHistoryEntry implements HistoryEntry {
 
 		if (
 			teamLife === 'alive' &&
-			team.processMaru(this.attendantID /** TODO: FIXME */, this.multiplier).teamLife === 'won'
+			team.attendantIDsPerSeat
+				.flat()
+				.some((ai) => ai != null && team.processMaru(ai, this.multiplier).teamLife === 'won')
 		) {
 			if (att.rule.transit) {
 				state.latestEvent = { type: 'transit', teamID: ti };
