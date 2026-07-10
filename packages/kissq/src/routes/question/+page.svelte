@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { csv2json } from 'json-2-csv';
 	import { onMount } from 'svelte';
+	import { flip } from 'svelte/animate';
 	import { fade } from 'svelte/transition';
 	import type { GameState } from '$lib/state';
 
@@ -15,6 +16,21 @@
 	let isKeyboardEnabled = $state(true);
 
 	let currentState = $state<GameState>();
+	let mainScreenOrder = $state<number[]>();
+	let order = $state<'added' | 'same' | 'reverse'>('added');
+
+	let orderedAttendants = $derived.by(() => {
+		switch (order) {
+			case 'added':
+				return currentState?.attendants.map((att, i) => ({ att, i }));
+			case 'same':
+				return mainScreenOrder?.map((i) => ({ att: currentState!.attendants[i], i }));
+			case 'reverse':
+				return mainScreenOrder?.map((i) => ({ att: currentState!.attendants[i], i })).reverse();
+			default:
+				order satisfies never;
+		}
+	});
 
 	let inputDialog: HTMLDialogElement;
 
@@ -35,17 +51,21 @@
 		switch (event.data.command) {
 			case 'syncState':
 				currentState = event.data.currentState;
+				mainScreenOrder = event.data.orderedAttendants;
 				break;
 		}
 	}
 
 	function processKeyboardInput(event: KeyboardEvent) {
 		if (isKeyboardEnabled) {
-			(
-				document.querySelector(
-					`button.labeled[data-label="${event.key.toUpperCase()}"]`
-				) as HTMLElement | null
-			)?.click();
+			const button = document.querySelector(
+				`button.labeled[data-label="${event.key.toUpperCase()}"]`
+			) as HTMLElement | null;
+			if (button) {
+				button.click();
+				button.classList.add('active');
+				setTimeout(() => button.classList.remove('active'), 500);
+			}
 		}
 	}
 
@@ -166,6 +186,14 @@
 			次の問題へ →
 		</button>
 		<div class="spacer"></div>
+		<div>
+			プレイヤーの表示順
+			<select bind:value={order}>
+				<option value="added">追加順</option>
+				<option value="same">画面と同じ</option>
+				<option value="reverse">画面の逆順</option>
+			</select>
+		</div>
 		<label>
 			<input type="checkbox" bind:checked={isKeyboardEnabled} />
 			キーボード操作
@@ -178,14 +206,18 @@
 			問題ウィンドウを表示・非表示
 		</button>
 	</div>
-	{#if currentState}
+	{#if currentState && orderedAttendants}
 		<div>
-			{#each currentState.attendants as att, i (i)}
-				{#if att.life !== 'removed'}
-					<div class="attendant">
+			{#each orderedAttendants as { att, i }, j (i)}
+				<div class="attendant" animate:flip={{ duration: 500 }}>
+					{#if att.life !== 'removed'}
 						{att.name || '--'}
 						{#if att.isLizhi}
-							<span class="lizhi" transition:fade>リーチ</span>
+							{#if att.isLoseLizhi}
+								<span class="lizhi" transition:fade>ダブルリーチ</span>
+							{:else}
+								<span class="lizhi" transition:fade>リーチ</span>
+							{/if}
 						{:else if att.isLoseLizhi}
 							<span class="lizhi" transition:fade>失格リーチ</span>
 						{/if}
@@ -199,21 +231,21 @@
 						{:else}
 							<button
 								class="labeled"
-								data-label={Keys[i]?.[0] || ''}
+								data-label={Keys[j]?.[0] || ''}
 								onclick={() => opener.postMessage({ command: 'clickMaru', attendantID: i })}
 							>
 								O
 							</button>
 							<button
 								class="labeled"
-								data-label={Keys[i]?.[1] || ''}
+								data-label={Keys[j]?.[1] || ''}
 								onclick={() => opener.postMessage({ command: 'clickBatsu', attendantID: i })}
 							>
 								X
 							</button>
 						{/if}
-					</div>
-				{/if}
+					{/if}
+				</div>
 			{/each}
 		</div>
 	{/if}
