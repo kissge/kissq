@@ -7,8 +7,10 @@ export class AttendantState {
 
 	constructor(
 		public name: string,
+		public attendantID: number,
 		public manualOrder: number,
 		public rule: Rule,
+		public team: TeamState | null = null,
 		public trophyCount: number = 0,
 		public totalScore: { num: number; den: number } = { num: 0, den: 0 },
 		public life: Life = 'alive',
@@ -254,7 +256,13 @@ export class AttendantState {
 	}
 
 	get isLizhi(): boolean {
-		return this.life === 'alive' && this.processMaru().life === 'won';
+		if (this.team) {
+			return (
+				this.team.teamLife === 'alive' && this.team.processMaru(this.attendantID).teamLife === 'won'
+			);
+		} else {
+			return this.life === 'alive' && this.processMaru().life === 'won';
+		}
 	}
 
 	get isLoseLizhi(): boolean {
@@ -524,8 +532,16 @@ export class GameState {
 
 	constructor(attendants: Attendant[], rules: Rule[], teams: (string | null)[] = []) {
 		this.attendants = attendants.map(
-			({ name, group, trophyCount, totalScore, manualOrder }) =>
-				new AttendantState(name, manualOrder, rules[group], trophyCount, totalScore)
+			({ name, group, trophyCount, totalScore, manualOrder }, attendantID) =>
+				new AttendantState(
+					name,
+					attendantID,
+					manualOrder,
+					rules[group],
+					null,
+					trophyCount,
+					totalScore
+				)
 		);
 		this.teams = attendants
 			.reduce<number[][][]>(
@@ -538,6 +554,13 @@ export class GameState {
 				teams.map(() => [])
 			)
 			.map((attendantIDsPerSeat) => new TeamState(attendantIDsPerSeat, this.attendants));
+
+		if (teams.length > 0) {
+			this.attendants.forEach((att) => {
+				att.team = this.teams[attendants[att.attendantID].team];
+			});
+		}
+
 		this.defaultRule = rules[0];
 		this.ranking = (
 			this.defaultRule.mode === 'aql' ||

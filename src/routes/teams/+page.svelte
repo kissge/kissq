@@ -22,7 +22,6 @@
 	import { Rule } from '$lib/rule';
 	import {
 		connectToSerialPort,
-		readFromSerialPort,
 		readLoopSerialPort,
 		reconnect,
 		type WasedashikiMode
@@ -489,6 +488,7 @@
 								<div
 									class="member"
 									style:grid-row-start={rowStart + ai}
+									class:lizhi={currentState.attendants[i].isLizhi}
 									class:lost={currentState.attendants[i].life === 'lost' ||
 										(activeRuleMode === 'aql' && batsuCount >= 2)}
 								>
@@ -865,6 +865,11 @@
 
 			&.lost {
 				opacity: 0.2;
+			}
+
+			&.lizhi {
+				box-shadow: 0 2px 2px 3px rgb(230 230 37);
+				background-color: rgba(255 255 158 / 0.5);
 			}
 
 			&:has(.answerer-1st) {
