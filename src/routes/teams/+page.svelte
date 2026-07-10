@@ -228,18 +228,20 @@
 		)
 	);
 	let attendantsPerTeam = $derived.by(() => {
-		const atts = attendants.reduce<{ att: Attendant; i: number; j: number }[][][]>(
+		const atts = attendants.reduce<({ att: Attendant; i: number; j: number }[] | undefined)[][]>(
 			(acc, att, i) => {
 				acc[att.team] ??= [];
 				acc[att.team][att.seat] ??= [];
-				acc[att.team][att.seat].push({ att, i, j: 0 });
+				acc[att.team][att.seat]!.push({ att, i, j: 0 });
 				return acc;
 			},
 			teams.map(() => [])
 		);
 
 		let j = 0;
-		atts.forEach((team) => team.forEach((seat) => seat.forEach((att) => (att.j = j++))));
+		atts.forEach((team) => team.forEach((seat) => seat!.forEach((att) => (att.j = j++))));
+
+		console.log('atts reduce', atts);
 
 		return atts;
 	});
@@ -387,6 +389,9 @@
 
 	onMount(() => {
 		const data = loadFromHash(true);
+
+		console.log('data', data);
+
 		if (data) {
 			attendants = data;
 			teams = Array.from(new Set(data.map(({ team }) => team)), () => null);
@@ -460,24 +465,22 @@
 					{#each seats as atts, si (atts?.map(({ j }) => j) ?? si)}
 						{@const rowStart = seats
 							.slice(0, si)
-							.reduce((sum, seatAtts) => sum + seatAtts.length, 1)}
+							.reduce((sum, seatAtts) => sum + (seatAtts?.length ?? 0), 1)}
 						{@const maxSeat = seats.reduce(
 							(max, atts) =>
-								Math.max(
-									max,
-									atts?.reduce((m, { att }) => Math.max(m, att.seat), 0)
-								),
+								Math.max(max, atts?.reduce((m, { att }) => Math.max(m, att.seat), 0) ?? 0),
 							0
 						)}
-						{@const batsuCount = atts?.reduce(
-							(sum, { i }) => sum + currentState.attendants[i].batsuCount,
-							0
-						)}
+						{@const batsuCount =
+							atts?.reduce((sum, { i }) => {
+								console.log(atts, currentState.attendants);
+								return sum + currentState.attendants[i].batsuCount;
+							}, 0) ?? 0}
 						<div class="grid-wrapper">
 							<div
 								class="seat-total"
 								style:grid-row={`${rowStart} / span ${atts?.length}`}
-								style:display={atts?.length > 0 && activeRuleMode === 'aql' ? '' : 'none'}
+								style:display={(atts?.length ?? 0) > 0 && activeRuleMode === 'aql' ? '' : 'none'}
 							>
 								<div>{atts?.reduce((sum, { i }) => sum + currentState.attendants[i].score, 1)}</div>
 								<div class="batsu-count">
