@@ -20,7 +20,7 @@
 		gameTitle: string;
 		battleMode: 'single' | 'team';
 		otherModeMembers: unknown;
-		wasedashikiMode: WasedashikiMode;
+		wasedashikiMode: WasedashikiMode | undefined;
 		rules: Rule[];
 		editRule: () => void;
 	} = $props();

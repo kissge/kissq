@@ -221,11 +221,23 @@ export class AttendantState {
 				++batsuCount;
 				score = Math.max(score - 1, 0); // 本当？
 
+				if (this.rule.lose !== null && score <= this.rule.lose) {
+					life = 'lost';
+				} else {
+					yasuCount = 'next';
+				}
+
 				return { maruCount, batsuCount, score, life, yasuCount };
 
 			case 'sum':
 				++batsuCount;
 				--score; // 本当？
+
+				if (this.rule.lose !== null && score <= this.rule.lose) {
+					life = 'lost';
+				} else {
+					yasuCount = 'next';
+				}
 
 				return { maruCount, batsuCount, score, life, yasuCount };
 		}

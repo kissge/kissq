@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { Rule, type Penalty } from '$lib/rule';
+	import { tooltip } from '$lib/tooltip.svelte';
 
 	let dialog: HTMLDialogElement;
 	let resolve: (result: Awaited<ReturnType<typeof open>>) => void;
@@ -8,7 +9,7 @@
 			return {
 				...rule,
 				isLoseNull: lose === null,
-				lose: lose ?? (rule.mode === 'score' ? -5 : 3),
+				lose: lose ?? -3,
 				batsuMode: typeof batsu === 'number' ? 'number' : batsu,
 				batsu: typeof batsu === 'number' ? batsu : 0,
 				isYasuPerMaruNull: yasuPerMaru === null,
@@ -75,10 +76,6 @@
 	let isValid = $derived(
 		rules.every(
 			({
-				mode,
-				lose,
-				isLoseNull,
-				batsuMode,
 				isYasuPerMaruNull,
 				yasuPerMaruMaru,
 				yasuPerMaruYasu,
@@ -86,8 +83,6 @@
 				yasuPerBatsu,
 				rouletteName
 			}) =>
-				(mode === 'survival' ? lose > 0 && !isLoseNull : true) &&
-				(mode !== 'score' && mode !== 'survival' ? batsuMode !== 'batsu' : true) &&
 				(isYasuPerMaruNull
 					? true
 					: Number.isInteger(yasuPerMaruMaru) &&
@@ -191,7 +186,7 @@
 							mode: 'aql',
 							win: 200,
 							isLoseNull: true,
-							lose: 3,
+							lose: -3,
 							maru: 1,
 							batsu: 1,
 							batsuMode: 'number',
@@ -214,7 +209,7 @@
 							mode: 'aql',
 							win: 70,
 							isLoseNull: true,
-							lose: 3,
+							lose: -3,
 							maru: 1,
 							batsu: 1,
 							batsuMode: 'number',
@@ -237,7 +232,7 @@
 							mode: 'aql',
 							win: 24,
 							isLoseNull: true,
-							lose: 3,
+							lose: -3,
 							maru: 1,
 							batsu: 1,
 							batsuMode: 'number',
@@ -260,7 +255,7 @@
 							mode: 'product',
 							win: 10,
 							isLoseNull: true,
-							lose: 3,
+							lose: -3,
 							maru: 1,
 							batsu: 1,
 							batsuMode: 'number',
@@ -283,7 +278,7 @@
 							mode: 'sum',
 							win: 10,
 							isLoseNull: true,
-							lose: 3,
+							lose: -3,
 							maru: 1,
 							batsu: 1,
 							batsuMode: 'number',
@@ -321,7 +316,9 @@
 						bind:group={activeRule.mode}
 						value="product"
 						onchange={() => {
-							/** TODO */
+							if (!activeRule.isLoseNull) {
+								activeRule.isLoseNull = true;
+							}
 						}}
 					/>
 					掛け算
@@ -332,7 +329,9 @@
 						bind:group={activeRule.mode}
 						value="aql"
 						onchange={() => {
-							/** TODO */
+							if (!activeRule.isLoseNull) {
+								activeRule.isLoseNull = true;
+							}
 						}}
 					/>
 					AQL
@@ -352,29 +351,24 @@
 					{activeRule.mode !== 'marubatsu' ? 'pts' : '○'} 以上
 				</div>
 
-				<!-- {#if activeRule.mode !== 'MbyN'}
+				{#if activeRule.mode === 'sum'}
 					<div>失格条件</div>
 					<div>
-						<label
-							{@attach tooltip(
-								activeRule.mode === 'marubatsu'
-									? '失格バツ数を正の数で入力'
-									: '失格スコアを負の数で入力'
-							)}
-						>
+						<label {@attach tooltip('失格スコアを負の数で入力')}>
 							<input type="radio" bind:group={activeRule.isLoseNull} value={false} />
+							個人
 							<input
 								type="number"
 								bind:value={activeRule.lose}
 								onfocus={() => (activeRule.isLoseNull = false)}
 							/>
-							{activeRule.mode === 'score' ? 'pts 以下' : '× 以上'}
+							点以下
 						</label>
 						<label>
 							<input type="radio" bind:group={activeRule.isLoseNull} value={true} />失格なし
 						</label>
 					</div>
-				{/if} -->
+				{/if}
 			{/if}
 
 			<!--
