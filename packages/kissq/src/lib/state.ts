@@ -223,7 +223,15 @@ export class AttendantState {
 
 			case 'product':
 				++batsuCount;
-				score = Math.max(score - 1, 0); // 本当？
+				score = Math.max(
+					score +
+						(this.rule.batsu === 'batsu'
+							? -batsuCount
+							: this.rule.batsu === 'updown'
+								? -score
+								: this.rule.batsu),
+					0
+				);
 
 				if (this.rule.lose !== null && score <= this.rule.lose) {
 					life = 'lost';
@@ -235,7 +243,12 @@ export class AttendantState {
 
 			case 'sum':
 				++batsuCount;
-				--score; // 本当？
+				score +=
+					this.rule.batsu === 'batsu'
+						? -batsuCount
+						: this.rule.batsu === 'updown'
+							? -score
+							: this.rule.batsu;
 
 				if (this.rule.lose !== null && score <= this.rule.lose) {
 					life = 'lost';

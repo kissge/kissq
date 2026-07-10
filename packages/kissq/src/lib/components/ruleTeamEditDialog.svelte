@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { Rule, type Penalty } from '$lib/rule';
-	import { tooltip } from '$lib/tooltip.svelte';
+	import { tooltipInDialog as tooltip } from '$lib/tooltip.svelte';
 
 	let dialog: HTMLDialogElement;
 	let resolve: (result: Awaited<ReturnType<typeof open>>) => void;
@@ -189,7 +189,7 @@
 							lose: -3,
 							maru: 1,
 							batsu: 1,
-							batsuMode: 'number',
+							batsuMode: 'updown',
 							transit: false,
 							isYasuPerMaruNull: true,
 							yasuPerMaruMaru: 5,
@@ -212,7 +212,7 @@
 							lose: -3,
 							maru: 1,
 							batsu: 1,
-							batsuMode: 'number',
+							batsuMode: 'updown',
 							transit: false,
 							isYasuPerMaruNull: true,
 							yasuPerMaruMaru: 5,
@@ -235,7 +235,7 @@
 							lose: -3,
 							maru: 1,
 							batsu: 1,
-							batsuMode: 'number',
+							batsuMode: 'updown',
 							transit: false,
 							isYasuPerMaruNull: true,
 							yasuPerMaruMaru: 5,
@@ -257,7 +257,7 @@
 							isLoseNull: true,
 							lose: -3,
 							maru: 1,
-							batsu: 1,
+							batsu: -1,
 							batsuMode: 'number',
 							transit: false,
 							isYasuPerMaruNull: true,
@@ -280,7 +280,7 @@
 							isLoseNull: true,
 							lose: -3,
 							maru: 1,
-							batsu: 1,
+							batsu: -1,
 							batsuMode: 'number',
 							transit: false,
 							isYasuPerMaruNull: true,
@@ -300,14 +300,7 @@
 			<div>モード</div>
 			<div>
 				<label>
-					<input
-						type="radio"
-						bind:group={activeRule.mode}
-						value="sum"
-						onchange={() => {
-							/** TODO */
-						}}
-					/>
+					<input type="radio" bind:group={activeRule.mode} value="sum" />
 					足し算
 				</label>
 				<label>
@@ -332,6 +325,10 @@
 							if (!activeRule.isLoseNull) {
 								activeRule.isLoseNull = true;
 							}
+
+							if (activeRule.batsuMode !== 'updown') {
+								activeRule.batsuMode = 'updown';
+							}
 						}}
 					/>
 					AQL
@@ -340,6 +337,7 @@
 
 			<div>勝利条件</div>
 			<div>
+				チーム
 				<input type="number" bind:value={activeRule.win} min="1" />
 				点以上
 			</div>
@@ -365,6 +363,7 @@
 
 			<div>1問正解で</div>
 			<div>
+				個人
 				<input type="number" bind:value={activeRule.maru} />
 				点獲得できる
 
@@ -378,7 +377,7 @@
 						onfocus={() => (activeRule.isYasuPerMaruNull = false)}
 						min="1"
 					/>
-					○ごとに
+					○ごとに個人
 					<input
 						type="number"
 						bind:value={activeRule.yasuPerMaruYasu}
@@ -391,24 +390,19 @@
 					なし
 				</label>
 			</div>
-			<!--
 
 			<div>1問誤答で</div>
 			<div>
-				<label
-					{@attach tooltip(
-						activeRule.mode === 'score' || activeRule.mode === 'survival'
-							? '失ってしまうスコアを負の数で入力'
-							: '獲得してしまうバツ数を正の数で入力'
-					)}
-				>
+				<label {@attach tooltip('失ってしまうスコアを負の数で入力')}>
 					<input type="radio" bind:group={activeRule.batsuMode} value="number" />
+					個人
 					<input
 						type="number"
 						bind:value={activeRule.batsu}
 						onfocus={() => (activeRule.batsuMode = 'number')}
+						disabled={activeRule.mode === 'aql'}
 					/>
-					{activeRule.mode === 'score' || activeRule.mode === 'survival' ? 'pts' : '×'} 獲得してしまう
+					点獲得してしまう
 				</label>
 				<br />
 				<label>
@@ -416,25 +410,21 @@
 						type="radio"
 						bind:group={activeRule.batsuMode}
 						value="batsu"
-						disabled={!(activeRule.mode === 'score' || activeRule.mode === 'survival')}
+						disabled={activeRule.mode === 'aql'}
 					/>
-					N回目の誤答で -N pts 獲得してしまう
+					N回目の誤答で個人 -N 点獲得してしまう
 				</label>
 				<br />
 				<label>
-					<input
-						type="radio"
-						bind:group={activeRule.batsuMode}
-						value="updown"
-						disabled={activeRule.mode !== 'marubatsu'}
-					/>
-					マル数がゼロにリセットされてしまう
+					<input type="radio" bind:group={activeRule.batsuMode} value="updown" />
+					個人スコアがゼロにリセットされてしまう
 				</label>
 
 				<hr />
 
 				<label>
 					<input type="radio" bind:group={activeRule.yasuMode} value="constant" />
+					個人
 					<input
 						type="number"
 						bind:value={activeRule.yasuPerBatsu}
@@ -451,7 +441,7 @@
 						value="maru"
 						disabled={activeRule.mode === 'score'}
 					/>
-					（現在のマル数）×
+					個人（現在のマル数）×
 					<input
 						type="number"
 						bind:value={activeRule.yasuPerBatsu}
@@ -467,7 +457,7 @@
 						value="batsu"
 						disabled={activeRule.mode === 'score'}
 					/>
-					N回目の誤答で
+					N回目の誤答で個人
 					<input
 						type="number"
 						bind:value={activeRule.yasuPerBatsu}
@@ -475,6 +465,7 @@
 						min="1"
 					/>N問休み
 				</label>
+				<!--
 				<br />
 				<label>
 					<input type="radio" bind:group={activeRule.yasuMode} value="roulette" />
@@ -489,8 +480,9 @@
 						<span class="error">休みの倍数は1以上の整数で設定してください</span>
 					{/if}
 				{/if}
+				-->
 			</div>
-
+			<!--
 			{#if activeRule.yasuMode === 'roulette'}
 				<div transition:fade>ルーレット</div>
 				<div transition:fade>
