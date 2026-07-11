@@ -456,7 +456,6 @@
 	<div
 		class="attendants"
 		style:height={`calc(100vh - ${headerClientHeight + footerClientHeight}px - 30px)`}
-		style:grid-template-columns={`repeat(${Math.min(3, teams.length)}, auto)`}
 	>
 		{#each attendantsPerTeam as seats, ti (ti)}
 			<div class="team" class:lizhi={/** TODO */ false}>
@@ -788,7 +787,9 @@
 
 <style>
 	.attendants {
-		display: grid;
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: space-between;
 		gap: 1em;
 		user-select: none;
 
@@ -807,6 +808,7 @@
 		grid-template-rows: 2em 1fr;
 		grid-template-columns: 2em minmax(0, 1fr) 2em;
 		row-gap: 0.25em;
+		flex: 1 1 360px;
 		backdrop-filter: blur(10px);
 		transition:
 			background-color 0.3s ease,
