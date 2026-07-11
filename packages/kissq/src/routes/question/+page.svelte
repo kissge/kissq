@@ -374,6 +374,7 @@
 
 	main {
 		flex-grow: 1;
+		background: white;
 		overflow: auto;
 
 		table {
