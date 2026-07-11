@@ -71,7 +71,7 @@
 	let rules = $state<EditingRule[]>([]);
 	let activeTab = $state(0);
 	let activeRule = $derived(rules[activeTab]);
-	// let activeRules = $derived(rules.flatMap((rule, i) => (rule.isRemoved ? [] : { rule, i })));
+	let activeRules = $derived(rules.flatMap((rule, i) => (rule.isRemoved ? [] : { rule, i })));
 
 	let isValid = $derived(
 		rules.every(
@@ -125,11 +125,25 @@
 			)
 		);
 	}
+
+	function copyRule() {
+		rules.forEach((rule) => {
+			rule.mode = activeRule.mode;
+			rule.win = activeRule.win;
+
+			if (activeRule.mode === 'aql') {
+				rule.isLoseNull = activeRule.isLoseNull;
+				rule.batsuMode = activeRule.batsuMode;
+			} else if (activeRule.mode === 'product') {
+				rule.isLoseNull = true;
+			}
+		});
+	}
 </script>
 
 <dialog bind:this={dialog}>
 	{#if rules.length > 0}
-		<!-- <div class="tabbar">
+		<div class="tabbar">
 			<div class="tab button" inert></div>
 			{#each activeRules as { i } (i)}
 				<button
@@ -142,12 +156,11 @@
 							: `${String.fromCodePoint(65 + i)}グループのプレイヤーに適用されるルールを編集します。`
 					)}
 				>
-					{activeRules.length === 1 ? '全員' : String.fromCodePoint(65 + i)}
+					{activeRules.length === 1 ? '全員' : i === 0 ? 'A / 全員' : String.fromCodePoint(65 + i)}
 				</button>
 			{/each}
 			<button
 				class="tab button"
-				disabled
 				onclick={() => {
 					rules.push({ ...activeRules.at(-1)!.rule });
 					activeTab = activeRules.at(-1)!.i;
@@ -175,172 +188,183 @@
 					{String.fromCodePoint(65 + activeTab)}グループを削除
 				</button>
 			</div>
-		{/if} -->
+		{/if}
 
 		<div class="table">
-			<div style="margin: 2rem 0">定番</div>
-			<div style="margin: 2rem 0" class="presets">
-				<button
-					onclick={() => {
-						rules[activeTab] = {
-							mode: 'aql',
-							win: 200,
-							isLoseNull: true,
-							lose: -3,
-							maru: 1,
-							batsu: 1,
-							batsuMode: 'updown',
-							transit: false,
-							isYasuPerMaruNull: true,
-							yasuPerMaruMaru: 5,
-							yasuPerMaruYasu: 5,
-							yasuMode: 'constant',
-							yasuPerBatsu: 0,
-							rouletteName: null,
-							isRemoved: false
-						};
-					}}
-				>
-					AQL（5枠）
-				</button>
-				<button
-					onclick={() => {
-						rules[activeTab] = {
-							mode: 'aql',
-							win: 70,
-							isLoseNull: true,
-							lose: -3,
-							maru: 1,
-							batsu: 1,
-							batsuMode: 'updown',
-							transit: false,
-							isYasuPerMaruNull: true,
-							yasuPerMaruMaru: 5,
-							yasuPerMaruYasu: 5,
-							yasuMode: 'constant',
-							yasuPerBatsu: 0,
-							rouletteName: null,
-							isRemoved: false
-						};
-					}}
-				>
-					AQL（4枠）
-				</button>
-				<button
-					onclick={() => {
-						rules[activeTab] = {
-							mode: 'aql',
-							win: 24,
-							isLoseNull: true,
-							lose: -3,
-							maru: 1,
-							batsu: 1,
-							batsuMode: 'updown',
-							transit: false,
-							isYasuPerMaruNull: true,
-							yasuPerMaruMaru: 5,
-							yasuPerMaruYasu: 5,
-							yasuMode: 'constant',
-							yasuPerBatsu: 0,
-							rouletteName: null,
-							isRemoved: false
-						};
-					}}
-				>
-					AQL（3枠）
-				</button>
-				<button
-					onclick={() => {
-						rules[activeTab] = {
-							mode: 'product',
-							win: 10,
-							isLoseNull: true,
-							lose: -3,
-							maru: 1,
-							batsu: -1,
-							batsuMode: 'number',
-							transit: false,
-							isYasuPerMaruNull: true,
-							yasuPerMaruMaru: 5,
-							yasuPerMaruYasu: 5,
-							yasuMode: 'constant',
-							yasuPerBatsu: 0,
-							rouletteName: null,
-							isRemoved: false
-						};
-					}}
-				>
-					掛けて10
-				</button>
-				<button
-					onclick={() => {
-						rules[activeTab] = {
-							mode: 'sum',
-							win: 10,
-							isLoseNull: true,
-							lose: -3,
-							maru: 1,
-							batsu: -1,
-							batsuMode: 'number',
-							transit: false,
-							isYasuPerMaruNull: true,
-							yasuPerMaruMaru: 5,
-							yasuPerMaruYasu: 5,
-							yasuMode: 'constant',
-							yasuPerBatsu: 0,
-							rouletteName: null,
-							isRemoved: false
-						};
-					}}
-				>
-					足して10
-				</button>
-			</div>
-
-			<div>モード</div>
-			<div>
-				<label>
-					<input type="radio" bind:group={activeRule.mode} value="sum" />
-					足し算
-				</label>
-				<label>
-					<input
-						type="radio"
-						bind:group={activeRule.mode}
-						value="product"
-						onchange={() => {
-							if (!activeRule.isLoseNull) {
-								activeRule.isLoseNull = true;
-							}
+			{#if activeTab === 0}
+				<div style="margin: 2rem 0">定番</div>
+				<div style="margin: 2rem 0" class="presets">
+					<button
+						onclick={() => {
+							rules[activeTab] = {
+								mode: 'aql',
+								win: 200,
+								isLoseNull: true,
+								lose: -3,
+								maru: 1,
+								batsu: 1,
+								batsuMode: 'updown',
+								transit: false,
+								isYasuPerMaruNull: true,
+								yasuPerMaruMaru: 5,
+								yasuPerMaruYasu: 5,
+								yasuMode: 'constant',
+								yasuPerBatsu: 0,
+								rouletteName: null,
+								isRemoved: false
+							};
+							copyRule();
 						}}
-					/>
-					掛け算
-				</label>
-				<label>
-					<input
-						type="radio"
-						bind:group={activeRule.mode}
-						value="aql"
-						onchange={() => {
-							if (!activeRule.isLoseNull) {
-								activeRule.isLoseNull = true;
-							}
-
-							if (activeRule.batsuMode !== 'updown') {
-								activeRule.batsuMode = 'updown';
-							}
+					>
+						AQL（5枠）
+					</button>
+					<button
+						onclick={() => {
+							rules[activeTab] = {
+								mode: 'aql',
+								win: 70,
+								isLoseNull: true,
+								lose: -3,
+								maru: 1,
+								batsu: 1,
+								batsuMode: 'updown',
+								transit: false,
+								isYasuPerMaruNull: true,
+								yasuPerMaruMaru: 5,
+								yasuPerMaruYasu: 5,
+								yasuMode: 'constant',
+								yasuPerBatsu: 0,
+								rouletteName: null,
+								isRemoved: false
+							};
+							copyRule();
 						}}
-					/>
-					AQL
-				</label>
-			</div>
+					>
+						AQL（4枠）
+					</button>
+					<button
+						onclick={() => {
+							rules[activeTab] = {
+								mode: 'aql',
+								win: 24,
+								isLoseNull: true,
+								lose: -3,
+								maru: 1,
+								batsu: 1,
+								batsuMode: 'updown',
+								transit: false,
+								isYasuPerMaruNull: true,
+								yasuPerMaruMaru: 5,
+								yasuPerMaruYasu: 5,
+								yasuMode: 'constant',
+								yasuPerBatsu: 0,
+								rouletteName: null,
+								isRemoved: false
+							};
+							copyRule();
+						}}
+					>
+						AQL（3枠）
+					</button>
+					<button
+						onclick={() => {
+							rules[activeTab] = {
+								mode: 'product',
+								win: 10,
+								isLoseNull: true,
+								lose: -3,
+								maru: 1,
+								batsu: -1,
+								batsuMode: 'number',
+								transit: false,
+								isYasuPerMaruNull: true,
+								yasuPerMaruMaru: 5,
+								yasuPerMaruYasu: 5,
+								yasuMode: 'constant',
+								yasuPerBatsu: 0,
+								rouletteName: null,
+								isRemoved: false
+							};
+							copyRule();
+						}}
+					>
+						掛けて10
+					</button>
+					<button
+						onclick={() => {
+							rules[activeTab] = {
+								mode: 'sum',
+								win: 10,
+								isLoseNull: true,
+								lose: -3,
+								maru: 1,
+								batsu: -1,
+								batsuMode: 'number',
+								transit: false,
+								isYasuPerMaruNull: true,
+								yasuPerMaruMaru: 5,
+								yasuPerMaruYasu: 5,
+								yasuMode: 'constant',
+								yasuPerBatsu: 0,
+								rouletteName: null,
+								isRemoved: false
+							};
+							copyRule();
+						}}
+					>
+						足して10
+					</button>
+				</div>
 
-			<div>勝利条件</div>
-			<div>
-				チーム
-				<input type="number" bind:value={activeRule.win} min="1" />
-				点以上
-			</div>
+				<div>モード</div>
+				<div>
+					<label>
+						<input type="radio" bind:group={activeRule.mode} value="sum" onchange={copyRule} />
+						足し算
+					</label>
+					<label>
+						<input
+							type="radio"
+							bind:group={activeRule.mode}
+							value="product"
+							onchange={() => {
+								if (!activeRule.isLoseNull) {
+									activeRule.isLoseNull = true;
+								}
+
+								copyRule();
+							}}
+						/>
+						掛け算
+					</label>
+					<label>
+						<input
+							type="radio"
+							bind:group={activeRule.mode}
+							value="aql"
+							onchange={() => {
+								if (!activeRule.isLoseNull) {
+									activeRule.isLoseNull = true;
+								}
+
+								if (activeRule.batsuMode !== 'updown') {
+									activeRule.batsuMode = 'updown';
+								}
+
+								copyRule();
+							}}
+						/>
+						AQL
+					</label>
+				</div>
+
+				<div>勝利条件</div>
+				<div>
+					チーム
+					<input type="number" bind:value={activeRule.win} min="1" />
+					点以上
+				</div>
+			{/if}
 
 			{#if activeRule.mode === 'sum'}
 				<div>失格条件</div>
@@ -518,7 +542,7 @@
 			grid-template-rows: auto auto 1fr auto;
 		}
 	}
-	/*
+
 	.tabbar {
 		display: flex;
 		margin-bottom: 1em;
@@ -573,7 +597,7 @@
 		button:not([disabled]) {
 			background-color: rgb(255 129 129);
 		}
-	} */
+	}
 
 	.table {
 		overflow-y: auto;

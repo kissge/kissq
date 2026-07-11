@@ -19,7 +19,7 @@
 		ThroughHistoryEntry,
 		type HistoryEntry
 	} from '$lib/historyEntry';
-	import { Rule } from '$lib/rule';
+	import { getActiveRulesText, Rule } from '$lib/rule';
 	import {
 		connectToSerialPort,
 		readLoopSerialPort,
@@ -219,6 +219,7 @@
 	let teams = $state<(string | null)[]>([null, null]);
 
 	let rules = $state([new Rule('aql', 200, null, 1, 'updown', false, null, 'constant', 0, null)]);
+	let { activeRules } = $derived(getActiveRulesText(rules));
 
 	let history = $state<HistoryEntry[]>([]);
 	let currentState = $derived(
@@ -513,6 +514,24 @@
 										</select>
 									</div>
 									<div>
+										{#if activeRules.length > 1}
+											<button
+												class="group"
+												style:background-color={`hsl(${(360 / rules.length) * attendants[i].group}, 70%, 40%)`}
+												onclick={() => {
+													do {
+														attendants[i].group = (attendants[i].group + 1) % rules.length;
+													} while (rules[attendants[i].group].isRemoved);
+												}}
+												{@attach tooltip('このプレイヤーの所属ルールグループを変更します。')}
+											>
+												{#key attendants[i].group}
+													<span class="crossfade" in:fade={{ delay: 500 }} out:fade>
+														{String.fromCodePoint(65 + attendants[i].group)}
+													</span>
+												{/key}
+											</button>
+										{/if}
 										<button
 											class="button-mapping"
 											style={buttonMapping[i] == null
@@ -923,6 +942,12 @@
 				height: 2.5em;
 				color: white;
 				font-size: 0.4em;
+			}
+
+			.group {
+				z-index: 10;
+				transition: background-color 0.3s ease;
+				color: white;
 			}
 
 			.name {
