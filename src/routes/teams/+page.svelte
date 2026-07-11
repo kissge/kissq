@@ -438,7 +438,7 @@
 	});
 </script>
 
-<main>
+<main class="main">
 	<Header
 		bind:headerClientHeight
 		questionCount={currentState.questionCount}

@@ -141,7 +141,7 @@
 			}
 		}
 
-		main {
+		main.main {
 			display: grid;
 			grid-template-rows: auto 1fr auto;
 			flex: 1 0 100dvh;
