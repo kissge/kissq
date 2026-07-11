@@ -41,7 +41,12 @@
 		{/key}
 	</div>
 	<h1>
-		<span contenteditable class="editable-title" bind:textContent={gameTitle}></span>
+		<span
+			contenteditable
+			class="editable-title"
+			bind:textContent={gameTitle}
+			{@attach tooltip('クリックでゲームのタイトルを設定')}
+		></span>
 		{#if battleMode === 'single'}
 			<a
 				href="./teams#{encodeURIComponent(JSON.stringify(otherModeMembers))}"
