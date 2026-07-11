@@ -281,6 +281,17 @@
 				});
 			}
 
+			if (result[0].mode !== 'aql') {
+				attendantsPerTeam.forEach((team) => {
+					let seatCount = 0;
+					team.forEach((seat) => {
+						seat?.forEach((att) => {
+							att.att.seat = seatCount++;
+						});
+					});
+				});
+			}
+
 			// showMarubatsuOverride = false;
 			// showScore = true;
 		}
