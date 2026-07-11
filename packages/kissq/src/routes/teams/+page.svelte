@@ -27,7 +27,7 @@
 		type WasedashikiMode
 	} from '$lib/serial';
 	import { playSound } from '$lib/sound';
-	import { GameState, type GameEvent } from '$lib/state';
+	import { AttendantState, GameState, type GameEvent } from '$lib/state';
 	import { tooltip } from '$lib/tooltip.svelte';
 
 	let headerClientHeight = $state(0);
@@ -228,11 +228,16 @@
 		)
 	);
 	let attendantsPerTeam = $derived.by(() => {
-		const atts = attendants.reduce<({ att: Attendant; i: number; j: number }[] | undefined)[][]>(
+		const atts = attendants.reduce<
+			({ att: Attendant; state: AttendantState; i: number; j: number }[] | undefined)[][]
+		>(
 			(acc, att, i) => {
+				const stateAtt = currentState.attendants[i];
+				if (!stateAtt) return acc;
+
 				acc[att.team] ??= [];
 				acc[att.team][att.seat] ??= [];
-				acc[att.team][att.seat]!.push({ att, i, j: 0 });
+				acc[att.team][att.seat]!.push({ att, state: stateAtt, i, j: 0 });
 				return acc;
 			},
 			teams.map(() => [])
@@ -240,8 +245,6 @@
 
 		let j = 0;
 		atts.forEach((team) => team.forEach((seat) => seat!.forEach((att) => (att.j = j++))));
-
-		console.log('atts reduce', atts);
 
 		return atts;
 	});
@@ -329,7 +332,7 @@
 	}
 
 	function clearHistory() {
-		attendants = attendants.filter((_, i) => currentState.attendants[i].life !== 'removed');
+		attendants = attendants.filter((_, i) => currentState.attendants[i]?.life !== 'removed');
 		history = [];
 	}
 
@@ -390,11 +393,15 @@
 	onMount(() => {
 		const data = loadFromHash(true);
 
-		console.log('data', data);
-
 		if (data) {
 			attendants = data;
+
 			teams = Array.from(new Set(data.map(({ team }) => team)), () => null);
+			data.forEach(({ buttonID }, i) => {
+				if (buttonID != null) {
+					buttonMapping[i] = buttonID;
+				}
+			});
 		}
 
 		reconnect()
@@ -437,7 +444,9 @@
 		questionCount={currentState.questionCount}
 		{gameTitle}
 		battleMode="team"
-		otherModeMembers={attendants.map(({ name }) => name)}
+		otherModeMembers={Object.keys(buttonMapping).length > 0
+			? attendants.map(({ name }, i) => [name, buttonMapping[i]])
+			: attendants.map(({ name }) => name)}
 		{wasedashikiMode}
 		{rules}
 		{editRule}
@@ -471,24 +480,20 @@
 								Math.max(max, atts?.reduce((m, { att }) => Math.max(m, att.seat), 0) ?? 0),
 							0
 						)}
-						{@const batsuCount =
-							atts?.reduce((sum, { i }) => {
-								console.log(atts, currentState.attendants);
-								return sum + currentState.attendants[i].batsuCount;
-							}, 0) ?? 0}
+						{@const batsuCount = atts?.reduce((sum, { state }) => sum + state.batsuCount, 0) ?? 0}
 						<div class="grid-wrapper">
 							<div
 								class="seat-total"
 								style:grid-row={`${rowStart} / span ${atts?.length}`}
 								style:display={(atts?.length ?? 0) > 0 && activeRuleMode === 'aql' ? '' : 'none'}
 							>
-								<div>{atts?.reduce((sum, { i }) => sum + currentState.attendants[i].score, 1)}</div>
+								<div>{atts?.reduce((sum, { state }) => sum + state.score, 1)}</div>
 								<div class="batsu-count">
 									{'✕'.repeat(batsuCount)}
 								</div>
 							</div>
-							{#each atts?.filter(({ i }) => currentState.attendants[i].life !== 'removed') as { att, i }, ai (ai)}
-								{@const sAtt = currentState.attendants[i]}
+							{#each atts?.filter(({ state }) => state.life !== 'removed') as { att, state, i }, ai (ai)}
+								{@const sAtt = state}
 								<div
 									class="member"
 									style:grid-row-start={rowStart + ai}
@@ -519,8 +524,9 @@
 														: 13 <= buttonMapping[i] && buttonMapping[i] <= 18
 															? 'background-color: yellow; color: black'
 															: 'background-color: green; color: white'}
-											style:display={lastButtonID === undefined ? 'none' : ''}
-											disabled={lastButtonID === undefined}
+											style:display={Object.keys(buttonMapping).length === 0 ? 'none' : ''}
+											disabled={Object.keys(buttonMapping).length === 0 ||
+												lastButtonID == undefined}
 											{@attach tooltip(
 												`このプレイヤーが持っているボタンは${buttonMapping[i] == null ? '???' : buttonMapping[i]}番です。クリックで紐づけ`
 											)}
