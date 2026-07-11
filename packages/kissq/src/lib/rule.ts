@@ -110,13 +110,52 @@ export class Rule {
 				break;
 
 			case 'aql':
-				return `AQL（${this.win}点先取）`;
+				str = `AQL（${this.win}点先取）`;
+
+				if (this.maru !== 1) {
+					str += `、正解+${this.maru}点`;
+				}
+				break;
 
 			case 'product':
-				return `掛けて${this.win}点先取`;
+				str = `掛けて${this.win}点先取`;
+
+				if (this.maru !== 1) {
+					str += `、正解+${this.maru}点`;
+				}
+
+				if (this.batsu === 'batsu') {
+					str += `、N回目の誤答で-N点`;
+				} else if (this.batsu === 'updown') {
+					// dummy
+					str += `、誤答でゼロ○に`;
+				} else if (this.batsu < 0 && this.batsu !== -1) {
+					str += `、誤答${this.batsu}点`;
+				}
+
+				break;
 
 			case 'sum':
-				return `足して${this.win}点先取`;
+				str = `足して${this.win}点先取`;
+
+				if (this.lose !== null) {
+					str += `、${this.lose}点で失格`;
+				}
+
+				if (this.maru !== 1) {
+					str += `、正解+${this.maru}点`;
+				}
+
+				if (this.batsu === 'batsu') {
+					str += `、N回目の誤答で-N点`;
+				} else if (this.batsu === 'updown') {
+					// dummy
+					str += `、誤答でゼロ○に`;
+				} else if (this.batsu < 0 && this.batsu !== -1) {
+					str += `、誤答${this.batsu}点`;
+				}
+
+				break;
 
 			default:
 				this.mode satisfies never;
