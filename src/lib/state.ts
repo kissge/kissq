@@ -559,7 +559,7 @@ export class GameState {
 	ranking: number[] = [];
 	latestEvent: GameEvent | null = null;
 
-	constructor(attendants: Attendant[], rules: Rule[], teams: (string | null)[] = []) {
+	constructor(attendants: Attendant[], rules: Rule[], teams: string[] = []) {
 		this.attendants = attendants.map(
 			({ name, group, trophyCount, totalScore, manualOrder }, attendantID) =>
 				new AttendantState(

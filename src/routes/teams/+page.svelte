@@ -216,7 +216,7 @@
 			manualOrder: 0
 		}
 	]);
-	let teams = $state<(string | null)[]>([null, null]);
+	let teams = $state(['', '']);
 
 	let rules = $state([new Rule('aql', 200, null, 1, 'updown', false, null, 'constant', 0, null)]);
 	let { activeRules } = $derived(getActiveRulesText(rules, 'team'));
@@ -266,20 +266,20 @@
 				clearHistory();
 			}
 
-			// const activeRuleCount = result.filter(({ isRemoved }) => !isRemoved).length;
-			// if (activeRuleCount === 1) {
-			// 	rules = result.filter(({ isRemoved }) => !isRemoved);
-			// 	attendants.forEach((att) => {
-			// 		att.group = 0;
-			// 	});
-			// } else {
-			rules = result;
-			// 	attendants.forEach((att) => {
-			// 		while (rules[att.group].isRemoved) {
-			// 			att.group = (att.group - 1 + rules.length) % rules.length;
-			// 		}
-			// 	});
-			// }
+			const activeRuleCount = result.filter(({ isRemoved }) => !isRemoved).length;
+			if (activeRuleCount === 1) {
+				rules = result.filter(({ isRemoved }) => !isRemoved);
+				attendants.forEach((att) => {
+					att.group = 0;
+				});
+			} else {
+				rules = result;
+				attendants.forEach((att) => {
+					while (rules[att.group].isRemoved) {
+						att.group = (att.group - 1 + rules.length) % rules.length;
+					}
+				});
+			}
 
 			// showMarubatsuOverride = false;
 			// showScore = true;
@@ -397,7 +397,7 @@
 		if (data) {
 			attendants = data;
 
-			teams = Array.from(new Set(data.map(({ team }) => team)), () => null);
+			teams = Array.from(new Set(data.map(({ team }) => team)), () => '');
 			data.forEach(({ buttonID }, i) => {
 				if (buttonID != null) {
 					buttonMapping[i] = buttonID;
@@ -679,7 +679,7 @@
 		</button>
 		<button
 			onclick={() => {
-				teams.push(null);
+				teams.push('');
 				attendants.push({
 					name: '',
 					group: 0,
@@ -720,6 +720,33 @@
 		role="menu"
 		tabindex="-1"
 	>
+		<button
+			onclick={() => {
+				if (
+					confirm(
+						'プレイヤーリストを空にした上で、初期状態にリセットしますか？\nこの操作は元に戻せません。'
+					)
+				) {
+					history = [];
+					attendants = [
+						{
+							name: '',
+							group: 0,
+							team: 0,
+							seat: 0,
+							trophyCount: 0,
+							totalScore: { num: 0, den: 0 },
+							manualOrder: 0
+						}
+					];
+					teams = [''];
+					buttonMapping = {};
+					answerers = [];
+					lastButtonID = undefined;
+				}
+			}}
+			{@attach tooltip('全員の名前・チーム・枠・スコアをリセットします。')}>全削除</button
+		>
 		<button
 			onclick={() => (playSounds = !playSounds)}
 			{@attach tooltip('効果音のオンオフを切り替えます')}

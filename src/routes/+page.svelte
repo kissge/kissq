@@ -1196,6 +1196,9 @@
 				) {
 					attendants = [];
 					history = [];
+					buttonMapping = {};
+					answerers = [];
+					lastButtonID = undefined;
 				}
 			}}
 			disabled={attendants.length === 0}
