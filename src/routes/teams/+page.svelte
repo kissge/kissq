@@ -219,7 +219,7 @@
 	let teams = $state<(string | null)[]>([null, null]);
 
 	let rules = $state([new Rule('aql', 200, null, 1, 'updown', false, null, 'constant', 0, null)]);
-	let { activeRules } = $derived(getActiveRulesText(rules));
+	let { activeRules } = $derived(getActiveRulesText(rules, 'team'));
 
 	let history = $state<HistoryEntry[]>([]);
 	let currentState = $derived(

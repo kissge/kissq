@@ -72,7 +72,7 @@
 			new GameState(attendants, rules).updateRanking()
 		)
 	);
-	let { activeRules, activeRulesText } = $derived(getActiveRulesText(rules));
+	let { activeRules, activeRulesText } = $derived(getActiveRulesText(rules, 'single'));
 	let gameTitle = $state('');
 
 	let innerWidth = $state(0);
