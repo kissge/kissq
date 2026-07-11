@@ -28,7 +28,7 @@
 	// svelte-ignore non_reactive_update ...?
 	let helpDialog: { open: () => void };
 
-	let { activeRulesText } = $derived(getActiveRulesText(rules));
+	let { activeRulesText } = $derived(getActiveRulesText(rules, battleMode));
 </script>
 
 <header bind:clientHeight={headerClientHeight}>

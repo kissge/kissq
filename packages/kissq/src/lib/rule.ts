@@ -196,7 +196,10 @@ export class Rule {
 	}
 }
 
-export function getActiveRulesText(rules: Rule[]): {
+export function getActiveRulesText(
+	rules: Rule[],
+	battleMode: 'single' | 'team'
+): {
 	activeRules: { rule: Rule; i: number }[];
 	activeRulesText: string;
 } {
@@ -221,11 +224,15 @@ export function getActiveRulesText(rules: Rule[]): {
 				},
 				[{ start: activeRules[0].i, end: activeRules[0].i, text: String(activeRules[0].rule) }]
 			)
-			.map(({ start, end, text }) =>
-				start === end
+			.map(({ start, end, text }) => {
+				if (battleMode === 'team' && start > 0) {
+					text = text.split('、').slice(1).join('、');
+				}
+
+				return start === end
 					? String.fromCodePoint(65 + start) + ': ' + text
-					: String.fromCodePoint(65 + start) + '–' + String.fromCodePoint(65 + end) + ': ' + text
-			)
+					: String.fromCodePoint(65 + start) + '–' + String.fromCodePoint(65 + end) + ': ' + text;
+			})
 			.join(' / ')
 	};
 }
