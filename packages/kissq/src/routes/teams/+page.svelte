@@ -229,16 +229,11 @@
 		)
 	);
 	let attendantsPerTeam = $derived.by(() => {
-		const atts = attendants.reduce<
-			({ att: Attendant; state: AttendantState; i: number; j: number }[] | undefined)[][]
-		>(
+		const atts = attendants.reduce<({ att: Attendant; i: number; j: number }[] | undefined)[][]>(
 			(acc, att, i) => {
-				const stateAtt = currentState.attendants[i];
-				if (!stateAtt) return acc;
-
 				acc[att.team] ??= [];
 				acc[att.team][att.seat] ??= [];
-				acc[att.team][att.seat]!.push({ att, state: stateAtt, i, j: 0 });
+				acc[att.team][att.seat]!.push({ att, i, j: 0 });
 				return acc;
 			},
 			teams.map(() => [])
@@ -516,152 +511,163 @@
 								Math.max(max, atts?.reduce((m, { att }) => Math.max(m, att.seat), 0) ?? 0),
 							0
 						)}
-						{@const batsuCount = atts?.reduce((sum, { state }) => sum + state.batsuCount, 0) ?? 0}
+						{@const batsuCount =
+							atts?.reduce(
+								(sum, { i }) => sum + (currentState.attendants[i]?.batsuCount ?? 0),
+								0
+							) ?? 0}
 						<div class="grid-wrapper">
 							<div
 								class="seat-total"
 								style:grid-row={`${rowStart} / span ${atts?.length}`}
 								style:display={(atts?.length ?? 0) > 0 && activeRuleMode === 'aql' ? '' : 'none'}
 							>
-								<div>{atts?.reduce((sum, { state }) => sum + state.score, 1)}</div>
+								<div>
+									{atts?.reduce((sum, { i }) => sum + (currentState.attendants[i]?.score ?? 0), 1)}
+								</div>
 								<div class="batsu-count">
 									{'✕'.repeat(batsuCount)}
 								</div>
 							</div>
-							{#each atts?.filter(({ state }) => state.life !== 'removed') as { att, state, i }, ai (ai)}
-								{@const sAtt = state}
-								<div
-									class="member"
-									style:grid-row-start={rowStart + ai}
-									class:lizhi={sAtt.isLizhi}
-									class:yasu={sAtt.yasuDisplay > 0}
-									class:lost={sAtt.life === 'lost' || (activeRuleMode === 'aql' && batsuCount >= 2)}
-								>
+							{#each atts?.filter(({ i }) => currentState.attendants[i]?.life !== 'removed') as { att, i }, ai (ai)}
+								{@const sAtt: AttendantState | undefined = currentState.attendants[i]}
+								{#if sAtt}
 									<div
-										class="seat"
-										style:display={activeRuleMode === 'aql' ? '' : 'none'}
-										{@attach tooltip('枠を変更します。')}
+										class="member"
+										style:grid-row-start={rowStart + ai}
+										class:lizhi={sAtt.isLizhi}
+										class:yasu={sAtt.yasuDisplay > 0}
+										class:lost={sAtt.life === 'lost' ||
+											(activeRuleMode === 'aql' && batsuCount >= 2)}
 									>
-										<select bind:value={attendants[i].seat}>
-											{#each Array.from({ length: maxSeat + 2 }, (_, si) => si) as si (si)}
-												<option value={si}>{si + 1}</option>
-											{/each}
-										</select>
-									</div>
-									<div>
-										{#if activeRules.length > 1}
-											<button
-												class="group"
-												style:background-color={`hsl(${(360 / rules.length) * attendants[i].group}, 70%, 40%)`}
-												onclick={() => {
-													do {
-														attendants[i].group = (attendants[i].group + 1) % rules.length;
-													} while (rules[attendants[i].group].isRemoved);
-												}}
-												{@attach tooltip('このプレイヤーの所属ルールグループを変更します。')}
-											>
-												{#key attendants[i].group}
-													<span class="crossfade" in:fade={{ delay: 500 }} out:fade>
-														{String.fromCodePoint(65 + attendants[i].group)}
-													</span>
-												{/key}
-											</button>
-										{/if}
-										<button
-											class="button-mapping"
-											style={buttonMapping[i] == null
-												? undefined
-												: 1 <= buttonMapping[i] && buttonMapping[i] <= 6
-													? 'background-color: red; color: white'
-													: 7 <= buttonMapping[i] && buttonMapping[i] <= 12
-														? 'background-color: blue; color: white'
-														: 13 <= buttonMapping[i] && buttonMapping[i] <= 18
-															? 'background-color: yellow; color: black'
-															: 'background-color: green; color: white'}
-											style:display={Object.keys(buttonMapping).length === 0 ? 'none' : ''}
-											disabled={Object.keys(buttonMapping).length === 0 ||
-												lastButtonID == undefined}
-											{@attach tooltip(
-												`このプレイヤーが持っているボタンは${buttonMapping[i] == null ? '???' : buttonMapping[i]}番です。クリックで紐づけ`
-											)}
-											onclick={() => {
-												if (lastButtonID !== undefined) {
-													buttonMapping = {
-														...Object.fromEntries(
-															Object.entries(buttonMapping).filter(([, v]) => v !== lastButtonID)
-														),
-														[i]: lastButtonID!
-													};
-													Toastify({
-														text: `ボタン${lastButtonID}は${att.name || `プレイヤー${i + 1}`}が持っています`
-													}).showToast();
-												}
-											}}
+										<div
+											class="seat"
+											style:display={activeRuleMode === 'aql' ? '' : 'none'}
+											{@attach tooltip('枠を変更します。')}
 										>
-											{buttonMapping[i] ?? '?'}
-										</button>
-										<input
-											class={[
-												'name',
-												{
-													'answerer-1st': answerers[(buttonMapping[i] ?? 0) - 1]?.rank === 1,
-													'answerer-2nd':
-														(wasedashikiMode === 'endless' || wasedashikiMode === 'double') &&
-														answerers[(buttonMapping[i] ?? 0) - 1]?.rank === 2,
-													'answerer-late':
-														wasedashikiMode === 'endless' &&
-														answerers[(buttonMapping[i] ?? 0) - 1]?.rank === 'late'
-												}
-											]}
-											bind:value={att.name}
-											placeholder={`プレイヤー${i + 1}`}
-										/>
-										<small class="yasu">
-											{#if sAtt.yasuDisplay > 0}
-												{#if sAtt.yasuCount === 'next'}次{/if}
-												{sAtt.yasuDisplay}
-												休
-											{/if}
-										</small>
-									</div>
-									<div class="score">
-										{sAtt.score}
-									</div>
-									{#if currentState.teams[ti].teamLife === 'alive' && (activeRuleMode === 'aql' ? batsuCount < 2 : true) && sAtt.life === 'alive' && sAtt.yasuDisplay === 0}
-										<div class="buttons">
-											<select
-												disabled={currentState.teams[ti].attendantIDsPerSeat
-													.flat()
-													.filter((a) => a != null && currentState.attendants[a].life !== 'removed')
-													.length <= 1}
-												bind:value={attendants[i].team}
-												onchange={() => {
-													const t = attendants[i].team;
-													attendants[i].team = Infinity;
-													attendants[i].seat = currentState.teams[t].attendantIDsPerSeat.length;
-													attendants[i].team = t;
-												}}
-												{@attach tooltip('このプレイヤーのチームを変更します。')}
-											>
-												{#each teams as team, j (j)}
-													<option value={j}>{team?.slice(0, 5) || `チーム${j + 1}`}</option>
+											<select bind:value={attendants[i].seat}>
+												{#each Array.from({ length: maxSeat + 2 }, (_, si) => si) as si (si)}
+													<option value={si}>{si + 1}</option>
 												{/each}
 											</select>
-											<button
-												disabled={currentState.teams[ti].attendantIDsPerSeat
-													.flat()
-													.filter((a) => a != null && currentState.attendants[a].life !== 'removed')
-													.length <= 1}
-												onclick={() => history.push(new RemoveHistoryEntry(i))}
-												{@attach tooltip('このプレイヤーをリストから削除します。')}
-											>
-												削除
-											</button>
-											<button onclick={() => clickMaru(i)}>O</button>
-											<button onclick={() => clickBatsu(i)}>X</button>
 										</div>
-									{/if}
-								</div>
+										<div>
+											{#if activeRules.length > 1}
+												<button
+													class="group"
+													style:background-color={`hsl(${(360 / rules.length) * attendants[i].group}, 70%, 40%)`}
+													onclick={() => {
+														do {
+															attendants[i].group = (attendants[i].group + 1) % rules.length;
+														} while (rules[attendants[i].group].isRemoved);
+													}}
+													{@attach tooltip('このプレイヤーの所属ルールグループを変更します。')}
+												>
+													{#key attendants[i].group}
+														<span class="crossfade" in:fade={{ delay: 500 }} out:fade>
+															{String.fromCodePoint(65 + attendants[i].group)}
+														</span>
+													{/key}
+												</button>
+											{/if}
+											<button
+												class="button-mapping"
+												style={buttonMapping[i] == null
+													? undefined
+													: 1 <= buttonMapping[i] && buttonMapping[i] <= 6
+														? 'background-color: red; color: white'
+														: 7 <= buttonMapping[i] && buttonMapping[i] <= 12
+															? 'background-color: blue; color: white'
+															: 13 <= buttonMapping[i] && buttonMapping[i] <= 18
+																? 'background-color: yellow; color: black'
+																: 'background-color: green; color: white'}
+												style:display={Object.keys(buttonMapping).length === 0 ? 'none' : ''}
+												disabled={Object.keys(buttonMapping).length === 0 ||
+													lastButtonID == undefined}
+												{@attach tooltip(
+													`このプレイヤーが持っているボタンは${buttonMapping[i] == null ? '???' : buttonMapping[i]}番です。クリックで紐づけ`
+												)}
+												onclick={() => {
+													if (lastButtonID !== undefined) {
+														buttonMapping = {
+															...Object.fromEntries(
+																Object.entries(buttonMapping).filter(([, v]) => v !== lastButtonID)
+															),
+															[i]: lastButtonID!
+														};
+														Toastify({
+															text: `ボタン${lastButtonID}は${att.name || `プレイヤー${i + 1}`}が持っています`
+														}).showToast();
+													}
+												}}
+											>
+												{buttonMapping[i] ?? '?'}
+											</button>
+											<input
+												class={[
+													'name',
+													{
+														'answerer-1st': answerers[(buttonMapping[i] ?? 0) - 1]?.rank === 1,
+														'answerer-2nd':
+															(wasedashikiMode === 'endless' || wasedashikiMode === 'double') &&
+															answerers[(buttonMapping[i] ?? 0) - 1]?.rank === 2,
+														'answerer-late':
+															wasedashikiMode === 'endless' &&
+															answerers[(buttonMapping[i] ?? 0) - 1]?.rank === 'late'
+													}
+												]}
+												bind:value={att.name}
+												placeholder={`プレイヤー${i + 1}`}
+											/>
+											<small class="yasu">
+												{#if sAtt?.yasuDisplay > 0}
+													{#if sAtt.yasuCount === 'next'}次{/if}
+													{sAtt.yasuDisplay}
+													休
+												{/if}
+											</small>
+										</div>
+										<div class="score">
+											{sAtt.score}
+										</div>
+										{#if currentState.teams[ti].teamLife === 'alive' && (activeRuleMode === 'aql' ? batsuCount < 2 : true) && sAtt?.life === 'alive' && sAtt.yasuDisplay === 0}
+											<div class="buttons">
+												<select
+													disabled={currentState.teams[ti].attendantIDsPerSeat
+														.flat()
+														.filter(
+															(a) => a != null && currentState.attendants[a].life !== 'removed'
+														).length <= 1}
+													bind:value={attendants[i].team}
+													onchange={() => {
+														const t = attendants[i].team;
+														attendants[i].team = Infinity;
+														attendants[i].seat = currentState.teams[t].attendantIDsPerSeat.length;
+														attendants[i].team = t;
+													}}
+													{@attach tooltip('このプレイヤーのチームを変更します。')}
+												>
+													{#each teams as team, j (j)}
+														<option value={j}>{team?.slice(0, 5) || `チーム${j + 1}`}</option>
+													{/each}
+												</select>
+												<button
+													disabled={currentState.teams[ti].attendantIDsPerSeat
+														.flat()
+														.filter(
+															(a) => a != null && currentState.attendants[a].life !== 'removed'
+														).length <= 1}
+													onclick={() => history.push(new RemoveHistoryEntry(i))}
+													{@attach tooltip('このプレイヤーをリストから削除します。')}
+												>
+													削除
+												</button>
+												<button onclick={() => clickMaru(i)}>O</button>
+												<button onclick={() => clickBatsu(i)}>X</button>
+											</div>
+										{/if}
+									</div>
+								{/if}
 							{/each}
 						</div>
 					{/each}
