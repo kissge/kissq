@@ -839,6 +839,13 @@
 			color: #fff;
 			font-size: inherit;
 			text-align: center;
+			text-shadow:
+				0px 0px 12px #0007,
+				0px 0px 12px #0007;
+
+			&::placeholder {
+				text-shadow: none;
+			}
 		}
 	}
 
