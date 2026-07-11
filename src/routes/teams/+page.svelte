@@ -488,6 +488,7 @@
 									teams.splice(ti, 1);
 								}
 							}}
+							{@attach tooltip('このチームを削除します。')}
 						>
 							削除
 						</button>
@@ -528,7 +529,7 @@
 									<div
 										class="seat"
 										style:display={activeRuleMode === 'aql' ? '' : 'none'}
-										{@attach tooltip('枠を変更します')}
+										{@attach tooltip('枠を変更します。')}
 									>
 										<select bind:value={attendants[i].seat}>
 											{#each Array.from({ length: maxSeat + 2 }, (_, si) => si) as si (si)}
@@ -629,7 +630,7 @@
 													attendants[i].seat = currentState.teams[t].attendantIDsPerSeat.length;
 													attendants[i].team = t;
 												}}
-												{@attach tooltip('このプレイヤーのチームを変更します')}
+												{@attach tooltip('このプレイヤーのチームを変更します。')}
 											>
 												{#each teams as team, j (j)}
 													<option value={j}>{team?.slice(0, 5) || `チーム${j + 1}`}</option>
@@ -665,6 +666,7 @@
 									totalScore: { num: 0, den: 0 },
 									manualOrder: attendants.length
 								})}
+							{@attach tooltip('このチームに新しいプレイヤーを追加します。')}
 						>
 							追加
 						</button>
