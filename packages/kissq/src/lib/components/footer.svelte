@@ -91,4 +91,10 @@
 			}
 		}
 	}
+
+	@keyframes blink-animation {
+		to {
+			opacity: 0.3;
+		}
+	}
 </style>
