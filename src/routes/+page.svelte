@@ -746,15 +746,23 @@
 		questionCount={currentState.questionCount}
 		{gameTitle}
 		battleMode="single"
-		otherModeMembers={attendants.length < 2
-			? null
-			: attendants.reduce<string[][]>(
-					(acc, { name }, i) => {
-						acc[i >= attendants.length / 2 ? 1 : 0].push(name);
-						return acc;
-					},
-					[[], []]
-				)}
+		otherModeMembers={(() => {
+			if (attendants.length < 2) {
+				return null;
+			}
+
+			const withButtonID = Object.keys(buttonMapping).length > 0;
+
+			return attendants.reduce<(string | [string, number | undefined])[][]>(
+				(acc, { name }, i) => {
+					acc[i >= attendants.length / 2 ? 1 : 0].push(
+						withButtonID ? [name, buttonMapping[i]] : name
+					);
+					return acc;
+				},
+				[[], []]
+			);
+		})()}
 		{wasedashikiMode}
 		{rules}
 		{editRule}
@@ -825,8 +833,8 @@
 								: 13 <= buttonMapping[i] && buttonMapping[i] <= 18
 									? 'background-color: yellow; color: black'
 									: 'background-color: green; color: white'}
-					style:display={lastButtonID === undefined ? 'none' : ''}
-					disabled={lastButtonID === undefined}
+					style:display={Object.keys(buttonMapping).length === 0 ? 'none' : ''}
+					disabled={Object.keys(buttonMapping).length === 0 || lastButtonID == undefined}
 					{@attach tooltip(
 						`このプレイヤーが持っているボタンは${buttonMapping[i] == null ? '???' : buttonMapping[i]}番です。クリックで紐づけ`
 					)}
