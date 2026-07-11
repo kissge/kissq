@@ -1,8 +1,8 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
+	import type { Attendant } from '$lib/attendant';
 	import type { HistoryEntry } from '$lib/historyEntry';
 	import type { Rule } from '$lib/rule';
-	import type { Attendant } from '$lib/state';
 	import { tooltip } from '$lib/tooltip.svelte';
 
 	let {
