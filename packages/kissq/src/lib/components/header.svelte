@@ -108,6 +108,8 @@
 		}
 
 		.editable-title {
+			position: relative;
+			top: -0.3em;
 			padding-right: 3px;
 			anchor-name: --title;
 
