@@ -601,8 +601,10 @@
 													.length <= 1}
 												bind:value={attendants[i].team}
 												onchange={() => {
-													attendants[i].seat =
-														currentState.teams[attendants[i].team].attendantIDsPerSeat.length;
+													const t = attendants[i].team;
+													attendants[i].team = Infinity;
+													attendants[i].seat = currentState.teams[t].attendantIDsPerSeat.length;
+													attendants[i].team = t;
 												}}
 												{@attach tooltip('このプレイヤーのチームを変更します')}
 											>
