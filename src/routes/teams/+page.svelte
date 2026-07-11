@@ -216,7 +216,7 @@
 			manualOrder: 0
 		}
 	]);
-	let teams = $state([null, null]);
+	let teams = $state<(string | null)[]>([null, null]);
 
 	let rules = $state([new Rule('aql', 200, null, 1, 'updown', false, null, 'constant', 0, null)]);
 
@@ -588,7 +588,7 @@
 												{@attach tooltip('このプレイヤーのチームを変更します')}
 											>
 												{#each teams as team, j (j)}
-													<option value={j}>{team || `チーム${j + 1}`}</option>
+													<option value={j}>{team?.slice(0, 5) || `チーム${j + 1}`}</option>
 												{/each}
 											</select>
 											<button
