@@ -926,13 +926,13 @@
 
 		.members {
 			display: grid;
-			grid-template-columns: 1fr 3em;
+			grid-template-columns: 1fr 2em;
 			grid-column: 1 / -1;
 			align-content: start;
 			gap: 0.125em;
 
 			&.with-seat {
-				grid-template-columns: 2em 1fr 3em 2.5em;
+				grid-template-columns: 2em 1fr 2em 2.5em;
 
 				.member {
 					grid-column: 1 / -2;
