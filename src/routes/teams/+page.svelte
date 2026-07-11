@@ -468,6 +468,30 @@
 				</div>
 				<div class="team-name">
 					<input placeholder={`チーム${ti + 1}`} bind:value={teams[ti]} />
+					<div class="buttons">
+						<button
+							disabled={history.length > 0}
+							onclick={() => {
+								if (
+									confirm(
+										`${teams[ti] || `チーム${ti + 1}`}を削除しますか？\nこの操作は元に戻せません。`
+									)
+								) {
+									attendants = attendants
+										.filter((_, i) => attendants[i].team !== ti)
+										.map((att) => {
+											if (att.team > ti) {
+												return { ...att, team: att.team - 1 };
+											}
+											return att;
+										});
+									teams.splice(ti, 1);
+								}
+							}}
+						>
+							削除
+						</button>
+					</div>
 				</div>
 				<div class="score">{currentState.teams[ti].teamScore}</div>
 				<div class="members" class:with-seat={activeRuleMode === 'aql'}>
@@ -647,6 +671,8 @@
 					</div>
 				</div>
 			</div>
+		{:else}
+			<div class="no-team">チームがありません🍔</div>
 		{/each}
 	</div>
 
@@ -861,6 +887,18 @@
 			padding: 0 0.5em;
 			min-width: 0;
 			text-align: center;
+
+			.buttons {
+				display: none;
+			}
+
+			&:hover .buttons {
+				display: flex;
+				position: absolute;
+				right: 0.5em;
+				align-items: center;
+				gap: 2px;
+			}
 		}
 
 		.score {
@@ -1073,6 +1111,16 @@
 				opacity: 1;
 			}
 		}
+	}
+
+	.no-team {
+		flex: 1 1 100%;
+		margin-top: calc(40dvh - 1em);
+		color: #fff;
+		text-align: center;
+		text-shadow:
+			0px 10px 50px #444,
+			0px 10px 50px #444;
 	}
 
 	#other-menu {
