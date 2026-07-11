@@ -685,10 +685,30 @@
 		>
 			全員リセット
 		</button>
+		<button popovertarget="other-menu"> その他 ▼ </button>
+	</Footer>
+
+	<!-- svelte-ignore a11y_click_events_have_key_events -->
+	<div
+		popover
+		id="other-menu"
+		onclick={(e) => {
+			const t = e.currentTarget;
+			setTimeout(() => t.hidePopover(), 1000);
+		}}
+		role="menu"
+		tabindex="-1"
+	>
+		<button
+			onclick={() => (playSounds = !playSounds)}
+			{@attach tooltip('効果音のオンオフを切り替えます')}
+		>
+			{#if playSounds}🔊 ON{:else}🔇 OFF{/if}
+		</button>
 		<button disabled={serialPort != null} onclick={() => initiateSerialConnection()}>
 			早稲田式連携
 		</button>
-	</Footer>
+	</div>
 </main>
 
 {#if isBannerVisible}
@@ -996,6 +1016,27 @@
 			&:is(:hover > *) {
 				opacity: 1;
 			}
+		}
+	}
+
+	#other-menu {
+		position: absolute;
+		position-area: top;
+		margin-bottom: 0.25em;
+		box-shadow: 0 0 5px #0008;
+		border: 0;
+	}
+
+	[popover] {
+		animation: fadeIn 0.2s ease-in;
+	}
+
+	@keyframes fadeIn {
+		from {
+			opacity: 0;
+		}
+		to {
+			opacity: 1;
 		}
 	}
 
