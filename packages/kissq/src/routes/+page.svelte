@@ -740,7 +740,10 @@
 <audio src={se2} preload="auto"></audio>
 <audio src={se3} preload="auto"></audio>
 
-<main style:grid-template-rows={showQuestionWindow ? 'auto auto 1fr auto' : 'auto 1fr auto'}>
+<main
+	style:grid-template-rows={showQuestionWindow ? 'auto auto 1fr auto' : 'auto 1fr auto'}
+	class="main"
+>
 	<Header
 		bind:headerClientHeight
 		questionCount={currentState.questionCount}
