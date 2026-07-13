@@ -6,7 +6,6 @@
 	import { fade, fly, slide } from 'svelte/transition';
 	import Toastify from 'toastify-js';
 	import 'toastify-js/src/toastify.css';
-	import { beforeNavigate } from '$app/navigation';
 	import se1 from '$lib/assets/se1.mp3';
 	import se2 from '$lib/assets/se2.mp3';
 	import se3 from '$lib/assets/se3.mp3';
@@ -655,7 +654,6 @@
 			.then((port) => {
 				if (port) {
 					serialPort = port;
-					console.log('port', port);
 					initiateSerialConnection(port);
 					setTimeout(() => {
 						if (connected) {
@@ -732,13 +730,6 @@
 			await new Promise((resolve) => setTimeout(resolve, 5000));
 		}
 	}
-
-	beforeNavigate(() => {
-		console.log('close!!!');
-		if (serialPort) {
-			serialPort.close();
-		}
-	});
 
 	let pushers: number[] = [];
 
