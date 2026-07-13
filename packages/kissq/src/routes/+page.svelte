@@ -674,7 +674,14 @@
 			try {
 				serialPort = await connectToSerialPort();
 			} catch (error) {
-				Toastify({ text: '接続に失敗しました', style: { background: '#B00000' } }).showToast();
+				if (String(error).includes('Failed to open serial port')) {
+					Toastify({
+						text: '接続に失敗しました。2つ以上のタブで同時に接続しようとしていませんか？',
+						style: { background: '#B00000' }
+					}).showToast();
+				} else {
+					Toastify({ text: '接続に失敗しました', style: { background: '#B00000' } }).showToast();
+				}
 				console.error('接続エラー', error);
 				serialPort = undefined;
 				wasedashikiMode = undefined;
