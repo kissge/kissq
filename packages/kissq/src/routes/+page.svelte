@@ -749,23 +749,7 @@
 		questionCount={currentState.questionCount}
 		{gameTitle}
 		battleMode="single"
-		otherModeMembers={(() => {
-			if (attendants.length < 2) {
-				return null;
-			}
-
-			const withButtonID = Object.keys(buttonMapping).length > 0;
-
-			return attendants.reduce<(string | [string, number | undefined])[][]>(
-				(acc, { name }, i) => {
-					acc[i >= attendants.length / 2 ? 1 : 0].push(
-						withButtonID ? [name, buttonMapping[i]] : name
-					);
-					return acc;
-				},
-				[[], []]
-			);
-		})()}
+		{attendants}
 		{wasedashikiMode}
 		{rules}
 		{editRule}

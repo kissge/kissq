@@ -34,189 +34,8 @@
 	let footerClientHeight = $state(0);
 	let gameTitle = $state('');
 
-	let attendants = $state<Attendant[]>([
-		{
-			name: '',
-			group: 0,
-			team: 0,
-			seat: 0,
-			trophyCount: 0,
-			totalScore: { num: 0, den: 0 },
-			manualOrder: 0
-		},
-		{
-			name: '',
-			group: 0,
-			team: 0,
-			seat: 0,
-			trophyCount: 0,
-			totalScore: { num: 0, den: 0 },
-			manualOrder: 0
-		},
-		{
-			name: '',
-			group: 0,
-			team: 0,
-			seat: 1,
-			trophyCount: 0,
-			totalScore: { num: 0, den: 0 },
-			manualOrder: 0
-		},
-		{
-			name: '',
-			group: 0,
-			team: 0,
-			seat: 1,
-			trophyCount: 0,
-			totalScore: { num: 0, den: 0 },
-			manualOrder: 0
-		},
-		{
-			name: '',
-			group: 0,
-			team: 0,
-			seat: 2,
-			trophyCount: 0,
-			totalScore: { num: 0, den: 0 },
-			manualOrder: 0
-		},
-		{
-			name: '',
-			group: 0,
-			team: 0,
-			seat: 2,
-			trophyCount: 0,
-			totalScore: { num: 0, den: 0 },
-			manualOrder: 0
-		},
-		{
-			name: '',
-			group: 0,
-			team: 0,
-			seat: 3,
-			trophyCount: 0,
-			totalScore: { num: 0, den: 0 },
-			manualOrder: 0
-		},
-		{
-			name: '',
-			group: 0,
-			team: 0,
-			seat: 3,
-			trophyCount: 0,
-			totalScore: { num: 0, den: 0 },
-			manualOrder: 0
-		},
-		{
-			name: '',
-			group: 0,
-			team: 0,
-			seat: 4,
-			trophyCount: 0,
-			totalScore: { num: 0, den: 0 },
-			manualOrder: 0
-		},
-		{
-			name: '',
-			group: 0,
-			team: 0,
-			seat: 4,
-			trophyCount: 0,
-			totalScore: { num: 0, den: 0 },
-			manualOrder: 0
-		},
-		{
-			name: '',
-			group: 0,
-			team: 1,
-			seat: 0,
-			trophyCount: 0,
-			totalScore: { num: 0, den: 0 },
-			manualOrder: 0
-		},
-		{
-			name: '',
-			group: 0,
-			team: 1,
-			seat: 0,
-			trophyCount: 0,
-			totalScore: { num: 0, den: 0 },
-			manualOrder: 0
-		},
-		{
-			name: '',
-			group: 0,
-			team: 1,
-			seat: 1,
-			trophyCount: 0,
-			totalScore: { num: 0, den: 0 },
-			manualOrder: 0
-		},
-		{
-			name: '',
-			group: 0,
-			team: 1,
-			seat: 1,
-			trophyCount: 0,
-			totalScore: { num: 0, den: 0 },
-			manualOrder: 0
-		},
-		{
-			name: '',
-			group: 0,
-			team: 1,
-			seat: 2,
-			trophyCount: 0,
-			totalScore: { num: 0, den: 0 },
-			manualOrder: 0
-		},
-		{
-			name: '',
-			group: 0,
-			team: 1,
-			seat: 2,
-			trophyCount: 0,
-			totalScore: { num: 0, den: 0 },
-			manualOrder: 0
-		},
-		{
-			name: '',
-			group: 0,
-			team: 1,
-			seat: 3,
-			trophyCount: 0,
-			totalScore: { num: 0, den: 0 },
-			manualOrder: 0
-		},
-		{
-			name: '',
-			group: 0,
-			team: 1,
-			seat: 3,
-			trophyCount: 0,
-			totalScore: { num: 0, den: 0 },
-			manualOrder: 0
-		},
-		{
-			name: '',
-			group: 0,
-			team: 1,
-			seat: 4,
-			trophyCount: 0,
-			totalScore: { num: 0, den: 0 },
-			manualOrder: 0
-		},
-		{
-			name: '',
-			group: 0,
-			team: 1,
-			seat: 4,
-			trophyCount: 0,
-			totalScore: { num: 0, den: 0 },
-			manualOrder: 0
-		}
-	]);
-	let teams = $state(['', '']);
+	let attendants = $state<Attendant[]>([]);
+	let teams = $state<string[]>([]);
 
 	let rules = $state([new Rule('aql', 200, null, 1, 'updown', false, null, 'constant', 0, null)]);
 	let { activeRules } = $derived(getActiveRulesText(rules, 'team'));
@@ -401,15 +220,27 @@
 		const data = loadFromHash(true);
 
 		if (data) {
-			attendants = data;
-
-			teams = Array.from(new Set(data.map(({ team }) => team)), () => '');
 			data.forEach(({ buttonID }, i) => {
 				if (buttonID != null) {
 					buttonMapping[i] = buttonID;
 				}
 			});
+			attendants = data;
+		} else {
+			attendants = Array.from({ length: 2 }, (_, ti) =>
+				Array.from({ length: 10 }, (_, ai) => ({
+					name: '',
+					group: 0,
+					team: ti,
+					seat: Math.floor(ai / 2),
+					trophyCount: 0,
+					totalScore: { num: 0, den: 0 },
+					manualOrder: ti * 10 + ai
+				})).flat()
+			).flat();
 		}
+
+		teams = Array.from(new Set(attendants.map(({ team }) => team)), () => '');
 
 		reconnect()
 			.then((port) => {
@@ -451,9 +282,7 @@
 		questionCount={currentState.questionCount}
 		{gameTitle}
 		battleMode="team"
-		otherModeMembers={Object.keys(buttonMapping).length > 0
-			? attendants.map(({ name }, i) => [name, buttonMapping[i]])
-			: attendants.map(({ name }) => name)}
+		{attendants}
 		{wasedashikiMode}
 		{rules}
 		{editRule}
