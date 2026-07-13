@@ -462,11 +462,12 @@
 										{#if currentState.teams[ti].teamLife === 'alive' && (activeRuleMode === 'aql' ? batsuCount < 2 : true) && sAtt?.life === 'alive' && sAtt.yasuDisplay === 0}
 											<div class="buttons">
 												<select
-													disabled={currentState.teams[ti].attendantIDsPerSeat
-														.flat()
-														.filter(
-															(a) => a != null && currentState.attendants[a].life !== 'removed'
-														).length <= 1}
+													disabled={history.length > 0 ||
+														currentState.teams[ti].attendantIDsPerSeat
+															.flat()
+															.filter(
+																(a) => a != null && currentState.attendants[a].life !== 'removed'
+															).length <= 1}
 													bind:value={attendants[i].team}
 													onchange={() => {
 														const t = attendants[i].team;
