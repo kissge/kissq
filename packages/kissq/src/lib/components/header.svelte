@@ -59,7 +59,7 @@
 			</a>
 		{:else}
 			<a
-				href="../{typeof location !== 'undefined' ? location.search : ''}#{encodeURIComponent(
+				href="./{typeof location !== 'undefined' ? location.search : ''}#{encodeURIComponent(
 					JSON.stringify({ attendants })
 				)}"
 				{@attach tooltip('個人戦に切り替えます')}
