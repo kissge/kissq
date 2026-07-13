@@ -3,7 +3,7 @@ export type Penalty = { type: 'yasu'; count: number } | { type: 'zero' };
 export class Rule {
 	constructor(
 		/** ゲームモード */
-		public mode: 'score' | 'marubatsu' | 'MbyN' | 'survival',
+		public mode: 'score' | 'marubatsu' | 'MbyN' | 'survival' | 'aql' | 'product' | 'sum',
 		/** 勝利に必要なスコアまたはマル数またはスコアの平方根 */
 		public win: number,
 		/** 敗北に必要なスコア（負数）またはバツ数（正数） */
@@ -109,6 +109,54 @@ export class Rule {
 				}
 				break;
 
+			case 'aql':
+				str = `AQL（${this.win}点先取）`;
+
+				if (this.maru !== 1) {
+					str += `、正解+${this.maru}点`;
+				}
+				break;
+
+			case 'product':
+				str = `掛けて${this.win}点先取`;
+
+				if (this.maru !== 1) {
+					str += `、正解+${this.maru}点`;
+				}
+
+				if (this.batsu === 'batsu') {
+					str += `、N回目の誤答で-N点`;
+				} else if (this.batsu === 'updown') {
+					// dummy
+					str += `、誤答でゼロ○に`;
+				} else if (this.batsu < 0 && this.batsu !== -1) {
+					str += `、誤答${this.batsu}点`;
+				}
+
+				break;
+
+			case 'sum':
+				str = `足して${this.win}点先取`;
+
+				if (this.lose !== null) {
+					str += `、${this.lose}点で失格`;
+				}
+
+				if (this.maru !== 1) {
+					str += `、正解+${this.maru}点`;
+				}
+
+				if (this.batsu === 'batsu') {
+					str += `、N回目の誤答で-N点`;
+				} else if (this.batsu === 'updown') {
+					// dummy
+					str += `、誤答でゼロ○に`;
+				} else if (this.batsu < 0 && this.batsu !== -1) {
+					str += `、誤答${this.batsu}点`;
+				}
+
+				break;
+
 			default:
 				this.mode satisfies never;
 		}
@@ -134,6 +182,9 @@ export class Rule {
 		switch (this.mode) {
 			case 'marubatsu':
 			case 'score':
+			case 'aql':
+			case 'product':
+			case 'sum':
 				return this.win;
 
 			case 'MbyN':
@@ -143,4 +194,45 @@ export class Rule {
 				return this.lose!;
 		}
 	}
+}
+
+export function getActiveRulesText(
+	rules: Rule[],
+	battleMode: 'single' | 'team'
+): {
+	activeRules: { rule: Rule; i: number }[];
+	activeRulesText: string;
+} {
+	const activeRules = rules.flatMap((rule, i) => (rule.isRemoved ? [] : { rule, i }));
+
+	if (activeRules.length === 1) {
+		return { activeRules, activeRulesText: String(activeRules[0].rule) };
+	}
+
+	return {
+		activeRules,
+		activeRulesText: activeRules
+			.slice(1)
+			.reduce(
+				(acc, { rule, i }) => {
+					if (String(rule) === acc.at(-1)!.text) {
+						acc.at(-1)!.end = i;
+						return acc;
+					} else {
+						return [...acc, { start: i, end: i, text: String(rule) }];
+					}
+				},
+				[{ start: activeRules[0].i, end: activeRules[0].i, text: String(activeRules[0].rule) }]
+			)
+			.map(({ start, end, text }) => {
+				if (battleMode === 'team' && start > 0) {
+					text = text.split('、').slice(1).join('、');
+				}
+
+				return start === end
+					? String.fromCodePoint(65 + start) + ': ' + text
+					: String.fromCodePoint(65 + start) + '–' + String.fromCodePoint(65 + end) + ': ' + text;
+			})
+			.join(' / ')
+	};
 }

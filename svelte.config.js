@@ -14,6 +14,9 @@ const config = {
 		adapter: adapter({
 			fallback: '404.html'
 		}),
+		prerender: {
+			handleMissingId: 'ignore'
+		},
 		paths: {
 			base: process.argv.includes('dev') ? '' : '/kissq'
 		}
