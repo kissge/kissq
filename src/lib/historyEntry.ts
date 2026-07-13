@@ -5,6 +5,7 @@ abstract class HistoryEntry {
 	abstract type: string;
 	abstract toString(state: GameState): string;
 	abstract reducer(state: GameState): GameState;
+	abstract reducerTeam(state: GameState): GameState;
 }
 
 type HistoryEntryType =
@@ -77,6 +78,41 @@ export class MaruHistoryEntry implements HistoryEntry {
 
 		return state;
 	}
+
+	reducerTeam(state: GameState): GameState {
+		const { ti, team } = state.getTeamByAttendantID(this.attendantID);
+		const att = state.attendants[this.attendantID];
+
+		state.increaseQuestionCount();
+		const { maruCount, score, life, trophyCount, yasuCount, teamScore, teamLife } =
+			team.processMaru(this.attendantID, this.multiplier);
+
+		if (team.teamLife === 'alive' && teamLife === 'won') {
+			state.latestEvent = { type: 'won', teamID: ti };
+		}
+
+		att.maruCount = maruCount;
+		att.score = score;
+		att.life = life;
+		att.trophyCount = trophyCount;
+		att.yasuCount = yasuCount;
+		team.teamScore = teamScore;
+		team.teamLife = teamLife;
+
+		if (
+			teamLife === 'alive' &&
+			team.attendantIDsPerSeat
+				.flat()
+				.some((ai) => ai != null && team.processMaru(ai, this.multiplier).teamLife === 'won')
+		) {
+			if (att.rule.transit) {
+				state.latestEvent = { type: 'transit', teamID: ti };
+			} else {
+				state.latestEvent = { type: 'lizhi', teamID: ti };
+			}
+		}
+		return state;
+	}
 }
 
 export class BatsuHistoryEntry implements HistoryEntry {
@@ -109,6 +145,43 @@ export class BatsuHistoryEntry implements HistoryEntry {
 
 		return state;
 	}
+
+	reducerTeam(state: GameState): GameState {
+		const { ti, team } = state.getTeamByAttendantID(this.attendantID);
+		const att = state.attendants[this.attendantID];
+
+		const { maruCount, batsuCount, score, life, yasuCount, teamScore, teamLife } =
+			team.processBatsu(this.attendantID, this.penalty);
+		att.maruCount = maruCount;
+		att.batsuCount = batsuCount;
+		att.score = score;
+		att.life = life;
+		att.yasuCount = yasuCount;
+		att.lastPenalty = this.penalty;
+		team.teamScore = teamScore;
+		team.teamLife = teamLife;
+
+		if (att.rule.mode === 'aql') {
+			for (const [ti2, team2] of state.teams.entries()) {
+				if (ti === ti2) {
+					continue;
+				}
+
+				for (const seat of team2.attendantIDsPerSeat) {
+					for (const ai of seat ?? []) {
+						const att = state.attendants[ai];
+						if (att.life === 'lost') {
+							att.life = 'alive';
+							--att.batsuCount;
+							break;
+						}
+					}
+				}
+			}
+		}
+
+		return state;
+	}
 }
 
 export class ThroughHistoryEntry implements HistoryEntry {
@@ -119,6 +192,11 @@ export class ThroughHistoryEntry implements HistoryEntry {
 	}
 
 	reducer(state: GameState): GameState {
+		state.increaseQuestionCount();
+		return state;
+	}
+
+	reducerTeam(state: GameState): GameState {
 		state.increaseQuestionCount();
 		return state;
 	}
@@ -134,6 +212,12 @@ export class RemoveHistoryEntry implements HistoryEntry {
 	}
 
 	reducer(state: GameState): GameState {
+		state.attendants[this.attendantID].life = 'removed';
+		state.ranking = state.ranking.filter((i) => i !== this.attendantID);
+		return state;
+	}
+
+	reducerTeam(state: GameState): GameState {
 		state.attendants[this.attendantID].life = 'removed';
 		state.ranking = state.ranking.filter((i) => i !== this.attendantID);
 		return state;
@@ -154,6 +238,12 @@ export class WinHistoryEntry implements HistoryEntry {
 		state.attendants[this.attendantID].trophyCount++;
 		return state;
 	}
+
+	reducerTeam(state: GameState): GameState {
+		const { team } = state.getTeamByAttendantID(this.attendantID);
+		team.teamLife = 'won';
+		return state;
+	}
 }
 
 export class LoseHistoryEntry implements HistoryEntry {
@@ -167,6 +257,12 @@ export class LoseHistoryEntry implements HistoryEntry {
 
 	reducer(state: GameState): GameState {
 		state.attendants[this.attendantID].life = 'lost';
+		return state;
+	}
+
+	reducerTeam(state: GameState): GameState {
+		const { team } = state.getTeamByAttendantID(this.attendantID);
+		team.teamLife = 'lost';
 		return state;
 	}
 }
@@ -191,5 +287,9 @@ export class EditHistoryEntry implements HistoryEntry {
 		state.attendants[this.attendantID].yasuCount = this.newState.yasuCount;
 		state.attendants[this.attendantID].score = this.newState.score;
 		return state;
+	}
+
+	reducerTeam(): GameState {
+		throw new Error('Not implemented');
 	}
 }

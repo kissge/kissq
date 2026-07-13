@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { csv2json } from 'json-2-csv';
 	import { onMount } from 'svelte';
 	import { flip } from 'svelte/animate';
 	import { fade } from 'svelte/transition';
@@ -51,12 +50,13 @@
 	function processWindowMessage(event: MessageEvent) {
 		switch (event.data.command) {
 			case 'syncState':
-				if (event.data.mode === 'team') {
-					goto('./teams/question');
+				if (event.data.mode === 'single') {
+					goto('../question');
 				}
 
 				currentState = event.data.currentState;
 				mainScreenOrder = event.data.orderedAttendants;
+
 				break;
 		}
 	}
@@ -157,6 +157,7 @@
 		>
 			プレイヤー追加
 		</button>
+
 		<button
 			class="labeled"
 			data-label="N"
@@ -174,14 +175,14 @@
 			次の問題へ →
 		</button>
 		<div class="spacer"></div>
-		<div>
+		<!-- <div>
 			プレイヤーの表示順
 			<select bind:value={order}>
 				<option value="added">追加順</option>
 				<option value="same">画面と同じ</option>
 				<option value="reverse">画面の逆順</option>
 			</select>
-		</div>
+		</div> -->
 		<label>
 			<input type="checkbox" bind:checked={isKeyboardEnabled} />
 			キーボード操作
@@ -207,13 +208,13 @@
 								<span class="lizhi" transition:fade>リーチ</span>
 							{/if}
 						{:else if att.isLoseLizhi}
-							<span class="lizhi" transition:fade>失格リーチ</span>
+							<span class="lizhi" transition:fade>封鎖リーチ</span>
 						{/if}
 						&nbsp;
 						{#if att.life === 'won'}
 							<span class="won" transition:fade>勝ち</span>
 						{:else if att.life === 'lost'}
-							<span class="lost" transition:fade>失格</span>
+							<span class="lost" transition:fade>封鎖</span>
 						{:else if att.yasuDisplay > 0}
 							{#if att.yasuCount === 'next'}次{/if}{att.yasuDisplay}休
 						{:else}

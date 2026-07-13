@@ -1,0 +1,611 @@
+<script lang="ts">
+	import { Rule, type Penalty } from '$lib/rule';
+	import { tooltipInDialog as tooltip } from '$lib/tooltip.svelte';
+
+	let dialog: HTMLDialogElement;
+	let resolve: (result: Awaited<ReturnType<typeof open>>) => void;
+	export function open(rules_: Rule[]): Promise<Rule[] | null> {
+		rules = rules_.map(({ lose, batsu, yasuPerMaru, roulette, ...rule }) => {
+			return {
+				...rule,
+				isLoseNull: lose === null,
+				lose: lose ?? -3,
+				batsuMode: typeof batsu === 'number' ? 'number' : batsu,
+				batsu: typeof batsu === 'number' ? batsu : 0,
+				isYasuPerMaruNull: yasuPerMaru === null,
+				yasuPerMaruMaru: yasuPerMaru?.maru ?? 5,
+				yasuPerMaruYasu: yasuPerMaru?.yasu ?? 5,
+				rouletteName: roulette?.name ?? null
+			};
+		});
+		activeTab = rules.findIndex((r) => !r.isRemoved);
+
+		dialog.showModal();
+		dialog.scrollTop = 0;
+
+		return new Promise((r) => {
+			resolve = r;
+		});
+	}
+
+	/** クローンを容易にするため、オブジェクトプロパティを使わない */
+	interface EditingRule extends Omit<Rule, 'lose' | 'batsu' | 'yasuPerMaru' | 'roulette' | 'max'> {
+		isLoseNull: boolean;
+		lose: NonNullable<Rule['lose']>;
+		batsuMode: (Rule['batsu'] & string) | 'number';
+		batsu: number;
+		isYasuPerMaruNull: boolean;
+		yasuPerMaruMaru: NonNullable<Rule['yasuPerMaru']>['maru'];
+		yasuPerMaruYasu: NonNullable<Rule['yasuPerMaru']>['yasu'];
+		rouletteName: NonNullable<Rule['roulette']>['name'] | null;
+	}
+
+	const roulettePresets: Record<string, Penalty[]> = {
+		重い: [
+			{ type: 'zero' },
+			{ type: 'yasu', count: 1 },
+			{ type: 'yasu', count: 1 },
+			{ type: 'yasu', count: 2 },
+			{ type: 'yasu', count: 2 },
+			{ type: 'yasu', count: 3 },
+			{ type: 'yasu', count: 6 }
+		],
+		ふつう: [
+			{ type: 'yasu', count: 1 },
+			{ type: 'yasu', count: 1 },
+			{ type: 'yasu', count: 1 },
+			{ type: 'yasu', count: 1 },
+			{ type: 'yasu', count: 2 },
+			{ type: 'yasu', count: 3 }
+		],
+		軽い: [
+			{ type: 'yasu', count: 1 },
+			{ type: 'yasu', count: 1 },
+			{ type: 'yasu', count: 1 },
+			{ type: 'yasu', count: 1 },
+			{ type: 'yasu', count: 1 },
+			{ type: 'yasu', count: 2 }
+		]
+	};
+
+	let rules = $state<EditingRule[]>([]);
+	let activeTab = $state(0);
+	let activeRule = $derived(rules[activeTab]);
+	let activeRules = $derived(rules.flatMap((rule, i) => (rule.isRemoved ? [] : { rule, i })));
+
+	let isValid = $derived(
+		rules.every(
+			({
+				isYasuPerMaruNull,
+				yasuPerMaruMaru,
+				yasuPerMaruYasu,
+				yasuMode,
+				yasuPerBatsu,
+				rouletteName
+			}) =>
+				(isYasuPerMaruNull
+					? true
+					: Number.isInteger(yasuPerMaruMaru) &&
+						yasuPerMaruMaru > 0 &&
+						Number.isInteger(yasuPerMaruYasu) &&
+						yasuPerMaruYasu > 0) &&
+				Number.isInteger(yasuPerBatsu) &&
+				(yasuMode === 'constant'
+					? yasuPerBatsu >= 0
+					: yasuMode === 'roulette'
+						? rouletteName
+						: yasuPerBatsu > 0)
+		)
+	);
+
+	function save() {
+		if (!isValid) return;
+
+		dialog.close();
+		resolve(
+			rules.map(
+				(rule) =>
+					new Rule(
+						rule.mode,
+						rule.win,
+						rule.isLoseNull ? null : rule.lose,
+						rule.maru,
+						rule.batsuMode === 'number' ? rule.batsu : rule.batsuMode,
+						rule.transit,
+						rule.isYasuPerMaruNull
+							? null
+							: { maru: rule.yasuPerMaruMaru, yasu: rule.yasuPerMaruYasu },
+						rule.yasuMode,
+						rule.yasuPerBatsu,
+						rule.rouletteName === null
+							? null
+							: { name: rule.rouletteName, choices: roulettePresets[rule.rouletteName] },
+						rule.isRemoved
+					)
+			)
+		);
+	}
+
+	function copyRule() {
+		rules.forEach((rule) => {
+			rule.mode = activeRule.mode;
+			rule.win = activeRule.win;
+
+			if (activeRule.mode === 'aql') {
+				rule.isLoseNull = activeRule.isLoseNull;
+				rule.batsuMode = activeRule.batsuMode;
+			} else if (activeRule.mode === 'product') {
+				rule.isLoseNull = true;
+			}
+		});
+	}
+</script>
+
+<dialog bind:this={dialog}>
+	{#if rules.length > 0}
+		<div class="tabbar">
+			<div class="tab button" inert></div>
+			{#each activeRules as { i } (i)}
+				<button
+					class={['tab', { active: i === activeTab }]}
+					disabled={i === activeTab}
+					onclick={() => (activeTab = i)}
+					{@attach tooltip(
+						activeRules.length === 1
+							? '全員に適用されるルールを編集します。'
+							: `${String.fromCodePoint(65 + i)}グループのプレイヤーに適用されるルールを編集します。`
+					)}
+				>
+					{activeRules.length === 1 ? '全員' : i === 0 ? 'A / 全員' : String.fromCodePoint(65 + i)}
+				</button>
+			{/each}
+			<button
+				class="tab button"
+				onclick={() => {
+					rules.push({ ...activeRules.at(-1)!.rule });
+					activeTab = activeRules.at(-1)!.i;
+				}}
+				{@attach tooltip('ルールグループを追加します。')}
+			>
+				+
+			</button>
+		</div>
+
+		{#if activeRules.length > 1}
+			<div>
+				<button
+					class="remove"
+					onclick={() => {
+						activeRule.isRemoved = true;
+						let newTab = activeTab;
+						do {
+							newTab = (newTab - 1 + rules.length) % rules.length;
+						} while (rules[newTab].isRemoved);
+						activeTab = newTab;
+					}}
+					{@attach tooltip('削除したグループにいたプレイヤーは自動で別のグループに移動します。')}
+				>
+					{String.fromCodePoint(65 + activeTab)}グループを削除
+				</button>
+			</div>
+		{/if}
+
+		<div class="table">
+			{#if activeTab === 0}
+				<div style="margin: 2rem 0">定番</div>
+				<div style="margin: 2rem 0" class="presets">
+					<button
+						onclick={() => {
+							rules[activeTab] = {
+								mode: 'aql',
+								win: 200,
+								isLoseNull: true,
+								lose: -3,
+								maru: 1,
+								batsu: 1,
+								batsuMode: 'updown',
+								transit: false,
+								isYasuPerMaruNull: true,
+								yasuPerMaruMaru: 5,
+								yasuPerMaruYasu: 5,
+								yasuMode: 'constant',
+								yasuPerBatsu: 0,
+								rouletteName: null,
+								isRemoved: false
+							};
+							copyRule();
+						}}
+					>
+						AQL（5枠）
+					</button>
+					<button
+						onclick={() => {
+							rules[activeTab] = {
+								mode: 'aql',
+								win: 70,
+								isLoseNull: true,
+								lose: -3,
+								maru: 1,
+								batsu: 1,
+								batsuMode: 'updown',
+								transit: false,
+								isYasuPerMaruNull: true,
+								yasuPerMaruMaru: 5,
+								yasuPerMaruYasu: 5,
+								yasuMode: 'constant',
+								yasuPerBatsu: 0,
+								rouletteName: null,
+								isRemoved: false
+							};
+							copyRule();
+						}}
+					>
+						AQL（4枠）
+					</button>
+					<button
+						onclick={() => {
+							rules[activeTab] = {
+								mode: 'aql',
+								win: 24,
+								isLoseNull: true,
+								lose: -3,
+								maru: 1,
+								batsu: 1,
+								batsuMode: 'updown',
+								transit: false,
+								isYasuPerMaruNull: true,
+								yasuPerMaruMaru: 5,
+								yasuPerMaruYasu: 5,
+								yasuMode: 'constant',
+								yasuPerBatsu: 0,
+								rouletteName: null,
+								isRemoved: false
+							};
+							copyRule();
+						}}
+					>
+						AQL（3枠）
+					</button>
+					<button
+						onclick={() => {
+							rules[activeTab] = {
+								mode: 'product',
+								win: 10,
+								isLoseNull: true,
+								lose: -3,
+								maru: 1,
+								batsu: -1,
+								batsuMode: 'number',
+								transit: false,
+								isYasuPerMaruNull: true,
+								yasuPerMaruMaru: 5,
+								yasuPerMaruYasu: 5,
+								yasuMode: 'constant',
+								yasuPerBatsu: 0,
+								rouletteName: null,
+								isRemoved: false
+							};
+							copyRule();
+						}}
+					>
+						掛けて10
+					</button>
+					<button
+						onclick={() => {
+							rules[activeTab] = {
+								mode: 'sum',
+								win: 10,
+								isLoseNull: true,
+								lose: -3,
+								maru: 1,
+								batsu: -1,
+								batsuMode: 'number',
+								transit: false,
+								isYasuPerMaruNull: true,
+								yasuPerMaruMaru: 5,
+								yasuPerMaruYasu: 5,
+								yasuMode: 'constant',
+								yasuPerBatsu: 0,
+								rouletteName: null,
+								isRemoved: false
+							};
+							copyRule();
+						}}
+					>
+						足して10
+					</button>
+				</div>
+
+				<div>モード</div>
+				<div>
+					<label>
+						<input type="radio" bind:group={activeRule.mode} value="sum" onchange={copyRule} />
+						足し算
+					</label>
+					<label>
+						<input
+							type="radio"
+							bind:group={activeRule.mode}
+							value="product"
+							onchange={() => {
+								if (!activeRule.isLoseNull) {
+									activeRule.isLoseNull = true;
+								}
+
+								copyRule();
+							}}
+						/>
+						掛け算
+					</label>
+					<label>
+						<input
+							type="radio"
+							bind:group={activeRule.mode}
+							value="aql"
+							onchange={() => {
+								if (!activeRule.isLoseNull) {
+									activeRule.isLoseNull = true;
+								}
+
+								if (activeRule.batsuMode !== 'updown') {
+									activeRule.batsuMode = 'updown';
+								}
+
+								copyRule();
+							}}
+						/>
+						AQL
+					</label>
+				</div>
+
+				<div>勝利条件</div>
+				<div>
+					チーム
+					<input type="number" bind:value={activeRule.win} min="1" />
+					点以上
+				</div>
+			{/if}
+
+			{#if activeRule.mode === 'sum'}
+				<div>失格条件</div>
+				<div>
+					<label {@attach tooltip('失格スコアを負の数で入力')}>
+						<input type="radio" bind:group={activeRule.isLoseNull} value={false} />
+						個人
+						<input
+							type="number"
+							bind:value={activeRule.lose}
+							onfocus={() => (activeRule.isLoseNull = false)}
+						/>
+						点以下
+					</label>
+					<label>
+						<input type="radio" bind:group={activeRule.isLoseNull} value={true} />失格なし
+					</label>
+				</div>
+			{/if}
+
+			<div>1問正解で</div>
+			<div>
+				個人
+				<input type="number" bind:value={activeRule.maru} />
+				点獲得できる
+
+				<hr />
+
+				<label>
+					<input type="radio" bind:group={activeRule.isYasuPerMaruNull} value={false} />
+					<input
+						type="number"
+						bind:value={activeRule.yasuPerMaruMaru}
+						onfocus={() => (activeRule.isYasuPerMaruNull = false)}
+						min="1"
+					/>
+					○ごとに個人
+					<input
+						type="number"
+						bind:value={activeRule.yasuPerMaruYasu}
+						onfocus={() => (activeRule.isYasuPerMaruNull = false)}
+						min="1"
+					/> 問休み
+				</label>
+				<label>
+					<input type="radio" bind:group={activeRule.isYasuPerMaruNull} value={true} />
+					なし
+				</label>
+			</div>
+
+			<div>1問誤答で</div>
+			<div>
+				<label {@attach tooltip('失ってしまうスコアを負の数で入力')}>
+					<input type="radio" bind:group={activeRule.batsuMode} value="number" />
+					個人
+					<input
+						type="number"
+						bind:value={activeRule.batsu}
+						onfocus={() => (activeRule.batsuMode = 'number')}
+						disabled={activeRule.mode === 'aql'}
+					/>
+					点獲得してしまう
+				</label>
+				<br />
+				<label>
+					<input
+						type="radio"
+						bind:group={activeRule.batsuMode}
+						value="batsu"
+						disabled={activeRule.mode === 'aql'}
+					/>
+					N回目の誤答で個人 -N 点獲得してしまう
+				</label>
+				<br />
+				<label>
+					<input type="radio" bind:group={activeRule.batsuMode} value="updown" />
+					個人スコアがゼロにリセットされてしまう
+				</label>
+
+				<hr />
+
+				<label>
+					<input type="radio" bind:group={activeRule.yasuMode} value="constant" />
+					個人
+					<input
+						type="number"
+						bind:value={activeRule.yasuPerBatsu}
+						onfocus={() => (activeRule.yasuMode = 'constant')}
+						min="0"
+					/>
+					問休み<small>（0で休みなし）</small>
+				</label>
+				<br />
+				<label>
+					<input
+						type="radio"
+						bind:group={activeRule.yasuMode}
+						value="maru"
+						disabled={activeRule.mode === 'score'}
+					/>
+					個人（現在のマル数）×
+					<input
+						type="number"
+						bind:value={activeRule.yasuPerBatsu}
+						onfocus={() => (activeRule.yasuMode = 'maru')}
+						min="1"
+					/>問休み<small>（0マルなら1休）</small>
+				</label>
+				<br />
+				<label>
+					<input
+						type="radio"
+						bind:group={activeRule.yasuMode}
+						value="batsu"
+						disabled={activeRule.mode === 'score'}
+					/>
+					N回目の誤答で個人
+					<input
+						type="number"
+						bind:value={activeRule.yasuPerBatsu}
+						onfocus={() => (activeRule.yasuMode = 'batsu')}
+						min="1"
+					/>N問休み
+				</label>
+				<!--
+				<br />
+				<label>
+					<input type="radio" bind:group={activeRule.yasuMode} value="roulette" />
+					ルーレット
+				</label>
+				{#if activeRule.yasuMode === 'constant'}
+					{#if !Number.isInteger(activeRule.yasuPerBatsu) || activeRule.yasuPerBatsu < 0}
+						<span class="error">休みは0以上の整数で設定してください</span>
+					{/if}
+				{:else if activeRule.yasuMode !== 'roulette'}
+					{#if !Number.isInteger(activeRule.yasuPerBatsu) || activeRule.yasuPerBatsu < 1}
+						<span class="error">休みの倍数は1以上の整数で設定してください</span>
+					{/if}
+				{/if}
+				-->
+			</div>
+			<!--
+			{#if activeRule.yasuMode === 'roulette'}
+				<div transition:fade>ルーレット</div>
+				<div transition:fade>
+					{#each Object.keys(roulettePresets) as name (name)}
+						<label>
+							<input type="radio" bind:group={activeRule.rouletteName} value={name} />
+							{name}
+						</label>
+					{/each}
+				</div>
+			{/if}
+			-->
+		</div>
+		<div class="buttons">
+			<button
+				onclick={() => {
+					dialog.close();
+					resolve(null);
+				}}>キャンセル</button
+			>
+			<button class="primary" onclick={save} disabled={!isValid}>保存する</button>
+		</div>
+	{/if}
+</dialog>
+
+<style>
+	dialog[open] {
+		display: grid;
+		grid-template-rows: auto 1fr auto;
+		user-select: none;
+
+		&:has(:nth-child(4)) {
+			grid-template-rows: auto auto 1fr auto;
+		}
+	}
+
+	.tabbar {
+		display: flex;
+		margin-bottom: 1em;
+
+		.tab {
+			flex: 1 1 100px;
+			cursor: pointer;
+			box-shadow: none;
+			border: 1px solid #aaa;
+			border-bottom-color: #444;
+			border-top-right-radius: 1em;
+			border-top-left-radius: 1em;
+			border-bottom-right-radius: 0;
+			border-bottom-left-radius: 0;
+			background-color: #fff;
+			padding: 0.5em;
+			text-align: center;
+
+			&.active {
+				border-color: #444;
+				border-bottom: none;
+				pointer-events: none;
+			}
+
+			&:hover {
+				background-color: #aaa;
+			}
+
+			&:disabled {
+				color: inherit;
+				font-weight: bold;
+			}
+		}
+
+		.tab.button {
+			flex: 0 1 30px;
+			border: 0;
+			border-bottom: 1px solid #444;
+			font-size: 2rem;
+
+			&[inert] {
+				pointer-events: none;
+			}
+		}
+	}
+
+	div:has(> button.remove) {
+		display: flex;
+		justify-content: end;
+		margin-bottom: 0.5em;
+
+		button:not([disabled]) {
+			background-color: rgb(255 129 129);
+		}
+	}
+
+	.table {
+		overflow-y: auto;
+	}
+
+	.presets {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 2px;
+	}
+</style>

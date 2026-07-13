@@ -72,7 +72,7 @@
 			box-sizing: border-box;
 			box-shadow: 8px 8px 10px 0 #444;
 			border-radius: 0.5em;
-			width: min(90%, 800px);
+			width: min(90%, 900px);
 			max-height: 90dvh;
 			font-size: 1.5rem;
 
@@ -138,6 +138,234 @@
 					border: none;
 					border-top: 1px solid #ccc;
 				}
+			}
+		}
+
+		main.main {
+			display: grid;
+			grid-template-rows: auto 1fr auto;
+			flex: 1 0 100dvh;
+			gap: 0 1em;
+			background-image: url('$lib/assets/wallpaper.jpg');
+			background-position: center center;
+			background-size: cover;
+			background-color: rgb(15 18 33);
+			font-size: 2rem;
+
+			> * {
+				padding: 0.7rem 1.5rem;
+			}
+
+			.question {
+				position: relative;
+				backdrop-filter: blur(10px);
+				margin-top: -0.7rem;
+				box-shadow: 0 0 15px #eeea;
+				border-radius: 0 0 0.5em 0.5em;
+				background-color: #0008;
+				padding: 0.5em 1em;
+				height: 5em;
+				color: #fff;
+				font-family: serif;
+
+				p {
+					margin: 0;
+					height: 100%;
+					overflow: hidden;
+				}
+
+				small {
+					opacity: 0.6;
+					font-size: smaller;
+				}
+
+				.answer {
+					display: inline-block;
+					position: absolute;
+					right: 1em;
+					bottom: -0.5em;
+					backdrop-filter: blur(10px);
+					transition: 0.3s translate 1s ease;
+
+					margin-top: 0.5em;
+					box-shadow: 0 0 15px #eeea;
+					border-radius: 0.5em;
+					background-color: #000c;
+					padding: 0.35em 1em;
+
+					&:not(:hover):is(.question:hover *) {
+						translate: 0 60%;
+						transition-delay: 0s;
+					}
+				}
+			}
+		}
+
+		.banner-bg {
+			position: fixed;
+			z-index: 9998;
+			inset: 0;
+			background-color: rgba(0, 0, 0, 0.3);
+		}
+
+		.banner {
+			display: flex;
+			position: fixed;
+			top: calc(50% - 0.7em);
+			right: 0;
+			bottom: calc(50% - 0.7em);
+			left: 0;
+			justify-content: center;
+			align-items: center;
+			z-index: 9999;
+			box-shadow: 0 0 20px #222;
+			overflow: hidden;
+			pointer-events: none;
+			font-weight: bold;
+			font-size: min(8dvw, 20dvh);
+			line-height: 1;
+			user-select: none;
+			text-align: center;
+			text-shadow: 0 0 15px #444;
+			white-space: nowrap;
+
+			&.won {
+				backdrop-filter: blur(10px);
+				background-color: rgba(255 100 100 / 0.3);
+				color: white;
+			}
+			&.lizhi,
+			&.effect2,
+			&.effect3,
+			&.transit {
+				backdrop-filter: blur(10px);
+				background-color: rgba(240 240 175 / 0.4);
+				color: rgb(255 231 231);
+			}
+		}
+
+		header.console,
+		main.console,
+		footer.console {
+			padding: 1em;
+		}
+		:global(html) {
+			font-size: var(--root-font-size);
+		}
+
+		:global(body) {
+			height: 100vh;
+		}
+
+		header.console > div {
+			display: flex;
+			flex-wrap: wrap;
+			align-items: center;
+			gap: 0.5em;
+			margin-bottom: 1em;
+
+			button.blink {
+				animation: blink-animation 0.5s ease infinite;
+				background-color: red;
+				color: white;
+			}
+
+			.spacer {
+				flex-grow: 1;
+			}
+
+			label {
+				display: flex;
+				gap: 0.25em;
+			}
+
+			input[type='number'] {
+				width: 3em;
+				font-size: 1rem;
+			}
+
+			.attendant {
+				border: 1px solid #ccc;
+				padding: 0.5em;
+				line-height: 2.1;
+			}
+
+			.lizhi,
+			.won,
+			.lost {
+				border-radius: 1em;
+				padding: 0 0.5em;
+			}
+
+			.lizhi {
+				background: #dddd0e;
+			}
+			.won {
+				background: #7cfc00;
+			}
+			.lost {
+				background: #ff4500;
+				color: white;
+			}
+		}
+
+		@keyframes blink-animation {
+			to {
+				opacity: 0.3;
+			}
+		}
+
+		main.console {
+			flex-grow: 1;
+			overflow: auto;
+
+			table {
+				border-collapse: collapse;
+				width: 100%;
+			}
+
+			tr:nth-child(odd) {
+				background-color: #f0f0f0;
+			}
+
+			tr.current {
+				background-color: #ffff99;
+				font-weight: bold;
+			}
+
+			td {
+				vertical-align: top;
+				border: 1px solid #ccc;
+				padding: 0.5em;
+
+				&:first-child {
+					text-align: right;
+				}
+
+				&.error {
+					animation: errorFlash 0.5s ease-in-out infinite;
+				}
+
+				em {
+					color: #888;
+					font-style: normal;
+				}
+			}
+		}
+
+		.show-keyboard button.labeled {
+			position: relative;
+
+			&:after {
+				display: block;
+				position: absolute;
+				top: -0.5em;
+				right: -0.5em;
+				border-radius: 0.25em;
+				background: rgb(89 89 228);
+				width: 1em;
+				content: attr(data-label);
+				color: white;
 			}
 		}
 	}
