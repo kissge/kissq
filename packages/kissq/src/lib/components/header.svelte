@@ -53,14 +53,14 @@
 				href="./teams#{encodeURIComponent(JSON.stringify({ attendants }))}"
 				{@attach tooltip('団体戦に切り替えます')}
 			>
-				個人戦
+				個人戦 ▾
 			</a>
 		{:else}
 			<a
 				href="../#{encodeURIComponent(JSON.stringify({ attendants }))}"
 				{@attach tooltip('個人戦に切り替えます')}
 			>
-				団体戦 <small>β版</small>
+				団体戦 <small>β</small> ▾
 			</a>
 		{/if}
 		<button
