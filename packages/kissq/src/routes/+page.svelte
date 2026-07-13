@@ -591,6 +591,7 @@
 			case 'ping':
 				subWindow?.postMessage({
 					command: 'syncState',
+					mode: 'single',
 					currentState: JSON.parse(JSON.stringify(currentState)),
 					orderedAttendants
 				});
@@ -605,6 +606,7 @@
 		if (subWindow && !subWindow.closed) {
 			subWindow.postMessage({
 				command: 'syncState',
+				mode: 'single',
 				currentState: JSON.parse(JSON.stringify(currentState)),
 				orderedAttendants
 			});

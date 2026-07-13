@@ -3,6 +3,7 @@
 	import { onMount } from 'svelte';
 	import { flip } from 'svelte/animate';
 	import { fade } from 'svelte/transition';
+	import { goto } from '$app/navigation';
 	import type { GameState } from '$lib/state';
 
 	const opener = (typeof window !== 'undefined' ? window.opener : {}) as Window;
@@ -50,6 +51,10 @@
 	function processWindowMessage(event: MessageEvent) {
 		switch (event.data.command) {
 			case 'syncState':
+				if (event.data.mode === 'team') {
+					goto('./teams/question');
+				}
+
 				currentState = event.data.currentState;
 				mainScreenOrder = event.data.orderedAttendants;
 				break;
