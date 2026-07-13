@@ -16,6 +16,7 @@
 	import Header from '$lib/components/header.svelte';
 	import LogDialog from '$lib/components/logDialog.svelte';
 	import PenaltyRoulette from '$lib/components/penaltyRoulette.svelte';
+	import Pushers from '$lib/components/pushers.svelte';
 	import RuleEditDialog from '$lib/components/ruleEditDialog.svelte';
 	import Stars from '$lib/components/stars.svelte';
 	import StateEditDialog from '$lib/components/stateEditDialog.svelte';
@@ -676,9 +677,23 @@
 	let lastButtonID = $state<number>();
 	/** attendant ID -> button ID */
 	let buttonMapping = $state<Record<number, number>>({});
+	/** button ID -> attendant ID */
+	let buttonReverseMapping = $derived.by<Record<number, number>>(() => {
+		const reverse: Record<number, number> = {};
+		for (const [attendantID, buttonID] of Object.entries(buttonMapping)) {
+			reverse[buttonID] = Number(attendantID);
+		}
+		return reverse;
+	});
 	let buttonMappingRestored = $state(false);
 	let wasedashikiMode = $state<WasedashikiMode>();
 	let connected = $state(false);
+	let answererRanking = $derived(
+		Object.entries(answerers)
+			.filter(([, v]) => v != null)
+			.toSorted((a, b) => a[1]!.delay - b[1]!.delay)
+			.map(([k, v]) => [buttonReverseMapping[Number(k) + 1], v!] as const)
+	);
 
 	async function initiateSerialConnection(serialPort_?: SerialPort) {
 		if (!serialPort_) {
@@ -731,7 +746,7 @@
 		}
 	}
 
-	let pushers: number[] = [];
+	let pushers: number[] = $state([]);
 
 	function han2zen(str: string) {
 		// 全ASCII（4文字以上連続をどこかに含む場合は無視）
@@ -1293,6 +1308,8 @@
 		{/if}
 	</div>
 {/if}
+
+<Pushers {answererRanking} {attendants} {wasedashikiMode} />
 
 <RuleEditDialog bind:this={ruleEditDialog} />
 <LogDialog bind:this={logDialog} />
