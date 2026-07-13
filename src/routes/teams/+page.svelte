@@ -795,6 +795,7 @@
 				gap: 0;
 				padding-right: 0.5em;
 				font-weight: bold;
+				line-height: 0.8;
 
 				&:before {
 					position: absolute;
