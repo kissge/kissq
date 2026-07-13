@@ -12,6 +12,7 @@
 		gameTitle,
 		battleMode,
 		attendants,
+		buttonMapping,
 		wasedashikiMode,
 		rules,
 		editRule
@@ -21,6 +22,7 @@
 		gameTitle: string;
 		battleMode: 'single' | 'team';
 		attendants: Attendant[];
+		buttonMapping: Record<number, number>;
 		wasedashikiMode: WasedashikiMode | undefined;
 		rules: Rule[];
 		editRule: () => void;
@@ -30,6 +32,9 @@
 	let helpDialog: { open: () => void };
 
 	let { activeRulesText } = $derived(getActiveRulesText(rules, battleMode));
+
+	const search = typeof location !== 'undefined' ? location.search : '';
+	let hash = $derived(encodeURIComponent(JSON.stringify({ attendants, buttonMapping })));
 </script>
 
 <header bind:clientHeight={headerClientHeight}>
@@ -50,20 +55,14 @@
 		></span>
 		{#if battleMode === 'single'}
 			<a
-				href="./teams{typeof location !== 'undefined' ? location.search : ''}#{encodeURIComponent(
-					JSON.stringify({ attendants })
-				)}"
+				data-sveltekit-reload
+				href="./teams{search}#{hash}"
 				{@attach tooltip('団体戦に切り替えます')}
 			>
 				個人戦 ▾
 			</a>
 		{:else}
-			<a
-				href="./{typeof location !== 'undefined' ? location.search : ''}#{encodeURIComponent(
-					JSON.stringify({ attendants })
-				)}"
-				{@attach tooltip('個人戦に切り替えます')}
-			>
+			<a data-sveltekit-reload href="./{search}#{hash}" {@attach tooltip('個人戦に切り替えます')}>
 				団体戦 <small>β</small> ▾
 			</a>
 		{/if}
