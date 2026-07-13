@@ -783,6 +783,29 @@
 
 			.grid-wrapper {
 				display: contents;
+
+				&:has(.seat-total) {
+					& > *:not(:last-child) {
+						border-radius: 1em 0 0 1em;
+						.score {
+							border-radius: 0;
+						}
+					}
+
+					& > :nth-child(2):not(:last-child) {
+						border-radius: 1em 1em 0 1em;
+						.score {
+							border-radius: 0 1em 0 0;
+						}
+					}
+
+					& > :last-child:not(:nth-child(2)) {
+						border-radius: 1em 0 1em 1em;
+						.score {
+							border-radius: 0 0 1em 0;
+						}
+					}
+				}
 			}
 
 			.seat-total {
