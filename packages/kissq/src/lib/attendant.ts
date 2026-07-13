@@ -9,7 +9,9 @@ export interface Attendant {
 	buttonID?: number;
 }
 
-export function loadFromHash(team?: boolean): Attendant[] | null {
+export function loadFromHash(
+	team?: boolean
+): { attendants: Attendant[]; buttonMapping?: Record<number, number> } | null {
 	try {
 		const url = new URL(document.URL);
 		if (url.hash.length > 1) {
@@ -17,6 +19,7 @@ export function loadFromHash(team?: boolean): Attendant[] | null {
 
 			if ('attendants' in names) {
 				const attendants = names.attendants as Attendant[];
+				const buttonMapping = names.buttonMapping as Record<number, number> | undefined;
 
 				if (attendants.every(({ team, seat }) => team === 0 && seat === 0)) {
 					const half = Math.ceil(attendants.length / 2);
@@ -26,7 +29,7 @@ export function loadFromHash(team?: boolean): Attendant[] | null {
 					});
 				}
 
-				return attendants;
+				return { attendants, buttonMapping };
 			}
 
 			if (team) {
@@ -41,17 +44,19 @@ export function loadFromHash(team?: boolean): Attendant[] | null {
 						)
 					) {
 						let order = 0;
-						return names.flatMap((team, ti) =>
-							(team as string[]).flatMap((name, si) => ({
-								name,
-								group: 0,
-								team: ti,
-								seat: si,
-								trophyCount: 0,
-								totalScore: { num: 0, den: 0 },
-								manualOrder: order++
-							}))
-						);
+						return {
+							attendants: names.flatMap((team, ti) =>
+								(team as string[]).flatMap((name, si) => ({
+									name,
+									group: 0,
+									team: ti,
+									seat: si,
+									trophyCount: 0,
+									totalScore: { num: 0, den: 0 },
+									manualOrder: order++
+								}))
+							)
+						};
 					} else if (
 						names.every(
 							(team) =>
@@ -65,18 +70,20 @@ export function loadFromHash(team?: boolean): Attendant[] | null {
 						)
 					) {
 						let order = 0;
-						return names.flatMap((team, ti) =>
-							(team as [string, number | undefined][]).flatMap(([name, buttonID], si) => ({
-								name,
-								group: 0,
-								team: ti,
-								seat: si,
-								trophyCount: 0,
-								totalScore: { num: 0, den: 0 },
-								manualOrder: order++,
-								buttonID
-							}))
-						);
+						return {
+							attendants: names.flatMap((team, ti) =>
+								(team as [string, number | undefined][]).flatMap(([name, buttonID], si) => ({
+									name,
+									group: 0,
+									team: ti,
+									seat: si,
+									trophyCount: 0,
+									totalScore: { num: 0, den: 0 },
+									manualOrder: order++,
+									buttonID
+								}))
+							)
+						};
 					}
 				}
 			} else {
@@ -89,26 +96,30 @@ export function loadFromHash(team?: boolean): Attendant[] | null {
 								(nb[1] == undefined || typeof nb[1] === 'number')
 						)
 					) {
-						return names.map(([name, buttonID], manualOrder) => ({
-							name,
-							group: 0,
-							team: 0,
-							seat: 0,
-							trophyCount: 0,
-							totalScore: { num: 0, den: 0 },
-							manualOrder,
-							buttonID
-						}));
+						return {
+							attendants: names.map(([name, buttonID], manualOrder) => ({
+								name,
+								group: 0,
+								team: 0,
+								seat: 0,
+								trophyCount: 0,
+								totalScore: { num: 0, den: 0 },
+								manualOrder,
+								buttonID
+							}))
+						};
 					} else if (names.every((n) => typeof n === 'string')) {
-						return names.map((name, manualOrder) => ({
-							name,
-							group: 0,
-							team: 0,
-							seat: 0,
-							trophyCount: 0,
-							totalScore: { num: 0, den: 0 },
-							manualOrder
-						}));
+						return {
+							attendants: names.map((name, manualOrder) => ({
+								name,
+								group: 0,
+								team: 0,
+								seat: 0,
+								trophyCount: 0,
+								totalScore: { num: 0, den: 0 },
+								manualOrder
+							}))
+						};
 					}
 				}
 			}

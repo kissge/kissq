@@ -6,6 +6,7 @@
 	import { fade, fly, slide } from 'svelte/transition';
 	import Toastify from 'toastify-js';
 	import 'toastify-js/src/toastify.css';
+	import { beforeNavigate } from '$app/navigation';
 	import se1 from '$lib/assets/se1.mp3';
 	import se2 from '$lib/assets/se2.mp3';
 	import se3 from '$lib/assets/se3.mp3';
@@ -41,28 +42,26 @@
 	import { AttendantState, GameState, type AttendantStateValue, type GameEvent } from '$lib/state';
 	import { tooltip } from '$lib/tooltip.svelte';
 
-	let attendants = $state<Attendant[]>(
-		loadFromHash() ?? [
-			{
-				name: '',
-				group: 0,
-				team: 0,
-				seat: 0,
-				trophyCount: 0,
-				totalScore: { num: 0, den: 0 },
-				manualOrder: 0
-			},
-			{
-				name: '',
-				group: 0,
-				team: 0,
-				seat: 0,
-				trophyCount: 0,
-				totalScore: { num: 0, den: 0 },
-				manualOrder: 1
-			}
-		]
-	);
+	let attendants = $state<Attendant[]>([
+		{
+			name: '',
+			group: 0,
+			team: 0,
+			seat: 0,
+			trophyCount: 0,
+			totalScore: { num: 0, den: 0 },
+			manualOrder: 0
+		},
+		{
+			name: '',
+			group: 0,
+			team: 0,
+			seat: 0,
+			trophyCount: 0,
+			totalScore: { num: 0, den: 0 },
+			manualOrder: 1
+		}
+	]);
 	let rules = $state([new Rule('marubatsu', 7, 3, 1, 1, false, null, 'constant', 0, null)]);
 	let history = $state<HistoryEntry[]>([]);
 	let currentState = $derived(
@@ -614,11 +613,16 @@
 	});
 
 	$effect(() => {
-		let data = currentState.attendants.flatMap(({ name, life }) =>
-			life === 'removed' ? [] : [name]
-		);
+		if (attendants.length === 2 && attendants.every(({ name }) => name === '')) {
+			return;
+		}
+
+		const data = {
+			attendants: attendants.filter((_, ai) => currentState.attendants[ai].life !== 'removed'),
+			buttonMapping
+		};
 		untrack(() => {
-			if (data.every((n) => n === '')) {
+			if (data.attendants.every(({ name }) => name === '')) {
 				window.history.replaceState(null, '', ' ');
 			} else {
 				// eslint-disable-next-line svelte/prefer-svelte-reactivity
@@ -640,10 +644,18 @@
 			main.style.setProperty('--trophy-image', `url(${trophy})`);
 		}
 
+		const data = loadFromHash();
+		if (data) {
+			attendants = data.attendants;
+			buttonMapping = data.buttonMapping ?? {};
+			buttonMappingRestored = true;
+		}
+
 		reconnect()
 			.then((port) => {
 				if (port) {
 					serialPort = port;
+					console.log('port', port);
 					initiateSerialConnection(port);
 					setTimeout(() => {
 						if (connected) {
@@ -666,6 +678,7 @@
 	let lastButtonID = $state<number>();
 	/** attendant ID -> button ID */
 	let buttonMapping = $state<Record<number, number>>({});
+	let buttonMappingRestored = $state(false);
 	let wasedashikiMode = $state<WasedashikiMode>();
 	let connected = $state(false);
 
@@ -720,6 +733,13 @@
 		}
 	}
 
+	beforeNavigate(() => {
+		console.log('close!!!');
+		if (serialPort) {
+			serialPort.close();
+		}
+	});
+
 	let pushers: number[] = [];
 
 	function han2zen(str: string) {
@@ -759,6 +779,7 @@
 		{gameTitle}
 		battleMode="single"
 		{attendants}
+		{buttonMapping}
 		{wasedashikiMode}
 		{rules}
 		{editRule}
@@ -829,8 +850,8 @@
 								: 13 <= buttonMapping[i] && buttonMapping[i] <= 18
 									? 'background-color: yellow; color: black'
 									: 'background-color: green; color: white'}
-					style:display={Object.keys(buttonMapping).length === 0 ? 'none' : ''}
-					disabled={Object.keys(buttonMapping).length === 0 || lastButtonID == undefined}
+					style:display={lastButtonID == undefined && !buttonMappingRestored ? 'none' : ''}
+					disabled={lastButtonID == undefined && !buttonMappingRestored}
 					{@attach tooltip(
 						`このプレイヤーが持っているボタンは${buttonMapping[i] == null ? '???' : buttonMapping[i]}番です。クリックで紐づけ`
 					)}

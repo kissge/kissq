@@ -4,6 +4,7 @@
 	import { fade, slide } from 'svelte/transition';
 	import Toastify from 'toastify-js';
 	import 'toastify-js/src/toastify.css';
+	import { beforeNavigate } from '$app/navigation';
 	import se1 from '$lib/assets/se1.mp3';
 	import se2 from '$lib/assets/se2.mp3';
 	import se3 from '$lib/assets/se3.mp3';
@@ -167,6 +168,7 @@
 	let lastButtonID = $state<number>();
 	/** attendant ID -> button ID */
 	let buttonMapping = $state<Record<number, number>>({});
+	let buttonMappingRestored = $state(false);
 	let wasedashikiMode = $state<WasedashikiMode>();
 	let connected = $state(false);
 
@@ -213,6 +215,13 @@
 			await new Promise((resolve) => setTimeout(resolve, 5000));
 		}
 	}
+
+	beforeNavigate(() => {
+		console.log('close!!!');
+		if (serialPort) {
+			serialPort.close();
+		}
+	});
 
 	let subWindow = $state<Window>();
 
@@ -328,12 +337,9 @@
 		const data = loadFromHash(true);
 
 		if (data) {
-			data.forEach(({ buttonID }, i) => {
-				if (buttonID != null) {
-					buttonMapping[i] = buttonID;
-				}
-			});
-			attendants = data;
+			attendants = data.attendants;
+			buttonMapping = data.buttonMapping ?? {};
+			buttonMappingRestored = true;
 		} else {
 			attendants = Array.from({ length: 2 }, (_, ti) =>
 				Array.from({ length: 10 }, (_, ai) => ({
@@ -372,16 +378,17 @@
 	});
 
 	$effect(() => {
-		let data = currentState.teams.map((team) =>
-			team.attendantIDsPerSeat.flatMap((seat) => seat?.map((id) => attendants[id].name))
-		);
+		const data = {
+			attendants: attendants.filter((_, ai) => currentState.attendants[ai].life !== 'removed'),
+			buttonMapping
+		};
 		untrack(() => {
-			if (data.every((ns) => ns.every((n) => n === ''))) {
+			if (data.attendants.every(({ name }) => name === '')) {
 				window.history.replaceState(null, '', ' ');
 			} else {
 				// eslint-disable-next-line svelte/prefer-svelte-reactivity
 				const url = new URL(document.URL);
-				url.hash = encodeURIComponent(JSON.stringify({ attendants }));
+				url.hash = encodeURIComponent(JSON.stringify(data));
 				location.replace(url);
 			}
 		});
@@ -395,6 +402,7 @@
 		{gameTitle}
 		battleMode="team"
 		{attendants}
+		{buttonMapping}
 		{wasedashikiMode}
 		{rules}
 		{editRule}
@@ -550,9 +558,10 @@
 															: 13 <= buttonMapping[i] && buttonMapping[i] <= 18
 																? 'background-color: yellow; color: black'
 																: 'background-color: green; color: white'}
-												style:display={Object.keys(buttonMapping).length === 0 ? 'none' : ''}
-												disabled={Object.keys(buttonMapping).length === 0 ||
-													lastButtonID == undefined}
+												style:display={lastButtonID == undefined && !buttonMappingRestored
+													? 'none'
+													: ''}
+												disabled={lastButtonID == undefined && !buttonMappingRestored}
 												{@attach tooltip(
 													`このプレイヤーが持っているボタンは${buttonMapping[i] == null ? '???' : buttonMapping[i]}番です。クリックで紐づけ`
 												)}
