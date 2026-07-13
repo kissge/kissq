@@ -1,16 +1,15 @@
 <script lang="ts">
-	// import { csv2json } from 'json-2-csv';
 	import { onMount } from 'svelte';
 	import { flip } from 'svelte/animate';
 	import { fade } from 'svelte/transition';
 	import { goto } from '$app/navigation';
+	import { parseCSV, qZero } from '$lib/question';
 	import type { GameState } from '$lib/state';
 
 	const opener = (typeof window !== 'undefined' ? window.opener : {}) as Window;
 
-	const qZero = { question: 'ここに問題が表示されます', answer: 'ここに答えが表示されます' };
 	let questions = $state([qZero]);
-	// let rawInput = $state('');
+	let rawInput = $state('');
 	let currentIndex = $state(0);
 
 	let fontSize = $state(6);
@@ -33,7 +32,7 @@
 		}
 	});
 
-	// let inputDialog: HTMLDialogElement;
+	let inputDialog: HTMLDialogElement;
 
 	const Keys = [
 		['Q', 'A'],
@@ -108,28 +107,11 @@
 		};
 	});
 
-	// function loadFromCSV() {
-	// 	const tabCount = rawInput.match(/\t/g)?.length ?? 0;
-	// 	const commaCount = rawInput.match(/,/g)?.length ?? 0;
-	// 	const delimiter = tabCount > commaCount ? '\t' : ',';
-
-	// 	const lines = rawInput
-	// 		.trim()
-	// 		.split('\n')
-	// 		.filter((line) => line.trim() !== '')
-	// 		.join('\n');
-
-	// 	questions = [
-	// 		qZero,
-	// 		...(csv2json(lines, {
-	// 			delimiter: { field: delimiter },
-	// 			headerFields: ['question', 'answer']
-	// 		}) as { question: string; answer: string }[])
-	// 	];
-
-	// 	window.localStorage.setItem('questions', JSON.stringify(questions));
-	// 	inputDialog.close();
-	// }
+	function loadFromCSV() {
+		questions = parseCSV(rawInput);
+		window.localStorage.setItem('questions', JSON.stringify(questions));
+		inputDialog.close();
+	}
 </script>
 
 <svelte:head>
@@ -175,7 +157,7 @@
 		>
 			プレイヤー追加
 		</button>
-		<!--
+
 		<button
 			class="labeled"
 			data-label="N"
@@ -191,7 +173,7 @@
 			onclick={() => ++currentIndex}
 		>
 			次の問題へ →
-		</button> -->
+		</button>
 		<div class="spacer"></div>
 		<!-- <div>
 			プレイヤーの表示順
@@ -209,9 +191,9 @@
 			フォントサイズ
 			<input type="number" bind:value={fontSize} />
 		</label>
-		<!-- <button onclick={() => window.opener.postMessage({ command: 'toggleQuestionWindow' })}>
+		<button onclick={() => window.opener.postMessage({ command: 'toggleQuestionWindow' })}>
 			問題ウィンドウを表示・非表示
-		</button> -->
+		</button>
 	</div>
 	{#if currentState && orderedAttendants}
 		<div>
@@ -258,7 +240,6 @@
 	{/if}
 </header>
 
-<!--
 <main class="console">
 	<table>
 		<tbody>
@@ -285,8 +266,8 @@
 			{/each}
 		</tbody>
 	</table>
-</main> -->
-<!--
+</main>
+
 <footer class="console">
 	<button
 		onclick={() => {
@@ -306,10 +287,10 @@
 		placeholder="ここにCSV/TSVデータを貼り付けてください"
 	></textarea>
 	<button onclick={loadFromCSV}>読み込み</button>
-</dialog> -->
+</dialog>
 
 <style>
-	/* dialog {
+	dialog {
 		user-select: none;
 
 		textarea {
@@ -325,5 +306,5 @@
 		50% {
 			background-color: #ffcccc;
 		}
-	} */
+	}
 </style>

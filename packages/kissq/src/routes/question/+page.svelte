@@ -4,11 +4,11 @@
 	import { flip } from 'svelte/animate';
 	import { fade } from 'svelte/transition';
 	import { goto } from '$app/navigation';
+	import { parseCSV, qZero } from '$lib/question';
 	import type { GameState } from '$lib/state';
 
 	const opener = (typeof window !== 'undefined' ? window.opener : {}) as Window;
 
-	const qZero = { question: 'ここに問題が表示されます', answer: 'ここに答えが表示されます' };
 	let questions = $state([qZero]);
 	let rawInput = $state('');
 	let currentIndex = $state(0);
@@ -108,24 +108,7 @@
 	});
 
 	function loadFromCSV() {
-		const tabCount = rawInput.match(/\t/g)?.length ?? 0;
-		const commaCount = rawInput.match(/,/g)?.length ?? 0;
-		const delimiter = tabCount > commaCount ? '\t' : ',';
-
-		const lines = rawInput
-			.trim()
-			.split('\n')
-			.filter((line) => line.trim() !== '')
-			.join('\n');
-
-		questions = [
-			qZero,
-			...(csv2json(lines, {
-				delimiter: { field: delimiter },
-				headerFields: ['question', 'answer']
-			}) as { question: string; answer: string }[])
-		];
-
+		questions = parseCSV(rawInput);
 		window.localStorage.setItem('questions', JSON.stringify(questions));
 		inputDialog.close();
 	}

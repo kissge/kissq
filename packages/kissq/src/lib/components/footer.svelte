@@ -56,6 +56,7 @@
 		display: flex;
 		justify-content: end;
 		gap: 0.5em;
+		z-index: 9999;
 		box-sizing: border-box;
 		background: #eee;
 		width: 100dvw;

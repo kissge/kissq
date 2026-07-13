@@ -230,13 +230,13 @@
 		}
 
 		switch (event.data.command) {
-			// case 'toggleQuestionWindow':
-			// 	showQuestionWindow = !showQuestionWindow;
-			// 	break;
+			case 'toggleQuestionWindow':
+				showQuestionWindow = !showQuestionWindow;
+				break;
 
-			// case 'updateQuestion':
-			// 	currentQuestion = { question: event.data.question, answer: event.data.answer };
-			// 	break;
+			case 'updateQuestion':
+				currentQuestion = { question: event.data.question, answer: event.data.answer };
+				break;
 
 			case 'clickMaru':
 				clickMaru(event.data.attendantID);
@@ -313,6 +313,13 @@
 		if (subWindow && !subWindow.closed) {
 			syncState();
 		}
+	});
+
+	const urlParams = new URLSearchParams(typeof location !== 'undefined' ? location.search : '');
+	let showQuestionWindow = $state(urlParams.has('qw'));
+	let currentQuestion = $state({
+		question: 'ここに問題が表示されます',
+		answer: 'ここに答えが表示されます'
 	});
 
 	let pushers: number[] = [];
@@ -393,9 +400,37 @@
 		{editRule}
 	/>
 
+	{#if showQuestionWindow}
+		<div transition:fade>
+			<div class="question">
+				{#key currentQuestion.question}
+					<p in:fade>
+						{#each currentQuestion.question.split(/(（.+?）|\(.+?\)|【.+?】|［.+?］)/) as part, i (i)}
+							{#if i % 2}
+								<small>{part}</small>
+							{:else}
+								{part}
+							{/if}
+						{/each}
+					</p>
+				{/key}
+				<div class="answer">
+					A.
+					{#each currentQuestion.answer.split(/(（.+?）|\(.+?\)|【.+?】|［.+?］)/) as part, i (i)}
+						{#if i % 2}
+							<small>{part}</small>
+						{:else}
+							{part}
+						{/if}
+					{/each}
+				</div>
+			</div>
+		</div>
+	{/if}
+
 	<div
 		class="attendants"
-		style:height={`calc(100vh - ${headerClientHeight + footerClientHeight}px - 30px)`}
+		style:height={`calc(100vh - ${headerClientHeight + footerClientHeight}px - 30px ${showQuestionWindow ? '- 6.25em - 0.7rem' : ''})`}
 	>
 		{#each attendantsPerTeam as seats, ti (ti)}
 			<div class="team" class:lizhi={/** TODO */ false}>
