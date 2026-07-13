@@ -106,7 +106,7 @@ export class AttendantState {
 	/** バツを受けた場合のstateの変化を求める（破壊的にはしない） */
 	processBatsu(
 		penalty: Penalty | null = null,
-		attendantsPerSeat: (AttendantState[] | undefined)[] = []
+		attendantsPerSeat?: (AttendantState[] | undefined)[]
 	): {
 		maruCount: number;
 		batsuCount: number;
@@ -211,9 +211,9 @@ export class AttendantState {
 			case 'aql':
 				++batsuCount;
 				if (
-					attendantsPerSeat
-						.find((seat) => seat?.includes(this))!
-						.reduce((sum, att) => sum + att.batsuCount, 1) >= 2
+					(attendantsPerSeat
+						?.find((seat) => seat?.includes(this))
+						?.reduce((sum, att) => sum + att.batsuCount, 1) ?? 0) >= 2
 				) {
 					life = 'lost';
 				}

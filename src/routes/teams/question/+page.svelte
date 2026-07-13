@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { csv2json } from 'json-2-csv';
+	// import { csv2json } from 'json-2-csv';
 	import { onMount } from 'svelte';
 	import { flip } from 'svelte/animate';
 	import { fade } from 'svelte/transition';
@@ -10,7 +10,7 @@
 
 	const qZero = { question: 'ここに問題が表示されます', answer: 'ここに答えが表示されます' };
 	let questions = $state([qZero]);
-	let rawInput = $state('');
+	// let rawInput = $state('');
 	let currentIndex = $state(0);
 
 	let fontSize = $state(6);
@@ -33,7 +33,7 @@
 		}
 	});
 
-	let inputDialog: HTMLDialogElement;
+	// let inputDialog: HTMLDialogElement;
 
 	const Keys = [
 		['Q', 'A'],
@@ -51,12 +51,13 @@
 	function processWindowMessage(event: MessageEvent) {
 		switch (event.data.command) {
 			case 'syncState':
-				if (event.data.mode === 'team') {
-					goto('./teams/question');
+				if (event.data.mode === 'single') {
+					goto('../question');
 				}
 
 				currentState = event.data.currentState;
 				mainScreenOrder = event.data.orderedAttendants;
+
 				break;
 		}
 	}
@@ -107,28 +108,28 @@
 		};
 	});
 
-	function loadFromCSV() {
-		const tabCount = rawInput.match(/\t/g)?.length ?? 0;
-		const commaCount = rawInput.match(/,/g)?.length ?? 0;
-		const delimiter = tabCount > commaCount ? '\t' : ',';
+	// function loadFromCSV() {
+	// 	const tabCount = rawInput.match(/\t/g)?.length ?? 0;
+	// 	const commaCount = rawInput.match(/,/g)?.length ?? 0;
+	// 	const delimiter = tabCount > commaCount ? '\t' : ',';
 
-		const lines = rawInput
-			.trim()
-			.split('\n')
-			.filter((line) => line.trim() !== '')
-			.join('\n');
+	// 	const lines = rawInput
+	// 		.trim()
+	// 		.split('\n')
+	// 		.filter((line) => line.trim() !== '')
+	// 		.join('\n');
 
-		questions = [
-			qZero,
-			...(csv2json(lines, {
-				delimiter: { field: delimiter },
-				headerFields: ['question', 'answer']
-			}) as { question: string; answer: string }[])
-		];
+	// 	questions = [
+	// 		qZero,
+	// 		...(csv2json(lines, {
+	// 			delimiter: { field: delimiter },
+	// 			headerFields: ['question', 'answer']
+	// 		}) as { question: string; answer: string }[])
+	// 	];
 
-		window.localStorage.setItem('questions', JSON.stringify(questions));
-		inputDialog.close();
-	}
+	// 	window.localStorage.setItem('questions', JSON.stringify(questions));
+	// 	inputDialog.close();
+	// }
 </script>
 
 <svelte:head>
@@ -164,7 +165,7 @@
 		>
 			全員リセット
 		</button>
-		<button
+		<!-- <button
 			onclick={() => {
 				let name = prompt('プレイヤーの名前を入力してください');
 				if (name) {
@@ -189,16 +190,16 @@
 			onclick={() => ++currentIndex}
 		>
 			次の問題へ →
-		</button>
+		</button> -->
 		<div class="spacer"></div>
-		<div>
+		<!-- <div>
 			プレイヤーの表示順
 			<select bind:value={order}>
 				<option value="added">追加順</option>
 				<option value="same">画面と同じ</option>
 				<option value="reverse">画面の逆順</option>
 			</select>
-		</div>
+		</div> -->
 		<label>
 			<input type="checkbox" bind:checked={isKeyboardEnabled} />
 			キーボード操作
@@ -207,9 +208,9 @@
 			フォントサイズ
 			<input type="number" bind:value={fontSize} />
 		</label>
-		<button onclick={() => window.opener.postMessage({ command: 'toggleQuestionWindow' })}>
+		<!-- <button onclick={() => window.opener.postMessage({ command: 'toggleQuestionWindow' })}>
 			問題ウィンドウを表示・非表示
-		</button>
+		</button> -->
 	</div>
 	{#if currentState && orderedAttendants}
 		<div>
@@ -224,13 +225,13 @@
 								<span class="lizhi" transition:fade>リーチ</span>
 							{/if}
 						{:else if att.isLoseLizhi}
-							<span class="lizhi" transition:fade>失格リーチ</span>
+							<span class="lizhi" transition:fade>封鎖リーチ</span>
 						{/if}
 						&nbsp;
 						{#if att.life === 'won'}
 							<span class="won" transition:fade>勝ち</span>
 						{:else if att.life === 'lost'}
-							<span class="lost" transition:fade>失格</span>
+							<span class="lost" transition:fade>封鎖</span>
 						{:else if att.yasuDisplay > 0}
 							{#if att.yasuCount === 'next'}次{/if}{att.yasuDisplay}休
 						{:else}
@@ -256,6 +257,7 @@
 	{/if}
 </header>
 
+<!--
 <main class="console">
 	<table>
 		<tbody>
@@ -282,8 +284,8 @@
 			{/each}
 		</tbody>
 	</table>
-</main>
-
+</main> -->
+<!--
 <footer class="console">
 	<button
 		onclick={() => {
@@ -303,10 +305,10 @@
 		placeholder="ここにCSV/TSVデータを貼り付けてください"
 	></textarea>
 	<button onclick={loadFromCSV}>読み込み</button>
-</dialog>
+</dialog> -->
 
 <style>
-	dialog {
+	/* dialog {
 		user-select: none;
 
 		textarea {
@@ -322,5 +324,5 @@
 		50% {
 			background-color: #ffcccc;
 		}
-	}
+	} */
 </style>

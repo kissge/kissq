@@ -214,6 +214,94 @@
 		}
 	}
 
+	let subWindow = $state<Window>();
+
+	function openSubWindow() {
+		subWindow = window.open('./teams/question', 'questionWindow', 'popup') || undefined;
+	}
+
+	function processWindowMessage(event: MessageEvent) {
+		if (!subWindow) {
+			try {
+				subWindow = event.source as Window;
+			} catch {
+				/* ignore */
+			}
+		}
+
+		switch (event.data.command) {
+			// case 'toggleQuestionWindow':
+			// 	showQuestionWindow = !showQuestionWindow;
+			// 	break;
+
+			// case 'updateQuestion':
+			// 	currentQuestion = { question: event.data.question, answer: event.data.answer };
+			// 	break;
+
+			case 'clickMaru':
+				clickMaru(event.data.attendantID);
+				break;
+
+			case 'clickBatsu':
+				clickBatsu(event.data.attendantID);
+				break;
+
+			case 'clickThrough':
+				clickThrough();
+				break;
+
+			case 'clickUndo':
+				clickUndo();
+				break;
+
+			case 'clickReset':
+				clearHistory();
+				break;
+
+			// case 'addAttendant':
+			// 	addAttendant(event.data.name);
+			// 	break;
+
+			case 'ping':
+				syncState();
+				break;
+		}
+	}
+
+	function syncState() {
+		const state = Object.fromEntries(
+			Object.entries(currentState).flatMap(([k, v]) =>
+				k === 'teams'
+					? []
+					: k === 'attendants'
+						? [
+								[
+									k,
+									v.map((v: AttendantState) =>
+										Object.fromEntries(Object.entries(v).filter(([k]) => k !== 'team'))
+									)
+								]
+							]
+						: [[k, v]]
+			)
+		);
+
+		subWindow?.postMessage({
+			command: 'syncState',
+			mode: 'team',
+			currentState: JSON.parse(JSON.stringify(state))
+		});
+	}
+
+	$effect(() => {
+		// eslint-disable-next-line svelte/no-unused-svelte-ignore
+		// svelte-ignore state_snapshot_uncloneable
+		$state.snapshot(currentState);
+		if (subWindow && !subWindow.closed) {
+			syncState();
+		}
+	});
+
 	let pushers: number[] = [];
 
 	onMount(() => {
@@ -257,6 +345,10 @@
 			.catch((error) => {
 				console.error('接続エラー', error);
 			});
+
+		window.addEventListener('message', processWindowMessage);
+
+		return () => window.removeEventListener('message', processWindowMessage);
 	});
 
 	$effect(() => {
@@ -627,6 +719,7 @@
 		>
 			{#if playSounds}🔊 ON{:else}🔇 OFF{/if}
 		</button>
+		<button onclick={openSubWindow}>操作盤表示</button>
 		<button disabled={serialPort != null} onclick={() => initiateSerialConnection()}>
 			早稲田式連携
 		</button>
