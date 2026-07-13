@@ -130,7 +130,7 @@
 	<title>操作盤 - kissQ</title>
 </svelte:head>
 
-<header class:show-keyboard={isKeyboardEnabled}>
+<header class="console" class:show-keyboard={isKeyboardEnabled}>
 	<div>
 		<button
 			class="labeled"
@@ -251,7 +251,7 @@
 	{/if}
 </header>
 
-<main>
+<main class="console">
 	<table>
 		<tbody>
 			{#each questions as { question, answer }, index (question)}
@@ -279,7 +279,7 @@
 	</table>
 </main>
 
-<footer>
+<footer class="console">
 	<button
 		onclick={() => {
 			rawInput = '';
@@ -301,137 +301,12 @@
 </dialog>
 
 <style>
-	header,
-	main,
-	footer {
-		padding: 1em;
-	}
-	:global(html) {
-		font-size: var(--root-font-size);
-	}
-
-	:global(body) {
-		height: 100vh;
-	}
-
-	header > div {
-		display: flex;
-		flex-wrap: wrap;
-		align-items: center;
-		gap: 0.5em;
-		margin-bottom: 1em;
-
-		button.blink {
-			animation: blink-animation 0.5s ease infinite;
-			background-color: red;
-			color: white;
-		}
-
-		.spacer {
-			flex-grow: 1;
-		}
-
-		label {
-			display: flex;
-			gap: 0.25em;
-		}
-
-		input[type='number'] {
-			width: 3em;
-			font-size: 1rem;
-		}
-
-		.attendant {
-			border: 1px solid #ccc;
-			padding: 0.5em;
-			line-height: 2.1;
-		}
-
-		.lizhi,
-		.won,
-		.lost {
-			border-radius: 1em;
-			padding: 0 0.5em;
-		}
-
-		.lizhi {
-			background: #dddd0e;
-		}
-		.won {
-			background: #7cfc00;
-		}
-		.lost {
-			background: #ff4500;
-			color: white;
-		}
-	}
-
-	@keyframes blink-animation {
-		to {
-			opacity: 0.3;
-		}
-	}
-
-	main {
-		flex-grow: 1;
-		overflow: auto;
-
-		table {
-			border-collapse: collapse;
-			width: 100%;
-		}
-
-		tr:nth-child(odd) {
-			background-color: #f0f0f0;
-		}
-
-		tr.current {
-			background-color: #ffff99;
-			font-weight: bold;
-		}
-
-		td {
-			vertical-align: top;
-			border: 1px solid #ccc;
-			padding: 0.5em;
-
-			&:first-child {
-				text-align: right;
-			}
-
-			&.error {
-				animation: errorFlash 0.5s ease-in-out infinite;
-			}
-
-			em {
-				color: #888;
-				font-style: normal;
-			}
-		}
-	}
-
-	textarea {
-		width: 90%;
-	}
-
-	button.labeled:is(.show-keyboard *) {
-		position: relative;
-
-		&:after {
-			display: block;
-			position: absolute;
-			top: -0.5em;
-			right: -0.5em;
-			border-radius: 0.25em;
-			background: rgb(89 89 228);
-			width: 1em;
-			content: attr(data-label);
-			color: white;
-		}
-	}
-
 	dialog {
 		user-select: none;
+
+		textarea {
+			width: 90%;
+		}
 	}
 
 	@keyframes errorFlash {
