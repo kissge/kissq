@@ -219,7 +219,8 @@ export async function readLoopSerialPort(
 				setter({
 					answerers: Array.from({ length: 24 }, (_, i) =>
 						i === parts[0] - 101 && parts[1] > 0 ? { rank, delay: parts[1] } : answerers[i]
-					)
+					),
+					pushers
 				});
 			} else {
 				Toastify({ text: `デバッグ情報: ${JSON.stringify(line)}` }).showToast();
