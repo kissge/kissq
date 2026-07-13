@@ -9,9 +9,11 @@
 	import se1 from '$lib/assets/se1.mp3';
 	import se2 from '$lib/assets/se2.mp3';
 	import se3 from '$lib/assets/se3.mp3';
+	import { type Attendant, loadFromHash } from '$lib/attendant';
 	import AppearanceDialog from '$lib/components/appearanceDialog.svelte';
 	import EffectEditDialog from '$lib/components/effectEditDialog.svelte';
-	import HelpDialog from '$lib/components/helpDialog.svelte';
+	import Footer from '$lib/components/footer.svelte';
+	import Header from '$lib/components/header.svelte';
 	import LogDialog from '$lib/components/logDialog.svelte';
 	import PenaltyRoulette from '$lib/components/penaltyRoulette.svelte';
 	import RuleEditDialog from '$lib/components/ruleEditDialog.svelte';
@@ -28,21 +30,37 @@
 		EditHistoryEntry
 	} from '$lib/historyEntry';
 	import type { LogEntry, LogStateEntry } from '$lib/logs';
-	import { Rule, type Penalty } from '$lib/rule';
-	import { connectToSerialPort, readFromSerialPort, reconnect } from '$lib/serial';
+	import { Rule, type Penalty, getActiveRulesText } from '$lib/rule';
 	import {
-		AttendantState,
-		GameState,
-		type Attendant,
-		type AttendantStateValue,
-		type GameEvent
-	} from '$lib/state';
+		connectToSerialPort,
+		readLoopSerialPort,
+		reconnect,
+		type WasedashikiMode
+	} from '$lib/serial';
+	import { playSound } from '$lib/sound';
+	import { AttendantState, GameState, type AttendantStateValue, type GameEvent } from '$lib/state';
 	import { tooltip } from '$lib/tooltip.svelte';
 
 	let attendants = $state<Attendant[]>(
 		loadFromHash() ?? [
-			{ name: '', group: 0, trophyCount: 0, totalScore: { num: 0, den: 0 }, manualOrder: 0 },
-			{ name: '', group: 0, trophyCount: 0, totalScore: { num: 0, den: 0 }, manualOrder: 1 }
+			{
+				name: '',
+				group: 0,
+				team: 0,
+				seat: 0,
+				trophyCount: 0,
+				totalScore: { num: 0, den: 0 },
+				manualOrder: 0
+			},
+			{
+				name: '',
+				group: 0,
+				team: 0,
+				seat: 0,
+				trophyCount: 0,
+				totalScore: { num: 0, den: 0 },
+				manualOrder: 1
+			}
 		]
 	);
 	let rules = $state([new Rule('marubatsu', 7, 3, 1, 1, false, null, 'constant', 0, null)]);
@@ -54,32 +72,7 @@
 			new GameState(attendants, rules).updateRanking()
 		)
 	);
-	let activeRules = $derived(rules.flatMap((rule, i) => (rule.isRemoved ? [] : { rule, i })));
-	let activeRulesText = $derived.by(() => {
-		if (activeRules.length === 1) {
-			return String(activeRules[0].rule);
-		}
-
-		return activeRules
-			.slice(1)
-			.reduce(
-				(acc, { rule, i }) => {
-					if (String(rule) === acc.at(-1)!.text) {
-						acc.at(-1)!.end = i;
-						return acc;
-					} else {
-						return [...acc, { start: i, end: i, text: String(rule) }];
-					}
-				},
-				[{ start: activeRules[0].i, end: activeRules[0].i, text: String(activeRules[0].rule) }]
-			)
-			.map(({ start, end, text }) =>
-				start === end
-					? String.fromCodePoint(65 + start) + ': ' + text
-					: String.fromCodePoint(65 + start) + '–' + String.fromCodePoint(65 + end) + ': ' + text
-			)
-			.join(' / ');
-	});
+	let { activeRules, activeRulesText } = $derived(getActiveRulesText(rules, 'single'));
 	let gameTitle = $state('');
 
 	let innerWidth = $state(0);
@@ -197,6 +190,10 @@
 					case 'MbyN':
 					case 'survival':
 						return currentState.attendants[i].score;
+					case 'aql':
+					case 'product':
+					case 'sum':
+						throw new Error();
 				}
 			})();
 			barHeightRatioArray[i].set(ratio);
@@ -233,7 +230,14 @@
 	watch(
 		() => currentState.latestEvent,
 		(curr, prev) => {
-			if (curr?.type !== prev?.type || curr?.attendantID !== prev?.attendantID) {
+			if (
+				curr?.type !== prev?.type ||
+				(curr &&
+					prev &&
+					'attendantID' in curr &&
+					'attendantID' in prev &&
+					curr?.attendantID !== prev?.attendantID)
+			) {
 				showBanner(curr);
 			}
 		}
@@ -249,6 +253,8 @@
 		attendants.push({
 			name: han2zen(name),
 			group: 0,
+			team: 0,
+			seat: 0,
 			trophyCount: 0,
 			totalScore: { num: 0, den: 0 },
 			manualOrder: attendants.length
@@ -305,16 +311,6 @@
 
 	let playSounds = $state(true);
 
-	function playSound(src: string) {
-		if (playSounds) {
-			const audio = new Audio(src);
-			audio.volume = 0.25;
-			audio.play().catch(() => {
-				/* noop */
-			});
-		}
-	}
-
 	let enableRating = $state(false);
 
 	function toggleScreenshotMode() {
@@ -330,8 +326,6 @@
 	}
 
 	let ruleEditDialog: { open: (rules: Rule[]) => Promise<Rule[] | null> };
-	// svelte-ignore non_reactive_update ...?
-	let helpDialog: { open: () => void };
 	// svelte-ignore non_reactive_update ...?
 	let logDialog: { open: () => void };
 	let effectEditDialog: {
@@ -378,6 +372,10 @@
 							life: att.life,
 							i
 						};
+					case 'aql':
+					case 'product':
+					case 'sum':
+						throw new Error(); // TODO
 				}
 			})
 			.toSorted((a, b) => currentState.ranking.indexOf(a.i) - currentState.ranking.indexOf(b.i));
@@ -506,13 +504,13 @@
 
 	function clickMaru(attendantID: number, playSounds_: boolean = true) {
 		history.push(new MaruHistoryEntry(attendantID));
-		if (playSounds_) {
+		if (playSounds && playSounds_) {
 			playSound(se1);
 		}
 	}
 
 	async function clickBatsu(attendantID: number, playSounds_: boolean = true) {
-		if (playSounds_) {
+		if (playSounds && playSounds_) {
 			playSound(se2);
 		}
 
@@ -529,7 +527,7 @@
 
 	function clickThrough() {
 		history.push(new ThroughHistoryEntry());
-		playSound(se3);
+		if (playSounds) playSound(se3);
 	}
 
 	function clickUndo() {
@@ -593,6 +591,7 @@
 			case 'ping':
 				subWindow?.postMessage({
 					command: 'syncState',
+					mode: 'single',
 					currentState: JSON.parse(JSON.stringify(currentState)),
 					orderedAttendants
 				});
@@ -607,6 +606,7 @@
 		if (subWindow && !subWindow.closed) {
 			subWindow.postMessage({
 				command: 'syncState',
+				mode: 'single',
 				currentState: JSON.parse(JSON.stringify(currentState)),
 				orderedAttendants
 			});
@@ -666,7 +666,7 @@
 	let lastButtonID = $state<number>();
 	/** attendant ID -> button ID */
 	let buttonMapping = $state<Record<number, number>>({});
-	let wasedashikiMode = $state<'single' | 'double' | 'endless' | 'handicap'>();
+	let wasedashikiMode = $state<WasedashikiMode>();
 	let connected = $state(false);
 
 	async function initiateSerialConnection(serialPort_?: SerialPort) {
@@ -697,172 +697,30 @@
 					serialPort = undefined;
 				}
 			}, 2500);
-			await readLoopSerialPort();
+			await readLoopSerialPort(
+				serialPort,
+				() => ({
+					answerers,
+					pushers,
+					buttonMapping,
+					attendants: currentState.attendants,
+					clickMaru,
+					clickBatsu
+				}),
+				(updates) => {
+					if ('connected' in updates) connected = updates.connected!;
+					if ('wasedashikiMode' in updates) wasedashikiMode = updates.wasedashikiMode!;
+					if ('answerers' in updates) answerers = updates.answerers!;
+					if ('pushers' in updates) pushers = updates.pushers!;
+					if ('lastButtonID' in updates) lastButtonID = updates.lastButtonID!;
+					if ('serialPort' in updates) serialPort = updates.serialPort!;
+				}
+			);
 			await new Promise((resolve) => setTimeout(resolve, 5000));
 		}
 	}
 
 	let pushers: number[] = [];
-
-	async function readLoopSerialPort() {
-		if (!serialPort) {
-			return;
-		}
-
-		try {
-			for await (const line of readFromSerialPort(serialPort)) {
-				connected = true;
-
-				if (
-					line === '' ||
-					/.+ 24/.test(line) ||
-					line.startsWith('WASEDA') ||
-					line.startsWith('Copyright')
-				) {
-					continue;
-				}
-
-				console.log('Received line:', JSON.stringify(line));
-
-				switch (line) {
-					case '91':
-						Toastify({ text: '接続完了（シングルチャンス）' }).showToast();
-						wasedashikiMode = 'single';
-						continue;
-					case '92':
-						Toastify({ text: '接続完了（ダブルチャンス）' }).showToast();
-						wasedashikiMode = 'double';
-						continue;
-					case '93':
-						Toastify({ text: '接続完了（エンドレスチャンス）' }).showToast();
-						wasedashikiMode = 'endless';
-						continue;
-					case '94':
-						Toastify({ text: '接続完了（ハンデあり）' }).showToast();
-						wasedashikiMode = 'handicap';
-						continue;
-					case '99':
-						// リセット
-						answerers = [];
-						pushers = [];
-						continue;
-				}
-
-				if (line === '51' || line === '52') {
-					const answererButtonID = answerers.findIndex((a) => a?.rank === 1);
-					if (answererButtonID === -1) {
-						// 空押し
-						continue;
-					}
-
-					const answererAttendantID = Object.entries(buttonMapping).find(
-						([, id]) => id === answererButtonID + 1
-					)?.[0];
-					if (answererAttendantID !== undefined) {
-						if (line === '51') {
-							clickMaru(Number.parseInt(answererAttendantID), false);
-							answerers = [];
-						} else {
-							clickBatsu(Number.parseInt(answererAttendantID), false);
-						}
-					} else {
-						Toastify({
-							text: `ボタン ${answererButtonID + 1} を持っているのがどのプレイヤーか分かりません。紐づけしてください`
-						}).showToast();
-					}
-
-					continue;
-				}
-
-				const parts = line.split(' ').map((n) => Number.parseInt(n));
-				if (parts.length === 1 && 1 <= parts[0] && parts[0] <= 24) {
-					lastButtonID = parts[0];
-					pushers.shift();
-					const second = pushers[0];
-					answerers = Array.from({ length: 24 }, (_, i) =>
-						i === parts[0] - 1
-							? answerers[i]?.delay
-								? { rank: 1, delay: answerers[i].delay }
-								: { rank: 1, delay: 0 }
-							: answerers[i]?.rank === 1
-								? null
-								: i + 1 === second
-									? { rank: 2, delay: answerers[i]!.delay }
-									: answerers[i]
-					);
-					const attendantID = Object.entries(buttonMapping).find(
-						([, id]) => id === lastButtonID!
-					)?.[0];
-					if (attendantID == undefined) {
-						Toastify({
-							text: `ボタン ${lastButtonID} を持っているのがどのプレイヤーか分かりません。紐づけしてください`
-						}).showToast();
-					} else {
-						const att = currentState.attendants[Number.parseInt(attendantID)];
-						const name = att.name || `プレイヤー${Number.parseInt(attendantID) + 1}`;
-						switch (att.life) {
-							case 'removed':
-								Toastify({ text: `${name}は削除されています` }).showToast();
-								break;
-							case 'won':
-								Toastify({ text: `${name}は勝ち抜け済みです` }).showToast();
-								break;
-							case 'lost':
-								Toastify({ text: `${name}は失格済みです` }).showToast();
-								break;
-						}
-					}
-				} else if (parts.length === 2 && 101 <= parts[0] && parts[0] <= 124) {
-					let rank: 1 | 2 | 'late' = 'late';
-					if (parts[1] === 0) {
-						rank = 1;
-					} else {
-						if (pushers.length === 0) {
-							rank = 2;
-						}
-						pushers.push(parts[0] - 100);
-					}
-
-					answerers = Array.from({ length: 24 }, (_, i) =>
-						i === parts[0] - 101 && parts[1] > 0 ? { rank, delay: parts[1] } : answerers[i]
-					);
-				} else {
-					Toastify({ text: `デバッグ情報: ${JSON.stringify(line)}` }).showToast();
-					console.warn('serial:', JSON.stringify(line));
-				}
-			}
-		} catch (error) {
-			Toastify({
-				text: String(error).includes('The device has been lost.') ? '切断されました' : '通信エラー',
-				style: { background: '#B00000' }
-			}).showToast();
-			console.error('通信エラー', error);
-			serialPort = undefined;
-			wasedashikiMode = undefined;
-		}
-	}
-
-	function loadFromHash(): Attendant[] | null {
-		try {
-			const url = new URL(document.URL);
-			if (url.hash.length > 1) {
-				const names = JSON.parse(decodeURIComponent(url.hash.slice(1)));
-				if (Array.isArray(names) && names.length > 0 && names.every((n) => typeof n === 'string')) {
-					return names.map((name, manualOrder) => ({
-						name,
-						group: 0,
-						trophyCount: 0,
-						totalScore: { num: 0, den: 0 },
-						manualOrder
-					}));
-				}
-			}
-		} catch {
-			/* ignore */
-		}
-
-		return null;
-	}
 
 	function han2zen(str: string) {
 		// 全ASCII（4文字以上連続をどこかに含む場合は無視）
@@ -891,48 +749,20 @@
 <audio src={se2} preload="auto"></audio>
 <audio src={se3} preload="auto"></audio>
 
-<main style:grid-template-rows={showQuestionWindow ? 'auto auto 1fr auto' : 'auto 1fr auto'}>
-	<div class="header" bind:clientHeight={headerClientHeight}>
-		<div>
-			Next:
-			{#key currentState.questionCount}
-				<span class="crossfade" in:fade={{ delay: 500 }} out:fade>
-					Q{currentState.questionCount}
-				</span>
-			{/key}
-		</div>
-		<h1>
-			<span contenteditable class="editable-title" bind:textContent={gameTitle}></span>
-			<button
-				onclick={helpDialog.open}
-				{@attach tooltip(
-					`はじめにお読みください！！！！！！！！！！！！
-					！！！！！！！！！！！！！！！！！！！！！！！
-					！！！！！！！！！！！！！！！！！！！！！！！
-					！！！！！！！！！！！！！！！！！！！！！！！
-					！！！！！！！！！！！！！！！！！！！！！！！`
-				)}
-			>
-				？
-			</button>
-		</h1>
-		<div>
-			Rule:
-			{activeRulesText}
-			{#if wasedashikiMode}
-				({wasedashikiMode === 'single'
-					? '1C'
-					: wasedashikiMode === 'double'
-						? '2C'
-						: wasedashikiMode === 'endless'
-							? '∞C'
-							: '1C'})
-			{/if}
-			<button onclick={editRule} {@attach tooltip('ルールとルールグループを編集します。')}>
-				編集
-			</button>
-		</div>
-	</div>
+<main
+	style:grid-template-rows={showQuestionWindow ? 'auto auto 1fr auto' : 'auto 1fr auto'}
+	class="main"
+>
+	<Header
+		bind:headerClientHeight
+		questionCount={currentState.questionCount}
+		{gameTitle}
+		battleMode="single"
+		{attendants}
+		{wasedashikiMode}
+		{rules}
+		{editRule}
+	/>
 
 	{#if showQuestionWindow}
 		<div transition:fade>
@@ -999,8 +829,8 @@
 								: 13 <= buttonMapping[i] && buttonMapping[i] <= 18
 									? 'background-color: yellow; color: black'
 									: 'background-color: green; color: white'}
-					style:display={lastButtonID === undefined ? 'none' : ''}
-					disabled={lastButtonID === undefined}
+					style:display={Object.keys(buttonMapping).length === 0 ? 'none' : ''}
+					disabled={Object.keys(buttonMapping).length === 0 || lastButtonID == undefined}
 					{@attach tooltip(
 						`このプレイヤーが持っているボタンは${buttonMapping[i] == null ? '???' : buttonMapping[i]}番です。クリックで紐づけ`
 					)}
@@ -1251,8 +1081,10 @@
 							<button
 								onclick={() => {
 									history.push(new MaruHistoryEntry(i, 2));
-									playSound(se1);
-									setTimeout(() => playSound(se1), 150);
+									if (playSounds) {
+										playSound(se1);
+										setTimeout(() => playSound(se1), 150);
+									}
 									showBanner({ type: 'effect2', attendantID: i });
 								}}
 								class="maru-btn"
@@ -1265,9 +1097,11 @@
 							<button
 								onclick={() => {
 									history.push(new MaruHistoryEntry(i, 3));
-									playSound(se1);
-									setTimeout(() => playSound(se1), 150);
-									setTimeout(() => playSound(se1), 300);
+									if (playSounds) {
+										playSound(se1);
+										setTimeout(() => playSound(se1), 150);
+										setTimeout(() => playSound(se1), 300);
+									}
 									showBanner({ type: 'effect3', attendantID: i });
 								}}
 								class="maru-btn"
@@ -1292,33 +1126,7 @@
 		{/each}
 	</div>
 
-	<footer bind:clientHeight={footerClientHeight}>
-		<div class="left">
-			<a href="https://github.com/kissge/kissq" target="_blank">ソース</a>
-			<a
-				href="https://x.com/_kidochan"
-				target="_blank"
-				{@attach tooltip('kissQの最新情報を得たり🍔をおごったりしてください')}
-			>
-				🍔作者
-			</a>
-			<a
-				href="https://docs.google.com/forms/d/e/1FAIpQLSdpwAsY5k5LKnnbntsMo1USadZczeuq-SZqlFcNMpbj255u4Q/viewform?pli=1&usp=pp_url&entry.2107805527={encodeURIComponent(
-					JSON.stringify({
-						// eslint-disable-next-line @typescript-eslint/no-unused-vars
-						a: attendants.map(({ name, ...rest }) => rest),
-						r: rules,
-						h: history
-					})
-				)}"
-				target="_blank"
-				{@attach tooltip(
-					'デバッグに役立つ情報を送れるので、バグに出会ったらなるべくすぐクリックしてほしいです＞＜'
-				)}
-			>
-				バグ・要望
-			</a>
-		</div>
+	<Footer bind:footerClientHeight {attendants} {rules} {history}>
 		<button
 			onclick={clickThrough}
 			class={{
@@ -1367,7 +1175,7 @@
 		>
 			その他 ▼
 		</button>
-	</footer>
+	</Footer>
 </main>
 
 {#if showOtherMenu}
@@ -1381,6 +1189,9 @@
 				) {
 					attendants = [];
 					history = [];
+					buttonMapping = {};
+					answerers = [];
+					lastButtonID = undefined;
 				}
 			}}
 			disabled={attendants.length === 0}
@@ -1453,8 +1264,10 @@
 		<Stars />
 	</div>
 	<div class={['banner', isBannerVisible.type]} transition:slide={{ axis: 'x' }}>
-		{attendants[isBannerVisible.attendantID].name ||
-			'プレイヤー ' + (isBannerVisible.attendantID + 1)}
+		{#if 'attendantID' in isBannerVisible}
+			{attendants[isBannerVisible.attendantID].name ||
+				'プレイヤー ' + (isBannerVisible.attendantID + 1)}
+		{/if}
 		{#if isBannerVisible.type === 'won'}
 			勝ち抜け
 		{:else if isBannerVisible.type === 'lizhi'}
@@ -1470,7 +1283,6 @@
 {/if}
 
 <RuleEditDialog bind:this={ruleEditDialog} />
-<HelpDialog bind:this={helpDialog} />
 <LogDialog bind:this={logDialog} />
 <EffectEditDialog bind:this={effectEditDialog} />
 <AppearanceDialog bind:this={appearanceDialog} />
@@ -1481,95 +1293,7 @@
 	:global(html) {
 		--trophy-image: url('$lib/assets/trophy.png');
 	}
-
 	main {
-		display: grid;
-		flex: 1 0 100dvh;
-		gap: 0 1em;
-		background-image: url('$lib/assets/wallpaper.jpg');
-		background-position: center center;
-		background-size: cover;
-		background-color: rgb(15 18 33);
-		font-size: 2rem;
-
-		> * {
-			padding: 0.7rem 1.5rem;
-		}
-
-		.header,
-		footer {
-			background: #eee;
-		}
-
-		.header {
-			display: flex;
-			justify-content: space-between;
-			gap: 1em;
-			box-sizing: border-box;
-			width: 100dvw;
-			font-weight: bold;
-			font-size: 2rem;
-
-			h1 {
-				all: unset;
-			}
-
-			.editable-title {
-				padding-right: 3px;
-
-				&:before {
-					content: 'kissQ: ';
-				}
-				&:empty:before {
-					content: 'kissQ';
-				}
-			}
-		}
-
-		.question {
-			position: relative;
-			backdrop-filter: blur(10px);
-			margin-top: -0.7rem;
-			box-shadow: 0 0 15px #eeea;
-			border-radius: 0 0 0.5em 0.5em;
-			background-color: #0008;
-			padding: 0.5em 1em;
-			height: 5em;
-			color: #fff;
-			font-family: serif;
-
-			p {
-				margin: 0;
-				height: 100%;
-				overflow: hidden;
-			}
-
-			small {
-				opacity: 0.6;
-				font-size: smaller;
-			}
-
-			.answer {
-				display: inline-block;
-				position: absolute;
-				right: 1em;
-				bottom: -0.5em;
-				backdrop-filter: blur(10px);
-				transition: 0.3s translate 1s ease;
-
-				margin-top: 0.5em;
-				box-shadow: 0 0 15px #eeea;
-				border-radius: 0.5em;
-				background-color: #000c;
-				padding: 0.35em 1em;
-
-				&:not(:hover):is(.question:hover *) {
-					translate: 0 60%;
-					transition-delay: 0s;
-				}
-			}
-		}
-
 		.attendants {
 			display: grid;
 			gap: 0.5em;
@@ -1914,45 +1638,6 @@
 		:has(.question) + .attendants {
 			height: calc(100dvh - 5.5em - 5em);
 		}
-
-		footer {
-			display: flex;
-			justify-content: end;
-			gap: 0.5em;
-			box-sizing: border-box;
-			width: 100dvw;
-			overflow: hidden;
-			user-select: none;
-			anchor-name: --footer;
-
-			.left {
-				display: flex;
-				flex-grow: 1;
-				gap: 1em;
-				font-size: 0.8em;
-
-				a {
-					text-decoration: none;
-				}
-
-				a:hover {
-					opacity: 0.6;
-				}
-			}
-
-			a,
-			button {
-				max-width: 10dvw;
-				overflow: hidden;
-				white-space: nowrap;
-
-				&.blink {
-					animation: blink-animation 0.5s ease infinite;
-					background-color: red;
-					color: white;
-				}
-			}
-		}
 	}
 
 	@property --bar-height-ratio {
@@ -2006,49 +1691,6 @@
 		padding: 0.5em;
 		font-size: 2em;
 		user-select: none;
-	}
-
-	.banner-bg {
-		position: fixed;
-		z-index: 9998;
-		inset: 0;
-		background-color: rgba(0, 0, 0, 0.3);
-	}
-
-	.banner {
-		display: flex;
-		position: fixed;
-		top: calc(50% - 0.7em);
-		right: 0;
-		bottom: calc(50% - 0.7em);
-		left: 0;
-		justify-content: center;
-		align-items: center;
-		z-index: 9999;
-		box-shadow: 0 0 20px #222;
-		overflow: hidden;
-		pointer-events: none;
-		font-weight: bold;
-		font-size: min(8dvw, 20dvh);
-		line-height: 1;
-		user-select: none;
-		text-align: center;
-		text-shadow: 0 0 15px #444;
-		white-space: nowrap;
-
-		&.won {
-			backdrop-filter: blur(10px);
-			background-color: rgba(255 100 100 / 0.3);
-			color: white;
-		}
-		&.lizhi,
-		&.effect2,
-		&.effect3,
-		&.transit {
-			backdrop-filter: blur(10px);
-			background-color: rgba(240 240 175 / 0.4);
-			color: rgb(255 231 231);
-		}
 	}
 
 	audio {
