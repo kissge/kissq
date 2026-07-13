@@ -201,7 +201,7 @@ export async function readLoopSerialPort(
 							Toastify({ text: `${name}は勝ち抜け済みです` }).showToast();
 							break;
 						case 'lost':
-							Toastify({ text: `${name}は失格済みです` }).showToast();
+							Toastify({ text: `${name}は失格済み・封鎖中です` }).showToast();
 							break;
 					}
 				}
