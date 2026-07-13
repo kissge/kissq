@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { fade } from 'svelte/transition';
+	import type { Attendant } from '$lib/attendant';
 	import HelpDialog from '$lib/components/helpDialog.svelte';
 	import { getActiveRulesText, type Rule } from '$lib/rule';
 	import type { WasedashikiMode } from '$lib/serial';
@@ -10,7 +11,7 @@
 		questionCount,
 		gameTitle,
 		battleMode,
-		otherModeMembers,
+		attendants,
 		wasedashikiMode,
 		rules,
 		editRule
@@ -19,7 +20,7 @@
 		questionCount: number;
 		gameTitle: string;
 		battleMode: 'single' | 'team';
-		otherModeMembers: unknown;
+		attendants: Attendant[];
 		wasedashikiMode: WasedashikiMode | undefined;
 		rules: Rule[];
 		editRule: () => void;
@@ -49,16 +50,14 @@
 		></span>
 		{#if battleMode === 'single'}
 			<a
-				href="./teams#{encodeURIComponent(JSON.stringify(otherModeMembers))}"
-				target="_blank"
+				href="./teams#{encodeURIComponent(JSON.stringify({ attendants }))}"
 				{@attach tooltip('団体戦に切り替えます')}
 			>
 				個人戦
 			</a>
 		{:else}
 			<a
-				href="../#{encodeURIComponent(JSON.stringify(otherModeMembers))}"
-				target="_blank"
+				href="../#{encodeURIComponent(JSON.stringify({ attendants }))}"
 				{@attach tooltip('個人戦に切り替えます')}
 			>
 				団体戦 <small>β版</small>

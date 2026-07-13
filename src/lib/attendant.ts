@@ -14,6 +14,11 @@ export function loadFromHash(team?: boolean): Attendant[] | null {
 		const url = new URL(document.URL);
 		if (url.hash.length > 1) {
 			const names = JSON.parse(decodeURIComponent(url.hash.slice(1)));
+
+			if ('attendants' in names) {
+				return names.attendants;
+			}
+
 			if (team) {
 				if (
 					Array.isArray(names) &&
