@@ -165,7 +165,7 @@
 		>
 			全員リセット
 		</button>
-		<!-- <button
+		<button
 			onclick={() => {
 				let name = prompt('プレイヤーの名前を入力してください');
 				if (name) {
@@ -175,6 +175,7 @@
 		>
 			プレイヤー追加
 		</button>
+		<!--
 		<button
 			class="labeled"
 			data-label="N"

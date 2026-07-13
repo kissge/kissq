@@ -258,9 +258,22 @@
 				clearHistory();
 				break;
 
-			// case 'addAttendant':
-			// 	addAttendant(event.data.name);
-			// 	break;
+			case 'addAttendant':
+				if (attendantsPerTeam.length > 0) {
+					attendants.push({
+						name: event.data.name,
+						group: 0,
+						team: attendantsPerTeam.length - 1,
+						seat:
+							activeRuleMode === 'aql'
+								? attendantsPerTeam[attendantsPerTeam.length - 1].length - 1
+								: attendantsPerTeam[attendantsPerTeam.length - 1].length,
+						trophyCount: 0,
+						totalScore: { num: 0, den: 0 },
+						manualOrder: attendants.length
+					});
+				}
+				break;
 
 			case 'ping':
 				syncState();
