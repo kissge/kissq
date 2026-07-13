@@ -269,7 +269,7 @@
 			} else {
 				// eslint-disable-next-line svelte/prefer-svelte-reactivity
 				const url = new URL(document.URL);
-				url.hash = encodeURIComponent(JSON.stringify(data));
+				url.hash = encodeURIComponent(JSON.stringify({ attendants }));
 				location.replace(url);
 			}
 		});

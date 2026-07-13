@@ -16,7 +16,17 @@ export function loadFromHash(team?: boolean): Attendant[] | null {
 			const names = JSON.parse(decodeURIComponent(url.hash.slice(1)));
 
 			if ('attendants' in names) {
-				return names.attendants;
+				const attendants = names.attendants as Attendant[];
+
+				if (attendants.every(({ team, seat }) => team === 0 && seat === 0)) {
+					const half = Math.ceil(attendants.length / 2);
+					attendants.forEach((attendant, index) => {
+						attendant.team = Math.floor(index / half);
+						attendant.seat = index % half;
+					});
+				}
+
+				return attendants;
 			}
 
 			if (team) {
