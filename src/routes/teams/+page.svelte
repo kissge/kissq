@@ -234,7 +234,7 @@
 	let subWindow = $state<Window>();
 
 	function openSubWindow() {
-		subWindow = window.open('./teams/question', 'questionWindow', 'popup') || undefined;
+		subWindow = window.open('./question', 'questionWindow', 'popup') || undefined;
 	}
 
 	function processWindowMessage(event: MessageEvent) {
