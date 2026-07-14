@@ -3,6 +3,7 @@
 	import { flip } from 'svelte/animate';
 	import { fade } from 'svelte/transition';
 	import { parseCSV, qZero } from '$lib/question';
+	import type { WasedashikiMode } from '$lib/serial';
 	import type { GameState } from '$lib/state';
 
 	const opener = (typeof window !== 'undefined' ? window.opener : {}) as Window;
@@ -16,6 +17,10 @@
 
 	let currentState = $state<GameState>();
 	let mainScreenOrder = $state<number[]>();
+	let answerers = $state<({ rank: 1 | 2 | 'late'; delay: number } | null)[]>([]);
+	/** attendant ID -> button ID */
+	let buttonMapping = $state<Record<number, number>>({});
+	let wasedashikiMode = $state<WasedashikiMode>();
 	let order = $state<'added' | 'same' | 'reverse'>('added');
 
 	let orderedAttendants = $derived.by(() => {
@@ -54,6 +59,9 @@
 				battleMode = event.data.mode;
 				currentState = event.data.currentState;
 				mainScreenOrder = event.data.orderedAttendants;
+				answerers = event.data.answerers;
+				buttonMapping = event.data.buttonMapping;
+				wasedashikiMode = event.data.wasedashikiMode;
 
 				if (battleMode === 'team') {
 					order = 'added';
@@ -199,7 +207,21 @@
 	{#if currentState && orderedAttendants}
 		<div>
 			{#each orderedAttendants as { att, i }, j (i)}
-				<div class="attendant" animate:flip={{ duration: 500 }}>
+				<div
+					class={[
+						'attendant',
+						{
+							'answerer-1st': answerers[(buttonMapping[i] ?? 0) - 1]?.rank === 1,
+							'answerer-2nd':
+								(wasedashikiMode === 'endless' || wasedashikiMode === 'double') &&
+								answerers[(buttonMapping[i] ?? 0) - 1]?.rank === 2,
+							'answerer-late':
+								wasedashikiMode === 'endless' &&
+								answerers[(buttonMapping[i] ?? 0) - 1]?.rank === 'late'
+						}
+					]}
+					animate:flip={{ duration: 500 }}
+				>
 					{#if att.life !== 'removed'}
 						{att.name || '--'}
 						{#if att.isLizhi}
@@ -300,6 +322,26 @@
 
 		textarea {
 			width: 90%;
+		}
+	}
+
+	.answerer-1st {
+		animation: answerer-1st-wrapper 0.3s ease infinite alternate;
+		border: 3px solid orange !important;
+		background-color: yellow;
+	}
+
+	.answerer-2nd {
+		border: 3px solid orange !important;
+		background-color: yellow;
+	}
+
+	.answerer-late {
+		background-color: rgb(255 255 192);
+	}
+	@keyframes answerer-1st-wrapper {
+		to {
+			scale: 1.25;
 		}
 	}
 

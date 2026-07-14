@@ -589,28 +589,34 @@
 				break;
 
 			case 'ping':
-				subWindow?.postMessage({
-					command: 'syncState',
-					mode: 'single',
-					currentState: JSON.parse(JSON.stringify(currentState)),
-					orderedAttendants
-				});
+				syncState();
 				break;
+		}
+	}
+
+	function syncState() {
+		if (subWindow && !subWindow.closed) {
+			subWindow.postMessage(
+				JSON.parse(
+					JSON.stringify({
+						command: 'syncState',
+						mode: 'single',
+						currentState,
+						orderedAttendants,
+						answerers,
+						buttonMapping,
+						wasedashikiMode
+					})
+				)
+			);
 		}
 	}
 
 	$effect(() => {
 		// eslint-disable-next-line svelte/no-unused-svelte-ignore
 		// svelte-ignore state_snapshot_uncloneable
-		$state.snapshot(currentState);
-		if (subWindow && !subWindow.closed) {
-			subWindow.postMessage({
-				command: 'syncState',
-				mode: 'single',
-				currentState: JSON.parse(JSON.stringify(currentState)),
-				orderedAttendants
-			});
-		}
+		$state.snapshot([currentState, orderedAttendants, answerers, buttonMapping, wasedashikiMode]);
+		syncState();
 	});
 
 	$effect(() => {
