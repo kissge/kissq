@@ -347,7 +347,7 @@
 		if (data) {
 			attendants = data.attendants;
 			buttonMapping = data.buttonMapping ?? {};
-			buttonMappingRestored = true;
+			buttonMappingRestored = Object.keys(buttonMapping).length > 0;
 		} else {
 			attendants = Array.from({ length: 2 }, (_, ti) =>
 				Array.from({ length: 10 }, (_, ai) => ({
