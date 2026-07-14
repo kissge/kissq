@@ -11,6 +11,7 @@
 	import Footer from '$lib/components/footer.svelte';
 	import Header from '$lib/components/header.svelte';
 	import Pushers from '$lib/components/pushers.svelte';
+	import QuestionWindow from '$lib/components/questionWindow.svelte';
 	import RuleTeamEditDialog from '$lib/components/ruleTeamEditDialog.svelte';
 	import Stars from '$lib/components/stars.svelte';
 	import {
@@ -415,33 +416,7 @@
 		{editRule}
 	/>
 
-	{#if showQuestionWindow}
-		<div transition:fade>
-			<div class="question">
-				{#key currentQuestion.question}
-					<p in:fade>
-						{#each currentQuestion.question.split(/(（.+?）|\(.+?\)|【.+?】|［.+?］)/) as part, i (i)}
-							{#if i % 2}
-								<small>{part}</small>
-							{:else}
-								{part}
-							{/if}
-						{/each}
-					</p>
-				{/key}
-				<div class="answer">
-					A.
-					{#each currentQuestion.answer.split(/(（.+?）|\(.+?\)|【.+?】|［.+?］)/) as part, i (i)}
-						{#if i % 2}
-							<small>{part}</small>
-						{:else}
-							{part}
-						{/if}
-					{/each}
-				</div>
-			</div>
-		</div>
-	{/if}
+	<QuestionWindow {showQuestionWindow} {currentQuestion} />
 
 	<div
 		class="attendants"
