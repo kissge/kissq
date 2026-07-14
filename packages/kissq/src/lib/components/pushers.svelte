@@ -52,7 +52,7 @@
 		flex-direction: column;
 		justify-content: center;
 		align-items: center;
-		z-index: 9999;
+		z-index: 999;
 		inset: 0;
 		overflow: hidden;
 		font-weight: bold;
@@ -68,7 +68,7 @@
 			justify-content: space-evenly;
 			align-items: center;
 			gap: 0.5em;
-			z-index: 9999;
+			z-index: 999;
 			width: 100%;
 		}
 
@@ -80,7 +80,7 @@
 		}
 
 		.time {
-			z-index: 99999;
+			z-index: 9999;
 			border: 1px solid white;
 			border-radius: 1em;
 			background: black;
@@ -119,7 +119,7 @@
 
 	.pushers-bg {
 		position: fixed;
-		z-index: 9998;
+		z-index: 998;
 		inset: 0;
 		background-color: rgba(0, 0, 0, 0.3);
 		pointer-events: none;
