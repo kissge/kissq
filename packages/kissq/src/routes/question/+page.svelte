@@ -1,9 +1,7 @@
 <script lang="ts">
-	import { csv2json } from 'json-2-csv';
 	import { onMount } from 'svelte';
 	import { flip } from 'svelte/animate';
 	import { fade } from 'svelte/transition';
-	import { goto } from '$app/navigation';
 	import { parseCSV, qZero } from '$lib/question';
 	import type { GameState } from '$lib/state';
 
@@ -35,6 +33,8 @@
 
 	let inputDialog: HTMLDialogElement;
 
+	let battleMode = $state<'single' | 'team'>('single');
+
 	const Keys = [
 		['Q', 'A'],
 		['W', 'S'],
@@ -51,12 +51,14 @@
 	function processWindowMessage(event: MessageEvent) {
 		switch (event.data.command) {
 			case 'syncState':
-				if (event.data.mode === 'team') {
-					goto('./teams/question');
-				}
-
+				battleMode = event.data.mode;
 				currentState = event.data.currentState;
 				mainScreenOrder = event.data.orderedAttendants;
+
+				if (battleMode === 'team') {
+					order = 'added';
+				}
+
 				break;
 		}
 	}
@@ -176,7 +178,7 @@
 		<div class="spacer"></div>
 		<div>
 			プレイヤーの表示順
-			<select bind:value={order}>
+			<select bind:value={order} disabled={battleMode === 'team'}>
 				<option value="added">追加順</option>
 				<option value="same">画面と同じ</option>
 				<option value="reverse">画面の逆順</option>
@@ -207,13 +209,17 @@
 								<span class="lizhi" transition:fade>リーチ</span>
 							{/if}
 						{:else if att.isLoseLizhi}
-							<span class="lizhi" transition:fade>失格リーチ</span>
+							<span class="lizhi" transition:fade>
+								{#if battleMode === 'team'}封鎖リーチ{:else}失格リーチ{/if}
+							</span>
 						{/if}
 						&nbsp;
 						{#if att.life === 'won'}
 							<span class="won" transition:fade>勝ち</span>
 						{:else if att.life === 'lost'}
-							<span class="lost" transition:fade>失格</span>
+							<span class="lost" transition:fade>
+								{#if battleMode === 'team'}封鎖{:else}失格{/if}
+							</span>
 						{:else if att.yasuDisplay > 0}
 							{#if att.yasuCount === 'next'}次{/if}{att.yasuDisplay}休
 						{:else}
