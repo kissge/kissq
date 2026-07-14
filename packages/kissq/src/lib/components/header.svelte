@@ -104,6 +104,7 @@
 		display: flex;
 		justify-content: space-between;
 		gap: 1em;
+		z-index: 9999;
 		box-sizing: border-box;
 		background: #eee;
 		width: 100dvw;
