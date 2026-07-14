@@ -649,7 +649,7 @@
 		if (data) {
 			attendants = data.attendants;
 			buttonMapping = data.buttonMapping ?? {};
-			buttonMappingRestored = true;
+			buttonMappingRestored = Object.keys(buttonMapping).length > 0;
 		}
 
 		reconnect()
