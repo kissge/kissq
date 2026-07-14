@@ -299,37 +299,44 @@
 	}
 
 	function syncState() {
-		const state = Object.fromEntries(
-			Object.entries(currentState).flatMap(([k, v]) =>
-				k === 'teams'
-					? []
-					: k === 'attendants'
-						? [
-								[
-									k,
-									v.map((v: AttendantState) =>
-										Object.fromEntries(Object.entries(v).filter(([k]) => k !== 'team'))
-									)
+		if (subWindow && !subWindow.closed) {
+			const state = Object.fromEntries(
+				Object.entries(currentState).flatMap(([k, v]) =>
+					k === 'teams'
+						? []
+						: k === 'attendants'
+							? [
+									[
+										k,
+										v.map((v: AttendantState) =>
+											Object.fromEntries(Object.entries(v).filter(([k]) => k !== 'team'))
+										)
+									]
 								]
-							]
-						: [[k, v]]
-			)
-		);
+							: [[k, v]]
+				)
+			);
 
-		subWindow?.postMessage({
-			command: 'syncState',
-			mode: 'team',
-			currentState: JSON.parse(JSON.stringify(state))
-		});
+			subWindow.postMessage(
+				JSON.parse(
+					JSON.stringify({
+						command: 'syncState',
+						mode: 'team',
+						currentState: state,
+						answerers,
+						buttonMapping,
+						wasedashikiMode
+					})
+				)
+			);
+		}
 	}
 
 	$effect(() => {
 		// eslint-disable-next-line svelte/no-unused-svelte-ignore
 		// svelte-ignore state_snapshot_uncloneable
-		$state.snapshot(currentState);
-		if (subWindow && !subWindow.closed) {
-			syncState();
-		}
+		$state.snapshot([currentState, answerers, buttonMapping, wasedashikiMode]);
+		syncState();
 	});
 
 	const urlParams = new URLSearchParams(typeof location !== 'undefined' ? location.search : '');
