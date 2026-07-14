@@ -10,6 +10,7 @@
 	import { loadFromHash, type Attendant } from '$lib/attendant';
 	import Footer from '$lib/components/footer.svelte';
 	import Header from '$lib/components/header.svelte';
+	import Pushers from '$lib/components/pushers.svelte';
 	import RuleTeamEditDialog from '$lib/components/ruleTeamEditDialog.svelte';
 	import Stars from '$lib/components/stars.svelte';
 	import {
@@ -167,9 +168,23 @@
 	let lastButtonID = $state<number>();
 	/** attendant ID -> button ID */
 	let buttonMapping = $state<Record<number, number>>({});
+	/** button ID -> attendant ID */
+	let buttonReverseMapping = $derived.by<Record<number, number>>(() => {
+		const reverse: Record<number, number> = {};
+		for (const [attendantID, buttonID] of Object.entries(buttonMapping)) {
+			reverse[buttonID] = Number(attendantID);
+		}
+		return reverse;
+	});
 	let buttonMappingRestored = $state(false);
 	let wasedashikiMode = $state<WasedashikiMode>();
 	let connected = $state(false);
+	let answererRanking = $derived(
+		Object.entries(answerers)
+			.filter(([, v]) => v != null)
+			.toSorted((a, b) => a[1]!.delay - b[1]!.delay)
+			.map(([k, v]) => [buttonReverseMapping[Number(k) + 1], v!] as const)
+	);
 
 	async function initiateSerialConnection(serialPort_?: SerialPort) {
 		if (!serialPort_) {
@@ -800,6 +815,8 @@
 	</div>
 {/if}
 
+<Pushers {answererRanking} {attendants} {wasedashikiMode} />
+
 <RuleTeamEditDialog bind:this={ruleTeamEditDialog} />
 
 <style>
@@ -1029,10 +1046,10 @@
 				z-index: 20;
 				border-radius: 5em;
 				background: grey;
-				width: 2.5em;
-				height: 2.5em;
+				width: 1.5em;
+				height: 1.5em;
 				color: white;
-				font-size: 0.4em;
+				font-size: 0.7em;
 			}
 
 			.group {
