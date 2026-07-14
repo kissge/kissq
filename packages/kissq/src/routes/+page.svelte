@@ -17,6 +17,7 @@
 	import LogDialog from '$lib/components/logDialog.svelte';
 	import PenaltyRoulette from '$lib/components/penaltyRoulette.svelte';
 	import Pushers from '$lib/components/pushers.svelte';
+	import QuestionWindow from '$lib/components/questionWindow.svelte';
 	import RuleEditDialog from '$lib/components/ruleEditDialog.svelte';
 	import Stars from '$lib/components/stars.svelte';
 	import StateEditDialog from '$lib/components/stateEditDialog.svelte';
@@ -791,33 +792,7 @@
 		{editRule}
 	/>
 
-	{#if showQuestionWindow}
-		<div transition:fade>
-			<div class="question">
-				{#key currentQuestion.question}
-					<p in:fade>
-						{#each currentQuestion.question.split(/(（.+?）|\(.+?\)|【.+?】|［.+?］)/) as part, i (i)}
-							{#if i % 2}
-								<small>{part}</small>
-							{:else}
-								{part}
-							{/if}
-						{/each}
-					</p>
-				{/key}
-				<div class="answer">
-					A.
-					{#each currentQuestion.answer.split(/(（.+?）|\(.+?\)|【.+?】|［.+?］)/) as part, i (i)}
-						{#if i % 2}
-							<small>{part}</small>
-						{:else}
-							{part}
-						{/if}
-					{/each}
-				</div>
-			</div>
-		</div>
-	{/if}
+	<QuestionWindow {showQuestionWindow} {currentQuestion} />
 
 	<div
 		class="attendants"
