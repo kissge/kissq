@@ -15,7 +15,7 @@
 			}
 		])[];
 		attendants: Record<number, { name: string } | undefined>;
-		wasedashikiMode: WasedashikiMode;
+		wasedashikiMode: WasedashikiMode | undefined;
 	} = $props();
 </script>
 
