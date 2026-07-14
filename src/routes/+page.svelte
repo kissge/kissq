@@ -1415,7 +1415,7 @@
 					position: relative;
 					flex: 1 1 100px;
 					align-items: center;
-					margin: -1em;
+					margin: -1em -0.5em;
 					padding: 0;
 					padding-top: calc(1em + 5px);
 					padding-bottom: 1em;
