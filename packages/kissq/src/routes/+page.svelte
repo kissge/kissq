@@ -783,6 +783,7 @@
 	<Header
 		bind:headerClientHeight
 		questionCount={currentState.questionCount}
+		hideQuestionCount={false}
 		{gameTitle}
 		battleMode="single"
 		{attendants}

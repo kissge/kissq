@@ -9,6 +9,7 @@
 	let {
 		headerClientHeight = $bindable(),
 		questionCount,
+		hideQuestionCount,
 		gameTitle,
 		battleMode,
 		attendants,
@@ -19,6 +20,7 @@
 	}: {
 		headerClientHeight: number;
 		questionCount: number;
+		hideQuestionCount: boolean;
 		gameTitle: string;
 		battleMode: 'single' | 'team';
 		attendants: Attendant[];
@@ -42,7 +44,7 @@
 		Next:
 		{#key questionCount}
 			<span class="crossfade" in:fade={{ delay: 500 }} out:fade>
-				Q{questionCount}
+				Q{hideQuestionCount ? '???' : questionCount}
 			</span>
 		{/key}
 	</div>

@@ -407,6 +407,7 @@
 	<Header
 		bind:headerClientHeight
 		questionCount={currentState.questionCount}
+		hideQuestionCount={currentState.defaultRule.mode === 'aql'}
 		{gameTitle}
 		battleMode="team"
 		{attendants}
