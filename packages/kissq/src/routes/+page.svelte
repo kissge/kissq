@@ -348,8 +348,7 @@
 			return;
 		}
 
-
-		updateLog(gameTitle, currentState, attendants, activeRulesText);
+		updateLog('single', gameTitle, currentState, attendants, activeRulesText);
 	});
 
 	function clearHistory() {
