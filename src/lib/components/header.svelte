@@ -10,7 +10,7 @@
 		headerClientHeight = $bindable(),
 		questionCount,
 		hideQuestionCount,
-		gameTitle,
+		gameTitle = $bindable(),
 		battleMode,
 		onBattleModeChange,
 		attendants,

@@ -781,7 +781,7 @@
 		bind:headerClientHeight
 		questionCount={currentState.questionCount}
 		hideQuestionCount={false}
-		{gameTitle}
+		bind:gameTitle
 		battleMode="single"
 		onBattleModeChange={clearHistory}
 		{attendants}
