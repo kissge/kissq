@@ -10,3 +10,10 @@ export function tooltip(content: string, options?: Partial<Props>): Attachment {
 }
 
 export const tooltipInDialog = (content: string) => tooltip(content, { appendTo: 'parent' });
+export const tooltipInteractive = (content: string) =>
+	tooltip(content, {
+		interactive: true,
+		allowHTML: true,
+		appendTo: document.body,
+		placement: 'left'
+	});

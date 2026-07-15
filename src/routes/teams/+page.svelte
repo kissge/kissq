@@ -33,7 +33,7 @@
 	} from '$lib/serial';
 	import { playSound } from '$lib/sound';
 	import { AttendantState, GameState, type GameEvent } from '$lib/state';
-	import { tooltip } from '$lib/tooltip.svelte';
+	import { tooltip, tooltipInteractive } from '$lib/tooltip.svelte';
 
 	let headerClientHeight = $state(0);
 	let footerClientHeight = $state(0);
@@ -557,6 +557,7 @@
 											class:yasu={sAtt.yasuDisplay > 0}
 											class:lost={sAtt.life === 'lost' ||
 												(activeRuleMode === 'aql' && batsuCount >= 2)}
+											{@attach tooltipInteractive('<button onclick="alert()">button</button>')}
 										>
 											<div
 												class="seat"
@@ -1206,6 +1207,10 @@
 		margin-bottom: 0.25em;
 		box-shadow: 0 0 5px #0008;
 		border: 0;
+	}
+
+	:global(.tippy-box:has(button)) {
+		font-size: 2em;
 	}
 
 	[popover] {
