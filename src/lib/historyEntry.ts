@@ -220,6 +220,8 @@ export class RemoveHistoryEntry implements HistoryEntry {
 	reducerTeam(state: GameState): GameState {
 		state.attendants[this.attendantID].life = 'removed';
 		state.ranking = state.ranking.filter((i) => i !== this.attendantID);
+		const team = state.getTeamByAttendantID(this.attendantID).team;
+		team.teamScore = team.calculateTeamScore();
 		return state;
 	}
 }
