@@ -641,6 +641,17 @@
 										</div>
 										{#if currentState.teams[ti].teamLife === 'alive' && (activeRuleMode === 'aql' ? batsuCount < 2 : true) && sAtt?.life === 'alive' && sAtt.yasuDisplay === 0}
 											<div class="buttons">
+												<button
+													disabled={currentState.teams[ti].attendantIDsPerSeat
+														.flat()
+														.filter(
+															(a) => a != null && currentState.attendants[a].life !== 'removed'
+														).length <= 1}
+													onclick={() => history.push(new RemoveHistoryEntry(i))}
+													{@attach tooltip('このプレイヤーをリストから削除します。')}
+												>
+													削除
+												</button>
 												<select
 													disabled={history.length > 0 ||
 														currentState.teams[ti].attendantIDsPerSeat
@@ -661,17 +672,6 @@
 														<option value={j}>{team?.slice(0, 5) || `チーム${j + 1}`}</option>
 													{/each}
 												</select>
-												<button
-													disabled={currentState.teams[ti].attendantIDsPerSeat
-														.flat()
-														.filter(
-															(a) => a != null && currentState.attendants[a].life !== 'removed'
-														).length <= 1}
-													onclick={() => history.push(new RemoveHistoryEntry(i))}
-													{@attach tooltip('このプレイヤーをリストから削除します。')}
-												>
-													削除
-												</button>
 												<button onclick={() => clickMaru(i)}>O</button>
 												<button onclick={() => clickBatsu(i)}>X</button>
 											</div>
