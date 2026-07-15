@@ -342,87 +342,12 @@ export class TeamState {
 			this.attendants[attendantID].processMaru(multiplier);
 		let teamScore, teamLife;
 
-		const win = this.attendants[0].rule.win;
-
 		switch (this.attendants[0].rule.mode) {
 			case 'aql':
-				teamScore = Math.min(
-					this.attendantIDsPerSeat.reduce(
-						(prod, seat) =>
-							prod *
-							(seat ?? []).reduce(
-								(sum, id) =>
-									sum +
-									(this.attendants[id].life === 'removed'
-										? 0
-										: id === attendantID
-											? score
-											: this.attendants[id].score),
-								1
-							),
-						1
-					),
-					win
-				);
-				teamLife = win <= teamScore ? 'won' : this.teamLife;
-
-				return {
-					maruCount,
-					score,
-					life,
-					trophyCount,
-					yasuCount,
-					otherScoreDiff,
-					teamScore,
-					teamLife
-				};
-
 			case 'product':
-				teamScore = this.attendantIDsPerSeat.reduce(
-					(prod, seat) =>
-						prod *
-						(seat ?? []).reduce(
-							(sum, id) =>
-								sum +
-								(this.attendants[id].life === 'removed'
-									? 0
-									: id === attendantID
-										? score
-										: this.attendants[id].score),
-							0
-						),
-					1
-				);
-				teamLife = win <= teamScore ? 'won' : this.teamLife;
-
-				return {
-					maruCount,
-					score,
-					life,
-					trophyCount,
-					yasuCount,
-					otherScoreDiff,
-					teamScore,
-					teamLife
-				};
-
 			case 'sum':
-				teamScore = this.attendantIDsPerSeat.reduce(
-					(sum, seat) =>
-						sum +
-						(seat ?? []).reduce(
-							(sum, id) =>
-								sum +
-								(this.attendants[id].life === 'removed'
-									? 0
-									: id === attendantID
-										? score
-										: this.attendants[id].score),
-							0
-						),
-					0
-				);
-				teamLife = win <= teamScore ? 'won' : this.teamLife;
+				teamScore = this.calculateTeamScore(attendantID, score);
+				teamLife = this.attendants[0].rule.win <= teamScore ? 'won' : this.teamLife;
 
 				return {
 					maruCount,
@@ -464,11 +389,27 @@ export class TeamState {
 
 		let teamScore, teamLife;
 
-		const win = this.attendants[0].rule.win;
-
 		switch (this.attendants[0].rule.mode) {
 			case 'aql':
-				teamScore = Math.min(
+			case 'product':
+			case 'sum':
+				teamScore = this.calculateTeamScore(attendantID, score);
+				teamLife = this.teamLife;
+
+				return { maruCount, batsuCount, score, life, yasuCount, teamScore, teamLife };
+
+			case 'marubatsu':
+			case 'MbyN':
+			case 'score':
+			case 'survival':
+				throw new Error();
+		}
+	}
+
+	calculateTeamScore(attendantID?: number, score?: number): number {
+		switch (this.attendants[0].rule.mode) {
+			case 'aql':
+				return Math.min(
 					this.attendantIDsPerSeat.reduce(
 						(prod, seat) =>
 							prod *
@@ -478,20 +419,17 @@ export class TeamState {
 									(this.attendants[id].life === 'removed'
 										? 0
 										: id === attendantID
-											? score
+											? score!
 											: this.attendants[id].score),
 								1
 							),
 						1
 					),
-					win
+					this.attendants[0].rule.win
 				);
-				teamLife = this.teamLife;
-
-				return { maruCount, batsuCount, score, life, yasuCount, teamScore, teamLife };
 
 			case 'product':
-				teamScore = this.attendantIDsPerSeat.reduce(
+				return this.attendantIDsPerSeat.reduce(
 					(prod, seat) =>
 						prod *
 						(seat ?? []).reduce(
@@ -500,18 +438,15 @@ export class TeamState {
 								(this.attendants[id].life === 'removed'
 									? 0
 									: id === attendantID
-										? score
+										? score!
 										: this.attendants[id].score),
 							0
 						),
 					1
 				);
-				teamLife = this.teamLife;
-
-				return { maruCount, batsuCount, score, life, yasuCount, teamScore, teamLife };
 
 			case 'sum':
-				teamScore = this.attendantIDsPerSeat.reduce(
+				return this.attendantIDsPerSeat.reduce(
 					(sum, seat) =>
 						sum +
 						(seat ?? []).reduce(
@@ -520,15 +455,12 @@ export class TeamState {
 								(this.attendants[id].life === 'removed'
 									? 0
 									: id === attendantID
-										? score
+										? score!
 										: this.attendants[id].score),
 							0
 						),
 					0
 				);
-				teamLife = this.teamLife;
-
-				return { maruCount, batsuCount, score, life, yasuCount, teamScore, teamLife };
 
 			case 'marubatsu':
 			case 'MbyN':
