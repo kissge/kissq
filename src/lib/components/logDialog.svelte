@@ -96,15 +96,15 @@
 							{#if 'team' in att}
 								{#if teams?.[j] != null}
 									<td rowspan={teams[j]}>
-										{#if att.teamLife === 'won'}
-											勝利
-										{/if}
-									</td>
-									<td rowspan={teams[j]}>
 										{att.teamScore}
 										<span>
 											pt{#if att.teamScore !== 1}s{/if}
 										</span>
+									</td>
+									<td rowspan={teams[j]}>
+										{#if att.teamLife === 'won'}
+											勝利
+										{/if}
 									</td>
 								{/if}
 							{:else}
