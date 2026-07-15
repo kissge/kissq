@@ -130,3 +130,12 @@ export function loadFromHash(
 
 	return null;
 }
+
+export function han2zen(str: string) {
+	// 全ASCII（4文字以上連続をどこかに含む場合は無視）
+	return /[!-~]{4}/gi.test(str)
+		? str
+		: str.replace(/[!-~]+/gi, (s) =>
+				[...s].map((c) => String.fromCodePoint(c.charCodeAt(0) + 0xfee0)).join('')
+			);
+}

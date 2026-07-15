@@ -7,7 +7,7 @@
 	import se1 from '$lib/assets/se1.mp3';
 	import se2 from '$lib/assets/se2.mp3';
 	import se3 from '$lib/assets/se3.mp3';
-	import { loadFromHash, type Attendant } from '$lib/attendant';
+	import { han2zen, loadFromHash, type Attendant } from '$lib/attendant';
 	import Footer from '$lib/components/footer.svelte';
 	import Header from '$lib/components/header.svelte';
 	import Pushers from '$lib/components/pushers.svelte';
@@ -113,6 +113,24 @@
 		}
 	}
 
+	function handlePasteEvent(event: ClipboardEvent, attendantID: number, teamID: number) {
+		const text = (event.clipboardData?.getData('text') || '').trim();
+		const lines = text.split(/[\r\n]+/);
+		if (lines.length >= 2) {
+			event.preventDefault();
+			const atts = attendantsPerTeam[teamID].flat().filter((a) => a != null);
+			const offset = atts.findIndex(({ i }) => i === attendantID);
+			lines.forEach((line, i) => {
+				if (offset + i < atts.length) {
+					atts[offset + i].att.name = line;
+					atts[offset + i].att.trophyCount = 0;
+				} else {
+					addAttendant(teamID, line);
+				}
+			});
+		}
+	}
+
 	let isBannerVisible = $state<GameEvent | null>(null);
 	watch(
 		() => currentState.latestEvent,
@@ -130,6 +148,23 @@
 		isBannerVisible = event;
 		clearTimeout(showBannerTimeout);
 		showBannerTimeout = setTimeout(() => (isBannerVisible = null), duration);
+	}
+
+	function addAttendant(teamID: number, name: string = '') {
+		attendants.push({
+			name: han2zen(name),
+			group: 0,
+			team: teamID,
+			seat:
+				activeRuleMode === 'aql'
+					? attendantsPerTeam[teamID].length > 0
+						? attendantsPerTeam[teamID].length - 1
+						: 0
+					: attendantsPerTeam[teamID].length,
+			trophyCount: 0,
+			totalScore: { num: 0, den: 0 },
+			manualOrder: attendants.length
+		});
 	}
 
 	let playSounds = $state(true);
@@ -277,18 +312,7 @@
 
 			case 'addAttendant':
 				if (attendantsPerTeam.length > 0) {
-					attendants.push({
-						name: event.data.name,
-						group: 0,
-						team: attendantsPerTeam.length - 1,
-						seat:
-							activeRuleMode === 'aql'
-								? attendantsPerTeam[attendantsPerTeam.length - 1].length - 1
-								: attendantsPerTeam[attendantsPerTeam.length - 1].length,
-						trophyCount: 0,
-						totalScore: { num: 0, den: 0 },
-						manualOrder: attendants.length
-					});
+					addAttendant(attendantsPerTeam.length - 1, event.data.name);
 				}
 				break;
 
@@ -586,6 +610,7 @@
 												]}
 												bind:value={att.name}
 												placeholder={`プレイヤー${i + 1}`}
+												onpaste={(e) => handlePasteEvent(e, i, ti)}
 											/>
 											<small class="yasu">
 												{#if sAtt?.yasuDisplay > 0}
@@ -642,16 +667,7 @@
 					{/each}
 					<div class="add-button-wrapper">
 						<button
-							onclick={() =>
-								attendants.push({
-									name: '',
-									group: 0,
-									team: ti,
-									seat: activeRuleMode === 'aql' ? seats.length - 1 : seats.length,
-									trophyCount: 0,
-									totalScore: { num: 0, den: 0 },
-									manualOrder: attendants.length
-								})}
+							onclick={() => addAttendant(ti)}
 							{@attach tooltip('このチームに新しいプレイヤーを追加します。')}
 						>
 							追加

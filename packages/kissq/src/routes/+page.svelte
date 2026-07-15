@@ -9,7 +9,7 @@
 	import se1 from '$lib/assets/se1.mp3';
 	import se2 from '$lib/assets/se2.mp3';
 	import se3 from '$lib/assets/se3.mp3';
-	import { type Attendant, loadFromHash } from '$lib/attendant';
+	import { type Attendant, han2zen, loadFromHash } from '$lib/attendant';
 	import AppearanceDialog from '$lib/components/appearanceDialog.svelte';
 	import EffectEditDialog from '$lib/components/effectEditDialog.svelte';
 	import Footer from '$lib/components/footer.svelte';
@@ -754,15 +754,6 @@
 	}
 
 	let pushers: number[] = $state([]);
-
-	function han2zen(str: string) {
-		// 全ASCII（4文字以上連続をどこかに含む場合は無視）
-		return /[!-~]{4}/gi.test(str)
-			? str
-			: str.replace(/[!-~]+/gi, (s) =>
-					[...s].map((c) => String.fromCodePoint(c.charCodeAt(0) + 0xfee0)).join('')
-				);
-	}
 </script>
 
 <svelte:window bind:innerWidth bind:innerHeight />
