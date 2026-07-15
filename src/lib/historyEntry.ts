@@ -162,6 +162,14 @@ export class BatsuHistoryEntry implements HistoryEntry {
 		team.teamLife = teamLife;
 
 		if (att.rule.mode === 'aql') {
+			// 同じ枠も巻き添えでリセット
+			team.attendantIDsPerSeat
+				.find((seat) => seat?.includes(this.attendantID))
+				?.forEach((ai2) => {
+					state.attendants[ai2].score = 0;
+				});
+
+			// 相手の封鎖解除
 			for (const [ti2, team2] of state.teams.entries()) {
 				if (ti === ti2) {
 					continue;
