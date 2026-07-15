@@ -111,7 +111,9 @@
 
 		td {
 			padding: 0 0.5em;
+			max-width: 15em;
 			text-align: right;
+			word-break: break-word;
 
 			span {
 				user-select: none;
