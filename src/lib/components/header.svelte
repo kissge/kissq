@@ -12,6 +12,7 @@
 		hideQuestionCount,
 		gameTitle,
 		battleMode,
+		onBattleModeChange,
 		attendants,
 		buttonMapping,
 		wasedashikiMode,
@@ -23,6 +24,7 @@
 		hideQuestionCount: boolean;
 		gameTitle: string;
 		battleMode: 'single' | 'team';
+		onBattleModeChange: (event: MouseEvent) => void;
 		attendants: Attendant[];
 		buttonMapping: Record<number, number>;
 		wasedashikiMode: WasedashikiMode | undefined;
@@ -59,12 +61,18 @@
 			<a
 				data-sveltekit-reload
 				href="./teams{search}#{hash}"
+				onclick={onBattleModeChange}
 				{@attach tooltip('団体戦に切り替えます')}
 			>
 				個人戦 ▾
 			</a>
 		{:else}
-			<a data-sveltekit-reload href="./{search}#{hash}" {@attach tooltip('個人戦に切り替えます')}>
+			<a
+				data-sveltekit-reload
+				href="./{search}#{hash}"
+				onclick={onBattleModeChange}
+				{@attach tooltip('個人戦に切り替えます')}
+			>
 				団体戦 <small>β</small> ▾
 			</a>
 		{/if}
