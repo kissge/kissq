@@ -32,6 +32,7 @@
 		EditHistoryEntry
 	} from '$lib/historyEntry';
 	import { pushLog, updateLog } from '$lib/logs';
+	import { qZero } from '$lib/question';
 	import { Rule, type Penalty, getActiveRulesText } from '$lib/rule';
 	import {
 		connectToSerialPort,
@@ -466,10 +467,7 @@
 
 	const urlParams = new URLSearchParams(typeof location !== 'undefined' ? location.search : '');
 	let showQuestionWindow = $state(urlParams.has('qw'));
-	let currentQuestion = $state({
-		question: 'ここに問題が表示されます',
-		answer: 'ここに答えが表示されます'
-	});
+	let currentQuestion = $state(qZero);
 	let subWindow = $state<Window>();
 
 	function openSubWindow() {
@@ -1566,10 +1564,6 @@
 				color: #aaa;
 				font-size: 3rem;
 			}
-		}
-
-		:has(.question) + .attendants {
-			height: calc(100dvh - 5.5em - 5em);
 		}
 	}
 

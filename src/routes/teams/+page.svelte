@@ -33,6 +33,7 @@
 	import { playSound } from '$lib/sound';
 	import { AttendantState, GameState, type GameEvent } from '$lib/state';
 	import { tooltip } from '$lib/tooltip.svelte';
+	import { qZero } from '$lib/question';
 
 	let headerClientHeight = $state(0);
 	let footerClientHeight = $state(0);
@@ -379,10 +380,7 @@
 
 	const urlParams = new URLSearchParams(typeof location !== 'undefined' ? location.search : '');
 	let showQuestionWindow = $state(urlParams.has('qw'));
-	let currentQuestion = $state({
-		question: 'ここに問題が表示されます',
-		answer: 'ここに答えが表示されます'
-	});
+	let currentQuestion = $state(qZero);
 
 	let pushers: number[] = [];
 
