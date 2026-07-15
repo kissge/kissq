@@ -441,6 +441,7 @@
 		hideQuestionCount={currentState.defaultRule.mode === 'aql'}
 		{gameTitle}
 		battleMode="team"
+		onBattleModeChange={clearHistory}
 		{attendants}
 		{buttonMapping}
 		{wasedashikiMode}

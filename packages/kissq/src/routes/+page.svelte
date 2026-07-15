@@ -783,6 +783,7 @@
 		hideQuestionCount={false}
 		{gameTitle}
 		battleMode="single"
+		onBattleModeChange={clearHistory}
 		{attendants}
 		{buttonMapping}
 		{wasedashikiMode}
