@@ -491,7 +491,13 @@
 						</button>
 					</div>
 				</div>
-				<div class="score">{currentState.teams[ti].teamScore}</div>
+				<div class="score">
+					{#key currentState.teams[ti].teamScore}
+						<span in:fade>
+							{currentState.teams[ti].teamScore}
+						</span>
+					{/key}
+				</div>
 				<div class="members" class:with-seat={activeRuleMode === 'aql'}>
 					{#each seats as atts, si (atts?.map(({ j }) => j) ?? si)}
 						{@const rowStart = seats
@@ -507,6 +513,8 @@
 								(sum, { i }) => sum + (currentState.attendants[i]?.batsuCount ?? 0),
 								0
 							) ?? 0}
+						{@const seatTotal =
+							atts?.reduce((sum, { i }) => sum + (currentState.attendants[i]?.score ?? 0), 1) ?? 0}
 						<div class="grid-wrapper">
 							<div
 								class="seat-total"
@@ -514,7 +522,11 @@
 								style:display={(atts?.length ?? 0) > 0 && activeRuleMode === 'aql' ? '' : 'none'}
 							>
 								<div>
-									{atts?.reduce((sum, { i }) => sum + (currentState.attendants[i]?.score ?? 0), 1)}
+									{#key seatTotal}
+										<span in:fade>
+											{seatTotal}
+										</span>
+									{/key}
 								</div>
 								<div class="batsu-count">
 									{'✕'.repeat(batsuCount)}
@@ -621,7 +633,11 @@
 											</small>
 										</div>
 										<div class="score">
-											{sAtt.score}
+											{#key sAtt.score}
+												<span in:fade>
+													{sAtt.score}
+												</span>
+											{/key}
 										</div>
 										{#if currentState.teams[ti].teamLife === 'alive' && (activeRuleMode === 'aql' ? batsuCount < 2 : true) && sAtt?.life === 'alive' && sAtt.yasuDisplay === 0}
 											<div class="buttons">
