@@ -10,6 +10,7 @@
 	import { han2zen, loadFromHash, type Attendant } from '$lib/attendant';
 	import Footer from '$lib/components/footer.svelte';
 	import Header from '$lib/components/header.svelte';
+	import LogDialog from '$lib/components/logDialog.svelte';
 	import Pushers from '$lib/components/pushers.svelte';
 	import QuestionWindow from '$lib/components/questionWindow.svelte';
 	import RuleTeamEditDialog from '$lib/components/ruleTeamEditDialog.svelte';
@@ -21,6 +22,7 @@
 		ThroughHistoryEntry,
 		type HistoryEntry
 	} from '$lib/historyEntry';
+	import { pushLog, updateLog } from '$lib/logs';
 	import { getActiveRulesText, Rule } from '$lib/rule';
 	import {
 		connectToSerialPort,
@@ -40,7 +42,7 @@
 	let teams = $state<string[]>([]);
 
 	let rules = $state([new Rule('aql', 200, null, 1, 'updown', false, null, 'constant', 0, null)]);
-	let { activeRules } = $derived(getActiveRulesText(rules, 'team'));
+	let { activeRules, activeRulesText } = $derived(getActiveRulesText(rules, 'team'));
 
 	let history = $state<HistoryEntry[]>([]);
 	let currentState = $derived(
@@ -67,6 +69,8 @@
 	});
 	let activeRuleMode = $derived(currentState.defaultRule.mode);
 
+	// svelte-ignore non_reactive_update ...?
+	let logDialog: { open: () => void };
 	let ruleTeamEditDialog: { open: (rules: Rule[]) => Promise<Rule[] | null> };
 
 	async function editRule() {
@@ -195,9 +199,19 @@
 	}
 
 	function clearHistory() {
+		pushLog('team', gameTitle, activeRulesText, currentState, attendants, teams);
+
 		attendants = attendants.filter((_, i) => currentState.attendants[i]?.life !== 'removed');
 		history = [];
 	}
+
+	$effect(() => {
+		if (history.length === 0) {
+			return;
+		}
+
+		updateLog('team', gameTitle, currentState, attendants, activeRulesText, teams);
+	});
 
 	let serialPort = $state<SerialPort>();
 	let answerers = $state<({ rank: 1 | 2 | 'late'; delay: number } | null)[]>([]);
@@ -411,6 +425,7 @@
 				console.error('接続エラー', error);
 			});
 
+		pushLog('team', gameTitle, activeRulesText, currentState, attendants, teams);
 		window.addEventListener('message', processWindowMessage);
 
 		return () => window.removeEventListener('message', processWindowMessage);
@@ -439,7 +454,7 @@
 		bind:headerClientHeight
 		questionCount={currentState.questionCount}
 		hideQuestionCount={currentState.defaultRule.mode === 'aql'}
-		{gameTitle}
+		bind:gameTitle
 		battleMode="team"
 		onBattleModeChange={clearHistory}
 		{attendants}
@@ -793,6 +808,7 @@
 			}}
 			{@attach tooltip('全員の名前・チーム・枠・スコアをリセットします。')}>全削除</button
 		>
+		<button onclick={logDialog.open}>履歴確認</button>
 		<button
 			onclick={() => (playSounds = !playSounds)}
 			{@attach tooltip('効果音のオンオフを切り替えます')}
@@ -834,6 +850,7 @@
 <Pushers {answererRanking} {attendants} {wasedashikiMode} />
 
 <RuleTeamEditDialog bind:this={ruleTeamEditDialog} />
+<LogDialog bind:this={logDialog} />
 
 <style>
 	.attendants {

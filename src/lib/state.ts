@@ -556,6 +556,7 @@ export class GameState {
 	teams: TeamState[];
 	questionCount: number = 1;
 	defaultRule: Rule;
+	/** 個人ランキング (single) or チームランキング (team) */
 	ranking: number[] = [];
 	latestEvent: GameEvent | null = null;
 

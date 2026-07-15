@@ -1,7 +1,9 @@
 import type { Attendant } from './attendant';
 import type { GameState, Life } from './state';
 
-export type LogStateEntry =
+export type LogStateEntry = LogStateSingleEntry | LogStateTeamEntry;
+
+export type LogStateSingleEntry =
 	| {
 			mode: 'marubatsu';
 			name: string;
@@ -19,6 +21,18 @@ export type LogStateEntry =
 			life: Life;
 			i: number;
 	  };
+export type LogStateTeamEntry = {
+	mode: 'aql' | 'product' | 'sum';
+	name: string;
+	group: number;
+	team: number;
+	seat: number | null;
+	score: number;
+	life: Life;
+	teamScore: number;
+	teamLife: Life;
+	i: number;
+};
 
 export interface LogEntry {
 	startAt: string;
@@ -26,6 +40,7 @@ export interface LogEntry {
 	gameTitle: string;
 	questionCount: number;
 	rules: string;
+	teams?: string[];
 	state: LogStateEntry[];
 }
 
@@ -34,7 +49,8 @@ export function pushLog(
 	gameTitle: string,
 	activeRulesText: string,
 	currentState: GameState,
-	attendants: Attendant[]
+	attendants: Attendant[],
+	teams?: string[]
 ): void {
 	const logs = loadLog();
 
@@ -48,55 +64,84 @@ export function pushLog(
 		gameTitle,
 		questionCount: currentState.questionCount - 1,
 		rules: activeRulesText,
-		state: stateToLog(currentState, attendants)
+		teams,
+		state: stateToLog(mode, currentState, attendants)
 	});
 
 	window.localStorage.setItem('logs', JSON.stringify(logs.slice(-100)));
 }
 
-export function stateToLog(currentState: GameState, attendants: Attendant[]): LogStateEntry[] {
-	return currentState.attendants
-		.flatMap<LogStateEntry>((att, i) => {
-			if (att.life === 'removed') {
-				return [];
-			}
+export function stateToLog(
+	mode: 'single' | 'team',
+	currentState: GameState,
+	attendants: Attendant[]
+): LogStateEntry[] {
+	const entries = currentState.attendants.flatMap<LogStateEntry>((att, i) => {
+		if (att.life === 'removed') {
+			return [];
+		}
 
-			switch (att.rule.mode) {
-				case 'marubatsu':
-					return {
-						mode: 'marubatsu',
-						name: att.name,
-						group: attendants[i].group,
-						maruCount: att.maruCount,
-						batsuCount: att.batsuCount,
-						life: att.life,
-						i
-					};
-				case 'score':
-				case 'MbyN':
-				case 'survival':
-					return {
-						mode: att.rule.mode,
-						name: att.name,
-						group: attendants[i].group,
-						score: att.score,
-						life: att.life,
-						i
-					};
-				case 'aql':
-				case 'product':
-				case 'sum':
-					throw new Error(); // TODO
-			}
-		})
-		.toSorted((a, b) => currentState.ranking.indexOf(a.i) - currentState.ranking.indexOf(b.i));
+		switch (att.rule.mode) {
+			case 'marubatsu':
+				return {
+					mode: 'marubatsu',
+					name: att.name,
+					group: attendants[i].group,
+					maruCount: att.maruCount,
+					batsuCount: att.batsuCount,
+					life: att.life,
+					i
+				};
+			case 'score':
+			case 'MbyN':
+			case 'survival':
+				return {
+					mode: att.rule.mode,
+					name: att.name,
+					group: attendants[i].group,
+					score: att.score,
+					life: att.life,
+					i
+				};
+			case 'aql':
+			case 'product':
+			case 'sum':
+				return {
+					mode: att.rule.mode,
+					name: att.name,
+					group: attendants[i].group,
+					score: att.score,
+					life: att.life,
+					team: attendants[i].team,
+					seat: att.rule.mode === 'aql' ? attendants[i].seat : null,
+					teamScore: currentState.teams[attendants[i].team].teamScore,
+					teamLife: currentState.teams[attendants[i].team].teamLife,
+					i
+				};
+		}
+	});
+
+	if (mode === 'single') {
+		return entries.toSorted(
+			(a, b) => currentState.ranking.indexOf(a.i) - currentState.ranking.indexOf(b.i)
+		);
+	} else {
+		return (entries as LogStateTeamEntry[]).toSorted(
+			(a, b) =>
+				currentState.ranking.indexOf(a.team) - currentState.ranking.indexOf(b.team) ||
+				(a.seat ?? Infinity) - (b.seat ?? Infinity) ||
+				b.score - a.score
+		);
+	}
 }
 
 export function updateLog(
+	mode: 'single' | 'team',
 	gameTitle: string,
 	currentState: GameState,
 	attendants: Attendant[],
-	activeRulesText: string
+	activeRulesText: string,
+	teams?: string[]
 ) {
 	const logs = loadLog();
 
@@ -109,7 +154,8 @@ export function updateLog(
 		gameTitle,
 		questionCount: currentState.questionCount - 1,
 		rules: activeRulesText,
-		state: stateToLog(currentState, attendants)
+		state: stateToLog(mode, currentState, attendants),
+		teams
 	};
 
 	window.localStorage.setItem('logs', JSON.stringify(logs));
