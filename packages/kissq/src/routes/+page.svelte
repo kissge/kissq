@@ -31,7 +31,7 @@
 		LoseHistoryEntry,
 		EditHistoryEntry
 	} from '$lib/historyEntry';
-	import type { LogEntry, LogStateEntry } from '$lib/logs';
+	import { pushLog, updateLog } from '$lib/logs';
 	import { Rule, type Penalty, getActiveRulesText } from '$lib/rule';
 	import {
 		connectToSerialPort,
@@ -343,82 +343,13 @@
 	let stateEditDialog: { open: (att: AttendantState) => Promise<AttendantStateValue | null> };
 	let penaltyRoulette: { run: (choices: Penalty[]) => Promise<number> };
 
-	function stateToLog(): LogStateEntry[] {
-		return currentState.attendants
-			.flatMap<LogStateEntry>((att, i) => {
-				if (att.life === 'removed') {
-					return [];
-				}
-
-				switch (att.rule.mode) {
-					case 'marubatsu':
-						return {
-							mode: 'marubatsu',
-							name: att.name,
-							group: attendants[i].group,
-							maruCount: att.maruCount,
-							batsuCount: att.batsuCount,
-							life: att.life,
-							i
-						};
-					case 'score':
-					case 'MbyN':
-					case 'survival':
-						return {
-							mode: att.rule.mode,
-							name: att.name,
-							group: attendants[i].group,
-							score: att.score,
-							life: att.life,
-							i
-						};
-					case 'aql':
-					case 'product':
-					case 'sum':
-						throw new Error(); // TODO
-				}
-			})
-			.toSorted((a, b) => currentState.ranking.indexOf(a.i) - currentState.ranking.indexOf(b.i));
-	}
-
-	function pushLog(): void {
-		const logs: LogEntry[] = JSON.parse(window.localStorage.getItem('logs') ?? '[]');
-
-		logs.push({
-			startAt: new Date().toLocaleString('ja', {
-				timeZone: 'Asia/Tokyo',
-				dateStyle: 'short',
-				timeStyle: 'long'
-			}),
-			gameTitle,
-			questionCount: currentState.questionCount - 1,
-			rules: activeRulesText,
-			state: stateToLog()
-		});
-
-		window.localStorage.setItem('logs', JSON.stringify(logs.slice(-100)));
-	}
-
 	$effect(() => {
 		if (history.length === 0) {
 			return;
 		}
 
-		const logs: LogEntry[] = JSON.parse(window.localStorage.getItem('logs') ?? '[]');
 
-		if (logs.length === 0) {
-			return;
-		}
-
-		logs[logs.length - 1] = {
-			...logs[logs.length - 1],
-			gameTitle,
-			questionCount: currentState.questionCount - 1,
-			rules: activeRulesText,
-			state: stateToLog()
-		};
-
-		window.localStorage.setItem('logs', JSON.stringify(logs));
+		updateLog(gameTitle, currentState, attendants, activeRulesText);
 	});
 
 	function clearHistory() {
@@ -434,7 +365,7 @@
 			}
 		});
 
-		pushLog();
+		pushLog('single', gameTitle, activeRulesText, currentState, attendants);
 
 		attendants = attendants.filter((_, i) => currentState.attendants[i].life !== 'removed');
 		history = [];
@@ -673,7 +604,7 @@
 			.catch((error) => {
 				console.error('接続エラー', error);
 			});
-		pushLog();
+		pushLog('single', gameTitle, activeRulesText, currentState, attendants);
 		window.addEventListener('message', processWindowMessage);
 
 		return () => window.removeEventListener('message', processWindowMessage);

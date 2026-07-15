@@ -1,9 +1,9 @@
 <script lang="ts">
-	import type { LogEntry } from '$lib/logs';
+	import { loadLog, type LogEntry } from '$lib/logs';
 
 	let dialog: HTMLDialogElement;
 	export function open() {
-		logs = JSON.parse(window.localStorage.getItem('logs') ?? '[]');
+		logs = loadLog();
 		dialog.showModal();
 	}
 
