@@ -664,7 +664,10 @@
 															.filter(
 																(a) => a != null && currentState.attendants[a].life !== 'removed'
 															).length <= 1}
-														onclick={() => history.push(new RemoveHistoryEntry(i))}
+														onclick={() => {
+															history.push(new RemoveHistoryEntry(i));
+															delete buttonMapping[i];
+														}}
 														{@attach tooltip('このプレイヤーをリストから削除します。')}
 													>
 														削除
