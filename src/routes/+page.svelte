@@ -547,6 +547,7 @@
 						command: 'syncState',
 						mode: 'single',
 						currentState,
+						history,
 						orderedAttendants,
 						answerers,
 						buttonMapping,
