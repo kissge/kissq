@@ -379,6 +379,7 @@
 						command: 'syncState',
 						mode: 'team',
 						currentState: state,
+						history,
 						answerers,
 						buttonMapping,
 						wasedashikiMode

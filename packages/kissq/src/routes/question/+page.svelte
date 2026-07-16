@@ -1,7 +1,8 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { flip } from 'svelte/animate';
-	import { fade } from 'svelte/transition';
+	import { fade, fly } from 'svelte/transition';
+	import type { HistoryEntry } from '$lib/historyEntry';
 	import { parseCSV, qZero } from '$lib/question';
 	import type { WasedashikiMode } from '$lib/serial';
 	import type { GameState } from '$lib/state';
@@ -16,6 +17,7 @@
 	let isKeyboardEnabled = $state(true);
 
 	let currentState = $state<GameState>();
+	let history = $state<HistoryEntry[]>([]);
 	let mainScreenOrder = $state<number[]>();
 	let answerers = $state<({ rank: 1 | 2 | 'late'; delay: number } | null)[]>([]);
 	/** attendant ID -> button ID */
@@ -35,6 +37,39 @@
 				order satisfies never;
 		}
 	});
+
+	let historyDisplay = $derived(
+		history
+			.map((entry, key) => ({ ...entry, key }))
+			.slice(-5)
+			.map((entry) => {
+				const text: string = (() => {
+					const name =
+						'attendantID' in entry
+							? currentState?.attendants[entry.attendantID]?.name ||
+								`プレイヤー${entry.attendantID + 1}`
+							: null;
+					switch (entry.type) {
+						case 'maru':
+							return `○ ${name}`;
+						case 'batsu':
+							return `× ${name}`;
+						case 'through':
+							return `スルー`;
+						case 'remove':
+							return `削除 ${name}`;
+						case 'win':
+							return `勝利 ${name}`;
+						case 'lose':
+							return `失格 ${name}`;
+						case 'edit':
+							return `手編集 ${name}`;
+					}
+				})();
+
+				return { ...entry, text };
+			})
+	);
 
 	let inputDialog: HTMLDialogElement;
 
@@ -58,6 +93,7 @@
 			case 'syncState':
 				battleMode = event.data.mode;
 				currentState = event.data.currentState;
+				history = event.data.history;
 				mainScreenOrder = event.data.orderedAttendants;
 				answerers = event.data.answerers;
 				buttonMapping = event.data.buttonMapping;
@@ -265,6 +301,18 @@
 			{/each}
 		</div>
 	{/if}
+
+	Next: Q{currentState?.questionCount}
+	{#each historyDisplay as entry (entry.key)}
+		<div
+			class={['history-entry', entry.type]}
+			in:fly={{ x: 100, duration: 1000 }}
+			out:fly={{ x: -100, duration: 1000 }}
+			animate:flip
+		>
+			{entry.text}
+		</div>
+	{/each}
 </header>
 
 <main class="console">
@@ -339,6 +387,31 @@
 	.answerer-late {
 		background-color: rgb(255 255 192);
 	}
+
+	.history-entry {
+		display: inline-block;
+		border-top-right-radius: 1em;
+		border-bottom-right-radius: 1em;
+		background: #222;
+		padding: 0.2em 2em 0.2em 1em;
+		color: white;
+		font-weight: bold;
+		text-shadow: 0 0 5px #000;
+		white-space: nowrap;
+
+		&.maru,
+		&.win {
+			background: #f00;
+		}
+		&.batsu,
+		&.lose {
+			background: #00f;
+		}
+		&.through {
+			background: #0f0;
+		}
+	}
+
 	@keyframes answerer-1st-wrapper {
 		to {
 			scale: 1.25;
