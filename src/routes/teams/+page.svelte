@@ -448,6 +448,7 @@
 
 	$effect(() => {
 		const data = { attendants, buttonMapping };
+		$state.snapshot(data);
 		untrack(() => {
 			if (data.attendants.every(({ name }) => name === '')) {
 				window.history.replaceState(null, '', ' ');
