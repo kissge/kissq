@@ -557,7 +557,28 @@
 											class:yasu={sAtt.yasuDisplay > 0}
 											class:lost={sAtt.life === 'lost' ||
 												(activeRuleMode === 'aql' && batsuCount >= 2)}
-											{@attach tooltipInteractive('<button onclick="alert()">button</button>')}
+											{@attach currentState.teams[ti].teamLife === 'alive' &&
+												(activeRuleMode === 'aql' ? batsuCount < 2 : true) &&
+												sAtt?.life === 'alive' &&
+												sAtt.yasuDisplay === 0 &&
+												tooltipInteractive(
+													typeof document !== 'undefined'
+														? `<div data-attendant-id="${i}">` +
+																document
+																	.getElementById('hover-menu')!
+																	.innerHTML.replaceAll('data-on', 'on')
+																	.replace(
+																		'%teams%',
+																		teams
+																			.map(
+																				(team, j) =>
+																					`<option ${ti === j ? 'selected' : ''}>${team.slice(0, 5) || `チーム${j + 1}`}</option>`
+																			)
+																			.join('')
+																	) +
+																'</div>'
+														: ''
+												)}
 										>
 											<div
 												class="seat"
@@ -658,8 +679,9 @@
 												{/key}
 											</div>
 											{#if currentState.teams[ti].teamLife === 'alive' && (activeRuleMode === 'aql' ? batsuCount < 2 : true) && sAtt?.life === 'alive' && sAtt.yasuDisplay === 0}
-												<div class="buttons">
+												<div class="buttons" data-attendant-id={i}>
 													<button
+														class="delete-btn"
 														disabled={currentState.teams[ti].attendantIDsPerSeat
 															.flat()
 															.filter(
@@ -693,8 +715,8 @@
 															<option value={j}>{team?.slice(0, 5) || `チーム${j + 1}`}</option>
 														{/each}
 													</select>
-													<button onclick={() => clickMaru(i)}>O</button>
-													<button onclick={() => clickBatsu(i)}>X</button>
+													<button class="maru-btn" onclick={() => clickMaru(i)}>O</button>
+													<button class="batsu-btn" onclick={() => clickBatsu(i)}>X</button>
 												</div>
 											{/if}
 										</div>
@@ -852,6 +874,27 @@
 		{/if}
 	</div>
 {/if}
+
+<template id="hover-menu">
+	<button
+		data-onclick="document.querySelector('.buttons[data-attendant-id=\'' + this.parentElement.dataset.attendantId + '\'] .delete-btn').click()"
+	>
+		削除
+	</button>
+	<select
+		data-onchange="s = document.querySelector('.buttons[data-attendant-id=\'' + this.parentElement.dataset.attendantId + '\'] select'); s.selectedIndex = this.selectedIndex; s.dispatchEvent(new Event('change'))"
+	>
+		%teams%
+	</select>
+	<button
+		data-onclick="document.querySelector('.buttons[data-attendant-id=\'' + this.parentElement.dataset.attendantId + '\'] .maru-btn').click()"
+		>O</button
+	>
+	<button
+		data-onclick="document.querySelector('.buttons[data-attendant-id=\'' + this.parentElement.dataset.attendantId + '\'] .batsu-btn').click()"
+		>X</button
+	>
+</template>
 
 <Pushers {answererRanking} {attendants} {wasedashikiMode} />
 
@@ -1162,10 +1205,7 @@
 				gap: 2px;
 				opacity: 0;
 				height: 100%;
-
-				&:is(:hover > *) {
-					opacity: 1;
-				}
+				pointer-events: none;
 
 				button,
 				select {
@@ -1210,7 +1250,14 @@
 	}
 
 	:global(.tippy-box:has(button)) {
-		font-size: 2em;
+		font-size: 1.2em;
+
+		button,
+		select,
+		option {
+			height: 2em;
+			font-size: 1em;
+		}
 	}
 
 	[popover] {

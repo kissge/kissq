@@ -14,6 +14,7 @@ export const tooltipInteractive = (content: string) =>
 	tooltip(content, {
 		interactive: true,
 		allowHTML: true,
+		interactiveBorder: 30,
 		appendTo: document.body,
 		placement: 'left'
 	});
