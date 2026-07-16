@@ -5,7 +5,9 @@
 	let {
 		answererRanking,
 		attendants,
-		wasedashikiMode
+		wasedashikiMode,
+		headerClientHeight,
+		footerClientHeight
 	}: {
 		answererRanking: (readonly [
 			number,
@@ -16,13 +18,33 @@
 		])[];
 		attendants: Record<number, { name: string } | undefined>;
 		wasedashikiMode: WasedashikiMode | undefined;
+		headerClientHeight: number;
+		footerClientHeight: number;
 	} = $props();
+
+	let innerHeight = $state(0);
+	let pushersClientHeight = $state(0);
+
+	let pushersTop = $derived.by(() => {
+		if (pushersClientHeight === 0) {
+			return headerClientHeight * 1.5;
+		}
+
+		const availableHeight = innerHeight - headerClientHeight - footerClientHeight;
+		if (availableHeight <= 0) {
+			return headerClientHeight * 1.5;
+		}
+
+		return headerClientHeight * 1.5 + Math.max(0, (availableHeight - pushersClientHeight) / 2);
+	});
 </script>
+
+<svelte:window bind:innerHeight />
 
 {#if answererRanking.length > 0 && !answererRanking.some( ([attendantID]) => Number.isNaN(attendantID) )}
 	<div class="pushers-bg" in:fade></div>
-	<div class="pushers">
-		<div>
+	<div class="pushers" style:top="{pushersTop}px">
+		<div bind:clientHeight={pushersClientHeight}>
 			{#each answererRanking as [attendantID, answerer] (attendantID)}
 				<div class="attendant" in:fly={{ y: 300 }} out:fly={{ y: -300 }}>
 					<div class="time" style:opacity={answerer.delay === 0 ? 0 : 1}>
@@ -47,12 +69,9 @@
 
 <style>
 	.pushers {
-		display: flex;
 		position: fixed;
-		flex-direction: column;
-		justify-content: center;
-		align-items: center;
 		z-index: 999;
+		transition: top 0.3s ease;
 		inset: 0;
 		overflow: hidden;
 		font-weight: bold;

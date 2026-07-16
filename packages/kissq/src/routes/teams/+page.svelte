@@ -911,7 +911,13 @@
 	>
 </template>
 
-<Pushers {answererRanking} {attendants} {wasedashikiMode} />
+<Pushers
+	{answererRanking}
+	{attendants}
+	{wasedashikiMode}
+	{headerClientHeight}
+	{footerClientHeight}
+/>
 
 <RuleTeamEditDialog bind:this={ruleTeamEditDialog} />
 <LogDialog bind:this={logDialog} />

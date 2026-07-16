@@ -1228,7 +1228,13 @@
 	</div>
 {/if}
 
-<Pushers {answererRanking} {attendants} {wasedashikiMode} />
+<Pushers
+	{answererRanking}
+	{attendants}
+	{wasedashikiMode}
+	{headerClientHeight}
+	{footerClientHeight}
+/>
 
 <RuleEditDialog bind:this={ruleEditDialog} />
 <LogDialog bind:this={logDialog} />
