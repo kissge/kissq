@@ -202,7 +202,24 @@
 	function clearHistory() {
 		pushLog('team', gameTitle, activeRulesText, currentState, attendants, teams);
 
-		attendants = attendants.filter((_, i) => currentState.attendants[i]?.life !== 'removed');
+		const newAttendants = [...attendants];
+		const removedIndex = [];
+		for (let i = 0, j = 0; i < newAttendants.length; i++) {
+			if (currentState.attendants[i]?.life === 'removed') {
+				removedIndex.push(i);
+				j--;
+			} else {
+				if (j < 0) {
+					buttonMapping[i + j] = buttonMapping[i];
+					delete buttonMapping[i];
+				}
+			}
+		}
+		removedIndex.toReversed().forEach((i) => {
+			newAttendants.splice(i, 1);
+		});
+		attendants = newAttendants;
+
 		history = [];
 	}
 
@@ -430,10 +447,7 @@
 	});
 
 	$effect(() => {
-		const data = {
-			attendants: attendants.filter((_, ai) => currentState.attendants[ai].life !== 'removed'),
-			buttonMapping
-		};
+		const data = { attendants, buttonMapping };
 		untrack(() => {
 			if (data.attendants.every(({ name }) => name === '')) {
 				window.history.replaceState(null, '', ' ');
