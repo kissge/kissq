@@ -235,6 +235,7 @@
 				color: white;
 			}
 			&.lizhi,
+			&.double-lizhi,
 			&.effect2,
 			&.effect3,
 			&.transit {
