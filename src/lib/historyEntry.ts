@@ -52,6 +52,8 @@ export class MaruHistoryEntry implements HistoryEntry {
 		if (life === 'alive' && att.processMaru().life === 'won') {
 			if (att.rule.transit) {
 				state.latestEvent = { type: 'transit', attendantID: this.attendantID };
+			} else if (att.processBatsu().life === 'lost') {
+				state.latestEvent = { type: 'double-lizhi', attendantID: this.attendantID };
 			} else {
 				state.latestEvent = { type: 'lizhi', attendantID: this.attendantID };
 			}

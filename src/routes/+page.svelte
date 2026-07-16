@@ -1219,6 +1219,8 @@
 			勝ち抜け
 		{:else if isBannerVisible.type === 'lizhi'}
 			リーチ
+		{:else if isBannerVisible.type === 'double-lizhi'}
+			ダブルリーチ
 		{:else if isBannerVisible.type === 'effect2'}
 			{effect2Name}
 		{:else if isBannerVisible.type === 'effect3'}

@@ -471,7 +471,7 @@ export class TeamState {
 	}
 }
 
-export type GameEventType = 'won' | 'lizhi' | 'effect2' | 'effect3' | 'transit';
+export type GameEventType = 'won' | 'lizhi' | 'double-lizhi' | 'effect2' | 'effect3' | 'transit';
 
 export type GameEvent =
 	| {
