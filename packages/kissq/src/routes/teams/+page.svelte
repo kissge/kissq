@@ -207,6 +207,7 @@
 		for (let i = 0, j = 0; i < newAttendants.length; i++) {
 			if (currentState.attendants[i]?.life === 'removed') {
 				removedIndex.push(i);
+				delete buttonMapping[i];
 				j--;
 			} else {
 				if (j < 0) {
@@ -485,7 +486,7 @@
 		style:height={`calc(100vh - ${headerClientHeight + footerClientHeight}px - 30px ${showQuestionWindow ? '- 6.25em - 0.7rem' : ''})`}
 	>
 		{#each attendantsPerTeam as seats, ti (ti)}
-			<div class="team" class:lizhi={/** TODO */ false}>
+			<div class="team">
 				<div class="life">
 					{#if currentState.teams[ti].teamLife === 'won'}
 						<div class="won">{currentState.ranking.indexOf(ti) + 1}位</div>
@@ -703,10 +704,7 @@
 															.filter(
 																(a) => a != null && currentState.attendants[a].life !== 'removed'
 															).length <= 1}
-														onclick={() => {
-															history.push(new RemoveHistoryEntry(i));
-															delete buttonMapping[i];
-														}}
+														onclick={() => history.push(new RemoveHistoryEntry(i))}
 														{@attach tooltip('このプレイヤーをリストから削除します。')}
 													>
 														削除
