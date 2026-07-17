@@ -706,6 +706,7 @@
 															).length <= 1}
 														onclick={() => history.push(new RemoveHistoryEntry(i))}
 														{@attach tooltip('このプレイヤーをリストから削除します。')}
+														tabindex={-1}
 													>
 														削除
 													</button>
@@ -724,13 +725,18 @@
 															attendants[i].team = t;
 														}}
 														{@attach tooltip('このプレイヤーのチームを変更します。')}
+														tabindex={-1}
 													>
 														{#each teams as team, j (j)}
 															<option value={j}>{team?.slice(0, 5) || `チーム${j + 1}`}</option>
 														{/each}
 													</select>
-													<button class="maru-btn" onclick={() => clickMaru(i)}>O</button>
-													<button class="batsu-btn" onclick={() => clickBatsu(i)}>X</button>
+													<button class="maru-btn" onclick={() => clickMaru(i)} tabindex={-1}>
+														O
+													</button>
+													<button class="batsu-btn" onclick={() => clickBatsu(i)} tabindex={-1}>
+														X
+													</button>
 												</div>
 											{/if}
 										</div>
