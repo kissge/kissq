@@ -38,7 +38,11 @@
 	let { activeRulesText } = $derived(getActiveRulesText(rules, battleMode));
 
 	const search = typeof location !== 'undefined' ? location.search : '';
-	let hash = $derived(encodeURIComponent(JSON.stringify({ attendants, buttonMapping })));
+	let hash = $derived(
+		attendants.some(({ name }) => name) || Object.keys(buttonMapping).length > 0
+			? encodeURIComponent(JSON.stringify({ attendants, buttonMapping }))
+			: ''
+	);
 </script>
 
 <header bind:clientHeight={headerClientHeight}>
