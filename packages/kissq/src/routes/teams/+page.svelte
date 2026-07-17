@@ -893,6 +893,17 @@
 
 <template id="hover-menu">
 	<button
+		data-onclick="document.querySelector('.buttons[data-attendant-id=\'' + this.parentElement.dataset.attendantId + '\'] .maru-btn').click()"
+	>
+		O
+	</button>
+	<button
+		data-onclick="document.querySelector('.buttons[data-attendant-id=\'' + this.parentElement.dataset.attendantId + '\'] .batsu-btn').click()"
+	>
+		X
+	</button>
+	<br />
+	<button
 		data-onclick="document.querySelector('.buttons[data-attendant-id=\'' + this.parentElement.dataset.attendantId + '\'] .delete-btn').click()"
 	>
 		削除
@@ -902,14 +913,6 @@
 	>
 		%teams%
 	</select>
-	<button
-		data-onclick="document.querySelector('.buttons[data-attendant-id=\'' + this.parentElement.dataset.attendantId + '\'] .maru-btn').click()"
-		>O</button
-	>
-	<button
-		data-onclick="document.querySelector('.buttons[data-attendant-id=\'' + this.parentElement.dataset.attendantId + '\'] .batsu-btn').click()"
-		>X</button
-	>
 </template>
 
 <Pushers
@@ -1277,6 +1280,7 @@
 		button,
 		select,
 		option {
+			min-width: 4em;
 			height: 2em;
 			font-size: 1em;
 		}
