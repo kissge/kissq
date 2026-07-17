@@ -927,6 +927,10 @@
 <LogDialog bind:this={logDialog} />
 
 <style>
+	main.main {
+		font-size: max(1.5dvw, 24px);
+	}
+
 	.attendants {
 		display: flex;
 		flex-wrap: wrap;
@@ -956,7 +960,7 @@
 		grid-template-rows: 2em 1fr;
 		grid-template-columns: 2em minmax(0, 1fr) 2em;
 		row-gap: 0.25em;
-		flex: 1 1 360px;
+		flex: 1 1 560px;
 		backdrop-filter: blur(10px);
 		transition:
 			background-color 0.3s ease,
