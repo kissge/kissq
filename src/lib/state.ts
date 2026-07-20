@@ -429,38 +429,34 @@ export class TeamState {
 				);
 
 			case 'product':
-				return this.attendantIDsPerSeat.reduce(
-					(prod, seat) =>
-						prod *
-						(seat ?? []).reduce(
-							(sum, id) =>
-								sum +
-								(this.attendants[id].life === 'removed'
-									? 0
-									: id === attendantID
-										? score!
-										: this.attendants[id].score),
-							0
-						),
-					1
-				);
+				return this.attendantIDsPerSeat
+					.filter((seat): seat is number[] => seat != undefined)
+					.flat()
+					.reduce(
+						(prod, id) =>
+							prod *
+							(this.attendants[id].life === 'removed'
+								? 1
+								: id === attendantID
+									? score!
+									: this.attendants[id].score),
+						1
+					);
 
 			case 'sum':
-				return this.attendantIDsPerSeat.reduce(
-					(sum, seat) =>
-						sum +
-						(seat ?? []).reduce(
-							(sum, id) =>
-								sum +
-								(this.attendants[id].life === 'removed'
-									? 0
-									: id === attendantID
-										? score!
-										: this.attendants[id].score),
-							0
-						),
-					0
-				);
+				return this.attendantIDsPerSeat
+					.filter((seat): seat is number[] => seat != undefined)
+					.flat()
+					.reduce(
+						(sum, id) =>
+							sum +
+							(this.attendants[id].life === 'removed'
+								? 0
+								: id === attendantID
+									? score!
+									: this.attendants[id].score),
+						0
+					);
 
 			case 'marubatsu':
 			case 'MbyN':
