@@ -448,6 +448,17 @@
 	});
 </script>
 
+<svelte:head>
+	<title>
+		kissQ -
+		{gameTitle ? gameTitle + ' - ' : ''}
+		{currentState.attendants
+			.flatMap(({ name, life }) => (life !== 'removed' ? [name.slice(0, 3) || '👤'] : []))
+			.join('・')}
+		- クイズカウンター（得点表示機）のkissQ
+	</title>
+</svelte:head>
+
 <main class="main">
 	<Header
 		bind:headerClientHeight
