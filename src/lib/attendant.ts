@@ -29,6 +29,10 @@ export function loadFromHash(
 					});
 				}
 
+				attendants.forEach((att) => {
+					att.group = 0;
+				});
+
 				return { attendants, buttonMapping };
 			}
 
