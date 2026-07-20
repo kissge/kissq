@@ -95,11 +95,10 @@
 					att.group = 0;
 				});
 			} else {
-				rules = result;
+				const removedIndices = result.flatMap(({ isRemoved }, i) => (isRemoved ? [i] : []));
+				rules = result.filter(({ isRemoved }) => !isRemoved);
 				attendants.forEach((att) => {
-					while (rules[att.group].isRemoved) {
-						att.group = (att.group - 1 + rules.length) % rules.length;
-					}
+					att.group = Math.max(0, att.group - removedIndices.filter((i) => i <= att.group).length);
 				});
 			}
 
