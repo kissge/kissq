@@ -1012,14 +1012,13 @@
 
 			.buttons {
 				display: none;
-			}
-
-			&:hover .buttons {
-				display: flex;
-				position: absolute;
-				right: 0.5em;
-				align-items: center;
-				gap: 2px;
+				&:is(.team:hover *) {
+					display: flex;
+					position: absolute;
+					right: 0.5em;
+					align-items: center;
+					gap: 2px;
+				}
 			}
 		}
 
