@@ -481,31 +481,6 @@
 				</div>
 				<div class="team-name">
 					<input placeholder={`チーム${ti + 1}`} bind:value={teams[ti]} />
-					<div class="buttons">
-						<button
-							disabled={history.length > 0}
-							onclick={() => {
-								if (
-									confirm(
-										`${teams[ti] || `チーム${ti + 1}`}を削除しますか？\nこの操作は元に戻せません。`
-									)
-								) {
-									attendants = attendants
-										.filter((_, i) => attendants[i].team !== ti)
-										.map((att) => {
-											if (att.team > ti) {
-												return { ...att, team: att.team - 1 };
-											}
-											return att;
-										});
-									teams.splice(ti, 1);
-								}
-							}}
-							{@attach tooltip('このチームを削除します。')}
-						>
-							削除
-						</button>
-					</div>
 				</div>
 				<div
 					class="score"
@@ -749,7 +724,31 @@
 							</div>
 						{/if}
 					{/each}
-					<div class="add-button-wrapper">
+					<div class="bottom-buttons">
+						<button
+							disabled={history.length > 0}
+							onclick={() => {
+								if (
+									confirm(
+										`${teams[ti] || `チーム${ti + 1}`}を削除しますか？\nこの操作は元に戻せません。`
+									)
+								) {
+									attendants = attendants
+										.filter((_, i) => attendants[i].team !== ti)
+										.map((att) => {
+											if (att.team > ti) {
+												return { ...att, team: att.team - 1 };
+											}
+											return att;
+										});
+									teams.splice(ti, 1);
+								}
+							}}
+							{@attach tooltip('このチームを削除します。')}
+						>
+							削除
+						</button>
+						<div class="spacer"></div>
 						<button
 							onclick={() => addAttendant(ti)}
 							{@attach tooltip('このチームに新しいプレイヤーを追加します。')}
@@ -1023,17 +1022,6 @@
 			padding: 0 0.5em;
 			min-width: 0;
 			text-align: center;
-
-			.buttons {
-				display: none;
-				&:is(.team:hover *) {
-					display: flex;
-					position: absolute;
-					right: 0.5em;
-					align-items: center;
-					gap: 2px;
-				}
-			}
 		}
 
 		& > .score {
@@ -1266,18 +1254,23 @@
 			}
 		}
 
-		.add-button-wrapper {
+		.bottom-buttons {
 			display: flex;
 			position: absolute;
 			right: 0.75em;
 			bottom: 0.75em;
 			grid-column: 1 / -1;
-			justify-content: center;
 			align-items: center;
 			opacity: 0;
+			transition: opacity 0.3s;
+			width: calc(100% - 0.75em * 2);
 
 			&:is(.team:hover *) {
 				opacity: 1;
+			}
+
+			.spacer {
+				flex-grow: 1;
 			}
 		}
 	}
