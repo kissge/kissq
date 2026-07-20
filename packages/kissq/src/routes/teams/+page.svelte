@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { watch } from 'runed';
 	import { onMount, untrack } from 'svelte';
+	import { flip } from 'svelte/animate';
 	import { fade, slide } from 'svelte/transition';
 	import Toastify from 'toastify-js';
 	import 'toastify-js/src/toastify.css';
@@ -486,7 +487,7 @@
 		style:height={`calc(100vh - ${headerClientHeight + footerClientHeight}px - 30px ${showQuestionWindow ? '- 6.25em - 0.7rem' : ''})`}
 	>
 		{#each attendantsPerTeam as seats, ti (ti)}
-			<div class="team">
+			<div class="team" animate:flip={{ duration: 200 }}>
 				<div class="life">
 					{#if currentState.teams[ti].teamLife === 'won'}
 						<div class="won">{currentState.ranking.indexOf(ti) + 1}位</div>
@@ -522,7 +523,11 @@
 						</button>
 					</div>
 				</div>
-				<div class="score">
+				<div
+					class="score"
+					style:background={`hsl(${(360 / Math.max(6, currentState.teams.length)) * ti}, 90%, 40%)`}
+					{@attach tooltip('チームの総得点')}
+				>
 					{#key currentState.teams[ti].teamScore}
 						<span in:fade>
 							{currentState.teams[ti].teamScore}
@@ -553,7 +558,7 @@
 									style:grid-row={`${rowStart} / span ${atts?.length}`}
 									style:display={(atts?.length ?? 0) > 0 && activeRuleMode === 'aql' ? '' : 'none'}
 								>
-									<div>
+									<div {@attach tooltip('枠の総得点')}>
 										{#key seatTotal}
 											<span in:fade>
 												{seatTotal}
@@ -574,6 +579,7 @@
 											class:yasu={sAtt.yasuDisplay > 0}
 											class:lost={sAtt.life === 'lost' ||
 												(activeRuleMode === 'aql' && batsuCount >= 2)}
+											class:first-member={si === 0 && ai === 0}
 											{@attach currentState.teams[ti].teamLife === 'alive' &&
 												(activeRuleMode === 'aql' ? batsuCount < 2 : true) &&
 												sAtt?.life === 'alive' &&
@@ -1033,14 +1039,15 @@
 			}
 		}
 
-		.score {
+		& > .score {
 			display: flex;
 			justify-content: center;
 			align-items: center;
-			border-radius: 0.5em;
-			background: #000;
+			box-shadow: 0 0 10px #0008;
+			border-radius: 5em;
 			font-weight: bold;
 			text-align: center;
+			text-shadow: 0 0 8px #000;
 		}
 
 		.members {
@@ -1048,10 +1055,12 @@
 			grid-template-columns: 1fr 2em;
 			grid-column: 1 / -1;
 			align-content: start;
-			gap: 0.125em;
+			padding-right: 0.75em;
+			padding-left: 0.75em;
 
 			&.with-seat {
 				grid-template-columns: 2em 1fr 2em 2.5em;
+				padding-right: 0;
 
 				.member {
 					grid-column: 1 / -2;
@@ -1062,24 +1071,26 @@
 				display: contents;
 
 				&:has(.seat-total) {
-					& > *:not(:last-child) {
-						border-radius: 1em 0 0 1em;
+					& .member:not(:nth-child(2)):not(:last-child) {
+						border-top-right-radius: 0;
+						border-bottom-right-radius: 0;
 						.score {
-							border-radius: 0;
+							border-top-right-radius: 0;
+							border-bottom-right-radius: 0;
 						}
 					}
 
-					& > :nth-child(2):not(:last-child) {
-						border-radius: 1em 1em 0 1em;
+					& .member:nth-child(2):not(:last-child) {
+						border-bottom-right-radius: 0;
 						.score {
-							border-radius: 0 1em 0 0;
+							border-bottom-right-radius: 0;
 						}
 					}
 
-					& > :last-child:not(:nth-child(2)) {
-						border-radius: 1em 0 1em 1em;
+					& .member:last-child:not(:nth-child(2)) {
+						border-top-right-radius: 0;
 						.score {
-							border-radius: 0 0 1em 0;
+							border-top-right-radius: 0;
 						}
 					}
 				}
@@ -1123,13 +1134,21 @@
 			backdrop-filter: blur(10px);
 			transition: opacity 1s ease;
 			box-shadow: 0 0 15px #eeea;
-			border-radius: 2em;
+			border-radius: 0 0.75em 0.75em 0;
 			background-color: #ffffff40;
 			height: 1.25em;
 			color: #fff;
 			text-shadow:
 				0px 10px 50px #444,
 				0px 10px 50px #444;
+
+			&.first-member {
+				border-top-left-radius: 0.5em;
+
+				& .seat {
+					border-top-left-radius: 0.5em;
+				}
+			}
 
 			& > div {
 				display: flex;
@@ -1207,14 +1226,14 @@
 
 			.score {
 				display: flex;
-				flex-direction: column;
 				border-radius: 0 1em 1em 0;
+				background: #0007;
+				font-weight: bold;
 				font-size: 0.8em;
 			}
 
 			.seat {
-				border-radius: 1em 0 0 1em;
-				background: #0008;
+				background: #0004;
 				color: #fff;
 
 				select {
@@ -1253,14 +1272,14 @@
 		.add-button-wrapper {
 			display: flex;
 			position: absolute;
-			right: 0;
-			bottom: 0;
+			right: 0.75em;
+			bottom: 0.75em;
 			grid-column: 1 / -1;
 			justify-content: center;
 			align-items: center;
 			opacity: 0;
 
-			&:is(:hover > *) {
+			&:is(.team:hover *) {
 				opacity: 1;
 			}
 		}
