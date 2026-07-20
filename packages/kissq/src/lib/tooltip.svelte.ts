@@ -16,5 +16,5 @@ export const tooltipInteractive = (content: string) =>
 		allowHTML: true,
 		interactiveBorder: 30,
 		appendTo: document.body,
-		placement: 'left'
+		offset: [0, 0]
 	});

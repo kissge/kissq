@@ -902,6 +902,19 @@
 
 <template id="hover-menu">
 	<button
+		data-onclick="document.querySelector('.buttons[data-attendant-id=\'' + this.parentElement.dataset.attendantId + '\'] .delete-btn').click()"
+	>
+		削除
+	</button>
+	<br />
+	<select
+		data-onchange="s = document.querySelector('.buttons[data-attendant-id=\'' + this.parentElement.dataset.attendantId + '\'] select'); s.selectedIndex = this.selectedIndex; s.dispatchEvent(new Event('change'))"
+	>
+		%teams%
+	</select>
+	<br />
+
+	<button
 		data-onclick="document.querySelector('.buttons[data-attendant-id=\'' + this.parentElement.dataset.attendantId + '\'] .maru-btn').click()"
 	>
 		O
@@ -911,17 +924,6 @@
 	>
 		X
 	</button>
-	<br />
-	<button
-		data-onclick="document.querySelector('.buttons[data-attendant-id=\'' + this.parentElement.dataset.attendantId + '\'] .delete-btn').click()"
-	>
-		削除
-	</button>
-	<select
-		data-onchange="s = document.querySelector('.buttons[data-attendant-id=\'' + this.parentElement.dataset.attendantId + '\'] select'); s.selectedIndex = this.selectedIndex; s.dispatchEvent(new Event('change'))"
-	>
-		%teams%
-	</select>
 </template>
 
 <Pushers
@@ -1295,6 +1297,7 @@
 
 	:global(.tippy-box:has(button)) {
 		font-size: 1.2em;
+		text-align: center;
 
 		button,
 		select,
