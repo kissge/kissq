@@ -41,7 +41,7 @@
 
 <svelte:window bind:innerHeight />
 
-{#if answererRanking.length > 0 && !answererRanking.some( ([attendantID]) => Number.isNaN(attendantID) )}
+{#if answererRanking.length > 0 && !answererRanking.some(([attendantID]) => isNaN(attendantID))}
 	<div class="pushers-bg" in:fade></div>
 	<div class="pushers" style:top="{pushersTop}px">
 		<div bind:clientHeight={pushersClientHeight}>
