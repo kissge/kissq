@@ -138,8 +138,14 @@
 			&:before {
 				content: 'kissQ: ';
 			}
-			&:empty:before {
+			&:empty:not(:focus):before {
 				content: 'kissQ';
+			}
+			&:empty:focus:after {
+				animation: blink 1s infinite;
+				border-right: 1px solid #000;
+				content: '';
+				font-weight: lighter;
 			}
 		}
 	}
@@ -157,5 +163,11 @@
 	a:not(:focus, :hover) {
 		color: inherit;
 		text-decoration: none;
+	}
+
+	@keyframes blink {
+		to {
+			opacity: 0;
+		}
 	}
 </style>
