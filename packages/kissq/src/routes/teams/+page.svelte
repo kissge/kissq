@@ -103,17 +103,6 @@
 				});
 			}
 
-			if (result[0].mode !== 'aql') {
-				attendantsPerTeam.forEach((team) => {
-					let seatCount = 0;
-					team.forEach((seat) => {
-						seat?.forEach((att) => {
-							att.att.seat = seatCount++;
-						});
-					});
-				});
-			}
-
 			// showMarubatsuOverride = false;
 			// showScore = true;
 		}
@@ -161,12 +150,7 @@
 			name: han2zen(name),
 			group: 0,
 			team: teamID,
-			seat:
-				activeRuleMode === 'aql'
-					? attendantsPerTeam[teamID].length > 0
-						? attendantsPerTeam[teamID].length - 1
-						: 0
-					: attendantsPerTeam[teamID].length,
+			seat: attendantsPerTeam[teamID].length > 0 ? attendantsPerTeam[teamID].length - 1 : 0,
 			trophyCount: 0,
 			totalScore: { num: 0, den: 0 },
 			manualOrder: attendants.length
@@ -552,7 +536,7 @@
 						{@const seatTotal =
 							atts?.reduce((sum, { i }) => sum + (currentState.attendants[i]?.score ?? 0), 1) ?? 0}
 						{#if !atts?.every(({ i }) => currentState.attendants[i].life === 'removed')}
-							<div class="grid-wrapper">
+							<div class="grid-wrapper" class:group-by-seat={activeRuleMode === 'aql'}>
 								<div
 									class="seat-total"
 									style:grid-row={`${rowStart} / span ${atts?.length}`}
@@ -1070,7 +1054,7 @@
 			.grid-wrapper {
 				display: contents;
 
-				&:has(.seat-total) {
+				&.group-by-seat {
 					& .member:not(:nth-child(2)):not(:last-child) {
 						border-top-right-radius: 0;
 						border-bottom-right-radius: 0;
