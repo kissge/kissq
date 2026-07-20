@@ -518,7 +518,10 @@
 						</span>
 					{/key}
 				</div>
-				<div class="members" class:with-seat={activeRuleMode === 'aql'}>
+				<div
+					class="members"
+					class:with-seat={activeRuleMode === 'aql' || activeRuleMode === 'product'}
+				>
 					{#each seats as atts, si (atts?.map(({ j }) => j) ?? si)}
 						{@const rowStart = seats
 							.slice(0, si)
@@ -534,13 +537,22 @@
 								0
 							) ?? 0}
 						{@const seatTotal =
-							atts?.reduce((sum, { i }) => sum + (currentState.attendants[i]?.score ?? 0), 1) ?? 0}
+							atts?.reduce(
+								(sum, { i }) => sum + (currentState.attendants[i]?.score ?? 0),
+								activeRuleMode === 'aql' ? 1 : 0
+							) ?? 0}
 						{#if !atts?.every(({ i }) => currentState.attendants[i].life === 'removed')}
-							<div class="grid-wrapper" class:group-by-seat={activeRuleMode === 'aql'}>
+							<div
+								class="grid-wrapper"
+								class:group-by-seat={activeRuleMode === 'aql' || activeRuleMode === 'product'}
+							>
 								<div
 									class="seat-total"
 									style:grid-row={`${rowStart} / span ${atts?.length}`}
-									style:display={(atts?.length ?? 0) > 0 && activeRuleMode === 'aql' ? '' : 'none'}
+									style:display={(atts?.length ?? 0) > 0 &&
+									(activeRuleMode === 'aql' || activeRuleMode === 'product')
+										? ''
+										: 'none'}
 								>
 									<div {@attach tooltip('枠の総得点')}>
 										{#key seatTotal}
@@ -549,7 +561,7 @@
 											</span>
 										{/key}
 									</div>
-									<div class="batsu-count">
+									<div class="batsu-count" style:display={activeRuleMode === 'aql' ? '' : 'none'}>
 										{'✕'.repeat(batsuCount)}
 									</div>
 								</div>
@@ -589,7 +601,9 @@
 										>
 											<div
 												class="seat"
-												style:display={activeRuleMode === 'aql' ? '' : 'none'}
+												style:display={activeRuleMode === 'aql' || activeRuleMode === 'product'
+													? ''
+													: 'none'}
 												{@attach tooltip('枠を変更します。')}
 											>
 												<select bind:value={attendants[i].seat}>
