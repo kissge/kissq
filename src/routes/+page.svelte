@@ -44,26 +44,7 @@
 	import { AttendantState, GameState, type AttendantStateValue, type GameEvent } from '$lib/state';
 	import { tooltip } from '$lib/tooltip.svelte';
 
-	let attendants = $state<Attendant[]>([
-		{
-			name: '',
-			group: 0,
-			team: 0,
-			seat: 0,
-			trophyCount: 0,
-			totalScore: { num: 0, den: 0 },
-			manualOrder: 0
-		},
-		{
-			name: '',
-			group: 0,
-			team: 0,
-			seat: 0,
-			trophyCount: 0,
-			totalScore: { num: 0, den: 0 },
-			manualOrder: 1
-		}
-	]);
+	let attendants = $state<Attendant[]>([]);
 	let rules = $state([new Rule('marubatsu', 7, 3, 1, 1, false, null, 'constant', 0, null)]);
 	let history = $state<HistoryEntry[]>([]);
 	let currentState = $derived(
@@ -562,27 +543,6 @@
 		syncState();
 	});
 
-	$effect(() => {
-		if (attendants.length === 2 && attendants.every(({ name }) => name === '')) {
-			return;
-		}
-
-		const data = {
-			attendants: attendants.filter((_, ai) => currentState.attendants[ai].life !== 'removed'),
-			buttonMapping
-		};
-		untrack(() => {
-			if (data.attendants.every(({ name }) => name === '')) {
-				window.history.replaceState(null, '', ' ');
-			} else {
-				// eslint-disable-next-line svelte/prefer-svelte-reactivity
-				const url = new URL(document.URL);
-				url.hash = encodeURIComponent(JSON.stringify(data));
-				location.replace(url);
-			}
-		});
-	});
-
 	onMount(() => {
 		wallpaper = window.localStorage.getItem('wallpaper');
 		trophy = window.localStorage.getItem('trophy');
@@ -599,6 +559,27 @@
 			attendants = data.attendants;
 			buttonMapping = data.buttonMapping ?? {};
 			buttonMappingRestored = Object.keys(buttonMapping).length > 0;
+		} else {
+			attendants = [
+				{
+					name: '',
+					group: 0,
+					team: 0,
+					seat: 0,
+					trophyCount: 0,
+					totalScore: { num: 0, den: 0 },
+					manualOrder: 0
+				},
+				{
+					name: '',
+					group: 0,
+					team: 0,
+					seat: 0,
+					trophyCount: 0,
+					totalScore: { num: 0, den: 0 },
+					manualOrder: 1
+				}
+			];
 		}
 
 		reconnect()
@@ -620,6 +601,21 @@
 		window.addEventListener('message', processWindowMessage);
 
 		return () => window.removeEventListener('message', processWindowMessage);
+	});
+
+	$effect(() => {
+		const data = { attendants, buttonMapping };
+		$state.snapshot(data);
+		untrack(() => {
+			if (data.attendants.every(({ name }) => name === '')) {
+				window.history.replaceState(null, '', ' ');
+			} else {
+				// eslint-disable-next-line svelte/prefer-svelte-reactivity
+				const url = new URL(document.URL);
+				url.hash = encodeURIComponent(JSON.stringify(data));
+				location.replace(url);
+			}
+		});
 	});
 
 	let serialPort = $state<SerialPort>();
