@@ -93,7 +93,7 @@
 		background-color: #000c;
 		padding: 0.35em 1em 0.15em;
 
-		&:not(:hover):is(.question:hover *) {
+		&:is(.question:active *) {
 			translate: 0 60%;
 			transition-delay: 0s;
 		}
