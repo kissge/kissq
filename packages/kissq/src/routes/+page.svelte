@@ -1468,6 +1468,7 @@
 				.score {
 					position: relative;
 					align-content: center;
+					z-index: 100;
 					margin: 0 -0.25em;
 					border-radius: 0.2em;
 					background-color: #111;
@@ -1516,6 +1517,7 @@
 						right: -0.4em;
 						justify-content: center;
 						align-items: center;
+						z-index: 100;
 						box-shadow: 0 0 8px #000a;
 						border-radius: 50%;
 						width: 1.25em;
