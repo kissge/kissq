@@ -113,7 +113,7 @@ export function stateToLog(
 					score: att.score,
 					life: att.life,
 					team: attendants[i].team,
-					seat: att.rule.mode === 'aql' ? attendants[i].seat : null,
+					seat: att.rule.mode === 'sum' ? null : attendants[i].seat,
 					teamScore: currentState.teams[attendants[i].team].teamScore,
 					teamLife: currentState.teams[attendants[i].team].teamLife,
 					i
