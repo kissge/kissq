@@ -1107,6 +1107,14 @@
 				}
 			}
 
+			&:hover {
+				background: white;
+				input {
+					color: black;
+					text-shadow: none;
+				}
+			}
+
 			& > div {
 				display: flex;
 				justify-content: center;
