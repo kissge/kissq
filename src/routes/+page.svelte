@@ -511,6 +511,11 @@
 				addAttendant(event.data.name);
 				break;
 
+			case 'reorderAttendants':
+				attendants[orderedAttendants[event.data.attendantID]].manualOrder = event.data.newOrder;
+				orderedAttendants.forEach((a, i) => (attendants[a].manualOrder = i));
+				break;
+
 			case 'ping':
 				syncState();
 				break;
@@ -527,6 +532,7 @@
 						currentState,
 						history,
 						orderedAttendants,
+						orderingMode,
 						answerers,
 						buttonMapping,
 						wasedashikiMode
