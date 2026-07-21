@@ -373,6 +373,18 @@
 		}
 	}
 
+	header {
+		input,
+		select {
+			font-size: 1em;
+		}
+
+		input[type='checkbox'] {
+			width: 1em;
+			height: 1em;
+		}
+	}
+
 	.answerer-1st {
 		animation: answerer-1st-wrapper 0.3s ease infinite alternate;
 		border: 3px solid orange !important;
