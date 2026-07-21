@@ -91,7 +91,7 @@
 		box-shadow: 0 0 15px #eeea;
 		border-radius: 0.5em;
 		background-color: #000c;
-		padding: 0.35em 1em;
+		padding: 0.35em 1em 0.15em;
 
 		&:not(:hover):is(.question:hover *) {
 			translate: 0 60%;
