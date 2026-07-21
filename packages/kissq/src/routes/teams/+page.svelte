@@ -494,7 +494,7 @@
 				</div>
 				<div
 					class="score"
-					style:background={`hsl(${(360 / Math.max(6, currentState.teams.length)) * ti}, 90%, 40%)`}
+					style:background={`hsl(${(360 / currentState.teams.length) * ti}, 90%, 40%)`}
 					{@attach tooltip('チームの総得点')}
 				>
 					{#key currentState.teams[ti].teamScore}
