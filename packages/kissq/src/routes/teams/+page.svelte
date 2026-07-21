@@ -565,9 +565,23 @@
 												(activeRuleMode === 'aql' ? batsuCount < 2 : true) &&
 												sAtt?.life === 'alive' &&
 												sAtt.yasuDisplay === 0 &&
-												typeof 'document' != 'undefined' &&
 												tooltipInteractive(
-													() => document.querySelector(`.buttons[data-attendant-id='${i}']`)!
+													typeof document !== 'undefined'
+														? `<div data-attendant-id="${i}">` +
+																document
+																	.getElementById('hover-menu')!
+																	.innerHTML.replaceAll('data-on', 'on')
+																	.replace(
+																		'%teams%',
+																		teams
+																			.map(
+																				(team, j) =>
+																					`<option ${ti === j ? 'selected' : ''}>${team.slice(0, 5) || `チーム${j + 1}`}</option>`
+																			)
+																			.join('')
+																	) +
+																'</div>'
+														: ''
 												)}
 										>
 											<div
@@ -684,7 +698,7 @@
 														tabindex={-1}
 													>
 														削除
-													</button><br />
+													</button>
 													<select
 														disabled={history.length > 0 ||
 															currentState.teams[ti].attendantIDsPerSeat
@@ -705,7 +719,7 @@
 														{#each teams as team, j (j)}
 															<option value={j}>{team?.slice(0, 5) || `チーム${j + 1}`}</option>
 														{/each}
-													</select><br />
+													</select>
 													<button class="maru-btn" onclick={() => clickMaru(i)} tabindex={-1}>
 														O
 													</button>
@@ -895,6 +909,32 @@
 		{/if}
 	</div>
 {/if}
+
+<template id="hover-menu">
+	<button
+		data-onclick="document.querySelector('.buttons[data-attendant-id=\'' + this.parentElement.dataset.attendantId + '\'] .delete-btn').click()"
+	>
+		削除
+	</button>
+	<br />
+	<select
+		data-onchange="s = document.querySelector('.buttons[data-attendant-id=\'' + this.parentElement.dataset.attendantId + '\'] select'); s.selectedIndex = this.selectedIndex; s.dispatchEvent(new Event('change'))"
+	>
+		%teams%
+	</select>
+	<br />
+
+	<button
+		data-onclick="document.querySelector('.buttons[data-attendant-id=\'' + this.parentElement.dataset.attendantId + '\'] .maru-btn').click()"
+	>
+		O
+	</button>
+	<button
+		data-onclick="document.querySelector('.buttons[data-attendant-id=\'' + this.parentElement.dataset.attendantId + '\'] .batsu-btn').click()"
+	>
+		X
+	</button>
+</template>
 
 <Pushers
 	{answererRanking}
@@ -1217,8 +1257,20 @@
 			}
 
 			.buttons {
+				display: flex;
+				position: absolute;
+				right: 0em;
+				align-items: center;
+				gap: 2px;
 				opacity: 0;
+				height: 100%;
 				pointer-events: none;
+
+				button,
+				select {
+					height: 2em;
+					font-size: 0.5em;
+				}
 			}
 		}
 
