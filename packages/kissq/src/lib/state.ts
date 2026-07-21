@@ -338,16 +338,37 @@ export class TeamState {
 		teamScore: number;
 		teamLife: Life;
 	} {
-		const { maruCount, score, life, trophyCount, yasuCount, otherScoreDiff } =
+		// eslint-disable-next-line prefer-const
+		let { maruCount, score, life, trophyCount, yasuCount, otherScoreDiff } =
 			this.attendants[attendantID].processMaru(multiplier);
 		let teamScore, teamLife;
 
 		switch (this.attendants[0].rule.mode) {
 			case 'aql':
-			case 'product':
 			case 'sum':
 				teamScore = this.calculateTeamScore(attendantID, score);
 				teamLife = this.attendants[0].rule.win <= teamScore ? 'won' : this.teamLife;
+
+				return {
+					maruCount,
+					score,
+					life,
+					trophyCount,
+					yasuCount,
+					otherScoreDiff,
+					teamScore,
+					teamLife
+				};
+
+			case 'product':
+				teamScore = this.calculateTeamScore(attendantID, score);
+				teamLife = this.attendants[0].rule.win <= teamScore ? 'won' : this.teamLife;
+
+				if (this.attendants[attendantID].rule.lose != null) {
+					if (score >= this.attendants[attendantID].rule.lose) {
+						life = 'lost';
+					}
+				}
 
 				return {
 					maruCount,
