@@ -124,6 +124,10 @@ export class Rule {
 					str += `、正解+${this.maru}点`;
 				}
 
+				if (this.lose != null) {
+					str += `、${this.lose}点で個人封鎖`;
+				}
+
 				if (this.batsu === 'batsu') {
 					str += `、N回目の誤答で-N点`;
 				} else if (this.batsu === 'updown') {

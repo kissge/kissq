@@ -272,7 +272,7 @@
 								mode: 'product',
 								win: 10,
 								isLoseNull: true,
-								lose: -3,
+								lose: 3,
 								maru: 1,
 								batsu: -1,
 								batsuMode: 'number',
@@ -366,7 +366,25 @@
 				</div>
 			{/if}
 
-			{#if activeRule.mode === 'sum'}
+			{#if activeRule.mode === 'product'}
+				<div>封鎖条件</div>
+				<div>
+					<label {@attach tooltip('封鎖スコアを負の数で入力')}>
+						<input type="radio" bind:group={activeRule.isLoseNull} value={false} />
+						個人
+						<input
+							type="number"
+							bind:value={activeRule.lose}
+							onfocus={() => (activeRule.isLoseNull = false)}
+						/>
+						点以上
+					</label>
+					<label>
+						<input type="radio" bind:group={activeRule.isLoseNull} value={true} />
+						封鎖なし
+					</label>
+				</div>
+			{:else if activeRule.mode === 'sum'}
 				<div>失格条件</div>
 				<div>
 					<label {@attach tooltip('失格スコアを負の数で入力')}>
