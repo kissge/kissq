@@ -19,6 +19,7 @@
 	let currentState = $state<GameState>();
 	let history = $state<HistoryEntry[]>([]);
 	let mainScreenOrder = $state<number[]>();
+	let mainScreenOrderingMode = $state<'ranking' | 'manual'>();
 	let answerers = $state<({ rank: 1 | 2 | 'late'; delay: number } | null)[]>([]);
 	/** attendant ID -> button ID */
 	let buttonMapping = $state<Record<number, number>>({});
@@ -73,6 +74,13 @@
 
 	let inputDialog: HTMLDialogElement;
 
+	let attendantElements: HTMLElement[] = [];
+	let isDragging = $state<number | null>(null);
+	let dropTarget = $state<number | null>(null);
+	let isDragAvailable = $derived(
+		mainScreenOrderingMode === 'manual' && (order === 'same' || order === 'reverse')
+	);
+
 	let battleMode = $state<'single' | 'team'>('single');
 
 	const Keys = [
@@ -95,6 +103,7 @@
 				currentState = event.data.currentState;
 				history = event.data.history;
 				mainScreenOrder = event.data.orderedAttendants;
+				mainScreenOrderingMode = event.data.orderingMode;
 				answerers = event.data.answerers;
 				buttonMapping = event.data.buttonMapping;
 				wasedashikiMode = event.data.wasedashikiMode;
@@ -253,11 +262,40 @@
 								answerers[(buttonMapping[i] ?? 0) - 1]?.rank === 2,
 							'answerer-late':
 								wasedashikiMode === 'endless' &&
-								answerers[(buttonMapping[i] ?? 0) - 1]?.rank === 'late'
+								answerers[(buttonMapping[i] ?? 0) - 1]?.rank === 'late',
+							'drop-target': dropTarget === j
 						}
 					]}
 					animate:flip={{ duration: 500 }}
+					bind:this={attendantElements[i]}
+					role="listitem"
+					ondragstart={() => {
+						if (!isDragAvailable) {
+							return;
+						}
+						isDragging = j;
+					}}
+					ondragover={(event) => {
+						event.preventDefault();
+						dropTarget = j;
+					}}
+					ondragend={() => {
+						opener.postMessage({
+							command: 'reorderAttendants',
+							attendantID:
+								order === 'same' ? isDragging : orderedAttendants.length - isDragging! - 1,
+							newOrder:
+								order === 'same' ? dropTarget! - 0.5 : orderedAttendants.length - dropTarget! - 0.5
+						});
+						isDragging = null;
+						dropTarget = null;
+					}}
+					style:opacity={isDragging === j ? 0.25 : 1}
+					draggable="true"
 				>
+					{#if isDragAvailable}
+						<span class="drag-handle">⠿</span>
+					{/if}
 					{#if att.life !== 'removed'}
 						{att.name || '--'}
 						{#if att.isLizhi}
@@ -385,6 +423,10 @@
 		}
 	}
 
+	.attendant {
+		position: relative;
+	}
+
 	.answerer-1st {
 		animation: answerer-1st-wrapper 0.3s ease infinite alternate;
 		border: 3px solid orange !important;
@@ -398,6 +440,22 @@
 
 	.answerer-late {
 		background-color: rgb(255 255 192);
+	}
+
+	.drop-target::before {
+		display: inline-block;
+		position: absolute;
+		top: -25%;
+		left: -18px;
+		border-right: 10px dashed red;
+		height: 150%;
+		pointer-events: none;
+		content: '';
+	}
+
+	.drag-handle {
+		cursor: grab;
+		color: #888;
 	}
 
 	.history-entry {
