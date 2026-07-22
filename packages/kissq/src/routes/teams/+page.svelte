@@ -20,27 +20,16 @@
 	import { connectToSerialPort, readLoopSerialPort, reconnect } from '$lib/serial';
 	import { AttendantState, type GameEvent } from '$lib/state';
 	import { tooltip, tooltipInteractive } from '$lib/tooltip.svelte';
-	import {
-		addAttendant_,
-		attendantsPerTeam_,
-		clickBatsu,
-		clickMaru,
-		clickThrough,
-		clickUndo,
-		currentState_,
-		Game
-	} from './game.svelte';
+	import { GameClass } from './game.svelte';
 	import { buttonReverseMapping_, Wasedashiki } from './wasedashiki.svelte';
+
+	let Game = new GameClass();
 
 	let headerClientHeight = $state(0);
 	let footerClientHeight = $state(0);
 	let gameTitle = $state('');
 
 	let { activeRules, activeRulesText } = $derived(getActiveRulesText(Game.rules, 'team'));
-
-	let currentState = $derived.by(currentState_);
-	let attendantsPerTeam = $derived.by(attendantsPerTeam_);
-	let activeRuleMode = $derived(currentState.defaultRule.mode);
 
 	// svelte-ignore non_reactive_update ...?
 	let logDialog: { open: () => void };
@@ -83,14 +72,14 @@
 		const lines = text.split(/[\r\n]+/);
 		if (lines.length >= 2) {
 			event.preventDefault();
-			const atts = attendantsPerTeam[teamID].flat().filter((a) => a != null);
+			const atts = Game.attendantsPerTeam[teamID].flat().filter((a) => a != null);
 			const offset = atts.findIndex(({ i }) => i === attendantID);
 			lines.forEach((line, i) => {
 				if (offset + i < atts.length) {
 					atts[offset + i].att.name = line;
 					atts[offset + i].att.trophyCount = 0;
 				} else {
-					addAttendant(teamID, line);
+					Game.addAttendant(teamID, line);
 				}
 			});
 		}
@@ -98,7 +87,7 @@
 
 	let isBannerVisible = $state<GameEvent | null>(null);
 	watch(
-		() => currentState.latestEvent,
+		() => Game.currentState.latestEvent,
 		(curr, prev) => {
 			if (
 				curr?.type !== prev?.type ||
@@ -115,17 +104,13 @@
 		showBannerTimeout = setTimeout(() => (isBannerVisible = null), duration);
 	}
 
-	function addAttendant(teamID: number, name: string = '') {
-		addAttendant_(teamID, Math.max(0, attendantsPerTeam[teamID].length - 1), name);
-	}
-
 	function clearHistory() {
-		pushLog('team', gameTitle, activeRulesText, currentState, Game.attendants, Game.teams);
+		pushLog('team', gameTitle, activeRulesText, Game.currentState, Game.attendants, Game.teams);
 
 		const newAttendants = [...Game.attendants];
 		const removedIndex = [];
 		for (let i = 0, j = 0; i < newAttendants.length; i++) {
-			if (currentState.attendants[i]?.life === 'removed') {
+			if (Game.currentState.attendants[i]?.life === 'removed') {
 				removedIndex.push(i);
 				delete Wasedashiki.buttonMapping[i];
 				j--;
@@ -149,7 +134,7 @@
 			return;
 		}
 
-		updateLog('team', gameTitle, currentState, Game.attendants, activeRulesText, Game.teams);
+		updateLog('team', gameTitle, Game.currentState, Game.attendants, activeRulesText, Game.teams);
 	});
 
 	/** button ID -> attendant ID */
@@ -188,9 +173,9 @@
 					answerers: Wasedashiki.answerers,
 					pushers: Wasedashiki.pushers,
 					buttonMapping: Wasedashiki.buttonMapping,
-					attendants: currentState.attendants,
-					clickMaru,
-					clickBatsu
+					attendants: Game.currentState.attendants,
+					clickMaru: Game.clickMaru.bind(Game),
+					clickBatsu: Game.clickBatsu.bind(Game)
 				}),
 				(updates) => {
 					if ('connected' in updates) Wasedashiki.connected = updates.connected!;
@@ -230,19 +215,19 @@
 				break;
 
 			case 'clickMaru':
-				clickMaru(event.data.attendantID);
+				Game.clickMaru(event.data.attendantID);
 				break;
 
 			case 'clickBatsu':
-				clickBatsu(event.data.attendantID);
+				Game.clickBatsu(event.data.attendantID);
 				break;
 
 			case 'clickThrough':
-				clickThrough();
+				Game.clickThrough();
 				break;
 
 			case 'clickUndo':
-				clickUndo();
+				Game.clickUndo();
 				break;
 
 			case 'clickReset':
@@ -250,8 +235,8 @@
 				break;
 
 			case 'addAttendant':
-				if (attendantsPerTeam.length > 0) {
-					addAttendant(attendantsPerTeam.length - 1, event.data.name);
+				if (Game.attendantsPerTeam.length > 0) {
+					Game.addAttendant(Game.attendantsPerTeam.length - 1, event.data.name);
 				}
 				break;
 
@@ -264,7 +249,7 @@
 	function syncState() {
 		if (subWindow && !subWindow.closed) {
 			const state = Object.fromEntries(
-				Object.entries(currentState).flatMap(([k, v]) =>
+				Object.entries(Game.currentState).flatMap(([k, v]) =>
 					k === 'teams'
 						? []
 						: k === 'attendants'
@@ -300,7 +285,7 @@
 		// eslint-disable-next-line svelte/no-unused-svelte-ignore
 		// svelte-ignore state_snapshot_uncloneable
 		$state.snapshot([
-			currentState,
+			Game.currentState,
 			Wasedashiki.answerers,
 			Wasedashiki.buttonMapping,
 			Game.wasedashikiMode
@@ -353,7 +338,7 @@
 				console.error('接続エラー', error);
 			});
 
-		pushLog('team', gameTitle, activeRulesText, currentState, Game.attendants, Game.teams);
+		pushLog('team', gameTitle, activeRulesText, Game.currentState, Game.attendants, Game.teams);
 		window.addEventListener('message', processWindowMessage);
 
 		return () => window.removeEventListener('message', processWindowMessage);
@@ -379,7 +364,7 @@
 	<title>
 		kissQ -
 		{gameTitle ? gameTitle + ' - ' : ''}
-		{currentState.attendants
+		{Game.currentState.attendants
 			.flatMap(({ name, life }) => (life !== 'removed' ? [name.slice(0, 3) || '👤'] : []))
 			.join('・')}
 		- クイズカウンター（得点表示機）のkissQ
@@ -389,8 +374,8 @@
 <main class="main">
 	<Header
 		bind:headerClientHeight
-		questionCount={currentState.questionCount}
-		hideQuestionCount={currentState.defaultRule.mode === 'aql'}
+		questionCount={Game.currentState.questionCount}
+		hideQuestionCount={Game.currentState.defaultRule.mode === 'aql'}
 		bind:gameTitle
 		battleMode="team"
 		onBattleModeChange={clearHistory}
@@ -407,12 +392,12 @@
 		class="attendants"
 		style:height={`calc(100vh - ${headerClientHeight + footerClientHeight}px - 30px ${showQuestionWindow ? '- 6.25em - 0.7rem' : ''})`}
 	>
-		{#each attendantsPerTeam as seats, ti (ti)}
+		{#each Game.attendantsPerTeam as seats, ti (ti)}
 			<div class="team" animate:flip={{ duration: 200 }}>
 				<div class="life">
-					{#if currentState.teams[ti].teamLife === 'won'}
-						<div class="won">{currentState.ranking.indexOf(ti) + 1}位</div>
-					{:else if currentState.teams[ti].teamLife === 'lost'}
+					{#if Game.currentState.teams[ti].teamLife === 'won'}
+						<div class="won">{Game.currentState.ranking.indexOf(ti) + 1}位</div>
+					{:else if Game.currentState.teams[ti].teamLife === 'lost'}
 						<div class="lost">失格</div>
 					{/if}
 				</div>
@@ -421,18 +406,19 @@
 				</div>
 				<div
 					class="score"
-					style:background={`hsl(${(360 / currentState.teams.length) * ti}, 90%, 40%)`}
+					style:background={`hsl(${(360 / Game.currentState.teams.length) * ti}, 90%, 40%)`}
 					{@attach tooltip('チームの総得点')}
 				>
-					{#key currentState.teams[ti].teamScore}
+					{#key Game.currentState.teams[ti].teamScore}
 						<span in:fade>
-							{currentState.teams[ti].teamScore}
+							{Game.currentState.teams[ti].teamScore}
 						</span>
 					{/key}
 				</div>
 				<div
 					class="members"
-					class:with-seat={activeRuleMode === 'aql' || activeRuleMode === 'product'}
+					class:with-seat={Game.currentState.defaultRule.mode === 'aql' ||
+						Game.currentState.defaultRule.mode === 'product'}
 				>
 					{#each seats as atts, si (atts?.map(({ j }) => j).join(',') ?? si)}
 						{@const rowStart = seats
@@ -445,24 +431,26 @@
 						)}
 						{@const batsuCount =
 							atts?.reduce(
-								(sum, { i }) => sum + (currentState.attendants[i]?.batsuCount ?? 0),
+								(sum, { i }) => sum + (Game.currentState.attendants[i]?.batsuCount ?? 0),
 								0
 							) ?? 0}
 						{@const seatTotal =
 							atts?.reduce(
-								(sum, { i }) => sum + (currentState.attendants[i]?.score ?? 0),
-								activeRuleMode === 'aql' ? 1 : 0
+								(sum, { i }) => sum + (Game.currentState.attendants[i]?.score ?? 0),
+								Game.currentState.defaultRule.mode === 'aql' ? 1 : 0
 							) ?? 0}
-						{#if !atts?.every(({ i }) => currentState.attendants[i].life === 'removed')}
+						{#if !atts?.every(({ i }) => Game.currentState.attendants[i].life === 'removed')}
 							<div
 								class="grid-wrapper"
-								class:group-by-seat={activeRuleMode === 'aql' || activeRuleMode === 'product'}
+								class:group-by-seat={Game.currentState.defaultRule.mode === 'aql' ||
+									Game.currentState.defaultRule.mode === 'product'}
 							>
 								<div
 									class="seat-total"
 									style:grid-row={`${rowStart} / span ${atts?.length}`}
 									style:display={(atts?.length ?? 0) > 0 &&
-									(activeRuleMode === 'aql' || activeRuleMode === 'product')
+									(Game.currentState.defaultRule.mode === 'aql' ||
+										Game.currentState.defaultRule.mode === 'product')
 										? ''
 										: 'none'}
 								>
@@ -473,12 +461,15 @@
 											</span>
 										{/key}
 									</div>
-									<div class="batsu-count" style:display={activeRuleMode === 'aql' ? '' : 'none'}>
+									<div
+										class="batsu-count"
+										style:display={Game.currentState.defaultRule.mode === 'aql' ? '' : 'none'}
+									>
 										{'✕'.repeat(batsuCount)}
 									</div>
 								</div>
-								{#each atts?.filter(({ i }) => currentState.attendants[i]?.life !== 'removed') as { att, i }, ai (ai)}
-									{@const sAtt: AttendantState | undefined = currentState.attendants[i]}
+								{#each atts?.filter(({ i }) => Game.currentState.attendants[i]?.life !== 'removed') as { att, i }, ai (ai)}
+									{@const sAtt: AttendantState | undefined = Game.currentState.attendants[i]}
 									{#if sAtt}
 										<div
 											class="member"
@@ -486,10 +477,10 @@
 											class:lizhi={sAtt.isLizhi}
 											class:yasu={sAtt.yasuDisplay > 0}
 											class:lost={sAtt.life === 'lost' ||
-												(activeRuleMode === 'aql' && batsuCount >= 2)}
+												(Game.currentState.defaultRule.mode === 'aql' && batsuCount >= 2)}
 											class:first-member={si === 0 && ai === 0}
-											{@attach currentState.teams[ti].teamLife === 'alive' &&
-												(activeRuleMode === 'aql' ? batsuCount < 2 : true) &&
+											{@attach Game.currentState.teams[ti].teamLife === 'alive' &&
+												(Game.currentState.defaultRule.mode === 'aql' ? batsuCount < 2 : true) &&
 												sAtt?.life === 'alive' &&
 												sAtt.yasuDisplay === 0 &&
 												tooltipInteractive(
@@ -513,7 +504,8 @@
 										>
 											<div
 												class="seat"
-												style:display={activeRuleMode === 'aql' || activeRuleMode === 'product'
+												style:display={Game.currentState.defaultRule.mode === 'aql' ||
+												Game.currentState.defaultRule.mode === 'product'
 													? ''
 													: 'none'}
 												{@attach tooltip('枠を変更します。')}
@@ -621,14 +613,15 @@
 													</span>
 												{/key}
 											</div>
-											{#if currentState.teams[ti].teamLife === 'alive' && (activeRuleMode === 'aql' ? batsuCount < 2 : true) && sAtt?.life === 'alive' && sAtt.yasuDisplay === 0}
+											{#if Game.currentState.teams[ti].teamLife === 'alive' && (Game.currentState.defaultRule.mode === 'aql' ? batsuCount < 2 : true) && sAtt?.life === 'alive' && sAtt.yasuDisplay === 0}
 												<div class="buttons" data-attendant-id={i}>
 													<button
 														class="delete-btn"
-														disabled={currentState.teams[ti].attendantIDsPerSeat
+														disabled={Game.currentState.teams[ti].attendantIDsPerSeat
 															.flat()
 															.filter(
-																(a) => a != null && currentState.attendants[a].life !== 'removed'
+																(a) =>
+																	a != null && Game.currentState.attendants[a].life !== 'removed'
 															).length <= 1}
 														onclick={() => Game.history.push(new RemoveHistoryEntry(i))}
 														{@attach tooltip('このプレイヤーをリストから削除します。')}
@@ -638,17 +631,18 @@
 													</button>
 													<select
 														disabled={Game.history.length > 0 ||
-															currentState.teams[ti].attendantIDsPerSeat
+															Game.currentState.teams[ti].attendantIDsPerSeat
 																.flat()
 																.filter(
-																	(a) => a != null && currentState.attendants[a].life !== 'removed'
+																	(a) =>
+																		a != null && Game.currentState.attendants[a].life !== 'removed'
 																).length <= 1}
 														bind:value={Game.attendants[i].team}
 														onchange={() => {
 															const t = Game.attendants[i].team;
 															Game.attendants[i].team = Infinity;
 															Game.attendants[i].seat =
-																currentState.teams[t].attendantIDsPerSeat.length;
+																Game.currentState.teams[t].attendantIDsPerSeat.length;
 															Game.attendants[i].team = t;
 														}}
 														{@attach tooltip('このプレイヤーのチームを変更します。')}
@@ -658,10 +652,14 @@
 															<option value={j}>{team?.slice(0, 5) || `チーム${j + 1}`}</option>
 														{/each}
 													</select>
-													<button class="maru-btn" onclick={() => clickMaru(i)} tabindex={-1}>
+													<button class="maru-btn" onclick={() => Game.clickMaru(i)} tabindex={-1}>
 														O
 													</button>
-													<button class="batsu-btn" onclick={() => clickBatsu(i)} tabindex={-1}>
+													<button
+														class="batsu-btn"
+														onclick={() => Game.clickBatsu(i)}
+														tabindex={-1}
+													>
 														X
 													</button>
 												</div>
@@ -698,7 +696,7 @@
 						</button>
 						<div class="spacer"></div>
 						<button
-							onclick={() => addAttendant(ti)}
+							onclick={() => Game.addAttendant(ti)}
 							{@attach tooltip('このチームに新しいプレイヤーを追加します。')}
 						>
 							追加
@@ -718,9 +716,9 @@
 		history={Game.history}
 	>
 		<button
-			onclick={clickThrough}
+			onclick={Game.clickThrough}
 			class={{
-				blink: currentState.attendants.some(
+				blink: Game.currentState.attendants.some(
 					({ yasuCount, rule: { yasuMode, yasuPerBatsu } }) =>
 						yasuCount === 'next' && (yasuMode !== 'constant' || yasuPerBatsu > 0)
 				)
@@ -732,14 +730,14 @@
 			スルー
 		</button>
 		<button
-			onclick={clickUndo}
+			onclick={Game.clickUndo}
 			disabled={Game.history.length === 0}
 			{@attach tooltip('直前の操作を無かったことにします。')}
 			style="max-width: 20dvw"
 		>
 			{#key Game.history.length}
 				↩
-				<span in:fade>{Game.history.at(-1)?.toString(currentState) || 'この世の始まり'}</span
+				<span in:fade>{Game.history.at(-1)?.toString(Game.currentState) || 'この世の始まり'}</span
 				>を元に戻す
 			{/key}
 		</button>

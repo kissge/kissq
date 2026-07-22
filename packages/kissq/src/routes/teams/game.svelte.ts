@@ -13,72 +13,73 @@ import type { WasedashikiMode } from '$lib/serial';
 import { playSound } from '$lib/sound';
 import { GameState } from '$lib/state';
 
-export const Game = $state({
-	attendants: [] as Attendant[],
-	teams: [] as string[],
-	rules: [new Rule('aql', 200, null, 1, 'updown', false, null, 'constant', 0, null)],
-	history: [] as HistoryEntry[],
-	playSounds: true,
-	wasedashikiMode: undefined as WasedashikiMode | undefined
-});
+export class GameClass {
+	attendants = $state<Attendant[]>([]);
+	teams = $state<string[]>([]);
+	rules = $state([new Rule('aql', 200, null, 1, 'updown', false, null, 'constant', 0, null)]);
+	history = $state<HistoryEntry[]>([]);
+	playSounds = $state(true);
+	wasedashikiMode = $state<WasedashikiMode>();
 
-export function currentState_() {
-	return Game.history.reduce(
-		(state, entry) => entry.reducerTeam(state.clearLatestEvent()).updateRanking(),
-		new GameState(Game.attendants, Game.rules, Game.teams).updateRanking()
-	);
-}
-
-export function attendantsPerTeam_() {
-	const atts = Game.attendants.reduce<({ att: Attendant; i: number; j: number }[] | undefined)[][]>(
-		(acc, att, i) => {
-			acc[att.team] ??= [];
-			acc[att.team][att.seat] ??= [];
-			acc[att.team][att.seat]!.push({ att, i, j: 0 });
-			return acc;
-		},
-		Game.teams.map(() => [])
+	currentState = $derived(
+		this.history.reduce(
+			(state, entry) => entry.reducerTeam(state.clearLatestEvent()).updateRanking(),
+			new GameState(this.attendants, this.rules, this.teams).updateRanking()
+		)
 	);
 
-	let j = 0;
-	atts.forEach((team) => team.forEach((seat) => seat!.forEach((att) => (att.j = j++))));
+	attendantsPerTeam = $derived.by(() => {
+		const atts = this.attendants.reduce<
+			({ att: Attendant; i: number; j: number }[] | undefined)[][]
+		>(
+			(acc, att, i) => {
+				acc[att.team] ??= [];
+				acc[att.team][att.seat] ??= [];
+				acc[att.team][att.seat]!.push({ att, i, j: 0 });
+				return acc;
+			},
+			this.teams.map(() => [])
+		);
 
-	return atts;
-}
+		let j = 0;
+		atts.forEach((team) => team.forEach((seat) => seat!.forEach((att) => (att.j = j++))));
 
-export function addAttendant_(teamID: number, seatID: number, name: string = '') {
-	Game.attendants.push({
-		name: han2zen(name),
-		group: 0,
-		team: teamID,
-		seat: seatID,
-		trophyCount: 0,
-		totalScore: { num: 0, den: 0 },
-		manualOrder: Game.attendants.length
+		return atts;
 	});
-}
 
-export function clickMaru(attendantID: number, playSounds_: boolean = true) {
-	Game.history.push(new MaruHistoryEntry(attendantID));
-	if (Game.playSounds && playSounds_) {
-		playSound(se1);
+	addAttendant(teamID: number, name: string = '') {
+		this.attendants.push({
+			name: han2zen(name),
+			group: 0,
+			team: teamID,
+			seat: Math.max(0, this.attendantsPerTeam[teamID].length - 1),
+			trophyCount: 0,
+			totalScore: { num: 0, den: 0 },
+			manualOrder: this.attendants.length
+		});
 	}
-}
 
-export async function clickBatsu(attendantID: number, playSounds_: boolean = true) {
-	const single = Game.wasedashikiMode === 'single' || Game.wasedashikiMode === 'handicap';
-
-	Game.history.push(new BatsuHistoryEntry(attendantID, single));
-	if (Game.playSounds && playSounds_) {
-		playSound(se2);
+	clickMaru(attendantID: number, playSounds_: boolean = true) {
+		this.history.push(new MaruHistoryEntry(attendantID));
+		if (this.playSounds && playSounds_) {
+			playSound(se1);
+		}
 	}
-}
 
-export function clickThrough() {
-	Game.history.push(new ThroughHistoryEntry());
-	if (Game.playSounds) playSound(se3);
-}
+	async clickBatsu(attendantID: number, playSounds_: boolean = true) {
+		const single = this.wasedashikiMode === 'single' || this.wasedashikiMode === 'handicap';
+		this.history.push(new BatsuHistoryEntry(attendantID, single));
+		if (this.playSounds && playSounds_) {
+			playSound(se2);
+		}
+	}
 
-export function clickUndo() {
-	Game.history.pop();
+	clickThrough() {
+		this.history.push(new ThroughHistoryEntry());
+		if (this.playSounds) playSound(se3);
+	}
+
+	clickUndo() {
+		this.history.pop();
+	}
 }
