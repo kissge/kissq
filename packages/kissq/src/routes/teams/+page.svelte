@@ -8,7 +8,7 @@
 	import se1 from '$lib/assets/se1.mp3';
 	import se2 from '$lib/assets/se2.mp3';
 	import se3 from '$lib/assets/se3.mp3';
-	import { han2zen, loadFromHash, type Attendant } from '$lib/attendant';
+	import { han2zen, loadFromHash } from '$lib/attendant';
 	import Footer from '$lib/components/footer.svelte';
 	import Header from '$lib/components/header.svelte';
 	import LogDialog from '$lib/components/logDialog.svelte';
@@ -20,8 +20,7 @@
 		BatsuHistoryEntry,
 		MaruHistoryEntry,
 		RemoveHistoryEntry,
-		ThroughHistoryEntry,
-		type HistoryEntry
+		ThroughHistoryEntry
 	} from '$lib/historyEntry';
 	import { pushLog, updateLog } from '$lib/logs';
 	import { qZero } from '$lib/question';
@@ -33,42 +32,18 @@
 		type WasedashikiMode
 	} from '$lib/serial';
 	import { playSound } from '$lib/sound';
-	import { AttendantState, GameState, type GameEvent } from '$lib/state';
+	import { AttendantState, type GameEvent } from '$lib/state';
 	import { tooltip, tooltipInteractive } from '$lib/tooltip.svelte';
+	import { attendantsPerTeam_, currentState_, Game } from './game.svelte';
 
 	let headerClientHeight = $state(0);
 	let footerClientHeight = $state(0);
 	let gameTitle = $state('');
 
-	let attendants = $state<Attendant[]>([]);
-	let teams = $state<string[]>([]);
+	let { activeRules, activeRulesText } = $derived(getActiveRulesText(Game.rules, 'team'));
 
-	let rules = $state([new Rule('aql', 200, null, 1, 'updown', false, null, 'constant', 0, null)]);
-	let { activeRules, activeRulesText } = $derived(getActiveRulesText(rules, 'team'));
-
-	let history = $state<HistoryEntry[]>([]);
-	let currentState = $derived(
-		history.reduce(
-			(state, entry) => entry.reducerTeam(state.clearLatestEvent()).updateRanking(),
-			new GameState(attendants, rules, teams).updateRanking()
-		)
-	);
-	let attendantsPerTeam = $derived.by(() => {
-		const atts = attendants.reduce<({ att: Attendant; i: number; j: number }[] | undefined)[][]>(
-			(acc, att, i) => {
-				acc[att.team] ??= [];
-				acc[att.team][att.seat] ??= [];
-				acc[att.team][att.seat]!.push({ att, i, j: 0 });
-				return acc;
-			},
-			teams.map(() => [])
-		);
-
-		let j = 0;
-		atts.forEach((team) => team.forEach((seat) => seat!.forEach((att) => (att.j = j++))));
-
-		return atts;
-	});
+	let currentState = $derived.by(currentState_);
+	let attendantsPerTeam = $derived.by(attendantsPerTeam_);
 	let activeRuleMode = $derived(currentState.defaultRule.mode);
 
 	// svelte-ignore non_reactive_update ...?
@@ -76,11 +51,11 @@
 	let ruleTeamEditDialog: { open: (rules: Rule[]) => Promise<Rule[] | null> };
 
 	async function editRule() {
-		const result = await ruleTeamEditDialog.open(rules);
+		const result = await ruleTeamEditDialog.open(Game.rules);
 
 		if (result) {
 			if (
-				history.length > 0 &&
+				Game.history.length > 0 &&
 				confirm(
 					'全員のスコアのリセットも行いますか？\n\n※ しない場合、トロフィーが消えることなどがあります\n※ まだゲームの途中であれば無視してください'
 				)
@@ -90,14 +65,14 @@
 
 			const activeRuleCount = result.filter(({ isRemoved }) => !isRemoved).length;
 			if (activeRuleCount === 1) {
-				rules = result.filter(({ isRemoved }) => !isRemoved);
-				attendants.forEach((att) => {
+				Game.rules = result.filter(({ isRemoved }) => !isRemoved);
+				Game.attendants.forEach((att) => {
 					att.group = 0;
 				});
 			} else {
 				const removedIndices = result.flatMap(({ isRemoved }, i) => (isRemoved ? [i] : []));
-				rules = result.filter(({ isRemoved }) => !isRemoved);
-				attendants.forEach((att) => {
+				Game.rules = result.filter(({ isRemoved }) => !isRemoved);
+				Game.attendants.forEach((att) => {
 					att.group = Math.max(0, att.group - removedIndices.filter((i) => i <= att.group).length);
 				});
 			}
@@ -145,21 +120,21 @@
 	}
 
 	function addAttendant(teamID: number, name: string = '') {
-		attendants.push({
+		Game.attendants.push({
 			name: han2zen(name),
 			group: 0,
 			team: teamID,
 			seat: attendantsPerTeam[teamID].length > 0 ? attendantsPerTeam[teamID].length - 1 : 0,
 			trophyCount: 0,
 			totalScore: { num: 0, den: 0 },
-			manualOrder: attendants.length
+			manualOrder: Game.attendants.length
 		});
 	}
 
 	let playSounds = $state(true);
 
 	function clickMaru(attendantID: number, playSounds_: boolean = true) {
-		history.push(new MaruHistoryEntry(attendantID));
+		Game.history.push(new MaruHistoryEntry(attendantID));
 		if (playSounds && playSounds_) {
 			playSound(se1);
 		}
@@ -168,25 +143,25 @@
 	async function clickBatsu(attendantID: number, playSounds_: boolean = true) {
 		const single = wasedashikiMode === 'single' || wasedashikiMode === 'handicap';
 
-		history.push(new BatsuHistoryEntry(attendantID, single));
+		Game.history.push(new BatsuHistoryEntry(attendantID, single));
 		if (playSounds && playSounds_) {
 			playSound(se2);
 		}
 	}
 
 	function clickThrough() {
-		history.push(new ThroughHistoryEntry());
+		Game.history.push(new ThroughHistoryEntry());
 		if (playSounds) playSound(se3);
 	}
 
 	function clickUndo() {
-		history.pop();
+		Game.history.pop();
 	}
 
 	function clearHistory() {
-		pushLog('team', gameTitle, activeRulesText, currentState, attendants, teams);
+		pushLog('team', gameTitle, activeRulesText, currentState, Game.attendants, Game.teams);
 
-		const newAttendants = [...attendants];
+		const newAttendants = [...Game.attendants];
 		const removedIndex = [];
 		for (let i = 0, j = 0; i < newAttendants.length; i++) {
 			if (currentState.attendants[i]?.life === 'removed') {
@@ -203,17 +178,17 @@
 		removedIndex.toReversed().forEach((i) => {
 			newAttendants.splice(i, 1);
 		});
-		attendants = newAttendants;
+		Game.attendants = newAttendants;
 
-		history = [];
+		Game.history = [];
 	}
 
 	$effect(() => {
-		if (history.length === 0) {
+		if (Game.history.length === 0) {
 			return;
 		}
 
-		updateLog('team', gameTitle, currentState, attendants, activeRulesText, teams);
+		updateLog('team', gameTitle, currentState, Game.attendants, activeRulesText, Game.teams);
 	});
 
 	let serialPort = $state<SerialPort>();
@@ -364,7 +339,7 @@
 						command: 'syncState',
 						mode: 'team',
 						currentState: state,
-						history,
+						history: Game.history,
 						answerers,
 						buttonMapping,
 						wasedashikiMode
@@ -392,12 +367,12 @@
 
 		if (data) {
 			const groups = Math.max(...data.attendants.map(({ group }) => group));
-			rules = Array.from({ length: groups + 1 }, () => rules[0]);
-			attendants = data.attendants;
+			Game.rules = Array.from({ length: groups + 1 }, () => Game.rules[0]);
+			Game.attendants = data.attendants;
 			buttonMapping = data.buttonMapping ?? {};
 			buttonMappingRestored = Object.keys(buttonMapping).length > 0;
 		} else {
-			attendants = Array.from({ length: 2 }, (_, ti) =>
+			Game.attendants = Array.from({ length: 2 }, (_, ti) =>
 				Array.from({ length: 10 }, (_, ai) => ({
 					name: '',
 					group: 0,
@@ -410,7 +385,7 @@
 			).flat();
 		}
 
-		teams = Array.from(new Set(attendants.map(({ team }) => team)), () => '');
+		Game.teams = Array.from(new Set(Game.attendants.map(({ team }) => team)), () => '');
 
 		reconnect()
 			.then((port) => {
@@ -428,14 +403,14 @@
 				console.error('接続エラー', error);
 			});
 
-		pushLog('team', gameTitle, activeRulesText, currentState, attendants, teams);
+		pushLog('team', gameTitle, activeRulesText, currentState, Game.attendants, Game.teams);
 		window.addEventListener('message', processWindowMessage);
 
 		return () => window.removeEventListener('message', processWindowMessage);
 	});
 
 	$effect(() => {
-		const data = { attendants, buttonMapping };
+		const data = { attendants: Game.attendants, buttonMapping };
 		$state.snapshot(data);
 		untrack(() => {
 			if (data.attendants.every(({ name }) => name === '')) {
@@ -469,10 +444,10 @@
 		bind:gameTitle
 		battleMode="team"
 		onBattleModeChange={clearHistory}
-		{attendants}
+		attendants={Game.attendants}
 		{buttonMapping}
 		{wasedashikiMode}
-		{rules}
+		rules={Game.rules}
 		{editRule}
 	/>
 
@@ -492,7 +467,7 @@
 					{/if}
 				</div>
 				<div class="team-name">
-					<input placeholder={`チーム${ti + 1}`} bind:value={teams[ti]} />
+					<input placeholder={`チーム${ti + 1}`} bind:value={Game.teams[ti]} />
 				</div>
 				<div
 					class="score"
@@ -575,7 +550,7 @@
 																	.innerHTML.replaceAll('data-on', 'on')
 																	.replace(
 																		'%teams%',
-																		teams
+																		Game.teams
 																			.map(
 																				(team, j) =>
 																					`<option ${ti === j ? 'selected' : ''}>${team.slice(0, 5) || `チーム${j + 1}`}</option>`
@@ -593,7 +568,7 @@
 													: 'none'}
 												{@attach tooltip('枠を変更します。')}
 											>
-												<select bind:value={attendants[i].seat}>
+												<select bind:value={Game.attendants[i].seat}>
 													{#each Array.from({ length: maxSeat + 2 }, (_, si) => si) as si (si)}
 														<option value={si}>{si + 1}</option>
 													{/each}
@@ -603,17 +578,18 @@
 												{#if activeRules.length > 1}
 													<button
 														class="group"
-														style:background-color={`hsl(${(360 / rules.length) * attendants[i].group}, 70%, 40%)`}
+														style:background-color={`hsl(${(360 / Game.rules.length) * Game.attendants[i].group}, 70%, 40%)`}
 														onclick={() => {
 															do {
-																attendants[i].group = (attendants[i].group + 1) % rules.length;
-															} while (rules[attendants[i].group].isRemoved);
+																Game.attendants[i].group =
+																	(Game.attendants[i].group + 1) % Game.rules.length;
+															} while (Game.rules[Game.attendants[i].group].isRemoved);
 														}}
 														{@attach tooltip('このプレイヤーの所属ルールグループを変更します。')}
 													>
-														{#key attendants[i].group}
+														{#key Game.attendants[i].group}
 															<span class="crossfade" in:fade={{ delay: 500 }} out:fade>
-																{String.fromCodePoint(65 + attendants[i].group)}
+																{String.fromCodePoint(65 + Game.attendants[i].group)}
 															</span>
 														{/key}
 													</button>
@@ -695,30 +671,31 @@
 															.filter(
 																(a) => a != null && currentState.attendants[a].life !== 'removed'
 															).length <= 1}
-														onclick={() => history.push(new RemoveHistoryEntry(i))}
+														onclick={() => Game.history.push(new RemoveHistoryEntry(i))}
 														{@attach tooltip('このプレイヤーをリストから削除します。')}
 														tabindex={-1}
 													>
 														削除
 													</button>
 													<select
-														disabled={history.length > 0 ||
+														disabled={Game.history.length > 0 ||
 															currentState.teams[ti].attendantIDsPerSeat
 																.flat()
 																.filter(
 																	(a) => a != null && currentState.attendants[a].life !== 'removed'
 																).length <= 1}
-														bind:value={attendants[i].team}
+														bind:value={Game.attendants[i].team}
 														onchange={() => {
-															const t = attendants[i].team;
-															attendants[i].team = Infinity;
-															attendants[i].seat = currentState.teams[t].attendantIDsPerSeat.length;
-															attendants[i].team = t;
+															const t = Game.attendants[i].team;
+															Game.attendants[i].team = Infinity;
+															Game.attendants[i].seat =
+																currentState.teams[t].attendantIDsPerSeat.length;
+															Game.attendants[i].team = t;
 														}}
 														{@attach tooltip('このプレイヤーのチームを変更します。')}
 														tabindex={-1}
 													>
-														{#each teams as team, j (j)}
+														{#each Game.teams as team, j (j)}
 															<option value={j}>{team?.slice(0, 5) || `チーム${j + 1}`}</option>
 														{/each}
 													</select>
@@ -738,22 +715,22 @@
 					{/each}
 					<div class="bottom-buttons">
 						<button
-							disabled={history.length > 0}
+							disabled={Game.history.length > 0}
 							onclick={() => {
 								if (
 									confirm(
-										`${teams[ti] || `チーム${ti + 1}`}を削除しますか？\nこの操作は元に戻せません。`
+										`${Game.teams[ti] || `チーム${ti + 1}`}を削除しますか？\nこの操作は元に戻せません。`
 									)
 								) {
-									attendants = attendants
-										.filter((_, i) => attendants[i].team !== ti)
+									Game.attendants = Game.attendants
+										.filter((_, i) => Game.attendants[i].team !== ti)
 										.map((att) => {
 											if (att.team > ti) {
 												return { ...att, team: att.team - 1 };
 											}
 											return att;
 										});
-									teams.splice(ti, 1);
+									Game.teams.splice(ti, 1);
 								}
 							}}
 							{@attach tooltip('このチームを削除します。')}
@@ -775,7 +752,12 @@
 		{/each}
 	</div>
 
-	<Footer bind:footerClientHeight {attendants} {rules} {history}>
+	<Footer
+		bind:footerClientHeight
+		attendants={Game.attendants}
+		rules={Game.rules}
+		history={Game.history}
+	>
 		<button
 			onclick={clickThrough}
 			class={{
@@ -792,26 +774,27 @@
 		</button>
 		<button
 			onclick={clickUndo}
-			disabled={history.length === 0}
+			disabled={Game.history.length === 0}
 			{@attach tooltip('直前の操作を無かったことにします。')}
 			style="max-width: 20dvw"
 		>
-			{#key history.length}
+			{#key Game.history.length}
 				↩
-				<span in:fade>{history.at(-1)?.toString(currentState) || 'この世の始まり'}</span>を元に戻す
+				<span in:fade>{Game.history.at(-1)?.toString(currentState) || 'この世の始まり'}</span
+				>を元に戻す
 			{/key}
 		</button>
 		<button
 			onclick={() => {
-				teams.push('');
-				attendants.push({
+				Game.teams.push('');
+				Game.attendants.push({
 					name: '',
 					group: 0,
-					team: teams.length - 1,
+					team: Game.teams.length - 1,
 					seat: 0,
 					trophyCount: 0,
 					totalScore: { num: 0, den: 0 },
-					manualOrder: attendants.length
+					manualOrder: Game.attendants.length
 				});
 			}}>＋ チーム追加</button
 		>
@@ -825,7 +808,7 @@
 					clearHistory();
 				}
 			}}
-			disabled={history.length === 0}
+			disabled={Game.history.length === 0}
 			{@attach tooltip('全員のスコアだけをリセットします。')}
 		>
 			全員リセット
@@ -851,8 +834,8 @@
 						'プレイヤーリストを空にした上で、初期状態にリセットしますか？\nこの操作は元に戻せません。'
 					)
 				) {
-					history = [];
-					attendants = [
+					Game.history = [];
+					Game.attendants = [
 						{
 							name: '',
 							group: 0,
@@ -863,7 +846,7 @@
 							manualOrder: 0
 						}
 					];
-					teams = [''];
+					Game.teams = [''];
 					buttonMapping = {};
 					answerers = [];
 					lastButtonID = undefined;
@@ -891,10 +874,10 @@
 	</div>
 	<div class={['banner', isBannerVisible.type]} transition:slide={{ axis: 'x' }}>
 		{#if 'attendantID' in isBannerVisible}
-			{attendants[isBannerVisible.attendantID].name ||
+			{Game.attendants[isBannerVisible.attendantID].name ||
 				'プレイヤー ' + (isBannerVisible.attendantID + 1)}
 		{:else}
-			{teams[isBannerVisible.teamID] || 'チーム ' + (isBannerVisible.teamID + 1)}
+			{Game.teams[isBannerVisible.teamID] || 'チーム ' + (isBannerVisible.teamID + 1)}
 		{/if}
 		{#if isBannerVisible.type === 'won'}
 			勝ち抜け
@@ -940,7 +923,7 @@
 
 <Pushers
 	{answererRanking}
-	{attendants}
+	attendants={Game.attendants}
 	{wasedashikiMode}
 	{headerClientHeight}
 	{footerClientHeight}
