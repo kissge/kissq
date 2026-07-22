@@ -21,9 +21,10 @@
 	import { AttendantState, type GameEvent } from '$lib/state';
 	import { tooltip, tooltipInteractive } from '$lib/tooltip.svelte';
 	import { GameClass } from './game.svelte';
-	import { buttonReverseMapping_, Wasedashiki } from './wasedashiki.svelte';
+	import { WasedashikiClass } from './wasedashiki.svelte';
 
 	let Game = new GameClass();
+	let Wasedashiki = new WasedashikiClass();
 
 	let headerClientHeight = $state(0);
 	let footerClientHeight = $state(0);
@@ -130,15 +131,6 @@
 			Game.teams
 		);
 	});
-
-	/** button ID -> attendant ID */
-	let buttonReverseMapping = $derived.by(buttonReverseMapping_);
-	let answererRanking = $derived(
-		Object.entries(Wasedashiki.answerers)
-			.filter(([, v]) => v != null)
-			.toSorted((a, b) => a[1]!.delay - b[1]!.delay)
-			.map(([k, v]) => [buttonReverseMapping[Number(k) + 1], v!] as const)
-	);
 
 	async function initiateSerialConnection(serialPort_?: SerialPort) {
 		if (!serialPort_) {
@@ -880,7 +872,7 @@
 </template>
 
 <Pushers
-	{answererRanking}
+	answererRanking={Wasedashiki.answererRanking}
 	attendants={Game.attendants}
 	wasedashikiMode={Game.wasedashikiMode}
 	{headerClientHeight}
