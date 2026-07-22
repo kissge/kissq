@@ -1,3 +1,4 @@
+import { createContext } from 'svelte';
 import se1 from '$lib/assets/se1.mp3';
 import se2 from '$lib/assets/se2.mp3';
 import se3 from '$lib/assets/se3.mp3';
@@ -139,3 +140,5 @@ export class GameClass {
 		this.history.pop();
 	}
 }
+
+export const [getGameContext, setGameContext] = createContext<GameClass>();

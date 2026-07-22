@@ -17,13 +17,14 @@
 	import { pushLog, updateLog } from '$lib/logs';
 	import { qZero } from '$lib/question';
 	import { Rule } from '$lib/rule';
-	import { connectToSerialPort, readLoopSerialPort, reconnect } from '$lib/serial';
+	import { reconnect } from '$lib/serial';
 	import { AttendantState, type GameEvent } from '$lib/state';
 	import { tooltip, tooltipInteractive } from '$lib/tooltip.svelte';
-	import { GameClass } from './game.svelte';
+	import { GameClass, setGameContext } from './game.svelte';
 	import { WasedashikiClass } from './wasedashiki.svelte';
 
 	let Game = new GameClass();
+	setGameContext(Game);
 	let Wasedashiki = new WasedashikiClass();
 
 	let headerClientHeight = $state(0);
@@ -90,50 +91,6 @@
 			Game.teams
 		);
 	});
-
-	async function initiateSerialConnection(serialPort_?: SerialPort) {
-		if (!serialPort_) {
-			try {
-				Wasedashiki.serialPort = await connectToSerialPort();
-			} catch (error) {
-				Toastify({ text: '接続に失敗しました', style: { background: '#B00000' } }).showToast();
-				console.error('接続エラー', error);
-				Wasedashiki.serialPort = undefined;
-				Game.wasedashikiMode = undefined;
-				Wasedashiki.connected = false;
-				return;
-			}
-		}
-
-		while (Wasedashiki.serialPort) {
-			console.log('Reading from serial port...');
-			setTimeout(() => {
-				if (!Wasedashiki.connected) {
-					Wasedashiki.serialPort = undefined;
-				}
-			}, 2500);
-			await readLoopSerialPort(
-				Wasedashiki.serialPort,
-				() => ({
-					answerers: Wasedashiki.answerers,
-					pushers: Wasedashiki.pushers,
-					buttonMapping: Wasedashiki.buttonMapping,
-					attendants: Game.currentState.attendants,
-					clickMaru: Game.clickMaru.bind(Game),
-					clickBatsu: Game.clickBatsu.bind(Game)
-				}),
-				(updates) => {
-					if ('connected' in updates) Wasedashiki.connected = updates.connected!;
-					if ('wasedashikiMode' in updates) Game.wasedashikiMode = updates.wasedashikiMode!;
-					if ('answerers' in updates) Wasedashiki.answerers = updates.answerers!;
-					if ('pushers' in updates) Wasedashiki.pushers = updates.pushers!;
-					if ('lastButtonID' in updates) Wasedashiki.lastButtonID = updates.lastButtonID!;
-					if ('serialPort' in updates) Wasedashiki.serialPort = updates.serialPort!;
-				}
-			);
-			await new Promise((resolve) => setTimeout(resolve, 5000));
-		}
-	}
 
 	let subWindow = $state<Window>();
 
@@ -271,7 +228,7 @@
 			.then((port) => {
 				if (port) {
 					Wasedashiki.serialPort = port;
-					initiateSerialConnection(port);
+					Wasedashiki.initiateSerialConnection(port);
 					setTimeout(() => {
 						if (Wasedashiki.connected) {
 							Toastify({ text: '自動で早稲田式に接続しました' }).showToast();
@@ -771,7 +728,10 @@
 			{#if Game.playSounds}🔊 ON{:else}🔇 OFF{/if}
 		</button>
 		<button onclick={openSubWindow}>操作盤表示</button>
-		<button disabled={Wasedashiki.serialPort != null} onclick={() => initiateSerialConnection()}>
+		<button
+			disabled={Wasedashiki.serialPort != null}
+			onclick={() => Wasedashiki.initiateSerialConnection()}
+		>
 			早稲田式連携
 		</button>
 	</div>
