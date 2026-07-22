@@ -21,7 +21,7 @@ export function loadFromHash(
 				const attendants = names.attendants as Attendant[];
 				const buttonMapping = names.buttonMapping as Record<number, number> | undefined;
 
-				if (attendants.every(({ team, seat }) => team === 0 && seat === 0)) {
+				if (team && attendants.every(({ team, seat }) => team === 0 && seat === 0)) {
 					const half = Math.ceil(attendants.length / 2);
 					attendants.forEach((attendant, index) => {
 						attendant.team = Math.floor(index / half);
