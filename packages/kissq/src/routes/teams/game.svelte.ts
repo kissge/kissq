@@ -8,18 +8,23 @@ import {
 	ThroughHistoryEntry,
 	type HistoryEntry
 } from '$lib/historyEntry';
+import { pushLog } from '$lib/logs';
 import { getActiveRulesText, Rule } from '$lib/rule';
 import type { WasedashikiMode } from '$lib/serial';
 import { playSound } from '$lib/sound';
 import { GameState } from '$lib/state';
+import { getWasedashikiContext } from './wasedashiki.svelte';
 
 export class GameClass {
 	attendants = $state<Attendant[]>([]);
 	teams = $state<string[]>([]);
 	rules = $state([new Rule('aql', 200, null, 1, 'updown', false, null, 'constant', 0, null)]);
 	history = $state<HistoryEntry[]>([]);
+	gameTitle = $state('');
 	playSounds = $state(true);
 	wasedashikiMode = $state<WasedashikiMode>();
+
+	Wasedashiki = getWasedashikiContext();
 
 	currentState = $derived(
 		this.history.reduce(
@@ -60,6 +65,38 @@ export class GameClass {
 			totalScore: { num: 0, den: 0 },
 			manualOrder: this.attendants.length
 		});
+	}
+
+	clearHistory() {
+		pushLog(
+			'team',
+			this.gameTitle,
+			this.activeRulesText,
+			this.currentState,
+			this.attendants,
+			this.teams
+		);
+
+		const removedIndex = [];
+		for (let i = 0, j = 0; i < this.attendants.length; i++) {
+			if (this.currentState.attendants[i]?.life === 'removed') {
+				removedIndex.push(i);
+				delete this.Wasedashiki.buttonMapping[i];
+				j--;
+			} else {
+				if (j < 0) {
+					this.Wasedashiki.buttonMapping[i + j] = this.Wasedashiki.buttonMapping[i];
+					delete this.Wasedashiki.buttonMapping[i];
+				}
+			}
+		}
+		const newAttendants = [...this.attendants];
+		removedIndex.toReversed().forEach((i) => {
+			newAttendants.splice(i, 1);
+		});
+		this.attendants = newAttendants;
+
+		this.history = [];
 	}
 
 	handlePasteEvent(event: ClipboardEvent, attendantID: number, teamID: number): void {
