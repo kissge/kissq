@@ -1,13 +1,25 @@
+import se1 from '$lib/assets/se1.mp3';
+import se2 from '$lib/assets/se2.mp3';
+import se3 from '$lib/assets/se3.mp3';
 import { han2zen, type Attendant } from '$lib/attendant';
-import type { HistoryEntry } from '$lib/historyEntry';
+import {
+	BatsuHistoryEntry,
+	MaruHistoryEntry,
+	ThroughHistoryEntry,
+	type HistoryEntry
+} from '$lib/historyEntry';
 import { Rule } from '$lib/rule';
+import type { WasedashikiMode } from '$lib/serial';
+import { playSound } from '$lib/sound';
 import { GameState } from '$lib/state';
 
 export const Game = $state({
 	attendants: [] as Attendant[],
 	teams: [] as string[],
 	rules: [new Rule('aql', 200, null, 1, 'updown', false, null, 'constant', 0, null)],
-	history: [] as HistoryEntry[]
+	history: [] as HistoryEntry[],
+	playSounds: true,
+	wasedashikiMode: undefined as WasedashikiMode | undefined
 });
 
 export function currentState_() {
@@ -44,4 +56,29 @@ export function addAttendant_(teamID: number, seatID: number, name: string = '')
 		totalScore: { num: 0, den: 0 },
 		manualOrder: Game.attendants.length
 	});
+}
+
+export function clickMaru(attendantID: number, playSounds_: boolean = true) {
+	Game.history.push(new MaruHistoryEntry(attendantID));
+	if (Game.playSounds && playSounds_) {
+		playSound(se1);
+	}
+}
+
+export async function clickBatsu(attendantID: number, playSounds_: boolean = true) {
+	const single = Game.wasedashikiMode === 'single' || Game.wasedashikiMode === 'handicap';
+
+	Game.history.push(new BatsuHistoryEntry(attendantID, single));
+	if (Game.playSounds && playSounds_) {
+		playSound(se2);
+	}
+}
+
+export function clickThrough() {
+	Game.history.push(new ThroughHistoryEntry());
+	if (Game.playSounds) playSound(se3);
+}
+
+export function clickUndo() {
+	Game.history.pop();
 }

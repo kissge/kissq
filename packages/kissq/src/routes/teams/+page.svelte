@@ -5,9 +5,6 @@
 	import { fade, slide } from 'svelte/transition';
 	import Toastify from 'toastify-js';
 	import 'toastify-js/src/toastify.css';
-	import se1 from '$lib/assets/se1.mp3';
-	import se2 from '$lib/assets/se2.mp3';
-	import se3 from '$lib/assets/se3.mp3';
 	import { loadFromHash } from '$lib/attendant';
 	import Footer from '$lib/components/footer.svelte';
 	import Header from '$lib/components/header.svelte';
@@ -16,25 +13,23 @@
 	import QuestionWindow from '$lib/components/questionWindow.svelte';
 	import RuleTeamEditDialog from '$lib/components/ruleTeamEditDialog.svelte';
 	import Stars from '$lib/components/stars.svelte';
-	import {
-		BatsuHistoryEntry,
-		MaruHistoryEntry,
-		RemoveHistoryEntry,
-		ThroughHistoryEntry
-	} from '$lib/historyEntry';
+	import { RemoveHistoryEntry } from '$lib/historyEntry';
 	import { pushLog, updateLog } from '$lib/logs';
 	import { qZero } from '$lib/question';
 	import { getActiveRulesText, Rule } from '$lib/rule';
-	import {
-		connectToSerialPort,
-		readLoopSerialPort,
-		reconnect,
-		type WasedashikiMode
-	} from '$lib/serial';
-	import { playSound } from '$lib/sound';
+	import { connectToSerialPort, readLoopSerialPort, reconnect } from '$lib/serial';
 	import { AttendantState, type GameEvent } from '$lib/state';
 	import { tooltip, tooltipInteractive } from '$lib/tooltip.svelte';
-	import { addAttendant_, attendantsPerTeam_, currentState_, Game } from './game.svelte';
+	import {
+		addAttendant_,
+		attendantsPerTeam_,
+		clickBatsu,
+		clickMaru,
+		clickThrough,
+		clickUndo,
+		currentState_,
+		Game
+	} from './game.svelte';
 
 	let headerClientHeight = $state(0);
 	let footerClientHeight = $state(0);
@@ -123,33 +118,6 @@
 		addAttendant_(teamID, Math.max(0, attendantsPerTeam[teamID].length - 1), name);
 	}
 
-	let playSounds = $state(true);
-
-	function clickMaru(attendantID: number, playSounds_: boolean = true) {
-		Game.history.push(new MaruHistoryEntry(attendantID));
-		if (playSounds && playSounds_) {
-			playSound(se1);
-		}
-	}
-
-	async function clickBatsu(attendantID: number, playSounds_: boolean = true) {
-		const single = wasedashikiMode === 'single' || wasedashikiMode === 'handicap';
-
-		Game.history.push(new BatsuHistoryEntry(attendantID, single));
-		if (playSounds && playSounds_) {
-			playSound(se2);
-		}
-	}
-
-	function clickThrough() {
-		Game.history.push(new ThroughHistoryEntry());
-		if (playSounds) playSound(se3);
-	}
-
-	function clickUndo() {
-		Game.history.pop();
-	}
-
 	function clearHistory() {
 		pushLog('team', gameTitle, activeRulesText, currentState, Game.attendants, Game.teams);
 
@@ -197,7 +165,6 @@
 		return reverse;
 	});
 	let buttonMappingRestored = $state(false);
-	let wasedashikiMode = $state<WasedashikiMode>();
 	let connected = $state(false);
 	let answererRanking = $derived(
 		Object.entries(answerers)
@@ -214,7 +181,7 @@
 				Toastify({ text: '接続に失敗しました', style: { background: '#B00000' } }).showToast();
 				console.error('接続エラー', error);
 				serialPort = undefined;
-				wasedashikiMode = undefined;
+				Game.wasedashikiMode = undefined;
 				connected = false;
 				return;
 			}
@@ -239,7 +206,7 @@
 				}),
 				(updates) => {
 					if ('connected' in updates) connected = updates.connected!;
-					if ('wasedashikiMode' in updates) wasedashikiMode = updates.wasedashikiMode!;
+					if ('wasedashikiMode' in updates) Game.wasedashikiMode = updates.wasedashikiMode!;
 					if ('answerers' in updates) answerers = updates.answerers!;
 					if ('pushers' in updates) pushers = updates.pushers!;
 					if ('lastButtonID' in updates) lastButtonID = updates.lastButtonID!;
@@ -334,7 +301,7 @@
 						history: Game.history,
 						answerers,
 						buttonMapping,
-						wasedashikiMode
+						wasedashikiMode: Game.wasedashikiMode
 					})
 				)
 			);
@@ -344,7 +311,7 @@
 	$effect(() => {
 		// eslint-disable-next-line svelte/no-unused-svelte-ignore
 		// svelte-ignore state_snapshot_uncloneable
-		$state.snapshot([currentState, answerers, buttonMapping, wasedashikiMode]);
+		$state.snapshot([currentState, answerers, buttonMapping, Game.wasedashikiMode]);
 		syncState();
 	});
 
@@ -438,7 +405,7 @@
 		onBattleModeChange={clearHistory}
 		attendants={Game.attendants}
 		{buttonMapping}
-		{wasedashikiMode}
+		wasedashikiMode={Game.wasedashikiMode}
 		rules={Game.rules}
 		{editRule}
 	/>
@@ -628,10 +595,11 @@
 														{
 															'answerer-1st': answerers[(buttonMapping[i] ?? 0) - 1]?.rank === 1,
 															'answerer-2nd':
-																(wasedashikiMode === 'endless' || wasedashikiMode === 'double') &&
+																(Game.wasedashikiMode === 'endless' ||
+																	Game.wasedashikiMode === 'double') &&
 																answerers[(buttonMapping[i] ?? 0) - 1]?.rank === 2,
 															'answerer-late':
-																wasedashikiMode === 'endless' &&
+																Game.wasedashikiMode === 'endless' &&
 																answerers[(buttonMapping[i] ?? 0) - 1]?.rank === 'late'
 														}
 													]}
@@ -848,10 +816,10 @@
 		>
 		<button onclick={logDialog.open}>履歴確認</button>
 		<button
-			onclick={() => (playSounds = !playSounds)}
+			onclick={() => (Game.playSounds = !Game.playSounds)}
 			{@attach tooltip('効果音のオンオフを切り替えます')}
 		>
-			{#if playSounds}🔊 ON{:else}🔇 OFF{/if}
+			{#if Game.playSounds}🔊 ON{:else}🔇 OFF{/if}
 		</button>
 		<button onclick={openSubWindow}>操作盤表示</button>
 		<button disabled={serialPort != null} onclick={() => initiateSerialConnection()}>
@@ -916,7 +884,7 @@
 <Pushers
 	{answererRanking}
 	attendants={Game.attendants}
-	{wasedashikiMode}
+	wasedashikiMode={Game.wasedashikiMode}
 	{headerClientHeight}
 	{footerClientHeight}
 />
