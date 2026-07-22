@@ -1,3 +1,4 @@
+import { createContext } from 'svelte';
 import Toastify from 'toastify-js';
 import { connectToSerialPort, readFromSerialPort } from '$lib/serial';
 import { getGameContext } from './game.svelte';
@@ -194,3 +195,5 @@ export class WasedashikiClass {
 		}
 	}
 }
+
+export const [getWasedashikiContext, setWasedashikiContext] = createContext<WasedashikiClass>();
