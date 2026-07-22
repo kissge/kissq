@@ -65,24 +65,6 @@
 		}
 	}
 
-	function handlePasteEvent(event: ClipboardEvent, attendantID: number, teamID: number) {
-		const text = (event.clipboardData?.getData('text') || '').trim();
-		const lines = text.split(/[\r\n]+/);
-		if (lines.length >= 2) {
-			event.preventDefault();
-			const atts = Game.attendantsPerTeam[teamID].flat().filter((a) => a != null);
-			const offset = atts.findIndex(({ i }) => i === attendantID);
-			lines.forEach((line, i) => {
-				if (offset + i < atts.length) {
-					atts[offset + i].att.name = line;
-					atts[offset + i].att.trophyCount = 0;
-				} else {
-					Game.addAttendant(teamID, line);
-				}
-			});
-		}
-	}
-
 	let isBannerVisible = $state<GameEvent | null>(null);
 	watch(
 		() => Game.currentState.latestEvent,
@@ -615,7 +597,7 @@
 													]}
 													bind:value={att.name}
 													placeholder={`プレイヤー${i + 1}`}
-													onpaste={(e) => handlePasteEvent(e, i, ti)}
+													onpaste={(e) => Game.handlePasteEvent(e, i, ti)}
 												/>
 												<small class="yasu">
 													{#if sAtt?.yasuDisplay > 0}
