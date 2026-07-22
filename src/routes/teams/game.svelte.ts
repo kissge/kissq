@@ -8,7 +8,7 @@ import {
 	ThroughHistoryEntry,
 	type HistoryEntry
 } from '$lib/historyEntry';
-import { Rule } from '$lib/rule';
+import { getActiveRulesText, Rule } from '$lib/rule';
 import type { WasedashikiMode } from '$lib/serial';
 import { playSound } from '$lib/sound';
 import { GameState } from '$lib/state';
@@ -46,6 +46,9 @@ export class GameClass {
 
 		return atts;
 	});
+
+	activeRules = $derived(this.rules.flatMap((rule, i) => (rule.isRemoved ? [] : { rule, i })));
+	activeRulesText = $derived(getActiveRulesText(this.rules, 'team').activeRulesText);
 
 	addAttendant(teamID: number, name: string = '') {
 		this.attendants.push({

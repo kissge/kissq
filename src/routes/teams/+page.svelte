@@ -16,7 +16,7 @@
 	import { RemoveHistoryEntry } from '$lib/historyEntry';
 	import { pushLog, updateLog } from '$lib/logs';
 	import { qZero } from '$lib/question';
-	import { getActiveRulesText, Rule } from '$lib/rule';
+	import { Rule } from '$lib/rule';
 	import { connectToSerialPort, readLoopSerialPort, reconnect } from '$lib/serial';
 	import { AttendantState, type GameEvent } from '$lib/state';
 	import { tooltip, tooltipInteractive } from '$lib/tooltip.svelte';
@@ -28,8 +28,6 @@
 	let headerClientHeight = $state(0);
 	let footerClientHeight = $state(0);
 	let gameTitle = $state('');
-
-	let { activeRules, activeRulesText } = $derived(getActiveRulesText(Game.rules, 'team'));
 
 	// svelte-ignore non_reactive_update ...?
 	let logDialog: { open: () => void };
@@ -105,7 +103,14 @@
 	}
 
 	function clearHistory() {
-		pushLog('team', gameTitle, activeRulesText, Game.currentState, Game.attendants, Game.teams);
+		pushLog(
+			'team',
+			gameTitle,
+			Game.activeRulesText,
+			Game.currentState,
+			Game.attendants,
+			Game.teams
+		);
 
 		const newAttendants = [...Game.attendants];
 		const removedIndex = [];
@@ -134,7 +139,14 @@
 			return;
 		}
 
-		updateLog('team', gameTitle, Game.currentState, Game.attendants, activeRulesText, Game.teams);
+		updateLog(
+			'team',
+			gameTitle,
+			Game.currentState,
+			Game.attendants,
+			Game.activeRulesText,
+			Game.teams
+		);
 	});
 
 	/** button ID -> attendant ID */
@@ -338,7 +350,14 @@
 				console.error('接続エラー', error);
 			});
 
-		pushLog('team', gameTitle, activeRulesText, Game.currentState, Game.attendants, Game.teams);
+		pushLog(
+			'team',
+			gameTitle,
+			Game.activeRulesText,
+			Game.currentState,
+			Game.attendants,
+			Game.teams
+		);
 		window.addEventListener('message', processWindowMessage);
 
 		return () => window.removeEventListener('message', processWindowMessage);
@@ -517,7 +536,7 @@
 												</select>
 											</div>
 											<div>
-												{#if activeRules.length > 1}
+												{#if Game.activeRules.length > 1}
 													<button
 														class="group"
 														style:background-color={`hsl(${(360 / Game.rules.length) * Game.attendants[i].group}, 70%, 40%)`}
