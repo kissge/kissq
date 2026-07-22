@@ -21,14 +21,14 @@
 	import { AttendantState, type GameEvent } from '$lib/state';
 	import { tooltip, tooltipInteractive } from '$lib/tooltip.svelte';
 	import { GameClass } from './game.svelte';
-	import { WasedashikiClass } from './wasedashiki.svelte';
+	import { setWasedashikiContext, WasedashikiClass } from './wasedashiki.svelte';
 
-	let Game = new GameClass();
 	let Wasedashiki = new WasedashikiClass();
+	setWasedashikiContext(Wasedashiki);
+	let Game = new GameClass();
 
 	let headerClientHeight = $state(0);
 	let footerClientHeight = $state(0);
-	let gameTitle = $state('');
 
 	// svelte-ignore non_reactive_update ...?
 	let logDialog: { open: () => void };
@@ -44,22 +44,14 @@
 					'全員のスコアのリセットも行いますか？\n\n※ しない場合、トロフィーが消えることなどがあります\n※ まだゲームの途中であれば無視してください'
 				)
 			) {
-				clearHistory();
+				Game.clearHistory();
 			}
 
-			const activeRuleCount = result.filter(({ isRemoved }) => !isRemoved).length;
-			if (activeRuleCount === 1) {
-				Game.rules = result.filter(({ isRemoved }) => !isRemoved);
-				Game.attendants.forEach((att) => {
-					att.group = 0;
-				});
-			} else {
-				const removedIndices = result.flatMap(({ isRemoved }, i) => (isRemoved ? [i] : []));
-				Game.rules = result.filter(({ isRemoved }) => !isRemoved);
-				Game.attendants.forEach((att) => {
-					att.group = Math.max(0, att.group - removedIndices.filter((i) => i <= att.group).length);
-				});
-			}
+			const removedIndices = result.flatMap(({ isRemoved }, i) => (isRemoved ? [i] : []));
+			Game.rules = result.filter(({ isRemoved }) => !isRemoved);
+			Game.attendants.forEach((att) => {
+				att.group = Math.max(0, att.group - removedIndices.filter((i) => i <= att.group).length);
+			});
 
 			// showMarubatsuOverride = false;
 			// showScore = true;
@@ -85,38 +77,6 @@
 		showBannerTimeout = setTimeout(() => (isBannerVisible = null), duration);
 	}
 
-	function clearHistory() {
-		pushLog(
-			'team',
-			gameTitle,
-			Game.activeRulesText,
-			Game.currentState,
-			Game.attendants,
-			Game.teams
-		);
-
-		const newAttendants = [...Game.attendants];
-		const removedIndex = [];
-		for (let i = 0, j = 0; i < newAttendants.length; i++) {
-			if (Game.currentState.attendants[i]?.life === 'removed') {
-				removedIndex.push(i);
-				delete Wasedashiki.buttonMapping[i];
-				j--;
-			} else {
-				if (j < 0) {
-					Wasedashiki.buttonMapping[i + j] = Wasedashiki.buttonMapping[i];
-					delete Wasedashiki.buttonMapping[i];
-				}
-			}
-		}
-		removedIndex.toReversed().forEach((i) => {
-			newAttendants.splice(i, 1);
-		});
-		Game.attendants = newAttendants;
-
-		Game.history = [];
-	}
-
 	$effect(() => {
 		if (Game.history.length === 0) {
 			return;
@@ -124,7 +84,7 @@
 
 		updateLog(
 			'team',
-			gameTitle,
+			Game.gameTitle,
 			Game.currentState,
 			Game.attendants,
 			Game.activeRulesText,
@@ -217,7 +177,7 @@
 				break;
 
 			case 'clickReset':
-				clearHistory();
+				Game.clearHistory();
 				break;
 
 			case 'addAttendant':
@@ -326,7 +286,7 @@
 
 		pushLog(
 			'team',
-			gameTitle,
+			Game.gameTitle,
 			Game.activeRulesText,
 			Game.currentState,
 			Game.attendants,
@@ -356,7 +316,7 @@
 <svelte:head>
 	<title>
 		kissQ -
-		{gameTitle ? gameTitle + ' - ' : ''}
+		{Game.gameTitle ? Game.gameTitle + ' - ' : ''}
 		{Game.currentState.attendants
 			.flatMap(({ name, life }) => (life !== 'removed' ? [name.slice(0, 3) || '👤'] : []))
 			.join('・')}
@@ -369,9 +329,9 @@
 		bind:headerClientHeight
 		questionCount={Game.currentState.questionCount}
 		hideQuestionCount={Game.currentState.defaultRule.mode === 'aql'}
-		bind:gameTitle
+		bind:gameTitle={Game.gameTitle}
 		battleMode="team"
-		onBattleModeChange={clearHistory}
+		onBattleModeChange={Game.clearHistory}
 		attendants={Game.attendants}
 		buttonMapping={Wasedashiki.buttonMapping}
 		wasedashikiMode={Game.wasedashikiMode}
@@ -755,7 +715,7 @@
 						'全員ゼロ〇ゼロ×にリセットしますか？\nこの操作は元に戻せません。\n（プレイヤーリスト、累積勝利数🏆は残ります）'
 					)
 				) {
-					clearHistory();
+					Game.clearHistory();
 				}
 			}}
 			disabled={Game.history.length === 0}
