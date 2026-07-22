@@ -391,6 +391,8 @@
 		const data = loadFromHash(true);
 
 		if (data) {
+			const groups = Math.max(...data.attendants.map(({ group }) => group));
+			rules = Array.from({ length: groups + 1 }, () => rules[0]);
 			attendants = data.attendants;
 			buttonMapping = data.buttonMapping ?? {};
 			buttonMappingRestored = Object.keys(buttonMapping).length > 0;
