@@ -30,6 +30,7 @@
 		currentState_,
 		Game
 	} from './game.svelte';
+	import { buttonReverseMapping_, Wasedashiki } from './wasedashiki.svelte';
 
 	let headerClientHeight = $state(0);
 	let footerClientHeight = $state(0);
@@ -126,12 +127,12 @@
 		for (let i = 0, j = 0; i < newAttendants.length; i++) {
 			if (currentState.attendants[i]?.life === 'removed') {
 				removedIndex.push(i);
-				delete buttonMapping[i];
+				delete Wasedashiki.buttonMapping[i];
 				j--;
 			} else {
 				if (j < 0) {
-					buttonMapping[i + j] = buttonMapping[i];
-					delete buttonMapping[i];
+					Wasedashiki.buttonMapping[i + j] = Wasedashiki.buttonMapping[i];
+					delete Wasedashiki.buttonMapping[i];
 				}
 			}
 		}
@@ -151,23 +152,10 @@
 		updateLog('team', gameTitle, currentState, Game.attendants, activeRulesText, Game.teams);
 	});
 
-	let serialPort = $state<SerialPort>();
-	let answerers = $state<({ rank: 1 | 2 | 'late'; delay: number } | null)[]>([]);
-	let lastButtonID = $state<number>();
-	/** attendant ID -> button ID */
-	let buttonMapping = $state<Record<number, number>>({});
 	/** button ID -> attendant ID */
-	let buttonReverseMapping = $derived.by<Record<number, number>>(() => {
-		const reverse: Record<number, number> = {};
-		for (const [attendantID, buttonID] of Object.entries(buttonMapping)) {
-			reverse[buttonID] = Number(attendantID);
-		}
-		return reverse;
-	});
-	let buttonMappingRestored = $state(false);
-	let connected = $state(false);
+	let buttonReverseMapping = $derived.by(buttonReverseMapping_);
 	let answererRanking = $derived(
-		Object.entries(answerers)
+		Object.entries(Wasedashiki.answerers)
 			.filter(([, v]) => v != null)
 			.toSorted((a, b) => a[1]!.delay - b[1]!.delay)
 			.map(([k, v]) => [buttonReverseMapping[Number(k) + 1], v!] as const)
@@ -176,41 +164,41 @@
 	async function initiateSerialConnection(serialPort_?: SerialPort) {
 		if (!serialPort_) {
 			try {
-				serialPort = await connectToSerialPort();
+				Wasedashiki.serialPort = await connectToSerialPort();
 			} catch (error) {
 				Toastify({ text: '接続に失敗しました', style: { background: '#B00000' } }).showToast();
 				console.error('接続エラー', error);
-				serialPort = undefined;
+				Wasedashiki.serialPort = undefined;
 				Game.wasedashikiMode = undefined;
-				connected = false;
+				Wasedashiki.connected = false;
 				return;
 			}
 		}
 
-		while (serialPort) {
+		while (Wasedashiki.serialPort) {
 			console.log('Reading from serial port...');
 			setTimeout(() => {
-				if (!connected) {
-					serialPort = undefined;
+				if (!Wasedashiki.connected) {
+					Wasedashiki.serialPort = undefined;
 				}
 			}, 2500);
 			await readLoopSerialPort(
-				serialPort,
+				Wasedashiki.serialPort,
 				() => ({
-					answerers,
-					pushers,
-					buttonMapping,
+					answerers: Wasedashiki.answerers,
+					pushers: Wasedashiki.pushers,
+					buttonMapping: Wasedashiki.buttonMapping,
 					attendants: currentState.attendants,
 					clickMaru,
 					clickBatsu
 				}),
 				(updates) => {
-					if ('connected' in updates) connected = updates.connected!;
+					if ('connected' in updates) Wasedashiki.connected = updates.connected!;
 					if ('wasedashikiMode' in updates) Game.wasedashikiMode = updates.wasedashikiMode!;
-					if ('answerers' in updates) answerers = updates.answerers!;
-					if ('pushers' in updates) pushers = updates.pushers!;
-					if ('lastButtonID' in updates) lastButtonID = updates.lastButtonID!;
-					if ('serialPort' in updates) serialPort = updates.serialPort!;
+					if ('answerers' in updates) Wasedashiki.answerers = updates.answerers!;
+					if ('pushers' in updates) Wasedashiki.pushers = updates.pushers!;
+					if ('lastButtonID' in updates) Wasedashiki.lastButtonID = updates.lastButtonID!;
+					if ('serialPort' in updates) Wasedashiki.serialPort = updates.serialPort!;
 				}
 			);
 			await new Promise((resolve) => setTimeout(resolve, 5000));
@@ -299,8 +287,8 @@
 						mode: 'team',
 						currentState: state,
 						history: Game.history,
-						answerers,
-						buttonMapping,
+						answerers: Wasedashiki.answerers,
+						buttonMapping: Wasedashiki.buttonMapping,
 						wasedashikiMode: Game.wasedashikiMode
 					})
 				)
@@ -311,15 +299,18 @@
 	$effect(() => {
 		// eslint-disable-next-line svelte/no-unused-svelte-ignore
 		// svelte-ignore state_snapshot_uncloneable
-		$state.snapshot([currentState, answerers, buttonMapping, Game.wasedashikiMode]);
+		$state.snapshot([
+			currentState,
+			Wasedashiki.answerers,
+			Wasedashiki.buttonMapping,
+			Game.wasedashikiMode
+		]);
 		syncState();
 	});
 
 	const urlParams = new URLSearchParams(typeof location !== 'undefined' ? location.search : '');
 	let showQuestionWindow = $state(urlParams.has('qw'));
 	let currentQuestion = $state(qZero);
-
-	let pushers: number[] = [];
 
 	onMount(() => {
 		const data = loadFromHash(true);
@@ -328,8 +319,8 @@
 			const groups = Math.max(...data.attendants.map(({ group }) => group));
 			Game.rules = Array.from({ length: groups + 1 }, () => Game.rules[0]);
 			Game.attendants = data.attendants;
-			buttonMapping = data.buttonMapping ?? {};
-			buttonMappingRestored = Object.keys(buttonMapping).length > 0;
+			Wasedashiki.buttonMapping = data.buttonMapping ?? {};
+			Wasedashiki.buttonMappingRestored = Object.keys(Wasedashiki.buttonMapping).length > 0;
 		} else {
 			Game.attendants = Array.from({ length: 2 }, (_, ti) =>
 				Array.from({ length: 10 }, (_, ai) => ({
@@ -349,10 +340,10 @@
 		reconnect()
 			.then((port) => {
 				if (port) {
-					serialPort = port;
+					Wasedashiki.serialPort = port;
 					initiateSerialConnection(port);
 					setTimeout(() => {
-						if (connected) {
+						if (Wasedashiki.connected) {
 							Toastify({ text: '自動で早稲田式に接続しました' }).showToast();
 						}
 					}, 1500);
@@ -369,7 +360,7 @@
 	});
 
 	$effect(() => {
-		const data = { attendants: Game.attendants, buttonMapping };
+		const data = { attendants: Game.attendants, buttonMapping: Wasedashiki.buttonMapping };
 		$state.snapshot(data);
 		untrack(() => {
 			if (data.attendants.every(({ name }) => name === '')) {
@@ -404,7 +395,7 @@
 		battleMode="team"
 		onBattleModeChange={clearHistory}
 		attendants={Game.attendants}
-		{buttonMapping}
+		buttonMapping={Wasedashiki.buttonMapping}
 		wasedashikiMode={Game.wasedashikiMode}
 		rules={Game.rules}
 		{editRule}
@@ -555,52 +546,60 @@
 												{/if}
 												<button
 													class="button-mapping"
-													style={buttonMapping[i] == null
+													style={Wasedashiki.buttonMapping[i] == null
 														? undefined
-														: 1 <= buttonMapping[i] && buttonMapping[i] <= 6
+														: 1 <= Wasedashiki.buttonMapping[i] && Wasedashiki.buttonMapping[i] <= 6
 															? 'background-color: red; color: white'
-															: 7 <= buttonMapping[i] && buttonMapping[i] <= 12
+															: 7 <= Wasedashiki.buttonMapping[i] &&
+																  Wasedashiki.buttonMapping[i] <= 12
 																? 'background-color: blue; color: white'
-																: 13 <= buttonMapping[i] && buttonMapping[i] <= 18
+																: 13 <= Wasedashiki.buttonMapping[i] &&
+																	  Wasedashiki.buttonMapping[i] <= 18
 																	? 'background-color: yellow; color: black'
 																	: 'background-color: green; color: white'}
-													style:display={lastButtonID == undefined && !buttonMappingRestored
+													style:display={Wasedashiki.lastButtonID == undefined &&
+													!Wasedashiki.buttonMappingRestored
 														? 'none'
 														: ''}
-													disabled={lastButtonID == undefined && !buttonMappingRestored}
+													disabled={Wasedashiki.lastButtonID == undefined &&
+														!Wasedashiki.buttonMappingRestored}
 													{@attach tooltip(
-														`このプレイヤーが持っているボタンは${buttonMapping[i] == null ? '???' : buttonMapping[i]}番です。クリックで紐づけ`
+														`このプレイヤーが持っているボタンは${Wasedashiki.buttonMapping[i] == null ? '???' : Wasedashiki.buttonMapping[i]}番です。クリックで紐づけ`
 													)}
 													onclick={() => {
-														if (lastButtonID !== undefined) {
-															buttonMapping = {
+														if (Wasedashiki.lastButtonID !== undefined) {
+															Wasedashiki.buttonMapping = {
 																...Object.fromEntries(
-																	Object.entries(buttonMapping).filter(
-																		([, v]) => v !== lastButtonID
+																	Object.entries(Wasedashiki.buttonMapping).filter(
+																		([, v]) => v !== Wasedashiki.lastButtonID
 																	)
 																),
-																[i]: lastButtonID!
+																[i]: Wasedashiki.lastButtonID!
 															};
 															Toastify({
-																text: `ボタン${lastButtonID}は${att.name || `プレイヤー${i + 1}`}が持っています`
+																text: `ボタン${Wasedashiki.lastButtonID}は${att.name || `プレイヤー${i + 1}`}が持っています`
 															}).showToast();
 														}
 													}}
 												>
-													{buttonMapping[i] ?? '?'}
+													{Wasedashiki.buttonMapping[i] ?? '?'}
 												</button>
 												<input
 													class={[
 														'name',
 														{
-															'answerer-1st': answerers[(buttonMapping[i] ?? 0) - 1]?.rank === 1,
+															'answerer-1st':
+																Wasedashiki.answerers[(Wasedashiki.buttonMapping[i] ?? 0) - 1]
+																	?.rank === 1,
 															'answerer-2nd':
 																(Game.wasedashikiMode === 'endless' ||
 																	Game.wasedashikiMode === 'double') &&
-																answerers[(buttonMapping[i] ?? 0) - 1]?.rank === 2,
+																Wasedashiki.answerers[(Wasedashiki.buttonMapping[i] ?? 0) - 1]
+																	?.rank === 2,
 															'answerer-late':
 																Game.wasedashikiMode === 'endless' &&
-																answerers[(buttonMapping[i] ?? 0) - 1]?.rank === 'late'
+																Wasedashiki.answerers[(Wasedashiki.buttonMapping[i] ?? 0) - 1]
+																	?.rank === 'late'
 														}
 													]}
 													bind:value={att.name}
@@ -807,9 +806,9 @@
 						}
 					];
 					Game.teams = [''];
-					buttonMapping = {};
-					answerers = [];
-					lastButtonID = undefined;
+					Wasedashiki.buttonMapping = {};
+					Wasedashiki.answerers = [];
+					Wasedashiki.lastButtonID = undefined;
 				}
 			}}
 			{@attach tooltip('全員の名前・チーム・枠・スコアをリセットします。')}>全削除</button
@@ -822,7 +821,7 @@
 			{#if Game.playSounds}🔊 ON{:else}🔇 OFF{/if}
 		</button>
 		<button onclick={openSubWindow}>操作盤表示</button>
-		<button disabled={serialPort != null} onclick={() => initiateSerialConnection()}>
+		<button disabled={Wasedashiki.serialPort != null} onclick={() => initiateSerialConnection()}>
 			早稲田式連携
 		</button>
 	</div>
