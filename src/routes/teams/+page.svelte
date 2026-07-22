@@ -8,7 +8,7 @@
 	import se1 from '$lib/assets/se1.mp3';
 	import se2 from '$lib/assets/se2.mp3';
 	import se3 from '$lib/assets/se3.mp3';
-	import { han2zen, loadFromHash } from '$lib/attendant';
+	import { loadFromHash } from '$lib/attendant';
 	import Footer from '$lib/components/footer.svelte';
 	import Header from '$lib/components/header.svelte';
 	import LogDialog from '$lib/components/logDialog.svelte';
@@ -34,7 +34,7 @@
 	import { playSound } from '$lib/sound';
 	import { AttendantState, type GameEvent } from '$lib/state';
 	import { tooltip, tooltipInteractive } from '$lib/tooltip.svelte';
-	import { attendantsPerTeam_, currentState_, Game } from './game.svelte';
+	import { addAttendant_, attendantsPerTeam_, currentState_, Game } from './game.svelte';
 
 	let headerClientHeight = $state(0);
 	let footerClientHeight = $state(0);
@@ -120,15 +120,7 @@
 	}
 
 	function addAttendant(teamID: number, name: string = '') {
-		Game.attendants.push({
-			name: han2zen(name),
-			group: 0,
-			team: teamID,
-			seat: attendantsPerTeam[teamID].length > 0 ? attendantsPerTeam[teamID].length - 1 : 0,
-			trophyCount: 0,
-			totalScore: { num: 0, den: 0 },
-			manualOrder: Game.attendants.length
-		});
+		addAttendant_(teamID, Math.max(0, attendantsPerTeam[teamID].length - 1), name);
 	}
 
 	let playSounds = $state(true);
