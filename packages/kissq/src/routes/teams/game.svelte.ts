@@ -62,6 +62,24 @@ export class GameClass {
 		});
 	}
 
+	handlePasteEvent(event: ClipboardEvent, attendantID: number, teamID: number): void {
+		const text = (event.clipboardData?.getData('text') || '').trim();
+		const lines = text.split(/[\r\n]+/);
+		if (lines.length >= 2) {
+			event.preventDefault();
+			const atts = this.attendantsPerTeam[teamID].flat().filter((a) => a != null);
+			const offset = atts.findIndex(({ i }) => i === attendantID);
+			lines.forEach((line, i) => {
+				if (offset + i < atts.length) {
+					atts[offset + i].att.name = line;
+					atts[offset + i].att.trophyCount = 0;
+				} else {
+					this.addAttendant(teamID, line);
+				}
+			});
+		}
+	}
+
 	clickMaru(attendantID: number, playSounds_: boolean = true) {
 		this.history.push(new MaruHistoryEntry(attendantID));
 		if (this.playSounds && playSounds_) {
