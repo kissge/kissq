@@ -1,4 +1,4 @@
-import type { Attendant } from '$lib/attendant';
+import { han2zen, type Attendant } from '$lib/attendant';
 import type { HistoryEntry } from '$lib/historyEntry';
 import { Rule } from '$lib/rule';
 import { GameState } from '$lib/state';
@@ -32,4 +32,16 @@ export function attendantsPerTeam_() {
 	atts.forEach((team) => team.forEach((seat) => seat!.forEach((att) => (att.j = j++))));
 
 	return atts;
+}
+
+export function addAttendant_(teamID: number, seatID: number, name: string = '') {
+	Game.attendants.push({
+		name: han2zen(name),
+		group: 0,
+		team: teamID,
+		seat: seatID,
+		trophyCount: 0,
+		totalScore: { num: 0, den: 0 },
+		manualOrder: Game.attendants.length
+	});
 }
