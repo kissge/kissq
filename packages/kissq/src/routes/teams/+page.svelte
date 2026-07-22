@@ -509,7 +509,7 @@
 					class="members"
 					class:with-seat={activeRuleMode === 'aql' || activeRuleMode === 'product'}
 				>
-					{#each seats as atts, si (atts?.map(({ j }) => j) ?? si)}
+					{#each seats as atts, si (atts?.map(({ j }) => j).join(',') ?? si)}
 						{@const rowStart = seats
 							.slice(0, si)
 							.reduce((sum, seatAtts) => sum + (seatAtts?.length ?? 0), 1)}
