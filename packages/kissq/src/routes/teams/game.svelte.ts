@@ -13,7 +13,7 @@ import { getActiveRulesText, Rule } from '$lib/rule';
 import type { WasedashikiMode } from '$lib/serial';
 import { playSound } from '$lib/sound';
 import { GameState } from '$lib/state';
-import { getWasedashikiContext } from './wasedashiki.svelte';
+import type { WasedashikiClass } from './wasedashiki.svelte';
 
 export class GameClass {
 	attendants = $state<Attendant[]>([]);
@@ -23,8 +23,6 @@ export class GameClass {
 	gameTitle = $state('');
 	playSounds = $state(true);
 	wasedashikiMode = $state<WasedashikiMode>();
-
-	Wasedashiki = getWasedashikiContext();
 
 	currentState = $derived(
 		this.history.reduce(
@@ -67,7 +65,7 @@ export class GameClass {
 		});
 	}
 
-	clearHistory() {
+	clearHistory(Wasedashiki: WasedashikiClass) {
 		pushLog(
 			'team',
 			this.gameTitle,
@@ -81,12 +79,12 @@ export class GameClass {
 		for (let i = 0, j = 0; i < this.attendants.length; i++) {
 			if (this.currentState.attendants[i]?.life === 'removed') {
 				removedIndex.push(i);
-				delete this.Wasedashiki.buttonMapping[i];
+				delete Wasedashiki.buttonMapping[i];
 				j--;
 			} else {
 				if (j < 0) {
-					this.Wasedashiki.buttonMapping[i + j] = this.Wasedashiki.buttonMapping[i];
-					delete this.Wasedashiki.buttonMapping[i];
+					Wasedashiki.buttonMapping[i + j] = Wasedashiki.buttonMapping[i];
+					delete Wasedashiki.buttonMapping[i];
 				}
 			}
 		}

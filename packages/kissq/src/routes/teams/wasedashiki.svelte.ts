@@ -1,5 +1,3 @@
-import { createContext } from 'svelte';
-
 export class WasedashikiClass {
 	serialPort = $state<SerialPort | undefined>();
 	answerers = $state<({ rank: 1 | 2 | 'late'; delay: number } | null)[]>([]);
@@ -26,5 +24,3 @@ export class WasedashikiClass {
 			.map(([k, v]) => [this.buttonReverseMapping[Number(k) + 1], v!] as const)
 	);
 }
-
-export const [getWasedashikiContext, setWasedashikiContext] = createContext<WasedashikiClass>();

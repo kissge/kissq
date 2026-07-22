@@ -21,11 +21,10 @@
 	import { AttendantState, type GameEvent } from '$lib/state';
 	import { tooltip, tooltipInteractive } from '$lib/tooltip.svelte';
 	import { GameClass } from './game.svelte';
-	import { setWasedashikiContext, WasedashikiClass } from './wasedashiki.svelte';
+	import { WasedashikiClass } from './wasedashiki.svelte';
 
-	let Wasedashiki = new WasedashikiClass();
-	setWasedashikiContext(Wasedashiki);
 	let Game = new GameClass();
+	let Wasedashiki = new WasedashikiClass();
 
 	let headerClientHeight = $state(0);
 	let footerClientHeight = $state(0);
@@ -44,7 +43,7 @@
 					'全員のスコアのリセットも行いますか？\n\n※ しない場合、トロフィーが消えることなどがあります\n※ まだゲームの途中であれば無視してください'
 				)
 			) {
-				Game.clearHistory();
+				Game.clearHistory(Wasedashiki);
 			}
 
 			const removedIndices = result.flatMap(({ isRemoved }, i) => (isRemoved ? [i] : []));
@@ -177,7 +176,7 @@
 				break;
 
 			case 'clickReset':
-				Game.clearHistory();
+				Game.clearHistory(Wasedashiki);
 				break;
 
 			case 'addAttendant':
@@ -331,7 +330,7 @@
 		hideQuestionCount={Game.currentState.defaultRule.mode === 'aql'}
 		bind:gameTitle={Game.gameTitle}
 		battleMode="team"
-		onBattleModeChange={Game.clearHistory}
+		onBattleModeChange={() => Game.clearHistory(Wasedashiki)}
 		attendants={Game.attendants}
 		buttonMapping={Wasedashiki.buttonMapping}
 		wasedashikiMode={Game.wasedashikiMode}
@@ -715,7 +714,7 @@
 						'全員ゼロ〇ゼロ×にリセットしますか？\nこの操作は元に戻せません。\n（プレイヤーリスト、累積勝利数🏆は残ります）'
 					)
 				) {
-					Game.clearHistory();
+					Game.clearHistory(Wasedashiki);
 				}
 			}}
 			disabled={Game.history.length === 0}
