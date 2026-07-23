@@ -160,7 +160,7 @@
 		transition: opacity 0.3s;
 		width: calc(100% - 0.75em * 2);
 
-		&:is(.team:hover *) {
+		&:is(:global(.team:hover) *) {
 			opacity: 1;
 		}
 
