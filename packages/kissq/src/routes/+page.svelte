@@ -9,7 +9,7 @@
 	import se1 from '$lib/assets/se1.mp3';
 	import se2 from '$lib/assets/se2.mp3';
 	import se3 from '$lib/assets/se3.mp3';
-	import { type Attendant, han2zen, loadFromHash } from '$lib/attendant';
+	import { han2zen, loadFromHash } from '$lib/attendant';
 	import AppearanceDialog from '$lib/components/appearanceDialog.svelte';
 	import EffectEditDialog from '$lib/components/effectEditDialog.svelte';
 	import Footer from '$lib/components/footer.svelte';
@@ -22,10 +22,7 @@
 	import Stars from '$lib/components/stars.svelte';
 	import StateEditDialog from '$lib/components/stateEditDialog.svelte';
 	import {
-		type HistoryEntry,
 		MaruHistoryEntry,
-		BatsuHistoryEntry,
-		ThroughHistoryEntry,
 		RemoveHistoryEntry,
 		WinHistoryEntry,
 		LoseHistoryEntry,
@@ -33,29 +30,14 @@
 	} from '$lib/historyEntry';
 	import { pushLog, updateLog } from '$lib/logs';
 	import { qZero } from '$lib/question';
-	import { Rule, type Penalty, getActiveRulesText } from '$lib/rule';
-	import {
-		connectToSerialPort,
-		readLoopSerialPort,
-		reconnect,
-		type WasedashikiMode
-	} from '$lib/serial';
+	import { Rule, type Penalty } from '$lib/rule';
+	import { connectToSerialPort, readLoopSerialPort, reconnect } from '$lib/serial';
 	import { playSound } from '$lib/sound';
-	import { AttendantState, GameState, type AttendantStateValue, type GameEvent } from '$lib/state';
+	import { AttendantState, type AttendantStateValue, type GameEvent } from '$lib/state';
 	import { tooltip } from '$lib/tooltip.svelte';
+	import { GameClass } from './game.svelte';
 
-	let attendants = $state<Attendant[]>([]);
-	let rules = $state([new Rule('marubatsu', 7, 3, 1, 1, false, null, 'constant', 0, null)]);
-	let history = $state<HistoryEntry[]>([]);
-	let currentState = $derived(
-		history.reduce(
-			(state, entry) =>
-				entry.reducer(state.clearLatestEvent()).checkIfLastSurvivor().updateRanking(),
-			new GameState(attendants, rules).updateRanking()
-		)
-	);
-	let { activeRules, activeRulesText } = $derived(getActiveRulesText(rules, 'single'));
-	let gameTitle = $state('');
+	let Game = new GameClass();
 
 	let innerWidth = $state(0);
 	let innerHeight = $state(0);
@@ -65,7 +47,7 @@
 	let container: HTMLDivElement;
 	let columnCount = $derived.by(() => {
 		// 画面に収まる範囲でなるべく多い列数を求める
-		const attCount = currentState.ranking.length;
+		const attCount = Game.currentState.ranking.length;
 		const isSafari =
 			typeof navigator !== 'undefined' &&
 			/safari/i.test(navigator.userAgent) &&
@@ -126,7 +108,8 @@
 			fontSize = Math.floor(
 				Math.min(
 					(container?.clientWidth / columnCount) * 0.15,
-					(container?.clientHeight / Math.ceil(currentState.ranking.length / columnCount)) * 0.15
+					(container?.clientHeight / Math.ceil(Game.currentState.ranking.length / columnCount)) *
+						0.15
 				)
 			);
 		} else {
@@ -134,44 +117,47 @@
 			fontSize = Math.floor(
 				Math.min(
 					(container?.clientWidth / columnCount) * 0.3,
-					(container?.clientHeight / Math.ceil(currentState.ranking.length / columnCount)) * 0.09
+					(container?.clientHeight / Math.ceil(Game.currentState.ranking.length / columnCount)) *
+						0.09
 				)
 			);
 		}
 	});
 
 	let barMax = $derived.by(() => {
-		if (attendants.length === 0) {
+		if (Game.attendants.length === 0) {
 			return null;
 		}
 
 		if (
-			currentState.attendants.some(({ rule }) => rule.mode !== currentState.attendants[0].rule.mode)
+			Game.currentState.attendants.some(
+				({ rule }) => rule.mode !== Game.currentState.attendants[0].rule.mode
+			)
 		) {
 			return null;
 		}
 
-		return Math.max(...currentState.attendants.map((a) => a.rule.max));
+		return Math.max(...Game.currentState.attendants.map((a) => a.rule.max));
 	});
 	let barHeightRatioArray = $state<Spring<number>[]>([]);
 	$effect(() => {
-		if (attendants.length < barHeightRatioArray.length) {
-			barHeightRatioArray = barHeightRatioArray.slice(0, attendants.length);
-		} else if (attendants.length > barHeightRatioArray.length) {
-			for (let i = barHeightRatioArray.length; i < attendants.length; ++i) {
+		if (Game.attendants.length < barHeightRatioArray.length) {
+			barHeightRatioArray = barHeightRatioArray.slice(0, Game.attendants.length);
+		} else if (Game.attendants.length > barHeightRatioArray.length) {
+			for (let i = barHeightRatioArray.length; i < Game.attendants.length; ++i) {
 				barHeightRatioArray.push(new Spring(0, { stiffness: 0.2, damping: 0.2 }));
 			}
 		}
 
 		for (let i = 0; i < barHeightRatioArray.length; ++i) {
 			const ratio = (() => {
-				switch (currentState.attendants[i].rule.mode) {
+				switch (Game.currentState.attendants[i].rule.mode) {
 					case 'marubatsu':
-						return currentState.attendants[i].maruCount;
+						return Game.currentState.attendants[i].maruCount;
 					case 'score':
 					case 'MbyN':
 					case 'survival':
-						return currentState.attendants[i].score;
+						return Game.currentState.attendants[i].score;
 					case 'aql':
 					case 'product':
 					case 'sum':
@@ -182,35 +168,9 @@
 		}
 	});
 
-	let consecutive = $derived.by<{ attendantID: number; count: number } | null>(() => {
-		const i = history.findLastIndex((entry) => entry.type === 'maru');
-
-		if (i === -1) {
-			return null;
-		}
-
-		const attendantID = (history[i] as { attendantID: number }).attendantID;
-		const j = history.findLastIndex(
-			(entry) =>
-				(entry.type === 'batsu' && entry.attendantID === attendantID) ||
-				(entry.type === 'maru' && entry.attendantID !== attendantID)
-		);
-
-		if (i <= j) {
-			return null;
-		}
-
-		return {
-			attendantID,
-			count: history
-				.slice(j + 1, i + 1)
-				.filter((entry) => entry.type === 'maru' && entry.attendantID === attendantID).length
-		};
-	});
-
 	let isBannerVisible = $state<GameEvent | null>(null);
 	watch(
-		() => currentState.latestEvent,
+		() => Game.currentState.latestEvent,
 		(curr, prev) => {
 			if (
 				curr?.type !== prev?.type ||
@@ -224,66 +184,22 @@
 			}
 		}
 	);
-	let showBannerTimeout = 0;
+	let showBannerTimeout: number | NodeJS.Timeout = 0;
 	function showBanner(event: GameEvent | null, duration: number = 3000) {
 		isBannerVisible = event;
 		clearTimeout(showBannerTimeout);
 		showBannerTimeout = setTimeout(() => (isBannerVisible = null), duration);
 	}
 
-	function addAttendant(name: string = '') {
-		attendants.push({
-			name: han2zen(name),
-			group: 0,
-			team: 0,
-			seat: 0,
-			trophyCount: 0,
-			totalScore: { num: 0, den: 0 },
-			manualOrder: attendants.length
-		});
-	}
-
-	function handlePasteEvent(event: ClipboardEvent, ord: number) {
-		const text = (event.clipboardData?.getData('text') || '').trim();
-		const lines = text.split(/[\r\n]+/);
-		if (lines.length >= 2) {
-			event.preventDefault();
-			lines.forEach((line, i) => {
-				if (ord + i < attendants.length) {
-					attendants[orderedAttendants[ord + i]].name = line;
-					attendants[orderedAttendants[ord + i]].trophyCount = 0;
-				} else {
-					addAttendant(line);
-				}
-			});
-		} else if (text.length > 0) {
-			event.preventDefault();
-			document.execCommand('insertText', false, han2zen(text));
-		}
-	}
-
 	let attendantFLIPDelay = $state(0);
 
 	let showOtherMenu = $state(false);
 
-	let screenshotModeTimer = $state<number>();
+	let screenshotModeTimer = $state<number | NodeJS.Timeout>();
 	let screenshotOffset = $state(-1);
 
 	let showMarubatsuOverride = $state(false);
 	let showScore = $state(true);
-
-	let orderingMode = $state<'ranking' | 'manual'>('ranking');
-	let orderedAttendants = $derived.by<number[]>(() => {
-		switch (orderingMode) {
-			case 'ranking':
-				return currentState.ranking;
-			case 'manual':
-				return currentState.attendants
-					.flatMap(({ life, manualOrder }, i) => (life === 'removed' ? [] : [[manualOrder, i]]))
-					.toSorted(([a], [b]) => a - b)
-					.map(([, i]) => i);
-		}
-	});
 
 	let effect2Name = $state<string>();
 	let effect3Name = $state<string>();
@@ -291,16 +207,12 @@
 	let wallpaper = $state<string | null>(null);
 	let trophy = $state<string | null>(null);
 
-	let playSounds = $state(true);
-
-	let enableRating = $state(false);
-
 	let isDragging = $state<number | null>(null);
 	let dropTarget = $state<number | null>(null);
 
 	function onDragEnd() {
-		attendants[orderedAttendants[isDragging!]].manualOrder = dropTarget! - 0.5;
-		orderedAttendants.forEach((a, i) => (attendants[a].manualOrder = i));
+		Game.attendants[Game.orderedAttendants[isDragging!]].manualOrder = dropTarget! - 0.5;
+		Game.orderedAttendants.forEach((a, i) => (Game.attendants[a].manualOrder = i));
 
 		isDragging = null;
 		dropTarget = null;
@@ -313,7 +225,7 @@
 		} else {
 			screenshotOffset = -1;
 			screenshotModeTimer = setInterval(() => {
-				screenshotOffset = (screenshotOffset + 1) % (orderedAttendants.length + 1);
+				screenshotOffset = (screenshotOffset + 1) % (Game.orderedAttendants.length + 1);
 			}, 1500);
 		}
 	}
@@ -341,68 +253,32 @@
 			return;
 		}
 
-		updateLog('single', gameTitle, currentState, attendants, activeRulesText);
+		updateLog('single', Game.gameTitle, Game.currentState, Game.attendants, Game.activeRulesText);
 	});
 
-	function clearHistory() {
-		currentState.attendants.forEach((att, i) => {
-			attendants[i].trophyCount = att.trophyCount;
-			if (enableRating) {
-				attendants[i].totalScore = {
-					num:
-						att.totalScore.num +
-						(currentState.attendants.length - currentState.ranking.indexOf(i) - 1),
-					den: att.totalScore.den + 1
-				};
-			}
-		});
-
-		pushLog('single', gameTitle, activeRulesText, currentState, attendants);
-
-		const newAttendants = [...attendants];
-		const removedIndex = [];
-		for (let i = 0, j = 0; i < newAttendants.length; i++) {
-			if (currentState.attendants[i]?.life === 'removed') {
-				removedIndex.push(i);
-				j--;
-			} else {
-				if (j < 0) {
-					buttonMapping[i + j] = buttonMapping[i];
-					delete buttonMapping[i];
-				}
-			}
-		}
-		removedIndex.toReversed().forEach((i) => {
-			newAttendants.splice(i, 1);
-		});
-		attendants = newAttendants;
-
-		history = [];
-	}
-
 	async function editRule() {
-		const result = await ruleEditDialog.open(rules);
+		const result = await ruleEditDialog.open(Game.rules);
 
 		if (result) {
 			if (
-				history.length > 0 &&
+				Game.history.length > 0 &&
 				confirm(
 					'全員のスコアのリセットも行いますか？\n\n※ しない場合、トロフィーが消えることなどがあります\n※ まだゲームの途中であれば無視してください'
 				)
 			) {
-				clearHistory();
+				Game.clearHistory();
 			}
 
 			const activeRuleCount = result.filter(({ isRemoved }) => !isRemoved).length;
 			if (activeRuleCount === 1) {
-				rules = result.filter(({ isRemoved }) => !isRemoved);
-				attendants.forEach((att) => {
+				Game.rules = result.filter(({ isRemoved }) => !isRemoved);
+				Game.attendants.forEach((att) => {
 					att.group = 0;
 				});
 			} else {
 				const removedIndices = result.flatMap(({ isRemoved }, i) => (isRemoved ? [i] : []));
-				rules = result.filter(({ isRemoved }) => !isRemoved);
-				attendants.forEach((att) => {
+				Game.rules = result.filter(({ isRemoved }) => !isRemoved);
+				Game.attendants.forEach((att) => {
 					att.group = Math.max(0, att.group - removedIndices.filter((i) => i <= att.group).length);
 				});
 			}
@@ -435,40 +311,8 @@
 	async function editState(attendantID: number, att: AttendantState) {
 		const result = await stateEditDialog.open(att);
 		if (result) {
-			history.push(new EditHistoryEntry(attendantID, result));
+			Game.history.push(new EditHistoryEntry(attendantID, result));
 		}
-	}
-
-	function clickMaru(attendantID: number, playSounds_: boolean = true) {
-		history.push(new MaruHistoryEntry(attendantID));
-		if (playSounds && playSounds_) {
-			playSound(se1);
-		}
-	}
-
-	async function clickBatsu(attendantID: number, playSounds_: boolean = true) {
-		if (playSounds && playSounds_) {
-			playSound(se2);
-		}
-
-		const single = wasedashikiMode === 'single' || wasedashikiMode === 'handicap';
-
-		const rule = currentState.attendants[attendantID].rule;
-		if (rule.yasuMode === 'roulette') {
-			const selection = await penaltyRoulette.run(rule.roulette!.choices);
-			history.push(new BatsuHistoryEntry(attendantID, single, rule.roulette!.choices[selection]));
-		} else {
-			history.push(new BatsuHistoryEntry(attendantID, single));
-		}
-	}
-
-	function clickThrough() {
-		history.push(new ThroughHistoryEntry());
-		if (playSounds) playSound(se3);
-	}
-
-	function clickUndo() {
-		history.pop();
 	}
 
 	const urlParams = new URLSearchParams(typeof location !== 'undefined' ? location.search : '');
@@ -499,32 +343,33 @@
 				break;
 
 			case 'clickMaru':
-				clickMaru(event.data.attendantID);
+				Game.clickMaru(event.data.attendantID);
 				break;
 
 			case 'clickBatsu':
-				clickBatsu(event.data.attendantID);
+				Game.clickBatsu(event.data.attendantID);
 				break;
 
 			case 'clickThrough':
-				clickThrough();
+				Game.clickThrough();
 				break;
 
 			case 'clickUndo':
-				clickUndo();
+				Game.clickUndo();
 				break;
 
 			case 'clickReset':
-				clearHistory();
+				Game.clearHistory();
 				break;
 
 			case 'addAttendant':
-				addAttendant(event.data.name);
+				Game.addAttendant(event.data.name);
 				break;
 
 			case 'reorderAttendants':
-				attendants[orderedAttendants[event.data.attendantID]].manualOrder = event.data.newOrder;
-				orderedAttendants.forEach((a, i) => (attendants[a].manualOrder = i));
+				Game.attendants[Game.orderedAttendants[event.data.attendantID]].manualOrder =
+					event.data.newOrder;
+				Game.orderedAttendants.forEach((a, i) => (Game.attendants[a].manualOrder = i));
 				break;
 
 			case 'ping':
@@ -540,13 +385,13 @@
 					JSON.stringify({
 						command: 'syncState',
 						mode: 'single',
-						currentState,
-						history,
-						orderedAttendants,
-						orderingMode,
+						currentState: Game.currentState,
+						history: Game.history,
+						orderedAttendants: Game.orderedAttendants,
+						orderingMode: Game.orderingMode,
 						answerers,
 						buttonMapping,
-						wasedashikiMode
+						wasedashikiMode: Game.wasedashikiMode
 					})
 				)
 			);
@@ -556,11 +401,19 @@
 	$effect(() => {
 		// eslint-disable-next-line svelte/no-unused-svelte-ignore
 		// svelte-ignore state_snapshot_uncloneable
-		$state.snapshot([currentState, orderedAttendants, answerers, buttonMapping, wasedashikiMode]);
+		$state.snapshot([
+			Game.currentState,
+			Game.orderedAttendants,
+			answerers,
+			buttonMapping,
+			Game.wasedashikiMode
+		]);
 		syncState();
 	});
 
 	onMount(() => {
+		Game.penaltyRoulette = penaltyRoulette;
+
 		wallpaper = window.localStorage.getItem('wallpaper');
 		trophy = window.localStorage.getItem('trophy');
 		const main = document.querySelector('main') as HTMLElement;
@@ -574,12 +427,12 @@
 		const data = loadFromHash();
 		if (data) {
 			const groups = Math.max(...data.attendants.map(({ group }) => group));
-			rules = Array.from({ length: groups + 1 }, () => rules[0]);
-			attendants = data.attendants;
+			Game.rules = Array.from({ length: groups + 1 }, () => Game.rules[0]);
+			Game.attendants = data.attendants;
 			buttonMapping = data.buttonMapping ?? {};
 			buttonMappingRestored = Object.keys(buttonMapping).length > 0;
 		} else {
-			attendants = [
+			Game.attendants = [
 				{
 					name: '',
 					group: 0,
@@ -616,14 +469,14 @@
 			.catch((error) => {
 				console.error('接続エラー', error);
 			});
-		pushLog('single', gameTitle, activeRulesText, currentState, attendants);
+		pushLog('single', Game.gameTitle, Game.activeRulesText, Game.currentState, Game.attendants);
 		window.addEventListener('message', processWindowMessage);
 
 		return () => window.removeEventListener('message', processWindowMessage);
 	});
 
 	$effect(() => {
-		const data = { attendants, buttonMapping };
+		const data = { attendants: Game.attendants, buttonMapping };
 		$state.snapshot(data);
 		untrack(() => {
 			if (data.attendants.every(({ name }) => name === '')) {
@@ -651,7 +504,6 @@
 		return reverse;
 	});
 	let buttonMappingRestored = $state(false);
-	let wasedashikiMode = $state<WasedashikiMode>();
 	let connected = $state(false);
 	let answererRanking = $derived(
 		Object.entries(answerers)
@@ -675,7 +527,7 @@
 				}
 				console.error('接続エラー', error);
 				serialPort = undefined;
-				wasedashikiMode = undefined;
+				Game.wasedashikiMode = undefined;
 				connected = false;
 				return;
 			}
@@ -694,13 +546,13 @@
 					answerers,
 					pushers,
 					buttonMapping,
-					attendants: currentState.attendants,
-					clickMaru,
-					clickBatsu
+					attendants: Game.currentState.attendants,
+					clickMaru: Game.clickMaru,
+					clickBatsu: Game.clickBatsu
 				}),
 				(updates) => {
 					if ('connected' in updates) connected = updates.connected!;
-					if ('wasedashikiMode' in updates) wasedashikiMode = updates.wasedashikiMode!;
+					if ('wasedashikiMode' in updates) Game.wasedashikiMode = updates.wasedashikiMode!;
 					if ('answerers' in updates) answerers = updates.answerers!;
 					if ('pushers' in updates) pushers = updates.pushers!;
 					if ('lastButtonID' in updates) lastButtonID = updates.lastButtonID!;
@@ -717,14 +569,7 @@
 <svelte:window bind:innerWidth bind:innerHeight />
 
 <svelte:head>
-	<title>
-		kissQ -
-		{gameTitle ? gameTitle + ' - ' : ''}
-		{currentState.attendants
-			.flatMap(({ name, life }) => (life !== 'removed' ? [name.slice(0, 3) || '👤'] : []))
-			.join('・')}
-		- クイズカウンター（得点表示機）のkissQ
-	</title>
+	<title>{Game.windowTitle}</title>
 </svelte:head>
 
 <audio src={se1} preload="auto"></audio>
@@ -737,15 +582,15 @@
 >
 	<Header
 		bind:headerClientHeight
-		questionCount={currentState.questionCount}
+		questionCount={Game.currentState.questionCount}
 		hideQuestionCount={false}
-		bind:gameTitle
+		bind:gameTitle={Game.gameTitle}
 		battleMode="single"
-		onBattleModeChange={clearHistory}
-		{attendants}
+		onBattleModeChange={() => Game.clearHistory()}
+		attendants={Game.attendants}
 		{buttonMapping}
-		{wasedashikiMode}
-		{rules}
+		wasedashikiMode={Game.wasedashikiMode}
+		activeRulesText={Game.activeRulesText}
 		{editRule}
 	/>
 
@@ -754,21 +599,21 @@
 	<div
 		class="attendants"
 		style:grid-template-columns={`repeat(${columnCount}, 1fr)`}
-		style:grid-template-rows={`repeat(${Math.ceil(orderedAttendants.length / columnCount)}, ${activeRules.length > 1 ? 'auto' : ''} 1fr auto auto)`}
+		style:grid-template-rows={`repeat(${Math.ceil(Game.orderedAttendants.length / columnCount)}, ${Game.activeRules.length > 1 ? 'auto' : ''} 1fr auto auto)`}
 		style:height={`calc(100dvh - ${headerClientHeight}px - ${footerClientHeight}px - 25px${showQuestionWindow ? ' - 6.25em - 0.7rem' : ''})`}
 		bind:this={container}
 	>
-		{#each orderedAttendants as i, ord (i)}
-			{@const att = currentState.attendants[i]}
+		{#each Game.orderedAttendants as i, ord (i)}
+			{@const att = Game.currentState.attendants[i]}
 			{@const barHeight: number = barHeightRatioArray[i]?.current ?? 0}
 			<div
 				style:font-size={(fontSize ?? 0) + 'px'}
-				style:grid-row={activeRules.length > 1 ? 'span 4' : 'span 3'}
+				style:grid-row={Game.activeRules.length > 1 ? 'span 4' : 'span 3'}
 				class={['attendant', { lizhi: att.isLizhi, 'drop-target': dropTarget === ord }]}
 				animate:flip={{ duration: 500, delay: attendantFLIPDelay }}
 				role="listitem"
 				ondragstart={() => {
-					if (orderingMode === 'manual') {
+					if (Game.orderingMode === 'manual') {
 						isDragging = ord;
 					}
 				}}
@@ -778,7 +623,7 @@
 				}}
 				ondragend={onDragEnd}
 				style:opacity={isDragging === ord ? 0.25 : 1}
-				draggable={orderingMode === 'manual'}
+				draggable={Game.orderingMode === 'manual'}
 			>
 				{#if buttonMapping[i] != null}
 					{@const j = buttonMapping[i] - 1}
@@ -822,48 +667,49 @@
 				>
 					{buttonMapping[i] ?? '?'}
 				</button>
-				{#if activeRules.length > 1}
+				{#if Game.activeRules.length > 1}
 					<button
 						class="group"
-						style:background-color={`hsl(${(360 / rules.length) * attendants[i].group}, 70%, 40%)`}
+						style:background-color={`hsl(${(360 / Game.rules.length) * Game.attendants[i].group}, 70%, 40%)`}
 						onclick={() => {
 							do {
-								attendants[i].group = (attendants[i].group + 1) % rules.length;
-							} while (rules[attendants[i].group].isRemoved);
+								Game.attendants[i].group = (Game.attendants[i].group + 1) % Game.rules.length;
+							} while (Game.rules[Game.attendants[i].group].isRemoved);
 						}}
 						{@attach tooltip('このプレイヤーの所属グループを変更します。')}
 					>
-						{#key attendants[i].group}
+						{#key Game.attendants[i].group}
 							<span class="crossfade" in:fade={{ delay: 500 }} out:fade>
-								{String.fromCodePoint(65 + attendants[i].group)}
+								{String.fromCodePoint(65 + Game.attendants[i].group)}
 							</span>
 						{/key}
 					</button>
 				{/if}
 				<div
-					bind:textContent={attendants[i].name}
+					bind:textContent={Game.attendants[i].name}
 					onblur={() => {
-						const tmp = han2zen(attendants[i].name.replace(/[\r\n]/g, ''));
-						if (tmp !== attendants[i].name) {
-							attendants[i].name = ' ';
-							setTimeout(() => (attendants[i].name = tmp), 1);
+						const tmp = han2zen(Game.attendants[i].name.replace(/[\r\n]/g, ''));
+						if (tmp !== Game.attendants[i].name) {
+							Game.attendants[i].name = ' ';
+							setTimeout(() => (Game.attendants[i].name = tmp), 1);
 						}
 					}}
-					onpaste={(e) => handlePasteEvent(e, ord)}
+					onpaste={(e) => Game.handlePasteEvent(e, ord)}
 					contenteditable
 					placeholder="プレイヤー {i + 1 < 10 ? String.fromCodePoint(65297 + i) : i + 1}"
 					spellcheck="false"
 					class={[
 						'name',
 						{
-							blurred: screenshotModeTimer != null && i !== orderedAttendants[screenshotOffset],
+							blurred:
+								screenshotModeTimer != null && i !== Game.orderedAttendants[screenshotOffset],
 							'show-bar': showScore,
 							'answerer-1st': answerers[(buttonMapping[i] ?? 0) - 1]?.rank === 1,
 							'answerer-2nd':
-								(wasedashikiMode === 'endless' || wasedashikiMode === 'double') &&
+								(Game.wasedashikiMode === 'endless' || Game.wasedashikiMode === 'double') &&
 								answerers[(buttonMapping[i] ?? 0) - 1]?.rank === 2,
 							'answerer-late':
-								wasedashikiMode === 'endless' &&
+								Game.wasedashikiMode === 'endless' &&
 								answerers[(buttonMapping[i] ?? 0) - 1]?.rank === 'late'
 						}
 					]}
@@ -877,7 +723,7 @@
 				></div>
 
 				<div class="score" style:opacity={showScore ? 1 : 0}>
-					{#if history.length === 0 && att.rule.mode !== 'survival' && att.rule.mode !== 'score' && enableRating}
+					{#if history.length === 0 && att.rule.mode !== 'survival' && att.rule.mode !== 'score' && Game.enableRating}
 						<span {@attach tooltip('レート')} class="rate">
 							{#if att.totalScore.den === 0}
 								---
@@ -928,19 +774,19 @@
 						</span>
 					{/if}
 
-					{#if consecutive?.attendantID === i}
-						{#key consecutive.count}
+					{#if Game.consecutive?.attendantID === i}
+						{#key Game.consecutive.count}
 							<span
 								class="consecutive-count"
-								style:background-color={consecutive.count < 3
+								style:background-color={Game.consecutive.count < 3
 									? 'rgb(221 94 6)'
-									: consecutive.count < 6
+									: Game.consecutive.count < 6
 										? 'rgb(160, 40, 0)'
 										: 'rgb(0, 0, 0)'}
 								in:fly={{ y: 100 }}
 								{@attach tooltip('連答カウント')}
 							>
-								{consecutive.count}
+								{Game.consecutive.count}
 							</span>
 						{/key}
 					{/if}
@@ -955,21 +801,21 @@
 						編集
 					</button>
 					<button
-						onclick={() => history.push(new WinHistoryEntry(i))}
+						onclick={() => Game.history.push(new WinHistoryEntry(i))}
 						disabled={att.life !== 'alive'}
 						{@attach tooltip('このプレイヤーを強制的に勝ち抜けにします。')}
 					>
 						勝利
 					</button>
 					<button
-						onclick={() => history.push(new LoseHistoryEntry(i))}
+						onclick={() => Game.history.push(new LoseHistoryEntry(i))}
 						disabled={att.life !== 'alive'}
 						{@attach tooltip('このプレイヤーを強制的に失格にします。')}
 					>
 						失格
 					</button>
 					<button
-						onclick={() => history.push(new RemoveHistoryEntry(i))}
+						onclick={() => Game.history.push(new RemoveHistoryEntry(i))}
 						{@attach tooltip('このプレイヤーをリストから削除します。')}
 					>
 						削除
@@ -984,7 +830,7 @@
 
 				{#if att.life === 'won'}
 					<div class="won" in:fade>
-						{currentState.ranking.indexOf(i) + 1}位
+						{Game.currentState.ranking.indexOf(i) + 1}位
 					</div>
 				{:else if att.life === 'lost'}
 					<div class="lost" in:fade>失格</div>
@@ -1004,7 +850,7 @@
 						role="group"
 					>
 						<button
-							onclick={() => clickMaru(i)}
+							onclick={() => Game.clickMaru(i)}
 							class="maru-btn"
 							{@attach tooltip(
 								`${att.name || 'このプレイヤー'}に1○をつけて、問題カウントを1進めます（休みの人がいれば1休減ります）`,
@@ -1016,8 +862,8 @@
 						{#if effect2Name}
 							<button
 								onclick={() => {
-									history.push(new MaruHistoryEntry(i, 2));
-									if (playSounds) {
+									Game.history.push(new MaruHistoryEntry(i, 2));
+									if (Game.playSounds) {
 										playSound(se1);
 										setTimeout(() => playSound(se1), 150);
 									}
@@ -1032,8 +878,8 @@
 						{#if effect3Name}
 							<button
 								onclick={() => {
-									history.push(new MaruHistoryEntry(i, 3));
-									if (playSounds) {
+									Game.history.push(new MaruHistoryEntry(i, 3));
+									if (Game.playSounds) {
 										playSound(se1);
 										setTimeout(() => playSound(se1), 150);
 										setTimeout(() => playSound(se1), 300);
@@ -1047,7 +893,7 @@
 							</button>
 						{/if}
 						<button
-							onclick={() => clickBatsu(i)}
+							onclick={() => Game.clickBatsu(i)}
 							class="batsu-btn"
 							{@attach tooltip(
 								`${att.name || 'このプレイヤー'}に1×をつけます（誰も正解しなければ最後にスルーボタンを押すのを忘れずに！）`,
@@ -1060,25 +906,30 @@
 				{/if}
 			</div>
 		{/each}
-		{#if orderingMode === 'manual'}
+		{#if Game.orderingMode === 'manual'}
 			<div
 				class="dummy-drop-target"
-				class:drop-target={dropTarget === orderedAttendants.length}
+				class:drop-target={dropTarget === Game.orderedAttendants.length}
 				role="listitem"
 				ondragover={(event) => {
 					event.preventDefault();
-					dropTarget = orderedAttendants.length;
+					dropTarget = Game.orderedAttendants.length;
 				}}
 				ondragend={onDragEnd}
 			></div>
 		{/if}
 	</div>
 
-	<Footer bind:footerClientHeight {attendants} {rules} {history}>
+	<Footer
+		bind:footerClientHeight
+		attendants={Game.attendants}
+		rules={Game.rules}
+		history={Game.history}
+	>
 		<button
-			onclick={clickThrough}
+			onclick={() => Game.clickThrough()}
 			class={{
-				blink: currentState.attendants.some(
+				blink: Game.currentState.attendants.some(
 					({ yasuCount, rule: { yasuMode, yasuPerBatsu } }) =>
 						yasuCount === 'next' && (yasuMode !== 'constant' || yasuPerBatsu > 0)
 				)
@@ -1090,17 +941,18 @@
 			スルー
 		</button>
 		<button
-			onclick={clickUndo}
-			disabled={history.length === 0}
+			onclick={() => Game.clickUndo()}
+			disabled={Game.history.length === 0}
 			{@attach tooltip('直前の操作を無かったことにします。')}
 			style="max-width: 20dvw"
 		>
-			{#key history.length}
+			{#key Game.history.length}
 				↩
-				<span in:fade>{history.at(-1)?.toString(currentState) || 'この世の始まり'}</span>を元に戻す
+				<span in:fade>{Game.history.at(-1)?.toString(Game.currentState) || 'この世の始まり'}</span
+				>を元に戻す
 			{/key}
 		</button>
-		<button onclick={() => addAttendant()} style="max-width: 20dvw">＋ プレイヤー追加</button>
+		<button onclick={() => Game.addAttendant()} style="max-width: 20dvw">＋ プレイヤー追加</button>
 		<button
 			onclick={() => {
 				if (
@@ -1108,10 +960,10 @@
 						'全員ゼロ〇ゼロ×にリセットしますか？\nこの操作は元に戻せません。\n（プレイヤーリスト、累積勝利数🏆は残ります）'
 					)
 				) {
-					clearHistory();
+					Game.clearHistory();
 				}
 			}}
-			disabled={history.length === 0}
+			disabled={Game.history.length === 0}
 			{@attach tooltip('全員のスコアだけをリセットします。')}
 		>
 			全員リセット
@@ -1135,14 +987,14 @@
 						'プレイヤーリストを空にした上で、初期状態にリセットしますか？\nこの操作は元に戻せません。'
 					)
 				) {
-					attendants = [];
-					history = [];
+					Game.attendants = [];
+					Game.history = [];
 					buttonMapping = {};
 					answerers = [];
 					lastButtonID = undefined;
 				}
 			}}
-			disabled={attendants.length === 0}
+			disabled={Game.attendants.length === 0}
 		>
 			全削除
 		</button>
@@ -1155,7 +1007,7 @@
 		<button onclick={logDialog.open}>履歴確認</button>
 		<button
 			onclick={() => (showMarubatsuOverride = !showMarubatsuOverride)}
-			disabled={currentState.defaultRule.mode === 'marubatsu'}
+			disabled={Game.currentState.defaultRule.mode === 'marubatsu'}
 			{@attach tooltip('スコア表示を強制的に○×表示に切り替えます')}
 		>
 			マルバツ表示{#if showMarubatsuOverride}をOFFに{/if}
@@ -1167,17 +1019,17 @@
 			スコアを{#if showScore}隠す{:else}表示する{/if}
 		</button>
 		<button
-			onclick={() => (orderingMode = orderingMode === 'ranking' ? 'manual' : 'ranking')}
+			onclick={() => (Game.orderingMode = Game.orderingMode === 'ranking' ? 'manual' : 'ranking')}
 			{@attach tooltip('プレイヤーの並び順を切り替えます')}
 		>
-			並び順：{#if orderingMode === 'ranking'}ランキング{:else}手動{/if}
+			並び順：{#if Game.orderingMode === 'ranking'}ランキング{:else}手動{/if}
 		</button>
 		<button
 			onclick={() => {
-				orderingMode = 'manual';
-				orderedAttendants
-					.toSorted((a, b) => attendants[a].group - attendants[b].group)
-					.forEach((a, i) => (attendants[a].manualOrder = i));
+				Game.orderingMode = 'manual';
+				Game.orderedAttendants
+					.toSorted((a, b) => Game.attendants[a].group - Game.attendants[b].group)
+					.forEach((a, i) => (Game.attendants[a].manualOrder = i));
 			}}
 		>
 			グループ順に整列
@@ -1186,19 +1038,19 @@
 			エフェクトボタン設定
 		</button>
 		<button
-			onclick={() => (playSounds = !playSounds)}
+			onclick={() => (Game.playSounds = !Game.playSounds)}
 			{@attach tooltip('効果音のオンオフを切り替えます')}
 		>
-			{#if playSounds}🔊 ON{:else}🔇 OFF{/if}
+			{#if Game.playSounds}🔊 ON{:else}🔇 OFF{/if}
 		</button>
 		<button onclick={editAppearance} {@attach tooltip('外観の設定を編集します')}>
 			デザイン設定
 		</button>
 		<button
-			onclick={() => (enableRating = !enableRating)}
+			onclick={() => (Game.enableRating = !Game.enableRating)}
 			{@attach tooltip('レーティング自動計算のオンオフを切り替えます')}
 		>
-			{#if enableRating}レートON{:else}レートOFF{/if}
+			{#if Game.enableRating}レートON{:else}レートOFF{/if}
 		</button>
 		<button onclick={openSubWindow}>操作盤表示</button>
 		<button disabled={serialPort != null} onclick={() => initiateSerialConnection()}>
@@ -1213,7 +1065,7 @@
 	</div>
 	<div class={['banner', isBannerVisible.type]} transition:slide={{ axis: 'x' }}>
 		{#if 'attendantID' in isBannerVisible}
-			{attendants[isBannerVisible.attendantID].name ||
+			{Game.attendants[isBannerVisible.attendantID].name ||
 				'プレイヤー ' + (isBannerVisible.attendantID + 1)}
 		{/if}
 		{#if isBannerVisible.type === 'won'}
@@ -1234,8 +1086,8 @@
 
 <Pushers
 	{answererRanking}
-	{attendants}
-	{wasedashikiMode}
+	attendants={Game.attendants}
+	wasedashikiMode={Game.wasedashikiMode}
 	{headerClientHeight}
 	{footerClientHeight}
 />

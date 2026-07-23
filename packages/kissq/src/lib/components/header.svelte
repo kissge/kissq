@@ -16,7 +16,7 @@
 		attendants,
 		buttonMapping,
 		wasedashikiMode,
-		rules,
+		activeRulesText,
 		editRule
 	}: {
 		headerClientHeight: number;
@@ -28,14 +28,12 @@
 		attendants: Attendant[];
 		buttonMapping: Record<number, number>;
 		wasedashikiMode: WasedashikiMode | undefined;
-		rules: Rule[];
+		activeRulesText: string;
 		editRule: () => void;
 	} = $props();
 
 	// svelte-ignore non_reactive_update ...?
 	let helpDialog: { open: () => void };
-
-	let { activeRulesText } = $derived(getActiveRulesText(rules, battleMode));
 
 	const search = typeof location !== 'undefined' ? location.search : '';
 	let hash = $derived(
