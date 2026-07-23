@@ -129,6 +129,19 @@
 		}
 	}
 
+	function onDragEnd() {
+		if (orderedAttendants) {
+			opener.postMessage({
+				command: 'reorderAttendants',
+				attendantID: order === 'same' ? isDragging : orderedAttendants.length - isDragging! - 1,
+				newOrder:
+					order === 'same' ? dropTarget! - 0.5 : orderedAttendants.length - dropTarget! - 0.5
+			});
+			isDragging = null;
+			dropTarget = null;
+		}
+	}
+
 	$effect(() => {
 		opener.postMessage({
 			command: 'updateQuestion',
@@ -270,26 +283,15 @@
 					bind:this={attendantElements[i]}
 					role="listitem"
 					ondragstart={() => {
-						if (!isDragAvailable) {
-							return;
+						if (isDragAvailable) {
+							isDragging = j;
 						}
-						isDragging = j;
 					}}
 					ondragover={(event) => {
 						event.preventDefault();
 						dropTarget = j;
 					}}
-					ondragend={() => {
-						opener.postMessage({
-							command: 'reorderAttendants',
-							attendantID:
-								order === 'same' ? isDragging : orderedAttendants.length - isDragging! - 1,
-							newOrder:
-								order === 'same' ? dropTarget! - 0.5 : orderedAttendants.length - dropTarget! - 0.5
-						});
-						isDragging = null;
-						dropTarget = null;
-					}}
+					ondragend={onDragEnd}
 					style:opacity={isDragging === j ? 0.25 : 1}
 					draggable={isDragAvailable}
 				>
@@ -346,17 +348,7 @@
 						event.preventDefault();
 						dropTarget = orderedAttendants.length;
 					}}
-					ondragend={() => {
-						opener.postMessage({
-							command: 'reorderAttendants',
-							attendantID:
-								order === 'same' ? isDragging : orderedAttendants.length - isDragging! - 1,
-							newOrder:
-								order === 'same' ? dropTarget! - 0.5 : orderedAttendants.length - dropTarget! - 0.5
-						});
-						isDragging = null;
-						dropTarget = null;
-					}}
+					ondragend={onDragEnd}
 				></div>
 			{/if}
 		</div>
@@ -447,6 +439,10 @@
 
 	.attendant {
 		position: relative;
+
+		&:nth-last-child(2) {
+			anchor-name: --last-attendant;
+		}
 	}
 
 	.answerer-1st {
@@ -465,9 +461,12 @@
 	}
 
 	.dummy-drop-target {
-		position: relative;
-		flex: 1 1 2em;
-		height: 3em;
+		position: absolute;
+		position-anchor: --last-attendant;
+		top: anchor(top);
+		bottom: anchor(bottom);
+		left: anchor(right);
+		width: 100dvw;
 	}
 
 	.drop-target::before {
