@@ -291,7 +291,7 @@
 						dropTarget = null;
 					}}
 					style:opacity={isDragging === j ? 0.25 : 1}
-					draggable="true"
+					draggable={isDragAvailable}
 				>
 					{#if isDragAvailable}
 						<span class="drag-handle">⠿</span>
@@ -337,6 +337,28 @@
 					{/if}
 				</div>
 			{/each}
+			{#if isDragAvailable}
+				<div
+					class="dummy-drop-target"
+					class:drop-target={dropTarget === orderedAttendants.length}
+					role="listitem"
+					ondragover={(event) => {
+						event.preventDefault();
+						dropTarget = orderedAttendants.length;
+					}}
+					ondragend={() => {
+						opener.postMessage({
+							command: 'reorderAttendants',
+							attendantID:
+								order === 'same' ? isDragging : orderedAttendants.length - isDragging! - 1,
+							newOrder:
+								order === 'same' ? dropTarget! - 0.5 : orderedAttendants.length - dropTarget! - 0.5
+						});
+						isDragging = null;
+						dropTarget = null;
+					}}
+				></div>
+			{/if}
 		</div>
 	{/if}
 
@@ -440,6 +462,12 @@
 
 	.answerer-late {
 		background-color: rgb(255 255 192);
+	}
+
+	.dummy-drop-target {
+		position: relative;
+		flex: 1 1 2em;
+		height: 3em;
 	}
 
 	.drop-target::before {
