@@ -1,7 +1,9 @@
+import { createContext } from 'svelte';
 import se1 from '$lib/assets/se1.mp3';
 import se2 from '$lib/assets/se2.mp3';
 import se3 from '$lib/assets/se3.mp3';
 import { han2zen, type Attendant } from '$lib/attendant';
+import { GameClassBase } from '$lib/game';
 import {
 	BatsuHistoryEntry,
 	MaruHistoryEntry,
@@ -13,9 +15,9 @@ import { getActiveRulesText, Rule, type Penalty } from '$lib/rule';
 import type { WasedashikiMode } from '$lib/serial';
 import { playSound } from '$lib/sound';
 import { GameState } from '$lib/state';
-import type { WasedashikiClass } from './teams/wasedashiki.svelte';
+import type { WasedashikiClass } from '$lib/wasedashiki.svelte';
 
-export class GameClass {
+export class GameClass extends GameClassBase {
 	attendants = $state<Attendant[]>([]);
 	rules = $state([new Rule('marubatsu', 7, 3, 1, 1, false, null, 'constant', 0, null)]);
 	history = $state<HistoryEntry[]>([]);
@@ -187,3 +189,5 @@ export class GameClass {
 		this.history.pop();
 	}
 }
+
+export const [getGameContext, setGameContext] = createContext<GameClass>();

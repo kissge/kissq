@@ -1,11 +1,9 @@
 import { createContext } from 'svelte';
 import Toastify from 'toastify-js';
 import { connectToSerialPort, readFromSerialPort } from '$lib/serial';
-import { getGameContext } from './game.svelte';
+import type { GameClassBase } from './game';
 
 export class WasedashikiClass {
-	Game = getGameContext();
-
 	serialPort = $state<SerialPort | undefined>();
 	answerers = $state<({ rank: 1 | 2 | 'late'; delay: number } | null)[]>([]);
 	lastButtonID = $state<number | undefined>();
@@ -14,6 +12,8 @@ export class WasedashikiClass {
 	buttonMappingRestored = $state(false);
 	connected = $state(false);
 	pushers = $state<number[]>([]);
+
+	constructor(public Game: GameClassBase) {}
 
 	/** button ID -> attendant ID */
 	buttonReverseMapping = $derived.by(() => {
@@ -36,7 +36,10 @@ export class WasedashikiClass {
 			try {
 				this.serialPort = await connectToSerialPort();
 			} catch (error) {
-				Toastify({ text: '接続に失敗しました', style: { background: '#B00000' } }).showToast();
+				Toastify({
+					text: '接続に失敗しました。2つ以上のタブで同時に接続しようとしていませんか？',
+					style: { background: '#B00000' }
+				}).showToast();
 				console.error('接続エラー', error);
 				this.serialPort = undefined;
 				this.Game.wasedashikiMode = undefined;
