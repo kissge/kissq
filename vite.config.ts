@@ -6,6 +6,7 @@ export default defineConfig({
 	plugins: [
 		sveltekit(),
 		SvelteKitPWA({
+			base: process.argv.includes('dev') ? '' : '/kissq/',
 			registerType: 'autoUpdate',
 			manifest: {
 				name: 'kissQ',
