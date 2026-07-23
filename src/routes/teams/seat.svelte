@@ -23,13 +23,11 @@
 			| undefined
 		)[];
 		ti: number;
-		atts:
-			| {
-					att: Attendant;
-					i: number;
-					j: number;
-			  }[]
-			| undefined;
+		atts: {
+			att: Attendant;
+			i: number;
+			j: number;
+		}[];
 		si: number;
 	} = $props();
 
@@ -46,17 +44,17 @@
 		)
 	);
 	let batsuCount = $derived(
-		atts?.reduce((sum, { i }) => sum + (Game.currentState.attendants[i]?.batsuCount ?? 0), 0) ?? 0
+		atts.reduce((sum, { i }) => sum + (Game.currentState.attendants[i]?.batsuCount ?? 0), 0)
 	);
 	let seatTotal = $derived(
-		atts?.reduce(
+		atts.reduce(
 			(sum, { i }) => sum + (Game.currentState.attendants[i]?.score ?? 0),
 			Game.currentState.defaultRule.mode === 'aql' ? 1 : 0
-		) ?? 0
+		)
 	);
 </script>
 
-{#if !atts?.every(({ i }) => Game.currentState.attendants[i].life === 'removed')}
+{#if !atts.every(({ i }) => Game.currentState.attendants[i].life === 'removed')}
 	<div
 		class="grid-wrapper"
 		class:group-by-seat={Game.currentState.defaultRule.mode === 'aql' ||
@@ -64,8 +62,8 @@
 	>
 		<div
 			class="seat-total"
-			style:grid-row={`${rowStart} / span ${atts?.length}`}
-			style:display={(atts?.length ?? 0) > 0 &&
+			style:grid-row={`${rowStart} / span ${atts.length}`}
+			style:display={atts.length > 0 &&
 			(Game.currentState.defaultRule.mode === 'aql' ||
 				Game.currentState.defaultRule.mode === 'product')
 				? ''
@@ -85,7 +83,7 @@
 				{'✕'.repeat(batsuCount)}
 			</div>
 		</div>
-		{#each atts?.filter(({ i }) => Game.currentState.attendants[i]?.life !== 'removed') as { att, i }, ai (ai)}
+		{#each atts.filter(({ i }) => Game.currentState.attendants[i]?.life !== 'removed') as { att, i }, ai (ai)}
 			{@const sAtt: AttendantState | undefined = Game.currentState.attendants[i]}
 			{#if sAtt}
 				<div

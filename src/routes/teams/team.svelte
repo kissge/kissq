@@ -53,7 +53,9 @@
 		Game.currentState.defaultRule.mode === 'product'}
 >
 	{#each seats as atts, si (atts?.map(({ j }) => j).join(',') ?? si)}
-		<Seat {seats} {ti} {atts} {si} />
+		{#if atts}
+			<Seat {seats} {ti} {atts} {si} />
+		{/if}
 	{/each}
 	<div class="bottom-buttons">
 		<button
