@@ -295,6 +295,17 @@
 
 	let enableRating = $state(false);
 
+	let isDragging = $state<number | null>(null);
+	let dropTarget = $state<number | null>(null);
+
+	function onDragEnd() {
+		attendants[orderedAttendants[isDragging!]].manualOrder = dropTarget! - 0.5;
+		orderedAttendants.forEach((a, i) => (attendants[a].manualOrder = i));
+
+		isDragging = null;
+		dropTarget = null;
+	}
+
 	function toggleScreenshotMode() {
 		if (screenshotModeTimer != null) {
 			clearInterval(screenshotModeTimer);
@@ -753,8 +764,21 @@
 			<div
 				style:font-size={(fontSize ?? 0) + 'px'}
 				style:grid-row={activeRules.length > 1 ? 'span 4' : 'span 3'}
-				class={['attendant', { lizhi: att.isLizhi }]}
+				class={['attendant', { lizhi: att.isLizhi, 'drop-target': dropTarget === ord }]}
 				animate:flip={{ duration: 500, delay: attendantFLIPDelay }}
+				role="listitem"
+				ondragstart={() => {
+					if (orderingMode === 'manual') {
+						isDragging = ord;
+					}
+				}}
+				ondragover={(event) => {
+					event.preventDefault();
+					dropTarget = ord;
+				}}
+				ondragend={onDragEnd}
+				style:opacity={isDragging === ord ? 0.25 : 1}
+				draggable={orderingMode === 'manual'}
 			>
 				{#if buttonMapping[i] != null}
 					{@const j = buttonMapping[i] - 1}
@@ -1072,6 +1096,18 @@
 				{/if}
 			</div>
 		{/each}
+		{#if orderingMode === 'manual'}
+			<div
+				class="dummy-drop-target"
+				class:drop-target={dropTarget === orderedAttendants.length}
+				role="listitem"
+				ondragover={(event) => {
+					event.preventDefault();
+					dropTarget = orderedAttendants.length;
+				}}
+				ondragend={onDragEnd}
+			></div>
+		{/if}
 	</div>
 
 	<Footer bind:footerClientHeight {attendants} {rules} {history}>
@@ -1273,6 +1309,10 @@
 				text-shadow:
 					0px 10px 50px #444,
 					0px 10px 50px #444;
+
+				&:nth-last-child(2) {
+					anchor-name: --last-attendant;
+				}
 
 				button {
 					backdrop-filter: blur(10px);
@@ -1582,6 +1622,38 @@
 						color: white;
 					}
 				}
+
+				&[draggable='true']::after {
+					display: block;
+					position: absolute;
+					bottom: 0;
+					cursor: grab;
+					width: 100%;
+					content: '::::';
+					color: #888;
+					font-size: 0.5em;
+					text-align: center;
+				}
+			}
+
+			.dummy-drop-target {
+				position: absolute;
+				position-anchor: --last-attendant;
+				top: anchor(top);
+				bottom: anchor(bottom);
+				left: anchor(right);
+				width: 100dvw;
+			}
+
+			.drop-target::before {
+				display: inline-block;
+				position: absolute;
+				top: 0;
+				left: -18px;
+				border-right: 10px dashed red;
+				height: 100%;
+				pointer-events: none;
+				content: '';
 			}
 
 			&:empty::before {
