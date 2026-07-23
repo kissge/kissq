@@ -54,6 +54,15 @@ export class GameClass {
 	activeRules = $derived(this.rules.flatMap((rule, i) => (rule.isRemoved ? [] : { rule, i })));
 	activeRulesText = $derived(getActiveRulesText(this.rules, 'team').activeRulesText);
 
+	windowTitle = $derived(
+		`kissQ -
+		${this.gameTitle ? this.gameTitle + ' - ' : ''}
+		${this.currentState.attendants
+			.flatMap(({ name, life }) => (life !== 'removed' ? [name.slice(0, 3) || '👤'] : []))
+			.join('・')}
+		- クイズカウンター（得点表示機）のkissQ`
+	);
+
 	addAttendant(teamID: number, name: string = '') {
 		this.attendants.push({
 			name: han2zen(name),

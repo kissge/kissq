@@ -180,14 +180,7 @@
 </script>
 
 <svelte:head>
-	<title>
-		kissQ -
-		{Game.gameTitle ? Game.gameTitle + ' - ' : ''}
-		{Game.currentState.attendants
-			.flatMap(({ name, life }) => (life !== 'removed' ? [name.slice(0, 3) || '👤'] : []))
-			.join('・')}
-		- クイズカウンター（得点表示機）のkissQ
-	</title>
+	<title>{Game.windowTitle}</title>
 </svelte:head>
 
 <main class="main">
