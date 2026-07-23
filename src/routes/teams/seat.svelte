@@ -96,6 +96,8 @@
 					class:lost={sAtt.life === 'lost' ||
 						(Game.currentState.defaultRule.mode === 'aql' && batsuCount >= 2)}
 					class:first-member={si === 0 && ai === 0}
+					class:with-seat={Game.currentState.defaultRule.mode === 'aql' ||
+						Game.currentState.defaultRule.mode === 'product'}
 					{@attach Game.currentState.teams[ti].teamLife === 'alive' &&
 						(Game.currentState.defaultRule.mode === 'aql' ? batsuCount < 2 : true) &&
 						sAtt?.life === 'alive' &&
@@ -367,6 +369,10 @@
 			& .seat {
 				border-top-left-radius: 0.5em;
 			}
+		}
+
+		&.with-seat {
+			grid-column: 1 / -2;
 		}
 
 		&:hover {
