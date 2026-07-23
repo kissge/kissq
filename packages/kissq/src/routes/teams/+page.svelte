@@ -18,14 +18,14 @@
 	import { reconnect } from '$lib/serial';
 	import type { GameEvent } from '$lib/state';
 	import { tooltip } from '$lib/tooltip.svelte';
+	import { setWasedashikiContext, WasedashikiClass } from '$lib/wasedashiki.svelte';
 	import { GameClass, setGameContext } from './game.svelte';
 	import { QuestionConsoleClass } from './questionConsole.svelte';
 	import Team from './team.svelte';
-	import { setWasedashikiContext, WasedashikiClass } from './wasedashiki.svelte';
 
 	let Game = new GameClass();
 	setGameContext(Game);
-	let Wasedashiki = new WasedashikiClass();
+	let Wasedashiki = new WasedashikiClass(Game);
 	setWasedashikiContext(Wasedashiki);
 	let QuestionConsole = new QuestionConsoleClass();
 
@@ -72,7 +72,7 @@
 			}
 		}
 	);
-	let showBannerTimeout = 0;
+	let showBannerTimeout: number | NodeJS.Timeout = 0;
 	function showBanner(event: GameEvent | null, duration: number = 3000) {
 		isBannerVisible = event;
 		clearTimeout(showBannerTimeout);
@@ -194,7 +194,7 @@
 		attendants={Game.attendants}
 		buttonMapping={Wasedashiki.buttonMapping}
 		wasedashikiMode={Game.wasedashikiMode}
-		rules={Game.rules}
+		activeRulesText={Game.activeRulesText}
 		{editRule}
 	/>
 

@@ -1,7 +1,7 @@
 import { qZero } from '$lib/question';
 import type { AttendantState } from '$lib/state';
+import { getWasedashikiContext } from '$lib/wasedashiki.svelte';
 import { getGameContext } from './game.svelte';
-import { getWasedashikiContext } from './wasedashiki.svelte';
 
 const urlParams = new URLSearchParams(typeof location !== 'undefined' ? location.search : '');
 

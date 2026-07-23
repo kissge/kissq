@@ -4,8 +4,8 @@
 	import type { Attendant } from '$lib/attendant';
 	import { RemoveHistoryEntry } from '$lib/historyEntry';
 	import { tooltip, tooltipInteractive } from '$lib/tooltip.svelte';
+	import { getWasedashikiContext } from '$lib/wasedashiki.svelte';
 	import { getGameContext } from './game.svelte';
-	import { getWasedashikiContext } from './wasedashiki.svelte';
 
 	let {
 		att,

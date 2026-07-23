@@ -3,6 +3,7 @@ import se1 from '$lib/assets/se1.mp3';
 import se2 from '$lib/assets/se2.mp3';
 import se3 from '$lib/assets/se3.mp3';
 import { han2zen, type Attendant } from '$lib/attendant';
+import { GameClassBase } from '$lib/game';
 import {
 	BatsuHistoryEntry,
 	MaruHistoryEntry,
@@ -14,9 +15,9 @@ import { getActiveRulesText, Rule } from '$lib/rule';
 import type { WasedashikiMode } from '$lib/serial';
 import { playSound } from '$lib/sound';
 import { GameState } from '$lib/state';
-import type { WasedashikiClass } from './wasedashiki.svelte';
+import type { WasedashikiClass } from '$lib/wasedashiki.svelte';
 
-export class GameClass {
+export class GameClass extends GameClassBase {
 	attendants = $state<Attendant[]>([]);
 	teams = $state<string[]>([]);
 	rules = $state([new Rule('aql', 200, null, 1, 'updown', false, null, 'constant', 0, null)]);
