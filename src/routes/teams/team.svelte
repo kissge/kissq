@@ -9,14 +9,7 @@
 		seats,
 		ti
 	}: {
-		seats: (
-			| {
-					att: Attendant;
-					i: number;
-					j: number;
-			  }[]
-			| undefined
-		)[];
+		seats: ({ att: Attendant; ai: number }[] | undefined)[];
 		ti: number;
 	} = $props();
 
@@ -52,7 +45,7 @@
 	class:with-seat={Game.currentState.defaultRule.mode === 'aql' ||
 		Game.currentState.defaultRule.mode === 'product'}
 >
-	{#each seats as atts, si (atts?.map(({ j }) => j).join(',') ?? si)}
+	{#each seats as atts, si (atts?.map(({ ai }) => ai).join(',') ?? si)}
 		{#if atts}
 			<Seat {seats} {ti} {atts} {si} />
 		{/if}
