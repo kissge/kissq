@@ -74,6 +74,7 @@ export async function* readFromSerialPort(port: SerialPort) {
 	}
 }
 
+// DELETE ME
 export async function readLoopSerialPort(
 	serialPort: SerialPort | undefined,
 	getter: () => {
