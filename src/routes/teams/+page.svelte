@@ -465,8 +465,7 @@
 		text-align: center;
 
 		button,
-		select,
-		option {
+		select {
 			min-width: 4em;
 			height: 2em;
 			font-size: 1em;
