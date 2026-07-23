@@ -151,10 +151,6 @@
 		&.with-seat {
 			grid-template-columns: 2em 1fr 2em 2.5em;
 			padding-right: 0;
-
-			:global(.member) {
-				grid-column: 1 / -2;
-			}
 		}
 	}
 
