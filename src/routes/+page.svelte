@@ -969,42 +969,6 @@
 						失格
 					</button>
 					<button
-						{@attach tooltip(`並び順を${ord === 0 ? '一番右' : '左'}に移動します。`)}
-						disabled={orderingMode !== 'manual'}
-						onclick={() => {
-							if (ord === 0) {
-								attendants[i].manualOrder = orderedAttendants.length;
-							} else {
-								[attendants[orderedAttendants[ord - 1]].manualOrder, attendants[i].manualOrder] = [
-									attendants[i].manualOrder,
-									attendants[orderedAttendants[ord - 1]].manualOrder
-								];
-							}
-							orderedAttendants.forEach((a, i) => (attendants[a].manualOrder = i));
-						}}
-					>
-						◀
-					</button>
-					<button
-						{@attach tooltip(
-							`並び順を${ord === orderedAttendants.length - 1 ? '一番左' : '右'}に移動します。`
-						)}
-						disabled={orderingMode !== 'manual'}
-						onclick={() => {
-							if (ord === orderedAttendants.length - 1) {
-								attendants[i].manualOrder = -1;
-							} else {
-								[attendants[orderedAttendants[ord + 1]].manualOrder, attendants[i].manualOrder] = [
-									attendants[i].manualOrder,
-									attendants[orderedAttendants[ord + 1]].manualOrder
-								];
-							}
-							orderedAttendants.forEach((a, i) => (attendants[a].manualOrder = i));
-						}}
-					>
-						▶
-					</button>
-					<button
 						onclick={() => history.push(new RemoveHistoryEntry(i))}
 						{@attach tooltip('このプレイヤーをリストから削除します。')}
 					>
