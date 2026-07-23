@@ -33,20 +33,15 @@ export class GameClass {
 	);
 
 	attendantsPerTeam = $derived.by(() => {
-		const atts = this.attendants.reduce<
-			({ att: Attendant; i: number; j: number }[] | undefined)[][]
-		>(
-			(acc, att, i) => {
+		const atts = this.attendants.reduce<({ att: Attendant; ai: number }[] | undefined)[][]>(
+			(acc, att, ai) => {
 				acc[att.team] ??= [];
 				acc[att.team][att.seat] ??= [];
-				acc[att.team][att.seat]!.push({ att, i, j: 0 });
+				acc[att.team][att.seat]!.push({ att, ai });
 				return acc;
 			},
 			this.teams.map(() => [])
 		);
-
-		let j = 0;
-		atts.forEach((team) => team.forEach((seat) => seat!.forEach((att) => (att.j = j++))));
 
 		return atts;
 	});
