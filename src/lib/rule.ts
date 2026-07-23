@@ -201,42 +201,34 @@ export class Rule {
 }
 
 export function getActiveRulesText(
-	rules: Rule[],
+	activeRules: { rule: Rule; i: number }[],
 	battleMode: 'single' | 'team'
-): {
-	activeRules: { rule: Rule; i: number }[];
-	activeRulesText: string;
-} {
-	const activeRules = rules.flatMap((rule, i) => (rule.isRemoved ? [] : { rule, i }));
-
+): string {
 	if (activeRules.length === 1) {
-		return { activeRules, activeRulesText: String(activeRules[0].rule) };
+		return String(activeRules[0].rule);
 	}
 
-	return {
-		activeRules,
-		activeRulesText: activeRules
-			.slice(1)
-			.reduce(
-				(acc, { rule, i }) => {
-					if (String(rule) === acc.at(-1)!.text) {
-						acc.at(-1)!.end = i;
-						return acc;
-					} else {
-						return [...acc, { start: i, end: i, text: String(rule) }];
-					}
-				},
-				[{ start: activeRules[0].i, end: activeRules[0].i, text: String(activeRules[0].rule) }]
-			)
-			.map(({ start, end, text }) => {
-				if (battleMode === 'team' && start > 0) {
-					text = text.split('、').slice(1).join('、');
+	return activeRules
+		.slice(1)
+		.reduce(
+			(acc, { rule, i }) => {
+				if (String(rule) === acc.at(-1)!.text) {
+					acc.at(-1)!.end = i;
+					return acc;
+				} else {
+					return [...acc, { start: i, end: i, text: String(rule) }];
 				}
+			},
+			[{ start: activeRules[0].i, end: activeRules[0].i, text: String(activeRules[0].rule) }]
+		)
+		.map(({ start, end, text }) => {
+			if (battleMode === 'team' && start > 0) {
+				text = text.split('、').slice(1).join('、');
+			}
 
-				return start === end
-					? String.fromCodePoint(65 + start) + ': ' + text
-					: String.fromCodePoint(65 + start) + '–' + String.fromCodePoint(65 + end) + ': ' + text;
-			})
-			.join(' / ')
-	};
+			return start === end
+				? String.fromCodePoint(65 + start) + ': ' + text
+				: String.fromCodePoint(65 + start) + '–' + String.fromCodePoint(65 + end) + ': ' + text;
+		})
+		.join(' / ');
 }

@@ -47,7 +47,7 @@ export class GameClass {
 	});
 
 	activeRules = $derived(this.rules.flatMap((rule, i) => (rule.isRemoved ? [] : { rule, i })));
-	activeRulesText = $derived(getActiveRulesText(this.rules, 'team').activeRulesText);
+	activeRulesText = $derived(getActiveRulesText(this.activeRules, 'team'));
 
 	windowTitle = $derived(
 		`kissQ -
