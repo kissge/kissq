@@ -5,10 +5,7 @@
 	import { fade, slide } from 'svelte/transition';
 	import Toastify from 'toastify-js';
 	import 'toastify-js/src/toastify.css';
-	import se1 from '$lib/assets/se1.mp3';
-	import se2 from '$lib/assets/se2.mp3';
-	import se3 from '$lib/assets/se3.mp3';
-	import { han2zen, loadFromHash, type Attendant } from '$lib/attendant';
+	import { loadFromHash } from '$lib/attendant';
 	import Footer from '$lib/components/footer.svelte';
 	import Header from '$lib/components/header.svelte';
 	import LogDialog from '$lib/components/logDialog.svelte';
@@ -16,118 +13,56 @@
 	import QuestionWindow from '$lib/components/questionWindow.svelte';
 	import RuleTeamEditDialog from '$lib/components/ruleTeamEditDialog.svelte';
 	import Stars from '$lib/components/stars.svelte';
-	import {
-		BatsuHistoryEntry,
-		MaruHistoryEntry,
-		RemoveHistoryEntry,
-		ThroughHistoryEntry,
-		type HistoryEntry
-	} from '$lib/historyEntry';
 	import { pushLog, updateLog } from '$lib/logs';
-	import { qZero } from '$lib/question';
-	import { getActiveRulesText, Rule } from '$lib/rule';
-	import {
-		connectToSerialPort,
-		readLoopSerialPort,
-		reconnect,
-		type WasedashikiMode
-	} from '$lib/serial';
-	import { playSound } from '$lib/sound';
-	import { AttendantState, GameState, type GameEvent } from '$lib/state';
-	import { tooltip, tooltipInteractive } from '$lib/tooltip.svelte';
+	import { Rule } from '$lib/rule';
+	import { reconnect } from '$lib/serial';
+	import type { GameEvent } from '$lib/state';
+	import { tooltip } from '$lib/tooltip.svelte';
+	import { GameClass, setGameContext } from './game.svelte';
+	import { QuestionConsoleClass } from './questionConsole.svelte';
+	import Team from './team.svelte';
+	import { setWasedashikiContext, WasedashikiClass } from './wasedashiki.svelte';
+
+	let Game = new GameClass();
+	setGameContext(Game);
+	let Wasedashiki = new WasedashikiClass();
+	setWasedashikiContext(Wasedashiki);
+	let QuestionConsole = new QuestionConsoleClass();
 
 	let headerClientHeight = $state(0);
 	let footerClientHeight = $state(0);
-	let gameTitle = $state('');
-
-	let attendants = $state<Attendant[]>([]);
-	let teams = $state<string[]>([]);
-
-	let rules = $state([new Rule('aql', 200, null, 1, 'updown', false, null, 'constant', 0, null)]);
-	let { activeRules, activeRulesText } = $derived(getActiveRulesText(rules, 'team'));
-
-	let history = $state<HistoryEntry[]>([]);
-	let currentState = $derived(
-		history.reduce(
-			(state, entry) => entry.reducerTeam(state.clearLatestEvent()).updateRanking(),
-			new GameState(attendants, rules, teams).updateRanking()
-		)
-	);
-	let attendantsPerTeam = $derived.by(() => {
-		const atts = attendants.reduce<({ att: Attendant; i: number; j: number }[] | undefined)[][]>(
-			(acc, att, i) => {
-				acc[att.team] ??= [];
-				acc[att.team][att.seat] ??= [];
-				acc[att.team][att.seat]!.push({ att, i, j: 0 });
-				return acc;
-			},
-			teams.map(() => [])
-		);
-
-		let j = 0;
-		atts.forEach((team) => team.forEach((seat) => seat!.forEach((att) => (att.j = j++))));
-
-		return atts;
-	});
-	let activeRuleMode = $derived(currentState.defaultRule.mode);
 
 	// svelte-ignore non_reactive_update ...?
 	let logDialog: { open: () => void };
 	let ruleTeamEditDialog: { open: (rules: Rule[]) => Promise<Rule[] | null> };
 
 	async function editRule() {
-		const result = await ruleTeamEditDialog.open(rules);
+		const result = await ruleTeamEditDialog.open(Game.rules);
 
 		if (result) {
 			if (
-				history.length > 0 &&
+				Game.history.length > 0 &&
 				confirm(
 					'全員のスコアのリセットも行いますか？\n\n※ しない場合、トロフィーが消えることなどがあります\n※ まだゲームの途中であれば無視してください'
 				)
 			) {
-				clearHistory();
+				Game.clearHistory(Wasedashiki);
 			}
 
-			const activeRuleCount = result.filter(({ isRemoved }) => !isRemoved).length;
-			if (activeRuleCount === 1) {
-				rules = result.filter(({ isRemoved }) => !isRemoved);
-				attendants.forEach((att) => {
-					att.group = 0;
-				});
-			} else {
-				const removedIndices = result.flatMap(({ isRemoved }, i) => (isRemoved ? [i] : []));
-				rules = result.filter(({ isRemoved }) => !isRemoved);
-				attendants.forEach((att) => {
-					att.group = Math.max(0, att.group - removedIndices.filter((i) => i <= att.group).length);
-				});
-			}
+			const removedIndices = result.flatMap(({ isRemoved }, i) => (isRemoved ? [i] : []));
+			Game.rules = result.filter(({ isRemoved }) => !isRemoved);
+			Game.attendants.forEach((att) => {
+				att.group = Math.max(0, att.group - removedIndices.filter((i) => i <= att.group).length);
+			});
 
 			// showMarubatsuOverride = false;
 			// showScore = true;
 		}
 	}
 
-	function handlePasteEvent(event: ClipboardEvent, attendantID: number, teamID: number) {
-		const text = (event.clipboardData?.getData('text') || '').trim();
-		const lines = text.split(/[\r\n]+/);
-		if (lines.length >= 2) {
-			event.preventDefault();
-			const atts = attendantsPerTeam[teamID].flat().filter((a) => a != null);
-			const offset = atts.findIndex(({ i }) => i === attendantID);
-			lines.forEach((line, i) => {
-				if (offset + i < atts.length) {
-					atts[offset + i].att.name = line;
-					atts[offset + i].att.trophyCount = 0;
-				} else {
-					addAttendant(teamID, line);
-				}
-			});
-		}
-	}
-
 	let isBannerVisible = $state<GameEvent | null>(null);
 	watch(
-		() => currentState.latestEvent,
+		() => Game.currentState.latestEvent,
 		(curr, prev) => {
 			if (
 				curr?.type !== prev?.type ||
@@ -144,260 +79,44 @@
 		showBannerTimeout = setTimeout(() => (isBannerVisible = null), duration);
 	}
 
-	function addAttendant(teamID: number, name: string = '') {
-		attendants.push({
-			name: han2zen(name),
-			group: 0,
-			team: teamID,
-			seat: attendantsPerTeam[teamID].length > 0 ? attendantsPerTeam[teamID].length - 1 : 0,
-			trophyCount: 0,
-			totalScore: { num: 0, den: 0 },
-			manualOrder: attendants.length
-		});
-	}
-
-	let playSounds = $state(true);
-
-	function clickMaru(attendantID: number, playSounds_: boolean = true) {
-		history.push(new MaruHistoryEntry(attendantID));
-		if (playSounds && playSounds_) {
-			playSound(se1);
-		}
-	}
-
-	async function clickBatsu(attendantID: number, playSounds_: boolean = true) {
-		const single = wasedashikiMode === 'single' || wasedashikiMode === 'handicap';
-
-		history.push(new BatsuHistoryEntry(attendantID, single));
-		if (playSounds && playSounds_) {
-			playSound(se2);
-		}
-	}
-
-	function clickThrough() {
-		history.push(new ThroughHistoryEntry());
-		if (playSounds) playSound(se3);
-	}
-
-	function clickUndo() {
-		history.pop();
-	}
-
-	function clearHistory() {
-		pushLog('team', gameTitle, activeRulesText, currentState, attendants, teams);
-
-		const newAttendants = [...attendants];
-		const removedIndex = [];
-		for (let i = 0, j = 0; i < newAttendants.length; i++) {
-			if (currentState.attendants[i]?.life === 'removed') {
-				removedIndex.push(i);
-				delete buttonMapping[i];
-				j--;
-			} else {
-				if (j < 0) {
-					buttonMapping[i + j] = buttonMapping[i];
-					delete buttonMapping[i];
-				}
-			}
-		}
-		removedIndex.toReversed().forEach((i) => {
-			newAttendants.splice(i, 1);
-		});
-		attendants = newAttendants;
-
-		history = [];
-	}
-
 	$effect(() => {
-		if (history.length === 0) {
+		if (Game.history.length === 0) {
 			return;
 		}
 
-		updateLog('team', gameTitle, currentState, attendants, activeRulesText, teams);
+		updateLog(
+			'team',
+			Game.gameTitle,
+			Game.currentState,
+			Game.attendants,
+			Game.activeRulesText,
+			Game.teams
+		);
 	});
-
-	let serialPort = $state<SerialPort>();
-	let answerers = $state<({ rank: 1 | 2 | 'late'; delay: number } | null)[]>([]);
-	let lastButtonID = $state<number>();
-	/** attendant ID -> button ID */
-	let buttonMapping = $state<Record<number, number>>({});
-	/** button ID -> attendant ID */
-	let buttonReverseMapping = $derived.by<Record<number, number>>(() => {
-		const reverse: Record<number, number> = {};
-		for (const [attendantID, buttonID] of Object.entries(buttonMapping)) {
-			reverse[buttonID] = Number(attendantID);
-		}
-		return reverse;
-	});
-	let buttonMappingRestored = $state(false);
-	let wasedashikiMode = $state<WasedashikiMode>();
-	let connected = $state(false);
-	let answererRanking = $derived(
-		Object.entries(answerers)
-			.filter(([, v]) => v != null)
-			.toSorted((a, b) => a[1]!.delay - b[1]!.delay)
-			.map(([k, v]) => [buttonReverseMapping[Number(k) + 1], v!] as const)
-	);
-
-	async function initiateSerialConnection(serialPort_?: SerialPort) {
-		if (!serialPort_) {
-			try {
-				serialPort = await connectToSerialPort();
-			} catch (error) {
-				Toastify({ text: '接続に失敗しました', style: { background: '#B00000' } }).showToast();
-				console.error('接続エラー', error);
-				serialPort = undefined;
-				wasedashikiMode = undefined;
-				connected = false;
-				return;
-			}
-		}
-
-		while (serialPort) {
-			console.log('Reading from serial port...');
-			setTimeout(() => {
-				if (!connected) {
-					serialPort = undefined;
-				}
-			}, 2500);
-			await readLoopSerialPort(
-				serialPort,
-				() => ({
-					answerers,
-					pushers,
-					buttonMapping,
-					attendants: currentState.attendants,
-					clickMaru,
-					clickBatsu
-				}),
-				(updates) => {
-					if ('connected' in updates) connected = updates.connected!;
-					if ('wasedashikiMode' in updates) wasedashikiMode = updates.wasedashikiMode!;
-					if ('answerers' in updates) answerers = updates.answerers!;
-					if ('pushers' in updates) pushers = updates.pushers!;
-					if ('lastButtonID' in updates) lastButtonID = updates.lastButtonID!;
-					if ('serialPort' in updates) serialPort = updates.serialPort!;
-				}
-			);
-			await new Promise((resolve) => setTimeout(resolve, 5000));
-		}
-	}
-
-	let subWindow = $state<Window>();
-
-	function openSubWindow() {
-		subWindow = window.open('./question', 'questionWindow', 'popup') || undefined;
-	}
-
-	function processWindowMessage(event: MessageEvent) {
-		if (!subWindow) {
-			try {
-				subWindow = event.source as Window;
-			} catch {
-				/* ignore */
-			}
-		}
-
-		switch (event.data.command) {
-			case 'toggleQuestionWindow':
-				showQuestionWindow = !showQuestionWindow;
-				break;
-
-			case 'updateQuestion':
-				currentQuestion = { question: event.data.question, answer: event.data.answer };
-				break;
-
-			case 'clickMaru':
-				clickMaru(event.data.attendantID);
-				break;
-
-			case 'clickBatsu':
-				clickBatsu(event.data.attendantID);
-				break;
-
-			case 'clickThrough':
-				clickThrough();
-				break;
-
-			case 'clickUndo':
-				clickUndo();
-				break;
-
-			case 'clickReset':
-				clearHistory();
-				break;
-
-			case 'addAttendant':
-				if (attendantsPerTeam.length > 0) {
-					addAttendant(attendantsPerTeam.length - 1, event.data.name);
-				}
-				break;
-
-			case 'ping':
-				syncState();
-				break;
-		}
-	}
-
-	function syncState() {
-		if (subWindow && !subWindow.closed) {
-			const state = Object.fromEntries(
-				Object.entries(currentState).flatMap(([k, v]) =>
-					k === 'teams'
-						? []
-						: k === 'attendants'
-							? [
-									[
-										k,
-										v.map((v: AttendantState) =>
-											Object.fromEntries(Object.entries(v).filter(([k]) => k !== 'team'))
-										)
-									]
-								]
-							: [[k, v]]
-				)
-			);
-
-			subWindow.postMessage(
-				JSON.parse(
-					JSON.stringify({
-						command: 'syncState',
-						mode: 'team',
-						currentState: state,
-						history,
-						answerers,
-						buttonMapping,
-						wasedashikiMode
-					})
-				)
-			);
-		}
-	}
 
 	$effect(() => {
 		// eslint-disable-next-line svelte/no-unused-svelte-ignore
 		// svelte-ignore state_snapshot_uncloneable
-		$state.snapshot([currentState, answerers, buttonMapping, wasedashikiMode]);
-		syncState();
+		$state.snapshot([
+			Game.currentState,
+			Wasedashiki.answerers,
+			Wasedashiki.buttonMapping,
+			Game.wasedashikiMode
+		]);
+		QuestionConsole.syncState();
 	});
-
-	const urlParams = new URLSearchParams(typeof location !== 'undefined' ? location.search : '');
-	let showQuestionWindow = $state(urlParams.has('qw'));
-	let currentQuestion = $state(qZero);
-
-	let pushers: number[] = [];
 
 	onMount(() => {
 		const data = loadFromHash(true);
 
 		if (data) {
 			const groups = Math.max(...data.attendants.map(({ group }) => group));
-			rules = Array.from({ length: groups + 1 }, () => rules[0]);
-			attendants = data.attendants;
-			buttonMapping = data.buttonMapping ?? {};
-			buttonMappingRestored = Object.keys(buttonMapping).length > 0;
+			Game.rules = Array.from({ length: groups + 1 }, () => Game.rules[0]);
+			Game.attendants = data.attendants;
+			Wasedashiki.buttonMapping = data.buttonMapping ?? {};
+			Wasedashiki.buttonMappingRestored = Object.keys(Wasedashiki.buttonMapping).length > 0;
 		} else {
-			attendants = Array.from({ length: 2 }, (_, ti) =>
+			Game.attendants = Array.from({ length: 2 }, (_, ti) =>
 				Array.from({ length: 10 }, (_, ai) => ({
 					name: '',
 					group: 0,
@@ -410,15 +129,15 @@
 			).flat();
 		}
 
-		teams = Array.from(new Set(attendants.map(({ team }) => team)), () => '');
+		Game.teams = Array.from(new Set(Game.attendants.map(({ team }) => team)), () => '');
 
 		reconnect()
 			.then((port) => {
 				if (port) {
-					serialPort = port;
-					initiateSerialConnection(port);
+					Wasedashiki.serialPort = port;
+					Wasedashiki.initiateSerialConnection(port);
 					setTimeout(() => {
-						if (connected) {
+						if (Wasedashiki.connected) {
 							Toastify({ text: '自動で早稲田式に接続しました' }).showToast();
 						}
 					}, 1500);
@@ -428,14 +147,24 @@
 				console.error('接続エラー', error);
 			});
 
-		pushLog('team', gameTitle, activeRulesText, currentState, attendants, teams);
+		pushLog(
+			'team',
+			Game.gameTitle,
+			Game.activeRulesText,
+			Game.currentState,
+			Game.attendants,
+			Game.teams
+		);
+		const processWindowMessage = (event: MessageEvent) => {
+			QuestionConsole.processWindowMessage(event);
+		};
 		window.addEventListener('message', processWindowMessage);
 
 		return () => window.removeEventListener('message', processWindowMessage);
 	});
 
 	$effect(() => {
-		const data = { attendants, buttonMapping };
+		const data = { attendants: Game.attendants, buttonMapping: Wasedashiki.buttonMapping };
 		$state.snapshot(data);
 		untrack(() => {
 			if (data.attendants.every(({ name }) => name === '')) {
@@ -451,335 +180,56 @@
 </script>
 
 <svelte:head>
-	<title>
-		kissQ -
-		{gameTitle ? gameTitle + ' - ' : ''}
-		{currentState.attendants
-			.flatMap(({ name, life }) => (life !== 'removed' ? [name.slice(0, 3) || '👤'] : []))
-			.join('・')}
-		- クイズカウンター（得点表示機）のkissQ
-	</title>
+	<title>{Game.windowTitle}</title>
 </svelte:head>
 
 <main class="main">
 	<Header
 		bind:headerClientHeight
-		questionCount={currentState.questionCount}
-		hideQuestionCount={currentState.defaultRule.mode === 'aql'}
-		bind:gameTitle
+		questionCount={Game.currentState.questionCount}
+		hideQuestionCount={Game.currentState.defaultRule.mode === 'aql'}
+		bind:gameTitle={Game.gameTitle}
 		battleMode="team"
-		onBattleModeChange={clearHistory}
-		{attendants}
-		{buttonMapping}
-		{wasedashikiMode}
-		{rules}
+		onBattleModeChange={() => Game.clearHistory(Wasedashiki)}
+		attendants={Game.attendants}
+		buttonMapping={Wasedashiki.buttonMapping}
+		wasedashikiMode={Game.wasedashikiMode}
+		rules={Game.rules}
 		{editRule}
 	/>
 
-	<QuestionWindow {showQuestionWindow} {currentQuestion} />
+	<QuestionWindow
+		showQuestionWindow={QuestionConsole.showQuestionWindow}
+		currentQuestion={QuestionConsole.currentQuestion}
+	/>
 
 	<div
 		class="attendants"
-		style:height={`calc(100vh - ${headerClientHeight + footerClientHeight}px - 30px ${showQuestionWindow ? '- 6.25em - 0.7rem' : ''})`}
+		style:height={`calc(100vh - ${headerClientHeight + footerClientHeight}px - 30px ${QuestionConsole.showQuestionWindow ? '- 6.25em - 0.7rem' : ''})`}
 	>
-		{#each attendantsPerTeam as seats, ti (ti)}
-			<div class="team" animate:flip={{ duration: 200 }}>
-				<div class="life">
-					{#if currentState.teams[ti].teamLife === 'won'}
-						<div class="won">{currentState.ranking.indexOf(ti) + 1}位</div>
-					{:else if currentState.teams[ti].teamLife === 'lost'}
-						<div class="lost">失格</div>
-					{/if}
-				</div>
-				<div class="team-name">
-					<input placeholder={`チーム${ti + 1}`} bind:value={teams[ti]} />
-				</div>
-				<div
-					class="score"
-					style:background={`hsl(${(360 / currentState.teams.length) * ti}, 90%, 40%)`}
-					{@attach tooltip('チームの総得点')}
-				>
-					{#key currentState.teams[ti].teamScore}
-						<span in:fade>
-							{currentState.teams[ti].teamScore}
-						</span>
-					{/key}
-				</div>
-				<div
-					class="members"
-					class:with-seat={activeRuleMode === 'aql' || activeRuleMode === 'product'}
-				>
-					{#each seats as atts, si (atts?.map(({ j }) => j).join(',') ?? si)}
-						{@const rowStart = seats
-							.slice(0, si)
-							.reduce((sum, seatAtts) => sum + (seatAtts?.length ?? 0), 1)}
-						{@const maxSeat = seats.reduce(
-							(max, atts) =>
-								Math.max(max, atts?.reduce((m, { att }) => Math.max(m, att.seat), 0) ?? 0),
-							0
-						)}
-						{@const batsuCount =
-							atts?.reduce(
-								(sum, { i }) => sum + (currentState.attendants[i]?.batsuCount ?? 0),
-								0
-							) ?? 0}
-						{@const seatTotal =
-							atts?.reduce(
-								(sum, { i }) => sum + (currentState.attendants[i]?.score ?? 0),
-								activeRuleMode === 'aql' ? 1 : 0
-							) ?? 0}
-						{#if !atts?.every(({ i }) => currentState.attendants[i].life === 'removed')}
-							<div
-								class="grid-wrapper"
-								class:group-by-seat={activeRuleMode === 'aql' || activeRuleMode === 'product'}
-							>
-								<div
-									class="seat-total"
-									style:grid-row={`${rowStart} / span ${atts?.length}`}
-									style:display={(atts?.length ?? 0) > 0 &&
-									(activeRuleMode === 'aql' || activeRuleMode === 'product')
-										? ''
-										: 'none'}
-								>
-									<div {@attach tooltip('枠の総得点')}>
-										{#key seatTotal}
-											<span in:fade>
-												{seatTotal}
-											</span>
-										{/key}
-									</div>
-									<div class="batsu-count" style:display={activeRuleMode === 'aql' ? '' : 'none'}>
-										{'✕'.repeat(batsuCount)}
-									</div>
-								</div>
-								{#each atts?.filter(({ i }) => currentState.attendants[i]?.life !== 'removed') as { att, i }, ai (ai)}
-									{@const sAtt: AttendantState | undefined = currentState.attendants[i]}
-									{#if sAtt}
-										<div
-											class="member"
-											style:grid-row-start={rowStart + ai}
-											class:lizhi={sAtt.isLizhi}
-											class:yasu={sAtt.yasuDisplay > 0}
-											class:lost={sAtt.life === 'lost' ||
-												(activeRuleMode === 'aql' && batsuCount >= 2)}
-											class:first-member={si === 0 && ai === 0}
-											{@attach currentState.teams[ti].teamLife === 'alive' &&
-												(activeRuleMode === 'aql' ? batsuCount < 2 : true) &&
-												sAtt?.life === 'alive' &&
-												sAtt.yasuDisplay === 0 &&
-												tooltipInteractive(
-													typeof document !== 'undefined'
-														? `<div data-attendant-id="${i}">` +
-																document
-																	.getElementById('hover-menu')!
-																	.innerHTML.replaceAll('data-on', 'on')
-																	.replace(
-																		'%teams%',
-																		teams
-																			.map(
-																				(team, j) =>
-																					`<option ${ti === j ? 'selected' : ''}>${team.slice(0, 5) || `チーム${j + 1}`}</option>`
-																			)
-																			.join('')
-																	) +
-																'</div>'
-														: ''
-												)}
-										>
-											<div
-												class="seat"
-												style:display={activeRuleMode === 'aql' || activeRuleMode === 'product'
-													? ''
-													: 'none'}
-												{@attach tooltip('枠を変更します。')}
-											>
-												<select bind:value={attendants[i].seat}>
-													{#each Array.from({ length: maxSeat + 2 }, (_, si) => si) as si (si)}
-														<option value={si}>{si + 1}</option>
-													{/each}
-												</select>
-											</div>
-											<div>
-												{#if activeRules.length > 1}
-													<button
-														class="group"
-														style:background-color={`hsl(${(360 / rules.length) * attendants[i].group}, 70%, 40%)`}
-														onclick={() => {
-															do {
-																attendants[i].group = (attendants[i].group + 1) % rules.length;
-															} while (rules[attendants[i].group].isRemoved);
-														}}
-														{@attach tooltip('このプレイヤーの所属ルールグループを変更します。')}
-													>
-														{#key attendants[i].group}
-															<span class="crossfade" in:fade={{ delay: 500 }} out:fade>
-																{String.fromCodePoint(65 + attendants[i].group)}
-															</span>
-														{/key}
-													</button>
-												{/if}
-												<button
-													class="button-mapping"
-													style={buttonMapping[i] == null
-														? undefined
-														: 1 <= buttonMapping[i] && buttonMapping[i] <= 6
-															? 'background-color: red; color: white'
-															: 7 <= buttonMapping[i] && buttonMapping[i] <= 12
-																? 'background-color: blue; color: white'
-																: 13 <= buttonMapping[i] && buttonMapping[i] <= 18
-																	? 'background-color: yellow; color: black'
-																	: 'background-color: green; color: white'}
-													style:display={lastButtonID == undefined && !buttonMappingRestored
-														? 'none'
-														: ''}
-													disabled={lastButtonID == undefined && !buttonMappingRestored}
-													{@attach tooltip(
-														`このプレイヤーが持っているボタンは${buttonMapping[i] == null ? '???' : buttonMapping[i]}番です。クリックで紐づけ`
-													)}
-													onclick={() => {
-														if (lastButtonID !== undefined) {
-															buttonMapping = {
-																...Object.fromEntries(
-																	Object.entries(buttonMapping).filter(
-																		([, v]) => v !== lastButtonID
-																	)
-																),
-																[i]: lastButtonID!
-															};
-															Toastify({
-																text: `ボタン${lastButtonID}は${att.name || `プレイヤー${i + 1}`}が持っています`
-															}).showToast();
-														}
-													}}
-												>
-													{buttonMapping[i] ?? '?'}
-												</button>
-												<input
-													class={[
-														'name',
-														{
-															'answerer-1st': answerers[(buttonMapping[i] ?? 0) - 1]?.rank === 1,
-															'answerer-2nd':
-																(wasedashikiMode === 'endless' || wasedashikiMode === 'double') &&
-																answerers[(buttonMapping[i] ?? 0) - 1]?.rank === 2,
-															'answerer-late':
-																wasedashikiMode === 'endless' &&
-																answerers[(buttonMapping[i] ?? 0) - 1]?.rank === 'late'
-														}
-													]}
-													bind:value={att.name}
-													placeholder={`プレイヤー${i + 1}`}
-													onpaste={(e) => handlePasteEvent(e, i, ti)}
-												/>
-												<small class="yasu">
-													{#if sAtt?.yasuDisplay > 0}
-														{#if sAtt.yasuCount === 'next'}次{/if}
-														{sAtt.yasuDisplay}
-														休
-													{/if}
-												</small>
-											</div>
-											<div class="score">
-												{#key sAtt.score}
-													<span in:fade>
-														{sAtt.score}
-													</span>
-												{/key}
-											</div>
-											{#if currentState.teams[ti].teamLife === 'alive' && (activeRuleMode === 'aql' ? batsuCount < 2 : true) && sAtt?.life === 'alive' && sAtt.yasuDisplay === 0}
-												<div class="buttons" data-attendant-id={i}>
-													<button
-														class="delete-btn"
-														disabled={currentState.teams[ti].attendantIDsPerSeat
-															.flat()
-															.filter(
-																(a) => a != null && currentState.attendants[a].life !== 'removed'
-															).length <= 1}
-														onclick={() => history.push(new RemoveHistoryEntry(i))}
-														{@attach tooltip('このプレイヤーをリストから削除します。')}
-														tabindex={-1}
-													>
-														削除
-													</button>
-													<select
-														disabled={history.length > 0 ||
-															currentState.teams[ti].attendantIDsPerSeat
-																.flat()
-																.filter(
-																	(a) => a != null && currentState.attendants[a].life !== 'removed'
-																).length <= 1}
-														bind:value={attendants[i].team}
-														onchange={() => {
-															const t = attendants[i].team;
-															attendants[i].team = Infinity;
-															attendants[i].seat = currentState.teams[t].attendantIDsPerSeat.length;
-															attendants[i].team = t;
-														}}
-														{@attach tooltip('このプレイヤーのチームを変更します。')}
-														tabindex={-1}
-													>
-														{#each teams as team, j (j)}
-															<option value={j}>{team?.slice(0, 5) || `チーム${j + 1}`}</option>
-														{/each}
-													</select>
-													<button class="maru-btn" onclick={() => clickMaru(i)} tabindex={-1}>
-														O
-													</button>
-													<button class="batsu-btn" onclick={() => clickBatsu(i)} tabindex={-1}>
-														X
-													</button>
-												</div>
-											{/if}
-										</div>
-									{/if}
-								{/each}
-							</div>
-						{/if}
-					{/each}
-					<div class="bottom-buttons">
-						<button
-							disabled={history.length > 0}
-							onclick={() => {
-								if (
-									confirm(
-										`${teams[ti] || `チーム${ti + 1}`}を削除しますか？\nこの操作は元に戻せません。`
-									)
-								) {
-									attendants = attendants
-										.filter((_, i) => attendants[i].team !== ti)
-										.map((att) => {
-											if (att.team > ti) {
-												return { ...att, team: att.team - 1 };
-											}
-											return att;
-										});
-									teams.splice(ti, 1);
-								}
-							}}
-							{@attach tooltip('このチームを削除します。')}
-						>
-							削除
-						</button>
-						<div class="spacer"></div>
-						<button
-							onclick={() => addAttendant(ti)}
-							{@attach tooltip('このチームに新しいプレイヤーを追加します。')}
-						>
-							追加
-						</button>
-					</div>
-				</div>
+		{#each Game.attendantsPerTeam as seats, ti (ti)}
+			<div
+				class="team"
+				animate:flip={{ duration: 200 }}
+				class:won={Game.currentState.teams[ti].teamLife === 'won'}
+			>
+				<Team {seats} {ti} />
 			</div>
 		{:else}
 			<div class="no-team">チームがありません🍔</div>
 		{/each}
 	</div>
 
-	<Footer bind:footerClientHeight {attendants} {rules} {history}>
+	<Footer
+		bind:footerClientHeight
+		attendants={Game.attendants}
+		rules={Game.rules}
+		history={Game.history}
+	>
 		<button
-			onclick={clickThrough}
+			onclick={Game.clickThrough}
 			class={{
-				blink: currentState.attendants.some(
+				blink: Game.currentState.attendants.some(
 					({ yasuCount, rule: { yasuMode, yasuPerBatsu } }) =>
 						yasuCount === 'next' && (yasuMode !== 'constant' || yasuPerBatsu > 0)
 				)
@@ -791,27 +241,28 @@
 			スルー
 		</button>
 		<button
-			onclick={clickUndo}
-			disabled={history.length === 0}
+			onclick={Game.clickUndo}
+			disabled={Game.history.length === 0}
 			{@attach tooltip('直前の操作を無かったことにします。')}
 			style="max-width: 20dvw"
 		>
-			{#key history.length}
+			{#key Game.history.length}
 				↩
-				<span in:fade>{history.at(-1)?.toString(currentState) || 'この世の始まり'}</span>を元に戻す
+				<span in:fade>{Game.history.at(-1)?.toString(Game.currentState) || 'この世の始まり'}</span
+				>を元に戻す
 			{/key}
 		</button>
 		<button
 			onclick={() => {
-				teams.push('');
-				attendants.push({
+				Game.teams.push('');
+				Game.attendants.push({
 					name: '',
 					group: 0,
-					team: teams.length - 1,
+					team: Game.teams.length - 1,
 					seat: 0,
 					trophyCount: 0,
 					totalScore: { num: 0, den: 0 },
-					manualOrder: attendants.length
+					manualOrder: Game.attendants.length
 				});
 			}}>＋ チーム追加</button
 		>
@@ -822,10 +273,10 @@
 						'全員ゼロ〇ゼロ×にリセットしますか？\nこの操作は元に戻せません。\n（プレイヤーリスト、累積勝利数🏆は残ります）'
 					)
 				) {
-					clearHistory();
+					Game.clearHistory(Wasedashiki);
 				}
 			}}
-			disabled={history.length === 0}
+			disabled={Game.history.length === 0}
 			{@attach tooltip('全員のスコアだけをリセットします。')}
 		>
 			全員リセット
@@ -851,8 +302,8 @@
 						'プレイヤーリストを空にした上で、初期状態にリセットしますか？\nこの操作は元に戻せません。'
 					)
 				) {
-					history = [];
-					attendants = [
+					Game.history = [];
+					Game.attendants = [
 						{
 							name: '',
 							group: 0,
@@ -863,23 +314,26 @@
 							manualOrder: 0
 						}
 					];
-					teams = [''];
-					buttonMapping = {};
-					answerers = [];
-					lastButtonID = undefined;
+					Game.teams = [''];
+					Wasedashiki.buttonMapping = {};
+					Wasedashiki.answerers = [];
+					Wasedashiki.lastButtonID = undefined;
 				}
 			}}
 			{@attach tooltip('全員の名前・チーム・枠・スコアをリセットします。')}>全削除</button
 		>
 		<button onclick={logDialog.open}>履歴確認</button>
 		<button
-			onclick={() => (playSounds = !playSounds)}
+			onclick={() => (Game.playSounds = !Game.playSounds)}
 			{@attach tooltip('効果音のオンオフを切り替えます')}
 		>
-			{#if playSounds}🔊 ON{:else}🔇 OFF{/if}
+			{#if Game.playSounds}🔊 ON{:else}🔇 OFF{/if}
 		</button>
-		<button onclick={openSubWindow}>操作盤表示</button>
-		<button disabled={serialPort != null} onclick={() => initiateSerialConnection()}>
+		<button onclick={() => QuestionConsole.openSubWindow()}>操作盤表示</button>
+		<button
+			disabled={Wasedashiki.serialPort != null}
+			onclick={() => Wasedashiki.initiateSerialConnection()}
+		>
 			早稲田式連携
 		</button>
 	</div>
@@ -891,10 +345,10 @@
 	</div>
 	<div class={['banner', isBannerVisible.type]} transition:slide={{ axis: 'x' }}>
 		{#if 'attendantID' in isBannerVisible}
-			{attendants[isBannerVisible.attendantID].name ||
+			{Game.attendants[isBannerVisible.attendantID].name ||
 				'プレイヤー ' + (isBannerVisible.attendantID + 1)}
 		{:else}
-			{teams[isBannerVisible.teamID] || 'チーム ' + (isBannerVisible.teamID + 1)}
+			{Game.teams[isBannerVisible.teamID] || 'チーム ' + (isBannerVisible.teamID + 1)}
 		{/if}
 		{#if isBannerVisible.type === 'won'}
 			勝ち抜け
@@ -939,9 +393,9 @@
 </template>
 
 <Pushers
-	{answererRanking}
-	{attendants}
-	{wasedashikiMode}
+	answererRanking={Wasedashiki.answererRanking}
+	attendants={Game.attendants}
+	wasedashikiMode={Game.wasedashikiMode}
 	{headerClientHeight}
 	{footerClientHeight}
 />
@@ -960,22 +414,6 @@
 		justify-content: space-between;
 		gap: 1em;
 		user-select: none;
-
-		input {
-			border: none;
-			background: transparent;
-			width: 8em;
-			color: #fff;
-			font-size: inherit;
-			text-align: center;
-			text-shadow:
-				0px 0px 12px #0007,
-				0px 0px 12px #0007;
-
-			&::placeholder {
-				text-shadow: none;
-			}
-		}
 	}
 
 	.team {
@@ -998,302 +436,9 @@
 			0px 10px 50px #444,
 			0px 10px 50px #444;
 
-		input {
-			flex: 1 1 3em;
-			width: 100%;
-			min-width: 0;
-
-			&::placeholder {
-				color: #fff;
-			}
-		}
-
-		&.lizhi {
-			box-shadow: 0 2px 2px 6px rgb(230 230 37);
-			background-color: rgba(255 255 158 / 0.5);
-		}
-		&:has(.won) {
+		&.won {
 			box-shadow: 0 2px 2px 6px rgb(61 184 61);
 			background-color: rgba(114 250 114 / 0.5);
-		}
-
-		.life {
-			display: flex;
-			justify-content: center;
-			align-items: center;
-			color: #fff;
-			font-weight: bold;
-			font-size: 0.8em;
-			text-shadow:
-				0px 10px 50px #444,
-				0px 10px 50px #444;
-		}
-
-		.team-name {
-			display: flex;
-			justify-content: center;
-			align-items: center;
-			padding: 0 0.5em;
-			min-width: 0;
-			text-align: center;
-		}
-
-		& > .score {
-			display: flex;
-			justify-content: center;
-			align-items: center;
-			box-shadow: 0 0 10px #0008;
-			border-radius: 5em;
-			font-weight: bold;
-			text-align: center;
-			text-shadow: 0 0 8px #000;
-		}
-
-		.members {
-			display: grid;
-			grid-template-columns: 1fr 2em;
-			grid-column: 1 / -1;
-			align-content: start;
-			padding-right: 0.75em;
-			padding-left: 0.75em;
-
-			&.with-seat {
-				grid-template-columns: 2em 1fr 2em 2.5em;
-				padding-right: 0;
-
-				.member {
-					grid-column: 1 / -2;
-				}
-			}
-
-			.grid-wrapper {
-				display: contents;
-
-				&.group-by-seat {
-					& .member:not(:nth-child(2)):not(:last-child) {
-						border-top-right-radius: 0;
-						border-bottom-right-radius: 0;
-						.score {
-							border-top-right-radius: 0;
-							border-bottom-right-radius: 0;
-						}
-					}
-
-					& .member:nth-child(2):not(:last-child) {
-						border-bottom-right-radius: 0;
-						.score {
-							border-bottom-right-radius: 0;
-						}
-					}
-
-					& .member:last-child:not(:nth-child(2)) {
-						border-top-right-radius: 0;
-						.score {
-							border-top-right-radius: 0;
-						}
-					}
-				}
-			}
-
-			.seat-total {
-				display: flex;
-				position: relative;
-				grid-column: -2 / -1;
-				flex-direction: column;
-				justify-content: center;
-				align-items: center;
-				gap: 0;
-				padding-right: 0.5em;
-				font-weight: bold;
-				line-height: 0.8;
-
-				&:before {
-					position: absolute;
-					top: 0;
-					left: -1.75em;
-					rotate: 180deg;
-					border-left: 5px solid #fff;
-					border-radius: 0.75em;
-					width: 2em;
-					height: 100%;
-					content: '';
-				}
-
-				.batsu-count {
-					color: #f55;
-					font-size: 0.8em;
-				}
-			}
-		}
-
-		.member {
-			display: grid;
-			grid-template-columns: subgrid;
-			grid-column: 1 / -1;
-			backdrop-filter: blur(10px);
-			transition: opacity 1s ease;
-			box-shadow: 0 0 15px #eeea;
-			border-radius: 0 0.75em 0.75em 0;
-			background-color: #ffffff40;
-			height: 1.25em;
-			color: #fff;
-			text-shadow:
-				0px 10px 50px #444,
-				0px 10px 50px #444;
-
-			&.first-member {
-				border-top-left-radius: 0.5em;
-
-				& .seat {
-					border-top-left-radius: 0.5em;
-				}
-			}
-
-			&:hover {
-				background: white;
-				input {
-					color: black;
-					text-shadow: none;
-				}
-			}
-
-			& > div {
-				display: flex;
-				justify-content: center;
-				align-items: center;
-			}
-
-			&.yasu {
-				opacity: 0.7;
-				backdrop-filter: blur(5px);
-				background-color: rgba(128 128 128 / 0.3);
-			}
-
-			&.lost {
-				opacity: 0.2;
-			}
-
-			&.lizhi {
-				box-shadow: 0 2px 2px 3px rgb(230 230 37);
-				background-color: rgba(255 255 158 / 0.5);
-			}
-
-			&:has(.answerer-1st) {
-				animation: answerer-1st-wrapper 0.3s ease infinite alternate;
-			}
-
-			.button-mapping {
-				display: flex;
-				justify-content: center;
-				align-items: center;
-				z-index: 20;
-				border-radius: 5em;
-				background: grey;
-				width: 1.5em;
-				height: 1.5em;
-				color: white;
-				font-size: 0.7em;
-			}
-
-			.group {
-				z-index: 10;
-				transition: background-color 0.3s ease;
-				color: white;
-			}
-
-			.name {
-				&.answerer-1st {
-					animation: answerer-1st 0.3s ease infinite alternate;
-				}
-
-				&.answerer-2nd {
-					color: yellow;
-					text-shadow:
-						0px 10px 50px #aa08,
-						0px 10px 50px #aa08,
-						0px 10px 50px #aa08;
-				}
-
-				&.answerer-late {
-					text-shadow:
-						0px 10px 50px #aa08,
-						0px 10px 50px #aa08,
-						0px 10px 50px #aa08;
-				}
-
-				&::placeholder {
-					color: #888;
-				}
-			}
-
-			.yasu {
-				position: absolute;
-				right: 3em;
-			}
-
-			.score {
-				display: flex;
-				border-radius: 0 1em 1em 0;
-				background: #0007;
-				font-weight: bold;
-				font-size: 0.8em;
-			}
-
-			.seat {
-				background: #0004;
-				color: #fff;
-
-				select {
-					cursor: pointer;
-					border: none;
-					background: transparent;
-					width: 100%;
-					color: #fff;
-					font-size: inherit;
-					text-align: center;
-
-					option {
-						background: #000;
-					}
-				}
-			}
-
-			.buttons {
-				display: flex;
-				position: absolute;
-				right: 0em;
-				align-items: center;
-				gap: 2px;
-				opacity: 0;
-				height: 100%;
-				pointer-events: none;
-
-				button,
-				select {
-					height: 2em;
-					font-size: 0.5em;
-				}
-			}
-		}
-
-		.bottom-buttons {
-			display: flex;
-			position: absolute;
-			right: 0.75em;
-			bottom: 0.75em;
-			grid-column: 1 / -1;
-			align-items: center;
-			opacity: 0;
-			transition: opacity 0.3s;
-			width: calc(100% - 0.75em * 2);
-
-			&:is(.team:hover *) {
-				opacity: 1;
-			}
-
-			.spacer {
-				flex-grow: 1;
-			}
 		}
 	}
 
@@ -1320,8 +465,7 @@
 		text-align: center;
 
 		button,
-		select,
-		option {
+		select {
 			min-width: 4em;
 			height: 2em;
 			font-size: 1em;
