@@ -13,7 +13,7 @@ export class WasedashikiClass {
 	connected = $state(false);
 	pushers = $state<number[]>([]);
 
-	constructor(public Game: GameClassBase) {}
+	constructor(public Game: GameClassBase<'single'> | GameClassBase<'team'>) {}
 
 	/** button ID -> attendant ID */
 	buttonReverseMapping = $derived.by(() => {

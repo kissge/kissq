@@ -29,18 +29,20 @@
 		EditHistoryEntry
 	} from '$lib/historyEntry';
 	import { pushLog, updateLog } from '$lib/logs';
-	import { qZero } from '$lib/question';
+	import { QuestionConsoleClass } from '$lib/questionConsole.svelte';
 	import { Rule, type Penalty } from '$lib/rule';
 	import { reconnect } from '$lib/serial';
 	import { playSound } from '$lib/sound';
 	import { AttendantState, type AttendantStateValue, type GameEvent } from '$lib/state';
 	import { tooltip } from '$lib/tooltip.svelte';
-	import { WasedashikiClass } from '$lib/wasedashiki.svelte';
+	import { setWasedashikiContext, WasedashikiClass } from '$lib/wasedashiki.svelte';
 	import { GameClass, setGameContext } from './game.svelte';
 
 	let Game = new GameClass();
 	setGameContext(Game);
 	let Wasedashiki = new WasedashikiClass(Game);
+	setWasedashikiContext(Wasedashiki);
+	let QuestionConsole = new QuestionConsoleClass(Game);
 
 	let innerWidth = $state(0);
 	let innerHeight = $state(0);
@@ -318,89 +320,6 @@
 		}
 	}
 
-	const urlParams = new URLSearchParams(typeof location !== 'undefined' ? location.search : '');
-	let showQuestionWindow = $state(urlParams.has('qw'));
-	let currentQuestion = $state(qZero);
-	let subWindow = $state<Window>();
-
-	function openSubWindow() {
-		subWindow = window.open('./question', 'questionWindow', 'popup') || undefined;
-	}
-
-	function processWindowMessage(event: MessageEvent) {
-		if (!subWindow) {
-			try {
-				subWindow = event.source as Window;
-			} catch {
-				/* ignore */
-			}
-		}
-
-		switch (event.data.command) {
-			case 'toggleQuestionWindow':
-				showQuestionWindow = !showQuestionWindow;
-				break;
-
-			case 'updateQuestion':
-				currentQuestion = { question: event.data.question, answer: event.data.answer };
-				break;
-
-			case 'clickMaru':
-				Game.clickMaru(event.data.attendantID);
-				break;
-
-			case 'clickBatsu':
-				Game.clickBatsu(event.data.attendantID);
-				break;
-
-			case 'clickThrough':
-				Game.clickThrough();
-				break;
-
-			case 'clickUndo':
-				Game.clickUndo();
-				break;
-
-			case 'clickReset':
-				Game.clearHistory(Wasedashiki);
-				break;
-
-			case 'addAttendant':
-				Game.addAttendant(event.data.name);
-				break;
-
-			case 'reorderAttendants':
-				Game.attendants[Game.orderedAttendants[event.data.attendantID]].manualOrder =
-					event.data.newOrder;
-				Game.orderedAttendants.forEach((a, i) => (Game.attendants[a].manualOrder = i));
-				break;
-
-			case 'ping':
-				syncState();
-				break;
-		}
-	}
-
-	function syncState() {
-		if (subWindow && !subWindow.closed) {
-			subWindow.postMessage(
-				JSON.parse(
-					JSON.stringify({
-						command: 'syncState',
-						mode: 'single',
-						currentState: Game.currentState,
-						history: Game.history,
-						orderedAttendants: Game.orderedAttendants,
-						orderingMode: Game.orderingMode,
-						answerers: Wasedashiki.answerers,
-						buttonMapping: Wasedashiki.buttonMapping,
-						wasedashikiMode: Game.wasedashikiMode
-					})
-				)
-			);
-		}
-	}
-
 	$effect(() => {
 		// eslint-disable-next-line svelte/no-unused-svelte-ignore
 		// svelte-ignore state_snapshot_uncloneable
@@ -411,7 +330,7 @@
 			Wasedashiki.buttonMapping,
 			Game.wasedashikiMode
 		]);
-		syncState();
+		QuestionConsole.syncState();
 	});
 
 	onMount(() => {
@@ -473,6 +392,9 @@
 				console.error('接続エラー', error);
 			});
 		pushLog('single', Game.gameTitle, Game.activeRulesText, Game.currentState, Game.attendants);
+		const processWindowMessage = (event: MessageEvent) => {
+			QuestionConsole.processWindowMessage(event);
+		};
 		window.addEventListener('message', processWindowMessage);
 
 		return () => window.removeEventListener('message', processWindowMessage);
@@ -505,7 +427,9 @@
 <audio src={se3} preload="auto"></audio>
 
 <main
-	style:grid-template-rows={showQuestionWindow ? 'auto auto 1fr auto' : 'auto 1fr auto'}
+	style:grid-template-rows={QuestionConsole.showQuestionWindow
+		? 'auto auto 1fr auto'
+		: 'auto 1fr auto'}
 	class="main"
 >
 	<Header
@@ -522,13 +446,16 @@
 		{editRule}
 	/>
 
-	<QuestionWindow {showQuestionWindow} {currentQuestion} />
+	<QuestionWindow
+		showQuestionWindow={QuestionConsole.showQuestionWindow}
+		currentQuestion={QuestionConsole.currentQuestion}
+	/>
 
 	<div
 		class="attendants"
 		style:grid-template-columns={`repeat(${columnCount}, 1fr)`}
 		style:grid-template-rows={`repeat(${Math.ceil(Game.orderedAttendants.length / columnCount)}, ${Game.activeRules.length > 1 ? 'auto' : ''} 1fr auto auto)`}
-		style:height={`calc(100dvh - ${headerClientHeight}px - ${footerClientHeight}px - 25px${showQuestionWindow ? ' - 6.25em - 0.7rem' : ''})`}
+		style:height={`calc(100dvh - ${headerClientHeight}px - ${footerClientHeight}px - 25px${QuestionConsole.showQuestionWindow ? ' - 6.25em - 0.7rem' : ''})`}
 		bind:this={container}
 	>
 		{#each Game.orderedAttendants as i, ord (i)}
@@ -838,6 +765,8 @@
 					</div>
 				{/if}
 			</div>
+		{:else}
+			Why? {JSON.stringify(Game.orderedAttendants)}
 		{/each}
 		{#if Game.orderingMode === 'manual'}
 			<div
@@ -985,7 +914,7 @@
 		>
 			{#if Game.enableRating}レートON{:else}レートOFF{/if}
 		</button>
-		<button onclick={openSubWindow}>操作盤表示</button>
+		<button onclick={QuestionConsole.openSubWindow}>操作盤表示</button>
 		<button
 			disabled={Wasedashiki.serialPort != null}
 			onclick={() => Wasedashiki.initiateSerialConnection()}

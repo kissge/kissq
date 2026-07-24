@@ -14,20 +14,20 @@
 	import RuleTeamEditDialog from '$lib/components/ruleTeamEditDialog.svelte';
 	import Stars from '$lib/components/stars.svelte';
 	import { pushLog, updateLog } from '$lib/logs';
+	import { QuestionConsoleClass } from '$lib/questionConsole.svelte';
 	import { Rule } from '$lib/rule';
 	import { reconnect } from '$lib/serial';
 	import type { GameEvent } from '$lib/state';
 	import { tooltip } from '$lib/tooltip.svelte';
 	import { setWasedashikiContext, WasedashikiClass } from '$lib/wasedashiki.svelte';
 	import { GameClass, setGameContext } from './game.svelte';
-	import { QuestionConsoleClass } from './questionConsole.svelte';
 	import Team from './team.svelte';
 
 	let Game = new GameClass();
 	setGameContext(Game);
 	let Wasedashiki = new WasedashikiClass(Game);
 	setWasedashikiContext(Wasedashiki);
-	let QuestionConsole = new QuestionConsoleClass();
+	let QuestionConsole = new QuestionConsoleClass(Game);
 
 	let headerClientHeight = $state(0);
 	let footerClientHeight = $state(0);
