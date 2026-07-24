@@ -1,23 +1,16 @@
 import { createContext } from 'svelte';
-import se1 from '$lib/assets/se1.mp3';
 import se2 from '$lib/assets/se2.mp3';
-import se3 from '$lib/assets/se3.mp3';
 import { han2zen, type Attendant } from '$lib/attendant';
 import { GameClassBase } from '$lib/game';
-import {
-	BatsuHistoryEntry,
-	MaruHistoryEntry,
-	ThroughHistoryEntry,
-	type HistoryEntry
-} from '$lib/historyEntry';
-import { pushLog } from '$lib/logs';
+import { BatsuHistoryEntry, type HistoryEntry } from '$lib/historyEntry';
 import { getActiveRulesText, Rule } from '$lib/rule';
 import type { WasedashikiMode } from '$lib/serial';
 import { playSound } from '$lib/sound';
 import { GameState } from '$lib/state';
-import type { WasedashikiClass } from '$lib/wasedashiki.svelte';
 
-export class GameClass extends GameClassBase {
+export class GameClass extends GameClassBase<'team'> {
+	battleMode = 'team' as const;
+
 	attendants = $state<Attendant[]>([]);
 	teams = $state<string[]>([]);
 	rules = $state([new Rule('aql', 200, null, 1, 'updown', false, null, 'constant', 0, null)]);
@@ -25,6 +18,11 @@ export class GameClass extends GameClassBase {
 	gameTitle = $state('');
 	playSounds = $state(true);
 	wasedashikiMode = $state<WasedashikiMode>();
+
+	// dummy
+	orderingMode = 'manual' as const;
+	orderedAttendants = [];
+	enableRating = false;
 
 	currentState = $derived(
 		this.history.reduce(
@@ -71,38 +69,6 @@ export class GameClass extends GameClassBase {
 		});
 	}
 
-	clearHistory(Wasedashiki: WasedashikiClass) {
-		pushLog(
-			'team',
-			this.gameTitle,
-			this.activeRulesText,
-			this.currentState,
-			this.attendants,
-			this.teams
-		);
-
-		const removedIndex = [];
-		for (let i = 0, j = 0; i < this.attendants.length; i++) {
-			if (this.currentState.attendants[i]?.life === 'removed') {
-				removedIndex.push(i);
-				delete Wasedashiki.buttonMapping[i];
-				j--;
-			} else {
-				if (j < 0) {
-					Wasedashiki.buttonMapping[i + j] = Wasedashiki.buttonMapping[i];
-					delete Wasedashiki.buttonMapping[i];
-				}
-			}
-		}
-		const newAttendants = [...this.attendants];
-		removedIndex.toReversed().forEach((i) => {
-			newAttendants.splice(i, 1);
-		});
-		this.attendants = newAttendants;
-
-		this.history = [];
-	}
-
 	handlePasteEvent(event: ClipboardEvent, attendantID: number, teamID: number): void {
 		const text = (event.clipboardData?.getData('text') || '').trim();
 		const lines = text.split(/[\r\n]+/);
@@ -121,28 +87,12 @@ export class GameClass extends GameClassBase {
 		}
 	}
 
-	clickMaru(attendantID: number, playSounds_: boolean = true) {
-		this.history.push(new MaruHistoryEntry(attendantID));
-		if (this.playSounds && playSounds_) {
-			playSound(se1);
-		}
-	}
-
 	async clickBatsu(attendantID: number, playSounds_: boolean = true) {
 		const single = this.wasedashikiMode === 'single' || this.wasedashikiMode === 'handicap';
 		this.history.push(new BatsuHistoryEntry(attendantID, single));
 		if (this.playSounds && playSounds_) {
 			playSound(se2);
 		}
-	}
-
-	clickThrough() {
-		this.history.push(new ThroughHistoryEntry());
-		if (this.playSounds) playSound(se3);
-	}
-
-	clickUndo() {
-		this.history.pop();
 	}
 }
 

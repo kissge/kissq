@@ -1,23 +1,16 @@
 import { createContext } from 'svelte';
-import se1 from '$lib/assets/se1.mp3';
 import se2 from '$lib/assets/se2.mp3';
-import se3 from '$lib/assets/se3.mp3';
 import { han2zen, type Attendant } from '$lib/attendant';
 import { GameClassBase } from '$lib/game';
-import {
-	BatsuHistoryEntry,
-	MaruHistoryEntry,
-	ThroughHistoryEntry,
-	type HistoryEntry
-} from '$lib/historyEntry';
-import { pushLog } from '$lib/logs';
+import { BatsuHistoryEntry, type HistoryEntry } from '$lib/historyEntry';
 import { getActiveRulesText, Rule, type Penalty } from '$lib/rule';
 import type { WasedashikiMode } from '$lib/serial';
 import { playSound } from '$lib/sound';
 import { GameState } from '$lib/state';
-import type { WasedashikiClass } from '$lib/wasedashiki.svelte';
 
-export class GameClass extends GameClassBase {
+export class GameClass extends GameClassBase<'single'> {
+	battleMode = 'single' as const;
+
 	attendants = $state<Attendant[]>([]);
 	rules = $state([new Rule('marubatsu', 7, 3, 1, 1, false, null, 'constant', 0, null)]);
 	history = $state<HistoryEntry[]>([]);
@@ -27,6 +20,9 @@ export class GameClass extends GameClassBase {
 
 	orderingMode = $state<'ranking' | 'manual'>('ranking');
 	enableRating = $state(false);
+
+	// dummy
+	attendantsPerTeam = [];
 
 	penaltyRoulette?: { run: (choices: Penalty[]) => Promise<number> };
 
@@ -100,42 +96,6 @@ export class GameClass extends GameClassBase {
 		});
 	}
 
-	clearHistory(Wasedashiki: WasedashikiClass) {
-		this.currentState.attendants.forEach((att, i) => {
-			this.attendants[i].trophyCount = att.trophyCount;
-			if (this.enableRating) {
-				this.attendants[i].totalScore = {
-					num:
-						att.totalScore.num +
-						(this.currentState.attendants.length - this.currentState.ranking.indexOf(i) - 1),
-					den: att.totalScore.den + 1
-				};
-			}
-		});
-
-		pushLog('single', this.gameTitle, this.activeRulesText, this.currentState, this.attendants);
-
-		const newAttendants = [...this.attendants];
-		const removedIndex = [];
-		for (let i = 0, j = 0; i < newAttendants.length; i++) {
-			if (this.currentState.attendants[i]?.life === 'removed') {
-				removedIndex.push(i);
-				j--;
-			} else {
-				if (j < 0) {
-					Wasedashiki.buttonMapping[i + j] = Wasedashiki.buttonMapping[i];
-					delete Wasedashiki.buttonMapping[i];
-				}
-			}
-		}
-		removedIndex.toReversed().forEach((i) => {
-			newAttendants.splice(i, 1);
-		});
-		this.attendants = newAttendants;
-
-		this.history = [];
-	}
-
 	handlePasteEvent(event: ClipboardEvent, ord: number) {
 		const text = (event.clipboardData?.getData('text') || '').trim();
 		const lines = text.split(/[\r\n]+/);
@@ -155,13 +115,6 @@ export class GameClass extends GameClassBase {
 		}
 	}
 
-	clickMaru(attendantID: number, playSounds_: boolean = true) {
-		this.history.push(new MaruHistoryEntry(attendantID));
-		if (this.playSounds && playSounds_) {
-			playSound(se1);
-		}
-	}
-
 	async clickBatsu(attendantID: number, playSounds_: boolean = true) {
 		if (this.playSounds && playSounds_) {
 			playSound(se2);
@@ -178,15 +131,6 @@ export class GameClass extends GameClassBase {
 		} else {
 			this.history.push(new BatsuHistoryEntry(attendantID, single));
 		}
-	}
-
-	clickThrough() {
-		this.history.push(new ThroughHistoryEntry());
-		if (this.playSounds) playSound(se3);
-	}
-
-	clickUndo() {
-		this.history.pop();
 	}
 }
 
