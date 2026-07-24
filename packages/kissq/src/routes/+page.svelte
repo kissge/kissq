@@ -2,7 +2,6 @@
 	import { watch } from 'runed';
 	import { onMount, untrack } from 'svelte';
 	import { flip } from 'svelte/animate';
-	import { Spring } from 'svelte/motion';
 	import { fade, fly, slide } from 'svelte/transition';
 	import Toastify from 'toastify-js';
 	import 'toastify-js/src/toastify.css';
@@ -37,141 +36,14 @@
 	import { tooltip } from '$lib/tooltip.svelte';
 	import { setWasedashikiContext, WasedashikiClass } from '$lib/wasedashiki.svelte';
 	import { GameClass, setGameContext } from './game.svelte';
+	import { LayoutClass } from './layout.svelte';
 
 	let Game = new GameClass();
 	setGameContext(Game);
 	let Wasedashiki = new WasedashikiClass(Game);
 	setWasedashikiContext(Wasedashiki);
 	let QuestionConsole = new QuestionConsoleClass(Game);
-
-	let innerWidth = $state(0);
-	let innerHeight = $state(0);
-	let headerClientHeight = $state(0);
-	let footerClientHeight = $state(0);
-	let fontSize = $state<number>();
-	let container: HTMLDivElement;
-	let columnCount = $derived.by(() => {
-		// 画面に収まる範囲でなるべく多い列数を求める
-		const attCount = Game.currentState.ranking.length;
-		const isSafari =
-			typeof navigator !== 'undefined' &&
-			/safari/i.test(navigator.userAgent) &&
-			!/chrome|android/i.test(navigator.userAgent);
-		if (attCount <= 4) {
-			return 4;
-		} else if (!container || isSafari) {
-			return Math.floor(innerWidth / 250) || 7;
-		}
-
-		const totalHeight = innerHeight - headerClientHeight - footerClientHeight + 1;
-		document.querySelectorAll('.attendant .name').forEach((el) => {
-			(el as HTMLElement).style.display = 'none';
-		});
-
-		let bestCols = Infinity;
-
-		for (let rows = attCount; rows >= 1; --rows) {
-			const cols = Math.ceil(attCount / rows);
-			container.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
-
-			if (container.clientWidth > innerWidth || innerWidth / cols < 140) {
-				break;
-			}
-
-			if (container.clientHeight > totalHeight) {
-				continue;
-			}
-
-			bestCols = Math.ceil(attCount / rows);
-		}
-
-		if (!Number.isFinite(bestCols)) {
-			bestCols = Math.floor(innerWidth / 250);
-		}
-
-		// これでベストな行数の方が逆に定まったので、あらためてその中で列数を決める
-		const bestRows = Math.ceil(attCount / bestCols);
-		bestCols = Math.ceil(attCount / bestRows);
-
-		document.querySelectorAll('.attendant .name').forEach((el) => {
-			(el as HTMLElement).style.display = '';
-		});
-
-		container.style.gridTemplateColumns = `repeat(${bestCols}, 1fr)`;
-		return bestCols;
-	});
-	let nameWidth = $state([0, 0]);
-	let nameHeight = $state([0, 0]);
-	let nameDirection = $state<'vertical-rl' | ''>('vertical-rl');
-	$effect(() => {
-		if (nameWidth.length === 0 || nameHeight.length === 0) {
-			return;
-		}
-
-		if (nameWidth[0] > nameHeight[0] * 1.2) {
-			nameDirection = '';
-			fontSize = Math.floor(
-				Math.min(
-					(container?.clientWidth / columnCount) * 0.15,
-					(container?.clientHeight / Math.ceil(Game.currentState.ranking.length / columnCount)) *
-						0.15
-				)
-			);
-		} else {
-			nameDirection = 'vertical-rl';
-			fontSize = Math.floor(
-				Math.min(
-					(container?.clientWidth / columnCount) * 0.3,
-					(container?.clientHeight / Math.ceil(Game.currentState.ranking.length / columnCount)) *
-						0.09
-				)
-			);
-		}
-	});
-
-	let barMax = $derived.by(() => {
-		if (Game.attendants.length === 0) {
-			return null;
-		}
-
-		if (
-			Game.currentState.attendants.some(
-				({ rule }) => rule.mode !== Game.currentState.attendants[0].rule.mode
-			)
-		) {
-			return null;
-		}
-
-		return Math.max(...Game.currentState.attendants.map((a) => a.rule.max));
-	});
-	let barHeightRatioArray = $state<Spring<number>[]>([]);
-	$effect(() => {
-		if (Game.attendants.length < barHeightRatioArray.length) {
-			barHeightRatioArray = barHeightRatioArray.slice(0, Game.attendants.length);
-		} else if (Game.attendants.length > barHeightRatioArray.length) {
-			for (let i = barHeightRatioArray.length; i < Game.attendants.length; ++i) {
-				barHeightRatioArray.push(new Spring(0, { stiffness: 0.2, damping: 0.2 }));
-			}
-		}
-
-		for (let i = 0; i < barHeightRatioArray.length; ++i) {
-			const ratio = (() => {
-				switch (Game.currentState.attendants[i].rule.mode) {
-					case 'marubatsu':
-						return Game.currentState.attendants[i].maruCount;
-					case 'score':
-					case 'MbyN':
-					case 'survival':
-						return Game.currentState.attendants[i].score;
-					case 'aql':
-					case 'product':
-					case 'sum':
-						throw new Error();
-				}
-			})();
-			barHeightRatioArray[i].set(ratio);
-		}
-	});
+	let Layout = new LayoutClass();
 
 	let isBannerVisible = $state<GameEvent | null>(null);
 	watch(
@@ -416,7 +288,7 @@
 	});
 </script>
 
-<svelte:window bind:innerWidth bind:innerHeight />
+<svelte:window bind:innerWidth={Layout.innerWidth} bind:innerHeight={Layout.innerHeight} />
 
 <svelte:head>
 	<title>{Game.windowTitle}</title>
@@ -433,7 +305,7 @@
 	class="main"
 >
 	<Header
-		bind:headerClientHeight
+		bind:headerClientHeight={Layout.headerClientHeight}
 		questionCount={Game.currentState.questionCount}
 		hideQuestionCount={false}
 		bind:gameTitle={Game.gameTitle}
@@ -453,16 +325,16 @@
 
 	<div
 		class="attendants"
-		style:grid-template-columns={`repeat(${columnCount}, 1fr)`}
-		style:grid-template-rows={`repeat(${Math.ceil(Game.orderedAttendants.length / columnCount)}, ${Game.activeRules.length > 1 ? 'auto' : ''} 1fr auto auto)`}
-		style:height={`calc(100dvh - ${headerClientHeight}px - ${footerClientHeight}px - 25px${QuestionConsole.showQuestionWindow ? ' - 6.25em - 0.7rem' : ''})`}
-		bind:this={container}
+		style:grid-template-columns={`repeat(${Layout.columnCount}, 1fr)`}
+		style:grid-template-rows={`repeat(${Math.ceil(Game.orderedAttendants.length / Layout.columnCount)}, ${Game.activeRules.length > 1 ? 'auto' : ''} 1fr auto auto)`}
+		style:height={`calc(100dvh - ${Layout.headerClientHeight}px - ${Layout.footerClientHeight}px - 25px${QuestionConsole.showQuestionWindow ? ' - 6.25em - 0.7rem' : ''})`}
+		bind:this={Layout.container}
 	>
 		{#each Game.orderedAttendants as i, ord (i)}
 			{@const att = Game.currentState.attendants[i]}
-			{@const barHeight: number = barHeightRatioArray[i]?.current ?? 0}
+			{@const barHeight: number = Layout.barHeightRatioArray[i]?.current ?? 0}
 			<div
-				style:font-size={(fontSize ?? 0) + 'px'}
+				style:font-size={(Layout.fontSize ?? 0) + 'px'}
 				style:grid-row={Game.activeRules.length > 1 ? 'span 4' : 'span 3'}
 				class={['attendant', { lizhi: att.isLizhi, 'drop-target': dropTarget === ord }]}
 				animate:flip={{ duration: 500, delay: attendantFLIPDelay }}
@@ -573,13 +445,15 @@
 								Wasedashiki.answerers[(Wasedashiki.buttonMapping[i] ?? 0) - 1]?.rank === 'late'
 						}
 					]}
-					style:writing-mode={nameDirection}
-					style:justify-content={nameDirection ? '' : 'center'}
-					style:text-align={nameDirection ? '' : 'center'}
-					style:--bar-height-ratio={barMax !== null ? Math.min(barHeight / barMax, 1) : -999}
+					style:writing-mode={Layout.nameDirection}
+					style:justify-content={Layout.nameDirection ? '' : 'center'}
+					style:text-align={Layout.nameDirection ? '' : 'center'}
+					style:--bar-height-ratio={Layout.barMax !== null
+						? Math.min(barHeight / Layout.barMax, 1)
+						: -999}
 					{@attach tooltip('ダブルクリックして名前を編集', { placement: 'bottom' })}
-					bind:clientWidth={nameWidth[i]}
-					bind:clientHeight={nameHeight[i]}
+					bind:clientWidth={Layout.nameWidth[i]}
+					bind:clientHeight={Layout.nameHeight[i]}
 				></div>
 
 				<div class="score" style:opacity={showScore ? 1 : 0}>
@@ -765,8 +639,6 @@
 					</div>
 				{/if}
 			</div>
-		{:else}
-			Why? {JSON.stringify(Game.orderedAttendants)}
 		{/each}
 		{#if Game.orderingMode === 'manual'}
 			<div
@@ -783,7 +655,7 @@
 	</div>
 
 	<Footer
-		bind:footerClientHeight
+		bind:footerClientHeight={Layout.footerClientHeight}
 		attendants={Game.attendants}
 		rules={Game.rules}
 		history={Game.history}
@@ -953,8 +825,8 @@
 	answererRanking={Wasedashiki.answererRanking}
 	attendants={Game.attendants}
 	wasedashikiMode={Game.wasedashikiMode}
-	{headerClientHeight}
-	{footerClientHeight}
+	headerClientHeight={Layout.headerClientHeight}
+	footerClientHeight={Layout.footerClientHeight}
 />
 
 <RuleEditDialog bind:this={ruleEditDialog} />
