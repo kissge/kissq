@@ -95,6 +95,7 @@
 	});
 
 	$effect(() => {
+		// eslint-disable-next-line svelte/no-unused-svelte-ignore
 		// svelte-ignore state_snapshot_uncloneable
 		$state.snapshot([
 			Game.currentState,
@@ -207,12 +208,7 @@
 		{/each}
 	</div>
 
-	<Footer
-		bind:footerClientHeight={Layout.footerClientHeight}
-		attendants={Game.attendants}
-		rules={Game.rules}
-		history={Game.history}
-	>
+	<Footer {Game}>
 		<button
 			onclick={Game.clickThrough}
 			class={{

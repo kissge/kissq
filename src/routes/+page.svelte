@@ -375,12 +375,7 @@
 		{/if}
 	</div>
 
-	<Footer
-		bind:footerClientHeight={Layout.footerClientHeight}
-		attendants={Game.attendants}
-		rules={Game.rules}
-		history={Game.history}
-	>
+	<Footer {Game}>
 		<button
 			onclick={() => Game.clickThrough()}
 			class={{
