@@ -16,5 +16,14 @@ export const tooltipInteractive = (content: string) =>
 		allowHTML: true,
 		interactiveBorder: 30,
 		appendTo: document.body,
-		offset: [0, 0]
+		offset: [0, 0],
+		onTrigger(instance) {
+			document.querySelectorAll('[data-tippy-root]').forEach((e) => {
+				if (e.id === `tippy-${instance.id}`) {
+					(e as HTMLElement).style.display = '';
+				} else {
+					(e as HTMLElement).style.display = 'none';
+				}
+			});
+		}
 	});
