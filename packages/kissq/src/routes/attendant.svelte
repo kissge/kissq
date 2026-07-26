@@ -151,7 +151,7 @@
 ></div>
 
 <div class="score" style:opacity={showScore ? 1 : 0}>
-	{#if history.length === 0 && att.rule.mode !== 'survival' && att.rule.mode !== 'score' && Game.enableRating}
+	{#if Game.history.length === 0 && att.rule.mode !== 'survival' && att.rule.mode !== 'score' && Game.enableRating}
 		<span {@attach tooltip('レート')} class="rate">
 			{#if att.totalScore.den === 0}
 				---
