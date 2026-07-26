@@ -1,51 +1,40 @@
 <script lang="ts">
 	import { fade, fly } from 'svelte/transition';
-	import type { WasedashikiMode } from '$lib/serial';
+	import type { GameClassBase } from '$lib/game';
+	import { getLayoutContext } from '$lib/layout.svelte';
+	import { getWasedashikiContext } from '$lib/wasedashiki.svelte';
 
-	let {
-		answererRanking,
-		attendants,
-		wasedashikiMode,
-		headerClientHeight,
-		footerClientHeight
-	}: {
-		answererRanking: (readonly [
-			number,
-			{
-				rank: 1 | 2 | 'late';
-				delay: number;
-			}
-		])[];
-		attendants: Record<number, { name: string } | undefined>;
-		wasedashikiMode: WasedashikiMode | undefined;
-		headerClientHeight: number;
-		footerClientHeight: number;
-	} = $props();
+	let { Game }: { Game: GameClassBase<'single'> | GameClassBase<'team'> } = $props();
+
+	let Wasedashiki = getWasedashikiContext();
+	let Layout = getLayoutContext();
 
 	let innerHeight = $state(0);
 	let pushersClientHeight = $state(0);
 
 	let pushersTop = $derived.by(() => {
 		if (pushersClientHeight === 0) {
-			return headerClientHeight * 1.5;
+			return Layout.headerClientHeight * 1.5;
 		}
 
-		const availableHeight = innerHeight - headerClientHeight - footerClientHeight;
+		const availableHeight = innerHeight - Layout.headerClientHeight - Layout.footerClientHeight;
 		if (availableHeight <= 0) {
-			return headerClientHeight * 1.5;
+			return Layout.headerClientHeight * 1.5;
 		}
 
-		return headerClientHeight * 1.5 + Math.max(0, (availableHeight - pushersClientHeight) / 2);
+		return (
+			Layout.headerClientHeight * 1.5 + Math.max(0, (availableHeight - pushersClientHeight) / 2)
+		);
 	});
 </script>
 
 <svelte:window bind:innerHeight />
 
-{#if answererRanking.length > 0 && !answererRanking.some(([attendantID]) => isNaN(attendantID))}
+{#if Wasedashiki.answererRanking.length > 0 && !Wasedashiki.answererRanking.some( ([attendantID]) => isNaN(attendantID) )}
 	<div class="pushers-bg" in:fade></div>
 	<div class="pushers" style:top="{pushersTop}px">
 		<div bind:clientHeight={pushersClientHeight}>
-			{#each answererRanking as [attendantID, answerer] (attendantID)}
+			{#each Wasedashiki.answererRanking as [attendantID, answerer] (attendantID)}
 				<div class="attendant" in:fly={{ y: 300 }} out:fly={{ y: -300 }}>
 					<div class="time" style:opacity={answerer.delay === 0 ? 0 : 1}>
 						+ {(answerer.delay / 1000).toFixed(3) ?? ''} s
@@ -54,11 +43,13 @@
 						class="name"
 						class:answerer-1st={answerer.rank === 1}
 						class:answerer-2nd={answerer.rank === 2 &&
-							wasedashikiMode !== 'single' &&
-							wasedashikiMode !== 'handicap'}
+							Game.wasedashikiMode !== 'single' &&
+							Game.wasedashikiMode !== 'handicap'}
 					>
-						<div style:scale={(attendants[attendantID]?.name.length ?? 0) > 9 ? '0.8 1' : '1 1'}>
-							{attendants[attendantID]?.name || `プレイヤー${attendantID}`}
+						<div
+							style:scale={(Game.attendants[attendantID]?.name.length ?? 0) > 9 ? '0.8 1' : '1 1'}
+						>
+							{Game.attendants[attendantID]?.name || `プレイヤー${attendantID}`}
 						</div>
 					</div>
 				</div>

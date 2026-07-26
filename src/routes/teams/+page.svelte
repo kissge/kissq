@@ -375,13 +375,7 @@
 	</button>
 </template>
 
-<Pushers
-	answererRanking={Wasedashiki.answererRanking}
-	attendants={Game.attendants}
-	wasedashikiMode={Game.wasedashikiMode}
-	headerClientHeight={Layout.headerClientHeight}
-	footerClientHeight={Layout.footerClientHeight}
-/>
+<Pushers {Game} />
 
 <RuleTeamEditDialog bind:this={ruleTeamEditDialog} />
 <LogDialog bind:this={logDialog} />

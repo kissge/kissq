@@ -537,13 +537,7 @@
 	</div>
 {/if}
 
-<Pushers
-	answererRanking={Wasedashiki.answererRanking}
-	attendants={Game.attendants}
-	wasedashikiMode={Game.wasedashikiMode}
-	headerClientHeight={Layout.headerClientHeight}
-	footerClientHeight={Layout.footerClientHeight}
-/>
+<Pushers {Game} />
 
 <RuleEditDialog bind:this={ruleEditDialog} />
 <LogDialog bind:this={logDialog} />
