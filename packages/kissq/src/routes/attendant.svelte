@@ -465,7 +465,7 @@
 		}
 	}
 
-	.hidden-buttons:is(:hover > *) {
+	.hidden-buttons:is(:global(.attendant:hover) > *) {
 		display: flex;
 	}
 
