@@ -2,7 +2,7 @@ import se1 from '$lib/assets/se1.mp3';
 import se3 from '$lib/assets/se3.mp3';
 import type { Attendant } from './attendant';
 import { MaruHistoryEntry, ThroughHistoryEntry, type HistoryEntry } from './historyEntry';
-import { pushLog } from './logs';
+import { LoggerClass } from './logs';
 import type { Rule } from './rule';
 import type { WasedashikiMode } from './serial';
 import { playSound } from './sound';
@@ -13,6 +13,7 @@ export abstract class GameClassBase<BattleMode extends 'single' | 'team'> {
 	abstract readonly battleMode: BattleMode;
 
 	abstract attendants: Attendant[];
+	abstract teams: string[];
 	abstract rules: Rule[];
 	abstract history: HistoryEntry[];
 	abstract gameTitle: string;
@@ -24,6 +25,8 @@ export abstract class GameClassBase<BattleMode extends 'single' | 'team'> {
 	abstract orderedAttendants: number[];
 	abstract attendantsPerTeam: ({ att: Attendant; ai: number }[] | undefined)[][];
 	abstract enableRating: boolean;
+
+	abstract Logger?: LoggerClass<BattleMode>;
 
 	abstract addAttendant(
 		...args: BattleMode extends 'single' ? [string | undefined] : [number, string | undefined]
@@ -43,13 +46,7 @@ export abstract class GameClassBase<BattleMode extends 'single' | 'team'> {
 			}
 		});
 
-		pushLog(
-			this.battleMode,
-			this.gameTitle,
-			this.activeRulesText,
-			this.currentState,
-			this.attendants
-		);
+		this.Logger!.push();
 
 		const newAttendants = [...this.attendants];
 		const removedIndex = [];

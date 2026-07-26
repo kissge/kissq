@@ -22,7 +22,7 @@
 	import StateEditDialog from '$lib/components/stateEditDialog.svelte';
 	import { EditHistoryEntry } from '$lib/historyEntry';
 	import { LayoutClass, setLayoutContext } from '$lib/layout.svelte';
-	import { pushLog, updateLog } from '$lib/logs';
+	import { LoggerClass, setLoggerContext } from '$lib/logs';
 	import { QuestionConsoleClass, setQuestionConsoleContext } from '$lib/questionConsole.svelte';
 	import { Rule, type Penalty } from '$lib/rule';
 	import { reconnect } from '$lib/serial';
@@ -40,6 +40,9 @@
 	setQuestionConsoleContext(QuestionConsole);
 	let Layout = new LayoutClass(Game);
 	setLayoutContext(Layout);
+	let Logger = new LoggerClass('single', Game);
+	setLoggerContext(Logger);
+	Game.Logger = Logger;
 
 	let isBannerVisible = $state<GameEvent | null>(null);
 	watch(
@@ -126,7 +129,7 @@
 			return;
 		}
 
-		updateLog('single', Game.gameTitle, Game.currentState, Game.attendants, Game.activeRulesText);
+		Logger.update();
 	});
 
 	async function editRule() {
@@ -259,7 +262,7 @@
 			.catch((error) => {
 				console.error('接続エラー', error);
 			});
-		pushLog('single', Game.gameTitle, Game.activeRulesText, Game.currentState, Game.attendants);
+		Logger.push();
 		const processWindowMessage = (event: MessageEvent) => {
 			QuestionConsole.processWindowMessage(event);
 		};

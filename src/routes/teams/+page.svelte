@@ -14,7 +14,7 @@
 	import RuleTeamEditDialog from '$lib/components/ruleTeamEditDialog.svelte';
 	import Stars from '$lib/components/stars.svelte';
 	import { LayoutClass, setLayoutContext } from '$lib/layout.svelte';
-	import { pushLog, updateLog } from '$lib/logs';
+	import { LoggerClass, setLoggerContext } from '$lib/logs';
 	import { QuestionConsoleClass, setQuestionConsoleContext } from '$lib/questionConsole.svelte';
 	import { Rule } from '$lib/rule';
 	import { reconnect } from '$lib/serial';
@@ -32,6 +32,9 @@
 	setQuestionConsoleContext(QuestionConsole);
 	let Layout = new LayoutClass(Game);
 	setLayoutContext(Layout);
+	let Logger = new LoggerClass('team', Game);
+	setLoggerContext(Logger);
+	Game.Logger = Logger;
 
 	// svelte-ignore non_reactive_update ...?
 	let logDialog: { open: () => void };
@@ -85,14 +88,7 @@
 			return;
 		}
 
-		updateLog(
-			'team',
-			Game.gameTitle,
-			Game.currentState,
-			Game.attendants,
-			Game.activeRulesText,
-			Game.teams
-		);
+		Logger.update();
 	});
 
 	$effect(() => {
@@ -148,14 +144,8 @@
 				console.error('接続エラー', error);
 			});
 
-		pushLog(
-			'team',
-			Game.gameTitle,
-			Game.activeRulesText,
-			Game.currentState,
-			Game.attendants,
-			Game.teams
-		);
+		Logger.push();
+
 		const processWindowMessage = (event: MessageEvent) => {
 			QuestionConsole.processWindowMessage(event);
 		};

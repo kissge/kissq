@@ -3,6 +3,7 @@ import se2 from '$lib/assets/se2.mp3';
 import { han2zen, type Attendant } from '$lib/attendant';
 import { GameClassBase } from '$lib/game';
 import { BatsuHistoryEntry, type HistoryEntry } from '$lib/historyEntry';
+import { LoggerClass } from '$lib/logs';
 import { getActiveRulesText, Rule, type Penalty } from '$lib/rule';
 import type { WasedashikiMode } from '$lib/serial';
 import { playSound } from '$lib/sound';
@@ -21,7 +22,10 @@ export class GameClass extends GameClassBase<'single'> {
 	orderingMode = $state<'ranking' | 'manual'>('ranking');
 	enableRating = $state(false);
 
+	Logger?: LoggerClass<'single'>;
+
 	// dummy
+	teams = [];
 	attendantsPerTeam = [];
 
 	penaltyRoulette?: { run: (choices: Penalty[]) => Promise<number> };
