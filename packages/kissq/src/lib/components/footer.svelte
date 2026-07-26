@@ -1,26 +1,21 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
-	import type { Attendant } from '$lib/attendant';
-	import type { HistoryEntry } from '$lib/historyEntry';
-	import type { Rule } from '$lib/rule';
+	import type { GameClassBase } from '$lib/game';
+	import { getLayoutContext } from '$lib/layout.svelte';
 	import { tooltip } from '$lib/tooltip.svelte';
 
 	let {
-		footerClientHeight = $bindable(),
-		attendants,
-		rules,
-		history,
+		Game,
 		children
 	}: {
-		footerClientHeight: number;
-		attendants: Attendant[];
-		rules: Rule[];
-		history: HistoryEntry[];
+		Game: GameClassBase<'single'> | GameClassBase<'team'>;
 		children: Snippet<[]>;
 	} = $props();
+
+	let Layout = getLayoutContext();
 </script>
 
-<footer class="footer" bind:clientHeight={footerClientHeight}>
+<footer class="footer" bind:clientHeight={Layout.footerClientHeight}>
 	<div class="left">
 		<a href="https://github.com/kissge/kissq" target="_blank">ソース</a>
 		<a
@@ -34,9 +29,9 @@
 			href="https://docs.google.com/forms/d/e/1FAIpQLSdpwAsY5k5LKnnbntsMo1USadZczeuq-SZqlFcNMpbj255u4Q/viewform?pli=1&usp=pp_url&entry.2107805527={encodeURIComponent(
 				JSON.stringify({
 					// eslint-disable-next-line @typescript-eslint/no-unused-vars
-					a: attendants.map(({ name, ...rest }) => rest),
-					r: rules,
-					h: history
+					a: Game.attendants.map(({ name, ...rest }) => rest),
+					r: Game.rules,
+					h: Game.history
 				})
 			)}"
 			target="_blank"

@@ -3,6 +3,7 @@ import se3 from '$lib/assets/se3.mp3';
 import type { Attendant } from './attendant';
 import { MaruHistoryEntry, ThroughHistoryEntry, type HistoryEntry } from './historyEntry';
 import { pushLog } from './logs';
+import type { Rule } from './rule';
 import type { WasedashikiMode } from './serial';
 import { playSound } from './sound';
 import type { GameState } from './state';
@@ -12,6 +13,7 @@ export abstract class GameClassBase<BattleMode extends 'single' | 'team'> {
 	abstract readonly battleMode: BattleMode;
 
 	abstract attendants: Attendant[];
+	abstract rules: Rule[];
 	abstract history: HistoryEntry[];
 	abstract gameTitle: string;
 	abstract currentState: GameState;
