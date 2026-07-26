@@ -1,10 +1,8 @@
 import { createContext } from 'svelte';
 import { Spring } from 'svelte/motion';
-import { getGameContext } from './game.svelte';
+import type { GameClassBase } from './game';
 
 export class LayoutClass {
-	Game = getGameContext();
-
 	innerWidth = $state(0);
 	innerHeight = $state(0);
 	headerClientHeight = $state(0);
@@ -85,7 +83,7 @@ export class LayoutClass {
 	});
 	barHeightRatioArray = $state<Spring<number>[]>([]);
 
-	constructor() {
+	constructor(public Game: GameClassBase<'single'> | GameClassBase<'team'>) {
 		$effect(() => {
 			if (this.nameWidth.length === 0 || this.nameHeight.length === 0) {
 				return;
@@ -133,7 +131,7 @@ export class LayoutClass {
 						case 'aql':
 						case 'product':
 						case 'sum':
-							throw new Error();
+							return 0;
 					}
 				})();
 				this.barHeightRatioArray[i].set(ratio);

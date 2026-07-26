@@ -21,6 +21,7 @@
 	import Stars from '$lib/components/stars.svelte';
 	import StateEditDialog from '$lib/components/stateEditDialog.svelte';
 	import { EditHistoryEntry } from '$lib/historyEntry';
+	import { LayoutClass, setLayoutContext } from '$lib/layout.svelte';
 	import { pushLog, updateLog } from '$lib/logs';
 	import { QuestionConsoleClass } from '$lib/questionConsole.svelte';
 	import { Rule, type Penalty } from '$lib/rule';
@@ -30,14 +31,13 @@
 	import { setWasedashikiContext, WasedashikiClass } from '$lib/wasedashiki.svelte';
 	import Attendant from './attendant.svelte';
 	import { GameClass, setGameContext } from './game.svelte';
-	import { LayoutClass, setLayoutContext } from './layout.svelte';
 
 	let Game = new GameClass();
 	setGameContext(Game);
 	let Wasedashiki = new WasedashikiClass(Game);
 	setWasedashikiContext(Wasedashiki);
 	let QuestionConsole = new QuestionConsoleClass(Game);
-	let Layout = new LayoutClass();
+	let Layout = new LayoutClass(Game);
 	setLayoutContext(Layout);
 
 	let isBannerVisible = $state<GameEvent | null>(null);
@@ -299,19 +299,7 @@
 		: 'auto 1fr auto'}
 	class="main"
 >
-	<Header
-		bind:headerClientHeight={Layout.headerClientHeight}
-		questionCount={Game.currentState.questionCount}
-		hideQuestionCount={false}
-		bind:gameTitle={Game.gameTitle}
-		battleMode="single"
-		onBattleModeChange={() => Game.clearHistory(Wasedashiki)}
-		attendants={Game.attendants}
-		buttonMapping={Wasedashiki.buttonMapping}
-		wasedashikiMode={Game.wasedashikiMode}
-		activeRulesText={Game.activeRulesText}
-		{editRule}
-	/>
+	<Header {Game} battleMode="single" {editRule} />
 
 	<QuestionWindow
 		showQuestionWindow={QuestionConsole.showQuestionWindow}
