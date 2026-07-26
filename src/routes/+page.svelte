@@ -23,7 +23,7 @@
 	import { EditHistoryEntry } from '$lib/historyEntry';
 	import { LayoutClass, setLayoutContext } from '$lib/layout.svelte';
 	import { pushLog, updateLog } from '$lib/logs';
-	import { QuestionConsoleClass } from '$lib/questionConsole.svelte';
+	import { QuestionConsoleClass, setQuestionConsoleContext } from '$lib/questionConsole.svelte';
 	import { Rule, type Penalty } from '$lib/rule';
 	import { reconnect } from '$lib/serial';
 	import { AttendantState, type AttendantStateValue, type GameEvent } from '$lib/state';
@@ -37,6 +37,7 @@
 	let Wasedashiki = new WasedashikiClass(Game);
 	setWasedashikiContext(Wasedashiki);
 	let QuestionConsole = new QuestionConsoleClass(Game);
+	setQuestionConsoleContext(QuestionConsole);
 	let Layout = new LayoutClass(Game);
 	setLayoutContext(Layout);
 
@@ -301,10 +302,7 @@
 >
 	<Header {Game} battleMode="single" {editRule} />
 
-	<QuestionWindow
-		showQuestionWindow={QuestionConsole.showQuestionWindow}
-		currentQuestion={QuestionConsole.currentQuestion}
-	/>
+	<QuestionWindow />
 
 	<div
 		class="attendants"

@@ -1,24 +1,16 @@
 <script lang="ts">
 	import { fade } from 'svelte/transition';
+	import { getQuestionConsoleContext } from '$lib/questionConsole.svelte';
 
-	let {
-		showQuestionWindow,
-		currentQuestion
-	}: {
-		showQuestionWindow: boolean;
-		currentQuestion: {
-			question: string;
-			answer: string;
-		};
-	} = $props();
+	let QuestionConsole = getQuestionConsoleContext();
 </script>
 
-{#if showQuestionWindow}
+{#if QuestionConsole.showQuestionWindow}
 	<div transition:fade>
 		<div class="question">
-			{#key currentQuestion.question}
+			{#key QuestionConsole.currentQuestion.question}
 				<p in:fade>
-					{#each currentQuestion.question.split(/(（.+?）|\(.+?\)|【.+?】|［.+?］)/) as part, i (i)}
+					{#each QuestionConsole.currentQuestion.question.split(/(（.+?）|\(.+?\)|【.+?】|［.+?］)/) as part, i (i)}
 						{#if i % 2}
 							<small>{part}</small>
 						{:else}
@@ -29,7 +21,7 @@
 			{/key}
 			<div class="answer">
 				A.
-				{#each currentQuestion.answer.split(/(（.+?）|\(.+?\)|【.+?】|［.+?］)/) as part, i (i)}
+				{#each QuestionConsole.currentQuestion.answer.split(/(（.+?）|\(.+?\)|【.+?】|［.+?］)/) as part, i (i)}
 					{#if i % 2}
 						<small>{part}</small>
 					{:else}

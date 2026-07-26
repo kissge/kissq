@@ -1,3 +1,4 @@
+import { createContext } from 'svelte';
 import { qZero } from '$lib/question';
 import type { AttendantState } from '$lib/state';
 import { getWasedashikiContext } from '$lib/wasedashiki.svelte';
@@ -116,3 +117,6 @@ export class QuestionConsoleClass {
 		}
 	}
 }
+
+export const [getQuestionConsoleContext, setQuestionConsoleContext] =
+	createContext<QuestionConsoleClass>();
