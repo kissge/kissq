@@ -13,6 +13,7 @@
 	import QuestionWindow from '$lib/components/questionWindow.svelte';
 	import RuleTeamEditDialog from '$lib/components/ruleTeamEditDialog.svelte';
 	import Stars from '$lib/components/stars.svelte';
+	import { LayoutClass, setLayoutContext } from '$lib/layout.svelte';
 	import { pushLog, updateLog } from '$lib/logs';
 	import { QuestionConsoleClass } from '$lib/questionConsole.svelte';
 	import { Rule } from '$lib/rule';
@@ -28,9 +29,8 @@
 	let Wasedashiki = new WasedashikiClass(Game);
 	setWasedashikiContext(Wasedashiki);
 	let QuestionConsole = new QuestionConsoleClass(Game);
-
-	let headerClientHeight = $state(0);
-	let footerClientHeight = $state(0);
+	let Layout = new LayoutClass(Game);
+	setLayoutContext(Layout);
 
 	// svelte-ignore non_reactive_update ...?
 	let logDialog: { open: () => void };
@@ -95,7 +95,6 @@
 	});
 
 	$effect(() => {
-		// eslint-disable-next-line svelte/no-unused-svelte-ignore
 		// svelte-ignore state_snapshot_uncloneable
 		$state.snapshot([
 			Game.currentState,
@@ -184,19 +183,7 @@
 </svelte:head>
 
 <main class="main">
-	<Header
-		bind:headerClientHeight
-		questionCount={Game.currentState.questionCount}
-		hideQuestionCount={Game.currentState.defaultRule.mode === 'aql'}
-		bind:gameTitle={Game.gameTitle}
-		battleMode="team"
-		onBattleModeChange={() => Game.clearHistory(Wasedashiki)}
-		attendants={Game.attendants}
-		buttonMapping={Wasedashiki.buttonMapping}
-		wasedashikiMode={Game.wasedashikiMode}
-		activeRulesText={Game.activeRulesText}
-		{editRule}
-	/>
+	<Header {Game} battleMode="team" {editRule} />
 
 	<QuestionWindow
 		showQuestionWindow={QuestionConsole.showQuestionWindow}
@@ -205,7 +192,7 @@
 
 	<div
 		class="attendants"
-		style:height={`calc(100vh - ${headerClientHeight + footerClientHeight}px - 30px ${QuestionConsole.showQuestionWindow ? '- 6.25em - 0.7rem' : ''})`}
+		style:height={`calc(100vh - ${Layout.headerClientHeight + Layout.footerClientHeight}px - 30px ${QuestionConsole.showQuestionWindow ? '- 6.25em - 0.7rem' : ''})`}
 	>
 		{#each Game.attendantsPerTeam as seats, ti (ti)}
 			<div
@@ -221,7 +208,7 @@
 	</div>
 
 	<Footer
-		bind:footerClientHeight
+		bind:footerClientHeight={Layout.footerClientHeight}
 		attendants={Game.attendants}
 		rules={Game.rules}
 		history={Game.history}
@@ -396,8 +383,8 @@
 	answererRanking={Wasedashiki.answererRanking}
 	attendants={Game.attendants}
 	wasedashikiMode={Game.wasedashikiMode}
-	{headerClientHeight}
-	{footerClientHeight}
+	headerClientHeight={Layout.headerClientHeight}
+	footerClientHeight={Layout.footerClientHeight}
 />
 
 <RuleTeamEditDialog bind:this={ruleTeamEditDialog} />

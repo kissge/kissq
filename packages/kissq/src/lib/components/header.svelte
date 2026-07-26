@@ -1,54 +1,48 @@
 <script lang="ts">
 	import { fade } from 'svelte/transition';
-	import type { Attendant } from '$lib/attendant';
 	import HelpDialog from '$lib/components/helpDialog.svelte';
-	import { getActiveRulesText, type Rule } from '$lib/rule';
-	import type { WasedashikiMode } from '$lib/serial';
+	import type { GameClassBase } from '$lib/game';
+	import { getLayoutContext } from '$lib/layout.svelte';
 	import { tooltip } from '$lib/tooltip.svelte';
+	import { getWasedashikiContext } from '$lib/wasedashiki.svelte';
 
 	let {
-		headerClientHeight = $bindable(),
-		questionCount,
-		hideQuestionCount,
-		gameTitle = $bindable(),
+		Game,
 		battleMode,
-		onBattleModeChange,
-		attendants,
-		buttonMapping,
-		wasedashikiMode,
-		activeRulesText,
 		editRule
 	}: {
-		headerClientHeight: number;
-		questionCount: number;
-		hideQuestionCount: boolean;
-		gameTitle: string;
+		Game: GameClassBase<'single'> | GameClassBase<'team'>;
 		battleMode: 'single' | 'team';
-		onBattleModeChange: (event: MouseEvent) => void;
-		attendants: Attendant[];
-		buttonMapping: Record<number, number>;
-		wasedashikiMode: WasedashikiMode | undefined;
-		activeRulesText: string;
 		editRule: () => void;
 	} = $props();
+
+	let Layout = getLayoutContext();
+	let Wasedashiki = getWasedashikiContext();
 
 	// svelte-ignore non_reactive_update ...?
 	let helpDialog: { open: () => void };
 
+	let hideQuestionCount = $derived(Game.currentState.defaultRule.mode === 'aql');
+
 	const search = typeof location !== 'undefined' ? location.search : '';
 	let hash = $derived(
-		attendants.some(({ name }) => name) || Object.keys(buttonMapping).length > 0
-			? encodeURIComponent(JSON.stringify({ attendants, buttonMapping }))
+		Game.attendants.some(({ name }) => name) || Object.keys(Wasedashiki.buttonMapping).length > 0
+			? encodeURIComponent(
+					JSON.stringify({
+						attendants: Game.attendants,
+						buttonMapping: Wasedashiki.buttonMapping
+					})
+				)
 			: ''
 	);
 </script>
 
-<header bind:clientHeight={headerClientHeight}>
+<header bind:clientHeight={Layout.headerClientHeight}>
 	<div>
 		Next:
-		{#key questionCount}
+		{#key Game.currentState.questionCount}
 			<span class="crossfade" in:fade={{ delay: 500 }} out:fade>
-				Q{hideQuestionCount ? '???' : questionCount}
+				Q{hideQuestionCount ? '???' : Game.currentState.questionCount}
 			</span>
 		{/key}
 	</div>
@@ -56,14 +50,14 @@
 		<span
 			contenteditable
 			class="editable-title"
-			bind:textContent={gameTitle}
+			bind:textContent={Game.gameTitle}
 			{@attach tooltip('クリックでゲームのタイトルを設定')}
 		></span>
 		{#if battleMode === 'single'}
 			<a
 				data-sveltekit-reload
 				href="./teams{search}#{hash}"
-				onclick={onBattleModeChange}
+				onclick={() => Game.clearHistory(Wasedashiki)}
 				{@attach tooltip('団体戦に切り替えます')}
 			>
 				個人戦 ▾
@@ -72,7 +66,7 @@
 			<a
 				data-sveltekit-reload
 				href="./{search}#{hash}"
-				onclick={onBattleModeChange}
+				onclick={() => Game.clearHistory(Wasedashiki)}
 				{@attach tooltip('個人戦に切り替えます')}
 			>
 				団体戦 <small>β</small> ▾
@@ -93,13 +87,13 @@
 	</h1>
 	<div>
 		Rule:
-		{activeRulesText}
-		{#if wasedashikiMode}
-			({wasedashikiMode === 'single'
+		{Game.activeRulesText}
+		{#if Game.wasedashikiMode}
+			({Game.wasedashikiMode === 'single'
 				? '1C'
-				: wasedashikiMode === 'double'
+				: Game.wasedashikiMode === 'double'
 					? '2C'
-					: wasedashikiMode === 'endless'
+					: Game.wasedashikiMode === 'endless'
 						? '∞C'
 						: '1C'})
 		{/if}

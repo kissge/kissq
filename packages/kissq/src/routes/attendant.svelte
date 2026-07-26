@@ -9,12 +9,12 @@
 		RemoveHistoryEntry,
 		WinHistoryEntry
 	} from '$lib/historyEntry';
+	import { getLayoutContext } from '$lib/layout.svelte';
 	import { playSound } from '$lib/sound';
 	import type { AttendantState, GameEvent } from '$lib/state';
 	import { tooltip } from '$lib/tooltip.svelte';
 	import { getWasedashikiContext } from '$lib/wasedashiki.svelte';
 	import { getGameContext } from './game.svelte';
-	import { getLayoutContext } from './layout.svelte';
 
 	let {
 		ai,
