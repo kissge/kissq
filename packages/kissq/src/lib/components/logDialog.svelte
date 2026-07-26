@@ -1,9 +1,11 @@
 <script lang="ts">
-	import { loadLog, type LogEntry, type LogStateTeamEntry } from '$lib/logs';
+	import { getLoggerContext, type LogEntry, type LogStateTeamEntry } from '$lib/logs';
+
+	let Logger = getLoggerContext();
 
 	let dialog: HTMLDialogElement;
 	export function open() {
-		logs = loadLog();
+		logs = Logger.load();
 		dialog.showModal();
 	}
 

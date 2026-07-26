@@ -3,6 +3,7 @@ import se2 from '$lib/assets/se2.mp3';
 import { han2zen, type Attendant } from '$lib/attendant';
 import { GameClassBase } from '$lib/game';
 import { BatsuHistoryEntry, type HistoryEntry } from '$lib/historyEntry';
+import type { LoggerClass } from '$lib/logs';
 import { getActiveRulesText, Rule } from '$lib/rule';
 import type { WasedashikiMode } from '$lib/serial';
 import { playSound } from '$lib/sound';
@@ -23,6 +24,8 @@ export class GameClass extends GameClassBase<'team'> {
 	orderingMode = 'manual' as const;
 	orderedAttendants = [];
 	enableRating = false;
+
+	Logger?: LoggerClass<'team'>;
 
 	currentState = $derived(
 		this.history.reduce(
