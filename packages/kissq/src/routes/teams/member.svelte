@@ -72,6 +72,7 @@
 		Game.currentState.defaultRule.mode === 'product'
 			? ''
 			: 'none'}
+		class:even={Game.attendants[ai].seat % 2 === 1}
 		{@attach tooltip('枠を変更します。')}
 	>
 		<select bind:value={Game.attendants[ai].seat}>
@@ -347,6 +348,10 @@
 		.seat {
 			background: #0004;
 			color: #fff;
+
+			&.even {
+				background: #000a;
+			}
 
 			select {
 				cursor: pointer;
