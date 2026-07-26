@@ -15,7 +15,7 @@
 	import Stars from '$lib/components/stars.svelte';
 	import { LayoutClass, setLayoutContext } from '$lib/layout.svelte';
 	import { pushLog, updateLog } from '$lib/logs';
-	import { QuestionConsoleClass } from '$lib/questionConsole.svelte';
+	import { QuestionConsoleClass, setQuestionConsoleContext } from '$lib/questionConsole.svelte';
 	import { Rule } from '$lib/rule';
 	import { reconnect } from '$lib/serial';
 	import type { GameEvent } from '$lib/state';
@@ -29,6 +29,7 @@
 	let Wasedashiki = new WasedashikiClass(Game);
 	setWasedashikiContext(Wasedashiki);
 	let QuestionConsole = new QuestionConsoleClass(Game);
+	setQuestionConsoleContext(QuestionConsole);
 	let Layout = new LayoutClass(Game);
 	setLayoutContext(Layout);
 
@@ -186,10 +187,7 @@
 <main class="main">
 	<Header {Game} battleMode="team" {editRule} />
 
-	<QuestionWindow
-		showQuestionWindow={QuestionConsole.showQuestionWindow}
-		currentQuestion={QuestionConsole.currentQuestion}
-	/>
+	<QuestionWindow />
 
 	<div
 		class="attendants"
