@@ -2,13 +2,13 @@
 	import { watch } from 'runed';
 	import { onMount, untrack } from 'svelte';
 	import { flip } from 'svelte/animate';
-	import { fade, fly, slide } from 'svelte/transition';
+	import { fade, slide } from 'svelte/transition';
 	import Toastify from 'toastify-js';
 	import 'toastify-js/src/toastify.css';
 	import se1 from '$lib/assets/se1.mp3';
 	import se2 from '$lib/assets/se2.mp3';
 	import se3 from '$lib/assets/se3.mp3';
-	import { han2zen, loadFromHash } from '$lib/attendant';
+	import { loadFromHash } from '$lib/attendant';
 	import AppearanceDialog from '$lib/components/appearanceDialog.svelte';
 	import EffectEditDialog from '$lib/components/effectEditDialog.svelte';
 	import Footer from '$lib/components/footer.svelte';
@@ -20,23 +20,17 @@
 	import RuleEditDialog from '$lib/components/ruleEditDialog.svelte';
 	import Stars from '$lib/components/stars.svelte';
 	import StateEditDialog from '$lib/components/stateEditDialog.svelte';
-	import {
-		MaruHistoryEntry,
-		RemoveHistoryEntry,
-		WinHistoryEntry,
-		LoseHistoryEntry,
-		EditHistoryEntry
-	} from '$lib/historyEntry';
+	import { EditHistoryEntry } from '$lib/historyEntry';
 	import { pushLog, updateLog } from '$lib/logs';
 	import { QuestionConsoleClass } from '$lib/questionConsole.svelte';
 	import { Rule, type Penalty } from '$lib/rule';
 	import { reconnect } from '$lib/serial';
-	import { playSound } from '$lib/sound';
 	import { AttendantState, type AttendantStateValue, type GameEvent } from '$lib/state';
 	import { tooltip } from '$lib/tooltip.svelte';
 	import { setWasedashikiContext, WasedashikiClass } from '$lib/wasedashiki.svelte';
+	import Attendant from './attendant.svelte';
 	import { GameClass, setGameContext } from './game.svelte';
-	import { LayoutClass } from './layout.svelte';
+	import { LayoutClass, setLayoutContext } from './layout.svelte';
 
 	let Game = new GameClass();
 	setGameContext(Game);
@@ -44,6 +38,7 @@
 	setWasedashikiContext(Wasedashiki);
 	let QuestionConsole = new QuestionConsoleClass(Game);
 	let Layout = new LayoutClass();
+	setLayoutContext(Layout);
 
 	let isBannerVisible = $state<GameEvent | null>(null);
 	watch(
@@ -330,13 +325,24 @@
 		style:height={`calc(100dvh - ${Layout.headerClientHeight}px - ${Layout.footerClientHeight}px - 25px${QuestionConsole.showQuestionWindow ? ' - 6.25em - 0.7rem' : ''})`}
 		bind:this={Layout.container}
 	>
-		{#each Game.orderedAttendants as i, ord (i)}
-			{@const att = Game.currentState.attendants[i]}
-			{@const barHeight: number = Layout.barHeightRatioArray[i]?.current ?? 0}
+		{#each Game.orderedAttendants as ai, ord (ai)}
 			<div
 				style:font-size={(Layout.fontSize ?? 0) + 'px'}
 				style:grid-row={Game.activeRules.length > 1 ? 'span 4' : 'span 3'}
-				class={['attendant', { lizhi: att.isLizhi, 'drop-target': dropTarget === ord }]}
+				class={[
+					'attendant',
+					{
+						lizhi: Game.currentState.attendants[ai].isLizhi,
+						won: Game.currentState.attendants[ai].life === 'won',
+						lost: Game.currentState.attendants[ai].life === 'lost',
+						yasu:
+							Game.currentState.attendants[ai].life === 'alive' &&
+							Game.currentState.attendants[ai].yasuDisplay > 0,
+						'answerer-1st':
+							Wasedashiki.answerers[(Wasedashiki.buttonMapping[ai] ?? 0) - 1]?.rank === 1,
+						'drop-target': dropTarget === ord
+					}
+				]}
 				animate:flip={{ duration: 500, delay: attendantFLIPDelay }}
 				role="listitem"
 				ondragstart={() => {
@@ -352,292 +358,19 @@
 				style:opacity={isDragging === ord ? 0.25 : 1}
 				draggable={Game.orderingMode === 'manual'}
 			>
-				{#if Wasedashiki.buttonMapping[i] != null}
-					{@const j = Wasedashiki.buttonMapping[i] - 1}
-					{#if Wasedashiki.answerers[j]?.rank}
-						{#if Wasedashiki.answerers[j].delay > 0}
-							<div class="answerer">
-								+&thinsp;{(Wasedashiki.answerers[j].delay / 1000).toFixed(3)} s
-							</div>
-						{/if}
-					{/if}
-				{/if}
-				<button
-					class="button-mapping"
-					style={Wasedashiki.buttonMapping[i] == null
-						? undefined
-						: 1 <= Wasedashiki.buttonMapping[i] && Wasedashiki.buttonMapping[i] <= 6
-							? 'background-color: red; color: white'
-							: 7 <= Wasedashiki.buttonMapping[i] && Wasedashiki.buttonMapping[i] <= 12
-								? 'background-color: blue; color: white'
-								: 13 <= Wasedashiki.buttonMapping[i] && Wasedashiki.buttonMapping[i] <= 18
-									? 'background-color: yellow; color: black'
-									: 'background-color: green; color: white'}
-					style:display={Wasedashiki.lastButtonID == undefined && !Wasedashiki.buttonMappingRestored
-						? 'none'
-						: ''}
-					disabled={Wasedashiki.lastButtonID == undefined && !Wasedashiki.buttonMappingRestored}
-					{@attach tooltip(
-						`このプレイヤーが持っているボタンは${Wasedashiki.buttonMapping[i] == null ? '???' : Wasedashiki.buttonMapping[i]}番です。クリックで紐づけ`
-					)}
-					onclick={() => {
-						if (Wasedashiki.lastButtonID !== undefined) {
-							Wasedashiki.buttonMapping = {
-								...Object.fromEntries(
-									Object.entries(Wasedashiki.buttonMapping).filter(
-										([, v]) => v !== Wasedashiki.lastButtonID
-									)
-								),
-								[i]: Wasedashiki.lastButtonID!
-							};
-							Toastify({
-								text: `ボタン${Wasedashiki.lastButtonID}は${att.name || `プレイヤー${i + 1}`}が持っています`
-							}).showToast();
-						}
-					}}
-				>
-					{Wasedashiki.buttonMapping[i] ?? '?'}
-				</button>
-				{#if Game.activeRules.length > 1}
-					<button
-						class="group"
-						style:background-color={`hsl(${(360 / Game.rules.length) * Game.attendants[i].group}, 70%, 40%)`}
-						onclick={() => {
-							do {
-								Game.attendants[i].group = (Game.attendants[i].group + 1) % Game.rules.length;
-							} while (Game.rules[Game.attendants[i].group].isRemoved);
-						}}
-						{@attach tooltip('このプレイヤーの所属グループを変更します。')}
-					>
-						{#key Game.attendants[i].group}
-							<span class="crossfade" in:fade={{ delay: 500 }} out:fade>
-								{String.fromCodePoint(65 + Game.attendants[i].group)}
-							</span>
-						{/key}
-					</button>
-				{/if}
-				<div
-					bind:textContent={Game.attendants[i].name}
-					onblur={() => {
-						const tmp = han2zen(Game.attendants[i].name.replace(/[\r\n]/g, ''));
-						if (tmp !== Game.attendants[i].name) {
-							Game.attendants[i].name = ' ';
-							setTimeout(() => (Game.attendants[i].name = tmp), 1);
-						}
-					}}
-					onpaste={(e) => Game.handlePasteEvent(e, ord)}
-					contenteditable
-					placeholder="プレイヤー {i + 1 < 10 ? String.fromCodePoint(65297 + i) : i + 1}"
-					spellcheck="false"
-					class={[
-						'name',
-						{
-							blurred:
-								screenshotModeTimer != null && i !== Game.orderedAttendants[screenshotOffset],
-							'show-bar': showScore,
-							'answerer-1st':
-								Wasedashiki.answerers[(Wasedashiki.buttonMapping[i] ?? 0) - 1]?.rank === 1,
-							'answerer-2nd':
-								(Game.wasedashikiMode === 'endless' || Game.wasedashikiMode === 'double') &&
-								Wasedashiki.answerers[(Wasedashiki.buttonMapping[i] ?? 0) - 1]?.rank === 2,
-							'answerer-late':
-								Game.wasedashikiMode === 'endless' &&
-								Wasedashiki.answerers[(Wasedashiki.buttonMapping[i] ?? 0) - 1]?.rank === 'late'
-						}
-					]}
-					style:writing-mode={Layout.nameDirection}
-					style:justify-content={Layout.nameDirection ? '' : 'center'}
-					style:text-align={Layout.nameDirection ? '' : 'center'}
-					style:--bar-height-ratio={Layout.barMax !== null
-						? Math.min(barHeight / Layout.barMax, 1)
-						: -999}
-					{@attach tooltip('ダブルクリックして名前を編集', { placement: 'bottom' })}
-					bind:clientWidth={Layout.nameWidth[i]}
-					bind:clientHeight={Layout.nameHeight[i]}
-				></div>
-
-				<div class="score" style:opacity={showScore ? 1 : 0}>
-					{#if history.length === 0 && att.rule.mode !== 'survival' && att.rule.mode !== 'score' && Game.enableRating}
-						<span {@attach tooltip('レート')} class="rate">
-							{#if att.totalScore.den === 0}
-								---
-							{:else}
-								{Math.floor((att.totalScore.num / att.totalScore.den) * 492.8).toLocaleString()}
-							{/if}
-						</span>
-					{:else if showMarubatsuOverride || att.rule.mode === 'marubatsu'}
-						<span class="maru-count">
-							{#key att.maruCount}<span in:fade>{att.maruCount}</span>{/key} 〇
-						</span>
-						<span class="batsu-count">
-							{#key att.batsuCount}
-								<span in:fade class:lose-lizhi={att.isLoseLizhi}>
-									{att.batsuCount}
-								</span>
-							{/key} ×
-						</span>
-					{:else if att.rule.mode === 'score' || att.rule.mode === 'survival'}
-						<span>
-							{#key att.score}
-								<span
-									class="crossfade"
-									class:lose-lizhi={att.isLoseLizhi}
-									in:fade={{ delay: 500 }}
-									out:fade
-								>
-									{att.score}
-								</span>
-							{/key}
-						</span>
-						<small>
-							pt{#if att.score !== 1}s{/if}
-						</small>
-					{:else}
-						<span class="m-by-n-score">
-							<small>
-								{att.maruCount} × {att.rule.win - att.batsuCount}
-							</small>
-							{#key att.score}
-								<span
-									class="crossfade"
-									class:lose-lizhi={att.isLoseLizhi}
-									in:fade={{ delay: 500 }}
-									out:fade>{att.score}</span
-								>
-							{/key}
-						</span>
-					{/if}
-
-					{#if Game.consecutive?.attendantID === i}
-						{#key Game.consecutive.count}
-							<span
-								class="consecutive-count"
-								style:background-color={Game.consecutive.count < 3
-									? 'rgb(221 94 6)'
-									: Game.consecutive.count < 6
-										? 'rgb(160, 40, 0)'
-										: 'rgb(0, 0, 0)'}
-								in:fly={{ y: 100 }}
-								{@attach tooltip('連答カウント')}
-							>
-								{Game.consecutive.count}
-							</span>
-						{/key}
-					{/if}
-				</div>
-
-				<div class="hidden-buttons">
-					<button
-						onclick={() => editState(i, att)}
-						disabled={att.yasuCount === 'next'}
-						{@attach tooltip('このプレイヤーの得点状況を手で書き換えます。')}
-					>
-						編集
-					</button>
-					<button
-						onclick={() => Game.history.push(new WinHistoryEntry(i))}
-						disabled={att.life !== 'alive'}
-						{@attach tooltip('このプレイヤーを強制的に勝ち抜けにします。')}
-					>
-						勝利
-					</button>
-					<button
-						onclick={() => Game.history.push(new LoseHistoryEntry(i))}
-						disabled={att.life !== 'alive'}
-						{@attach tooltip('このプレイヤーを強制的に失格にします。')}
-					>
-						失格
-					</button>
-					<button
-						onclick={() => Game.history.push(new RemoveHistoryEntry(i))}
-						{@attach tooltip('このプレイヤーをリストから削除します。')}
-					>
-						削除
-					</button>
-				</div>
-
-				<div class="trophies" {@attach tooltip('勝ち抜けた累積回数')}>
-					{#each Array.from({ length: att.trophyCount }), i (i)}
-						<span in:fade></span>
-					{/each}
-				</div>
-
-				{#if att.life === 'won'}
-					<div class="won" in:fade>
-						{Game.currentState.ranking.indexOf(i) + 1}位
-					</div>
-				{:else if att.life === 'lost'}
-					<div class="lost" in:fade>失格</div>
-				{:else if att.yasuDisplay > 0}
-					<div class="yasu" in:fade>
-						{#key att.yasuDisplay}
-							{#if att.yasuCount === 'next'}次{/if}
-							<span class="crossfade" in:fade={{ delay: 500 }} out:fade>{att.yasuDisplay}</span>
-						{/key}
-						休
-					</div>
-				{:else}
-					<div
-						class="buttons"
-						onmouseenter={() => (attendantFLIPDelay = 600)}
-						onmouseleave={() => (attendantFLIPDelay = 0)}
-						role="group"
-					>
-						<button
-							onclick={() => Game.clickMaru(i)}
-							class="maru-btn"
-							{@attach tooltip(
-								`${att.name || 'このプレイヤー'}に1○をつけて、問題カウントを1進めます（休みの人がいれば1休減ります）`,
-								{ placement: 'bottom' }
-							)}
-						>
-							O
-						</button>
-						{#if effect2Name}
-							<button
-								onclick={() => {
-									Game.history.push(new MaruHistoryEntry(i, 2));
-									if (Game.playSounds) {
-										playSound(se1);
-										setTimeout(() => playSound(se1), 150);
-									}
-									showBanner({ type: 'effect2', attendantID: i });
-								}}
-								class="maru-btn"
-								{@attach tooltip(`${effect2Name}（+2○）`, { placement: 'bottom' })}
-							>
-								2O
-							</button>
-						{/if}
-						{#if effect3Name}
-							<button
-								onclick={() => {
-									Game.history.push(new MaruHistoryEntry(i, 3));
-									if (Game.playSounds) {
-										playSound(se1);
-										setTimeout(() => playSound(se1), 150);
-										setTimeout(() => playSound(se1), 300);
-									}
-									showBanner({ type: 'effect3', attendantID: i });
-								}}
-								class="maru-btn"
-								{@attach tooltip(`${effect3Name}（+3○）`, { placement: 'bottom' })}
-							>
-								3O
-							</button>
-						{/if}
-						<button
-							onclick={() => Game.clickBatsu(i)}
-							class="batsu-btn"
-							{@attach tooltip(
-								`${att.name || 'このプレイヤー'}に1×をつけます（誰も正解しなければ最後にスルーボタンを押すのを忘れずに！）`,
-								{ placement: 'bottom' }
-							)}
-						>
-							X
-						</button>
-					</div>
-				{/if}
+				<Attendant
+					{ai}
+					{ord}
+					{screenshotModeTimer}
+					{screenshotOffset}
+					{showScore}
+					{showMarubatsuOverride}
+					{editState}
+					bind:attendantFLIPDelay
+					{effect2Name}
+					{effect3Name}
+					{showBanner}
+				/>
 			</div>
 		{/each}
 		{#if Game.orderingMode === 'manual'}
@@ -867,312 +600,37 @@
 					anchor-name: --last-attendant;
 				}
 
-				button {
-					backdrop-filter: blur(10px);
-					box-shadow: 3px 3px 6px #00000080;
-					border: none;
-					border-radius: 0;
-					background-color: #00000040;
-					color: #fff;
-
-					&:disabled {
-						opacity: 1;
-						color: #0004;
-					}
-				}
-
 				&.lizhi {
 					box-shadow: 0 2px 2px 6px rgb(230 230 37);
 					background-color: rgba(255 255 158 / 0.5);
 				}
-				&:has(.won) {
+				&.won {
 					box-shadow: 0 2px 2px 6px rgb(61 184 61);
 					background-color: rgba(114 250 114 / 0.5);
 				}
-				&:has(.yasu) {
+				&.yasu {
 					opacity: 0.7;
 					backdrop-filter: blur(5px);
 					background-color: rgba(128 128 128 / 0.3);
 				}
-				&:has(.lost) {
+				&.lost {
 					background-color: rgba(240 128 128 / 0.8);
 				}
 
-				.answerer,
-				.button-mapping {
-					display: flex;
-					position: absolute;
-					justify-content: center;
-					align-items: center;
-				}
-				.answerer {
-					top: -0.75em;
-					left: 0;
-					border-radius: 1em;
-					background: black;
-					width: 100%;
-					color: #fff;
-					font-size: 0.5em;
-				}
-				.button-mapping {
-					top: 0.2em;
-					right: 0.25em;
-					z-index: 20;
-					border-radius: 5em;
-					background: grey;
-					width: 1.5em;
-					height: 1.5em;
-					color: white;
-					font-size: 0.4em;
-				}
-
-				.group {
-					z-index: 10;
-					transition: background-color 0.3s ease;
-					border-radius: 2em 0.5em 0 0;
-				}
-
-				.name {
-					display: flex;
-					position: relative;
-					flex: 1 1 100px;
-					align-items: center;
-					margin: -1em -0.5em;
-					padding: 0;
-					padding-top: calc(1em + 5px);
-					padding-bottom: 1em;
-					overflow: hidden;
-					font-weight: bold;
-					line-height: 1.1;
-					text-wrap: balance;
-					word-break: break-all;
-
-					&:focus {
-						margin: 0 -0.5em;
-						padding-top: 5px;
-						padding-bottom: 0;
-					}
-
-					&:empty:not(:focus)::before {
-						cursor: text;
-						content: attr(placeholder);
-						color: #aaa;
-						text-wrap: initial;
-					}
-
-					&.answerer-1st {
-						animation: answerer-1st 0.3s ease infinite alternate;
-					}
-
-					&.answerer-2nd {
-						color: yellow;
-						text-shadow:
-							0px 10px 50px #aa08,
-							0px 10px 50px #aa08,
-							0px 10px 50px #aa08;
-					}
-
-					&.answerer-late {
-						text-shadow:
-							0px 10px 50px #aa08,
-							0px 10px 50px #aa08,
-							0px 10px 50px #aa08;
-					}
-
-					&.blurred {
-						filter: blur(15px);
-					}
-
-					&.show-bar:after {
-						display: block;
-						position: absolute;
-						bottom: 0;
-						z-index: -1;
-						filter: blur(5px);
-						border-radius: 1em 0 0 0;
-						background: #0a1e3666;
-						width: 40%;
-						height: calc(70% * var(--bar-height-ratio) + 1em);
-						content: '';
-					}
-
-					&:focus:after {
-						display: none;
-					}
-				}
-
-				&:has(.answerer-1st) {
+				&.answerer-1st {
 					animation: answerer-1st-wrapper 0.3s ease infinite alternate;
 				}
 
 				&:hover,
-				&:has(.name:focus-within) {
+				&:global(:has(.name:focus-within)) {
 					backdrop-filter: blur(20px);
 					box-shadow:
 						0 2px 2px 3px #ccc,
 						0 0 30px #eee;
 					background-color: #fafafa;
-					.name {
+					:global .name {
 						color: #000;
 						text-shadow: none;
-					}
-				}
-
-				.hidden-buttons {
-					display: none;
-					position: absolute;
-					bottom: 50%;
-					left: -0.5em;
-					flex-direction: column;
-					flex-wrap: wrap;
-					justify-content: space-evenly;
-					gap: 3px;
-					translate: 0% 50%;
-					font-size: 0.3em;
-
-					button:hover:not([disabled]) {
-						background: #444;
-					}
-				}
-
-				&:hover .hidden-buttons {
-					display: flex;
-				}
-
-				.trophies {
-					display: flex;
-					position: absolute;
-					right: -0.5em;
-					flex-direction: column;
-
-					span {
-						transition: margin-top 0.3s ease;
-						box-shadow: 0 0 3px #888;
-						border-radius: 50%;
-						background-image: var(--trophy-image);
-						background-position: center;
-						background-size: cover;
-						background-color: #ffffffaa;
-						width: 1.375em;
-						height: 1.375em;
-					}
-
-					&:has(:nth-child(8)) span:nth-child(n + 2) {
-						margin-top: calc(-0.5 * 1.375em);
-					}
-
-					&:has(:nth-child(15)) span:nth-child(n + 2) {
-						margin-top: calc(-0.75 * 1.375em);
-					}
-				}
-
-				.score {
-					position: relative;
-					align-content: center;
-					z-index: 100;
-					margin: 0 -0.25em;
-					border-radius: 0.2em;
-					background-color: #111;
-					padding-bottom: 0.1em;
-					font-weight: bold;
-					line-height: 0.9;
-					text-align: center;
-					text-shadow: 0 0 5px #000e;
-
-					> * {
-						display: inline-block;
-					}
-
-					small {
-						margin: 0 -0.25em;
-						font-weight: normal;
-						font-size: 0.4em;
-					}
-
-					.m-by-n-score {
-						letter-spacing: -0.04em;
-						text-align: center;
-
-						small {
-							display: block;
-							font-size: 0.55em;
-						}
-					}
-
-					.rate {
-						font-size: 0.7em;
-					}
-					.maru-count {
-						color: red;
-						letter-spacing: -0.1em;
-					}
-					.batsu-count {
-						color: rgb(140 140 255);
-						letter-spacing: -0.1em;
-					}
-
-					.consecutive-count {
-						display: flex;
-						position: absolute;
-						top: -1em;
-						right: -0.4em;
-						justify-content: center;
-						align-items: center;
-						z-index: 100;
-						box-shadow: 0 0 8px #000a;
-						border-radius: 50%;
-						width: 1.25em;
-						height: 1.25em;
-						font-weight: normal;
-						line-height: 0.5em;
-					}
-
-					.lose-lizhi {
-						animation: lose-lizhi-animation 1.2s ease infinite;
-					}
-				}
-
-				.buttons,
-				.yasu,
-				.won,
-				.lost {
-					align-content: center;
-					margin: 0 -1em;
-					text-align: center;
-				}
-
-				.yasu {
-					color: white;
-					text-shadow:
-						0px 0px 5px #000,
-						0px 0px 5px #000,
-						0px 0px 5px #000;
-				}
-
-				.buttons {
-					display: flex;
-					flex-wrap: wrap;
-					justify-content: space-evenly;
-					gap: 10px;
-					margin: 0.2em -0.45em;
-					font-size: 0.9em;
-
-					> * {
-						display: flex;
-						flex: 1 1 40px;
-						justify-content: center;
-						align-items: center;
-					}
-
-					.maru-btn:hover:not(:active),
-					.maru-btn:focus-visible:not(:active) {
-						background-color: red;
-						color: white;
-					}
-					.batsu-btn:hover:not(:active),
-					.batsu-btn:focus-visible:not(:active) {
-						background-color: blue;
-						color: white;
 					}
 				}
 
@@ -1230,26 +688,6 @@
 	@keyframes blink-animation {
 		to {
 			opacity: 0.3;
-		}
-	}
-
-	@keyframes lose-lizhi-animation {
-		0%,
-		100% {
-			opacity: 0.3;
-		}
-		50% {
-			opacity: 1;
-		}
-	}
-
-	@keyframes answerer-1st {
-		to {
-			color: yellow;
-			text-shadow:
-				0px 10px 50px #aa08,
-				0px 10px 50px #aa08,
-				0px 10px 50px #aa08;
 		}
 	}
 

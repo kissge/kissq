@@ -1,3 +1,4 @@
+import { createContext } from 'svelte';
 import { Spring } from 'svelte/motion';
 import { getGameContext } from './game.svelte';
 
@@ -140,3 +141,5 @@ export class LayoutClass {
 		});
 	}
 }
+
+export const [getLayoutContext, setLayoutContext] = createContext<LayoutClass>();
