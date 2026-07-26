@@ -231,11 +231,10 @@
 		display: grid;
 		grid-template-columns: subgrid;
 		grid-column: 1 / -1;
-		backdrop-filter: blur(10px);
 		transition: opacity 1s ease;
-		box-shadow: 0 0 15px #eeea;
+		border-bottom: 1px solid #333;
 		border-radius: 0 0.75em 0.75em 0;
-		background-color: #ffffff40;
+		background-color: #00000010;
 		height: 1.25em;
 		color: #fff;
 		text-shadow:
@@ -243,6 +242,7 @@
 			0px 10px 50px #444;
 
 		&.first-member {
+			border-top: 1px solid #333;
 			border-top-left-radius: 0.5em;
 
 			& .seat {
