@@ -36,10 +36,14 @@ export class WasedashikiClass {
 			try {
 				this.serialPort = await connectToSerialPort();
 			} catch (error) {
-				Toastify({
-					text: '接続に失敗しました。2つ以上のタブで同時に接続しようとしていませんか？',
-					style: { background: '#B00000' }
-				}).showToast();
+				if (String(error).includes('The port is already open.')) {
+					Toastify({ text: '既に接続済みです。' }).showToast();
+				} else {
+					Toastify({
+						text: '接続に失敗しました。2つ以上のタブで同時に接続しようとしていませんか？',
+						style: { background: '#B00000' }
+					}).showToast();
+				}
 				console.error('接続エラー', error);
 				this.serialPort = undefined;
 				this.Game.wasedashikiMode = undefined;
