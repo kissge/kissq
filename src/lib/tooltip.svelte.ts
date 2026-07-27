@@ -19,7 +19,7 @@ export const tooltipInteractive = (content: string) =>
 		offset: [0, 0],
 		placement: 'top-start',
 		onTrigger(instance) {
-			document.querySelectorAll('[data-tippy-root]').forEach((e) => {
+			document.querySelectorAll('[data-tippy-root]:has(button)').forEach((e) => {
 				if (e.id === `tippy-${instance.id}`) {
 					(e as HTMLElement).style.display = '';
 				} else {
