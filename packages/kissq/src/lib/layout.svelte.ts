@@ -93,18 +93,20 @@ export class LayoutClass {
 				this.nameDirection = '';
 				this.fontSize = Math.floor(
 					Math.min(
-						(this.container?.clientWidth ?? 0 / this.columnCount) * 0.15,
-						(this.container?.clientHeight ??
-							0 / Math.ceil(this.Game.currentState.ranking.length / this.columnCount)) * 0.15
+						((this.container?.clientWidth ?? 0) / this.columnCount) * 0.15,
+						((this.container?.clientHeight ?? 0) /
+							Math.ceil(this.Game.currentState.ranking.length / this.columnCount)) *
+							0.15
 					)
 				);
 			} else {
 				this.nameDirection = 'vertical-rl';
 				this.fontSize = Math.floor(
 					Math.min(
-						(this.container?.clientWidth ?? 0 / this.columnCount) * 0.3,
-						(this.container?.clientHeight ??
-							0 / Math.ceil(this.Game.currentState.ranking.length / this.columnCount)) * 0.09
+						((this.container?.clientWidth ?? 0) / this.columnCount) * 0.3,
+						((this.container?.clientHeight ?? 0) /
+							Math.ceil(this.Game.currentState.ranking.length / this.columnCount)) *
+							0.09
 					)
 				);
 			}
