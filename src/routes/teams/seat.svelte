@@ -68,8 +68,8 @@
 				{'✕'.repeat(batsuCount)}
 			</div>
 		</div>
-		{#each atts.filter(({ ai }) => Game.currentState.attendants[ai]?.life !== 'removed') as { att, ai }, mi (mi)}
-			<Member {att} {ti} {si} {ai} {mi} {rowStart} {batsuCount} {maxSeat} />
+		{#each atts.filter(({ ai }) => Game.currentState.attendants[ai]?.life !== 'removed') as { ai }, mi (mi)}
+			<Member {ti} {si} {ai} {mi} {rowStart} {batsuCount} {maxSeat} />
 		{/each}
 	</div>
 {/if}
