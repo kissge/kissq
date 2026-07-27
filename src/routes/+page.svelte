@@ -576,6 +576,7 @@
 				background-color: #ffffff40;
 				padding: 0.5em;
 				color: #fff;
+				user-select: none;
 				text-shadow:
 					0px 10px 50px #444,
 					0px 10px 50px #444;
