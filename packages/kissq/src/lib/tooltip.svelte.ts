@@ -17,6 +17,7 @@ export const tooltipInteractive = (content: string) =>
 		interactiveBorder: 30,
 		appendTo: document.body,
 		offset: [0, 0],
+		placement: 'top-start',
 		onTrigger(instance) {
 			document.querySelectorAll('[data-tippy-root]').forEach((e) => {
 				if (e.id === `tippy-${instance.id}`) {
