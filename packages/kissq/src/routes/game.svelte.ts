@@ -95,7 +95,7 @@ export class GameClass extends GameClassBase<'single'> {
 			team: 0,
 			seat: 0,
 			trophyCount: 0,
-			totalScore: { num: 0, den: 0 },
+			totalScore: { num: 0, den: 0, maru: 0, batsu: 0 },
 			manualOrder: this.attendants.length
 		});
 	}

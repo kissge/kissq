@@ -36,14 +36,16 @@ export abstract class GameClassBase<BattleMode extends 'single' | 'team'> {
 	clearHistory(Wasedashiki: WasedashikiClass) {
 		this.currentState.attendants.forEach((att, i) => {
 			this.attendants[i].trophyCount = att.trophyCount;
-			if (this.enableRating) {
-				this.attendants[i].totalScore = {
-					num:
-						att.totalScore.num +
-						(this.currentState.attendants.length - this.currentState.ranking.indexOf(i) - 1),
-					den: att.totalScore.den + 1
-				};
-			}
+			this.attendants[i].totalScore = {
+				num:
+					att.totalScore.num +
+					(this.enableRating
+						? this.currentState.attendants.length - this.currentState.ranking.indexOf(i) - 1
+						: 0),
+				den: att.totalScore.den + (this.enableRating ? 1 : 0),
+				maru: att.totalScore.maru + att.maruCount,
+				batsu: att.totalScore.batsu + att.batsuCount
+			};
 		});
 
 		this.Logger!.push();
