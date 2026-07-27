@@ -1,3 +1,7 @@
+import { untrack } from 'svelte';
+import type { GameClassBase } from './game';
+import type { WasedashikiClass } from './wasedashiki.svelte';
+
 export interface Attendant {
 	name: string;
 	group: number;
@@ -129,6 +133,33 @@ export function loadFromHash(
 	}
 
 	return null;
+}
+
+export function saveToHash(
+	attendants: Attendant[] | undefined,
+	buttonMapping: Record<number, number>
+): void {
+	if (!attendants) {
+		return;
+	}
+	const data = {
+		attendants: attendants.map((att) => ({
+			...att,
+			totalScore: { num: 0, den: 0, maru: 0, batsu: 0 }
+		})),
+		buttonMapping
+	};
+	void data;
+
+	untrack(() => {
+		if (data.attendants.every(({ name }) => name === '')) {
+			window.history.replaceState(null, '', ' ');
+		} else {
+			const url = new URL(document.URL);
+			url.hash = encodeURIComponent(JSON.stringify(data));
+			location.replace(url);
+		}
+	});
 }
 
 export function han2zen(str: string) {

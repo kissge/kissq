@@ -16,6 +16,7 @@ export class GameClass extends GameClassBase<'single'> {
 	rules = $state([new Rule('marubatsu', 7, 3, 1, 1, false, null, 'constant', 0, null)]);
 	history = $state<HistoryEntry[]>([]);
 	gameTitle = $state('');
+	totalQuestionCount = $state(0);
 	playSounds = $state(true);
 	wasedashikiMode = $state<WasedashikiMode>();
 

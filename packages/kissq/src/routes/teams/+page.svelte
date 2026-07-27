@@ -5,7 +5,7 @@
 	import { fade, slide } from 'svelte/transition';
 	import Toastify from 'toastify-js';
 	import 'toastify-js/src/toastify.css';
-	import { loadFromHash } from '$lib/attendant';
+	import { loadFromHash, saveToHash } from '$lib/attendant';
 	import Footer from '$lib/components/footer.svelte';
 	import Header from '$lib/components/header.svelte';
 	import LogDialog from '$lib/components/logDialog.svelte';
@@ -120,7 +120,7 @@
 					team: ti,
 					seat: Math.floor(ai / 2),
 					trophyCount: 0,
-					totalScore: { num: 0, den: 0 },
+					totalScore: { num: 0, den: 0, maru: 0, batsu: 0 },
 					manualOrder: ti * 10 + ai
 				})).flat()
 			).flat();
@@ -155,18 +155,7 @@
 	});
 
 	$effect(() => {
-		const data = { attendants: Game.attendants, buttonMapping: Wasedashiki.buttonMapping };
-		$state.snapshot(data);
-		untrack(() => {
-			if (data.attendants.every(({ name }) => name === '')) {
-				window.history.replaceState(null, '', ' ');
-			} else {
-				// eslint-disable-next-line svelte/prefer-svelte-reactivity
-				const url = new URL(document.URL);
-				url.hash = encodeURIComponent(JSON.stringify(data));
-				location.replace(url);
-			}
-		});
+		saveToHash(Game.attendants, Wasedashiki.buttonMapping);
 	});
 </script>
 
@@ -175,7 +164,7 @@
 </svelte:head>
 
 <main class="main">
-	<Header {Game} battleMode="team" {editRule} />
+	<Header {Game} battleMode="team" showTotalOverride={false} {editRule} />
 
 	<QuestionWindow />
 

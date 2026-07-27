@@ -17,6 +17,7 @@ export class GameClass extends GameClassBase<'team'> {
 	rules = $state([new Rule('aql', 200, null, 1, 'updown', false, null, 'constant', 0, null)]);
 	history = $state<HistoryEntry[]>([]);
 	gameTitle = $state('');
+	totalQuestionCount = $state(0);
 	playSounds = $state(true);
 	wasedashikiMode = $state<WasedashikiMode>();
 
