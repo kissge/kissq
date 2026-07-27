@@ -1,8 +1,17 @@
 <script lang="ts">
+	import { onMount } from 'svelte';
+	import Toastify from 'toastify-js';
 	// @ts-expect-error PWA
 	import { pwaInfo } from 'virtual:pwa-info';
+	import { isSafari } from '$lib/browser';
 
 	let { children } = $props();
+
+	onMount(() => {
+		if (isSafari) {
+			Toastify({ text: 'SafariじゃなくてChromeかEdgeを使ってください＞＜' }).showToast();
+		}
+	});
 </script>
 
 <svelte:head>

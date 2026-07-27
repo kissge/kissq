@@ -1,5 +1,6 @@
 import { createContext } from 'svelte';
 import { Spring } from 'svelte/motion';
+import { isSafari } from './browser';
 import type { GameClassBase } from './game';
 
 export class LayoutClass {
@@ -18,10 +19,6 @@ export class LayoutClass {
 	columnCount = $derived.by(() => {
 		// 画面に収まる範囲でなるべく多い列数を求める
 		const attCount = this.Game.currentState.ranking.length;
-		const isSafari =
-			typeof navigator !== 'undefined' &&
-			/safari/i.test(navigator.userAgent) &&
-			!/chrome|android/i.test(navigator.userAgent);
 		if (attCount <= 4) {
 			return 4;
 		} else if (!this.container || isSafari) {
