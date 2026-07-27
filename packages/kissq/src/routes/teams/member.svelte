@@ -202,8 +202,8 @@
 					{/each}
 				</select>
 			</div>
-			<button class="maru-btn" onclick={() => Game.clickMaru(ai)} tabindex={-1}> O </button>
-			<button class="batsu-btn" onclick={() => Game.clickBatsu(ai)} tabindex={-1}> X </button>
+			<button class="maru-btn" onclick={() => Game.clickMaru(ai)} tabindex={-1}>O</button>
+			<button class="batsu-btn" onclick={() => Game.clickBatsu(ai)} tabindex={-1}>X</button>
 		</div>
 	{/if}
 </div>
@@ -340,9 +340,13 @@
 		.score {
 			display: flex;
 			border-radius: 0 1em 1em 0;
-			background: #0007;
+			background: #fff2;
 			font-weight: bold;
 			font-size: 0.8em;
+
+			&:is(:hover > *) {
+				color: #000;
+			}
 		}
 
 		.seat {
