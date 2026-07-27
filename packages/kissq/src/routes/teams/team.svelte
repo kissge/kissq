@@ -55,6 +55,9 @@
 			disabled={Game.history.length > 0}
 			onclick={() => {
 				if (
+					Game.attendants
+						.filter((_, i) => Game.attendants[i].team === ti)
+						.every(({ name }) => !name) ||
 					confirm(
 						`${Game.teams[ti] || `チーム${ti + 1}`}を削除しますか？\nこの操作は元に戻せません。`
 					)
