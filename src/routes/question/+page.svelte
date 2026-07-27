@@ -122,8 +122,8 @@
 				`button.labeled[data-label="${event.key.toUpperCase()}"]`
 			) as HTMLElement | null;
 			if (button) {
-				button.click();
 				button.classList.add('active');
+				setTimeout(() => button.click(), 0);
 				setTimeout(() => button.classList.remove('active'), 500);
 			}
 		}
@@ -207,6 +207,8 @@
 			スルー
 		</button>
 		<button
+			class="labeled"
+			data-label="C"
 			onclick={() => {
 				if (confirm('リセットしてよろしいですか？')) {
 					opener.postMessage({ command: 'clickReset' });
@@ -216,6 +218,8 @@
 			全員リセット
 		</button>
 		<button
+			class="labeled"
+			data-label="V"
 			onclick={() => {
 				let name = prompt('プレイヤーの名前を入力してください');
 				if (name) {
@@ -224,22 +228,6 @@
 			}}
 		>
 			プレイヤー追加
-		</button>
-		<button
-			class="labeled"
-			data-label="N"
-			disabled={currentIndex === 0}
-			onclick={() => --currentIndex}
-		>
-			← 前の問題へ
-		</button>
-		<button
-			class="labeled"
-			data-label="M"
-			disabled={currentIndex === questions.length - 1}
-			onclick={() => ++currentIndex}
-		>
-			次の問題へ →
 		</button>
 		<div class="spacer"></div>
 		<div>
@@ -258,9 +246,6 @@
 			フォントサイズ
 			<input type="number" bind:value={fontSize} />
 		</label>
-		<button onclick={() => window.opener.postMessage({ command: 'toggleQuestionWindow' })}>
-			問題ウィンドウを表示・非表示
-		</button>
 	</div>
 	{#if currentState && orderedAttendants}
 		<div>
@@ -395,13 +380,32 @@
 	</table>
 </main>
 
-<footer class="console">
+<footer class="console" class:show-keyboard={isKeyboardEnabled}>
 	<button
 		onclick={() => {
 			rawInput = '';
 			inputDialog.showModal();
 		}}>問題を読み込み</button
 	>
+	<button
+		class="labeled"
+		data-label="N"
+		disabled={currentIndex === 0}
+		onclick={() => --currentIndex}
+	>
+		← 前の問題へ
+	</button>
+	<button
+		class="labeled"
+		data-label="M"
+		disabled={currentIndex === questions.length - 1}
+		onclick={() => ++currentIndex}
+	>
+		次の問題へ →
+	</button>
+	<button onclick={() => window.opener.postMessage({ command: 'toggleQuestionWindow' })}>
+		問題ウィンドウを表示・非表示
+	</button>
 </footer>
 
 <dialog closedby="any" bind:this={inputDialog}>
