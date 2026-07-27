@@ -23,6 +23,7 @@
 		screenshotOffset,
 		showScore,
 		showMarubatsuOverride,
+		showTotalOverride,
 		editState,
 		attendantFLIPDelay = $bindable(),
 		effect2Name,
@@ -35,6 +36,7 @@
 		screenshotOffset: number;
 		showScore: boolean;
 		showMarubatsuOverride: boolean;
+		showTotalOverride: boolean;
 		editState: (attendantID: number, att: AttendantState) => Promise<void>;
 		attendantFLIPDelay: number;
 		effect2Name: string | undefined;
@@ -158,6 +160,22 @@
 			{:else}
 				{Math.floor((att.totalScore.num / att.totalScore.den) * 492.8).toLocaleString()}
 			{/if}
+		</span>
+	{:else if showTotalOverride}
+		<small style="display: inline-block">通<br />算</small>
+		<span class="maru-count">
+			{#key att.totalScore.maru + att.maruCount}
+				<span in:fade>
+					{att.totalScore.maru + att.maruCount}
+				</span>
+			{/key} 〇
+		</span>
+		<span class="batsu-count">
+			{#key att.totalScore.batsu + att.batsuCount}
+				<span in:fade>
+					{att.totalScore.batsu + att.batsuCount}
+				</span>
+			{/key} ×
 		</span>
 	{:else if showMarubatsuOverride || att.rule.mode === 'marubatsu'}
 		<span class="maru-count">

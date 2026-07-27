@@ -4,7 +4,7 @@ export interface Attendant {
 	team: number;
 	seat: number;
 	trophyCount: number;
-	totalScore: { num: number; den: number };
+	totalScore: { num: number; den: number; maru: number; batsu: number };
 	manualOrder: number;
 	buttonID?: number;
 }
@@ -52,7 +52,7 @@ export function loadFromHash(
 									team: ti,
 									seat: si,
 									trophyCount: 0,
-									totalScore: { num: 0, den: 0 },
+									totalScore: { num: 0, den: 0, maru: 0, batsu: 0 },
 									manualOrder: order++
 								}))
 							)
@@ -78,7 +78,7 @@ export function loadFromHash(
 									team: ti,
 									seat: si,
 									trophyCount: 0,
-									totalScore: { num: 0, den: 0 },
+									totalScore: { num: 0, den: 0, maru: 0, batsu: 0 },
 									manualOrder: order++,
 									buttonID
 								}))
@@ -103,7 +103,7 @@ export function loadFromHash(
 								team: 0,
 								seat: 0,
 								trophyCount: 0,
-								totalScore: { num: 0, den: 0 },
+								totalScore: { num: 0, den: 0, maru: 0, batsu: 0 },
 								manualOrder,
 								buttonID
 							}))
@@ -116,7 +116,7 @@ export function loadFromHash(
 								team: 0,
 								seat: 0,
 								trophyCount: 0,
-								totalScore: { num: 0, den: 0 },
+								totalScore: { num: 0, den: 0, maru: 0, batsu: 0 },
 								manualOrder
 							}))
 						};

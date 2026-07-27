@@ -75,6 +75,7 @@
 	let screenshotOffset = $state(-1);
 
 	let showMarubatsuOverride = $state(false);
+	let showTotalOverride = $state(false);
 	let showScore = $state(true);
 
 	let effect2Name = $state<string>();
@@ -160,6 +161,7 @@
 			}
 
 			showMarubatsuOverride = false;
+			showTotalOverride = false;
 			showScore = true;
 		}
 	}
@@ -232,7 +234,7 @@
 					team: 0,
 					seat: 0,
 					trophyCount: 0,
-					totalScore: { num: 0, den: 0 },
+					totalScore: { num: 0, den: 0, maru: 0, batsu: 0 },
 					manualOrder: 0
 				},
 				{
@@ -241,7 +243,7 @@
 					team: 0,
 					seat: 0,
 					trophyCount: 0,
-					totalScore: { num: 0, den: 0 },
+					totalScore: { num: 0, den: 0, maru: 0, batsu: 0 },
 					manualOrder: 1
 				}
 			];
@@ -360,6 +362,7 @@
 					{screenshotOffset}
 					{showScore}
 					{showMarubatsuOverride}
+					{showTotalOverride}
 					{editState}
 					bind:attendantFLIPDelay
 					{effect2Name}
@@ -468,6 +471,12 @@
 			{@attach tooltip('スコア表示を強制的に○×表示に切り替えます')}
 		>
 			マルバツ表示{#if showMarubatsuOverride}をOFFに{/if}
+		</button>
+		<button
+			onclick={() => (showTotalOverride = !showTotalOverride)}
+			{@attach tooltip('今日の通算成績表示に切り替えます')}
+		>
+			通算表示{#if showTotalOverride}をOFFに{/if}
 		</button>
 		<button
 			onclick={() => (showScore = !showScore)}

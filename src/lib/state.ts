@@ -12,7 +12,12 @@ export class AttendantState {
 		public rule: Rule,
 		public team: TeamState | null = null,
 		public trophyCount: number = 0,
-		public totalScore: { num: number; den: number } = { num: 0, den: 0 },
+		public totalScore: { num: number; den: number; maru: number; batsu: number } = {
+			num: 0,
+			den: 0,
+			maru: 0,
+			batsu: 0
+		},
 		public life: Life = 'alive',
 		public score: number = 0,
 		public maruCount: number = 0,
