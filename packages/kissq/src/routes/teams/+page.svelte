@@ -395,7 +395,7 @@
 		box-shadow: 0 0 15px #eeea;
 		border-radius: 1.5em 0 1em 0;
 		padding: 0.25em;
-		padding-bottom: 3em;
+		padding-bottom: 1em;
 		min-width: 0;
 		color: #fff;
 		text-shadow:
