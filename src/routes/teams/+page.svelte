@@ -180,20 +180,24 @@
 	<QuestionWindow />
 
 	<div
-		class="attendants"
+		class="attendants-wrapper"
+		class:vertical-centering={Layout.attendantsClientHeight < Layout.attendantsWrapperClientHeight}
 		style:height={`calc(100vh - ${Layout.headerClientHeight + Layout.footerClientHeight}px - 22px ${QuestionConsole.showQuestionWindow ? '- 6.25em - 0.7rem' : ''})`}
+		bind:clientHeight={Layout.attendantsWrapperClientHeight}
 	>
-		{#each Game.attendantsPerTeam as seats, ti (ti)}
-			<div
-				class="team"
-				animate:flip={{ duration: 200 }}
-				class:won={Game.currentState.teams[ti].teamLife === 'won'}
-			>
-				<Team {seats} {ti} />
-			</div>
-		{:else}
-			<div class="no-team">チームがありません🍔</div>
-		{/each}
+		<div class="attendants" bind:clientHeight={Layout.attendantsClientHeight}>
+			{#each Game.attendantsPerTeam as seats, ti (ti)}
+				<div
+					class="team"
+					animate:flip={{ duration: 200 }}
+					class:won={Game.currentState.teams[ti].teamLife === 'won'}
+				>
+					<Team {seats} {ti} />
+				</div>
+			{:else}
+				<div class="no-team">チームがありません🍔</div>
+			{/each}
+		</div>
 	</div>
 
 	<Footer {Game}>
@@ -361,12 +365,19 @@
 		font-size: max(1.5dvw, 24px);
 	}
 
+	.attendants-wrapper.vertical-centering {
+		display: flex;
+		align-items: center;
+		overflow-y: auto;
+	}
+
 	.attendants {
 		display: grid;
 		grid-template-columns: repeat(auto-fit, minmax(560px, 1fr));
 		align-content: start;
 		align-items: stretch;
 		gap: 1em;
+		width: 100%;
 		user-select: none;
 	}
 

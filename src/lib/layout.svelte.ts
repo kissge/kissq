@@ -10,6 +10,9 @@ export class LayoutClass {
 	footerClientHeight = $state(0);
 	fontSize = $state<number>();
 
+	attendantsWrapperClientHeight = $state(0);
+	attendantsClientHeight = $state(0);
+
 	nameWidth = $state([0, 0]);
 	nameHeight = $state([0, 0]);
 	nameDirection = $state<'vertical-rl' | ''>('vertical-rl');
