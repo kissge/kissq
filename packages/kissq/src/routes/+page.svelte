@@ -343,7 +343,11 @@
 					event.preventDefault();
 					dropTarget = ord;
 				}}
-				ondragend={onDragEnd}
+				ondragend={() => {
+					if (Game.orderingMode === 'manual') {
+						onDragEnd();
+					}
+				}}
 				style:opacity={isDragging === ord ? 0.25 : 1}
 				draggable={Game.orderingMode === 'manual'}
 			>
