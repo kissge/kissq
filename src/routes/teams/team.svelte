@@ -154,13 +154,11 @@
 
 	.bottom-buttons {
 		display: flex;
-		position: absolute;
-		right: 0.75em;
-		bottom: 0.75em;
 		grid-column: 1 / -1;
 		align-items: center;
 		opacity: 0;
 		transition: opacity 0.3s;
+		margin-top: 0.5em;
 		width: calc(100% - 0.75em * 2);
 
 		&:is(:global(.team:hover) *) {
@@ -179,8 +177,12 @@
 			background-color: #00000040;
 			color: #fff;
 
-			&:hover {
+			&:not([disabled]):hover {
 				background-color: #ffffff10;
+			}
+
+			&[disabled] {
+				opacity: 0.1;
 			}
 		}
 	}
