@@ -130,7 +130,7 @@
 	}
 
 	function onDragEnd() {
-		if (isDragAvailable && orderedAttendants) {
+		if (orderedAttendants) {
 			opener.postMessage({
 				command: 'reorderAttendants',
 				attendantID: order === 'same' ? isDragging : orderedAttendants.length - isDragging! - 1,
@@ -273,10 +273,16 @@
 						}
 					}}
 					ondragover={(event) => {
-						event.preventDefault();
-						dropTarget = j;
+						if (isDragAvailable) {
+							event.preventDefault();
+							dropTarget = j;
+						}
 					}}
-					ondragend={onDragEnd}
+					ondragend={() => {
+						if (isDragAvailable) {
+							onDragEnd();
+						}
+					}}
 					style:opacity={isDragging === j ? 0.25 : 1}
 					draggable={isDragAvailable}
 				>

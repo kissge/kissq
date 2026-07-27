@@ -340,8 +340,10 @@
 					}
 				}}
 				ondragover={(event) => {
-					event.preventDefault();
-					dropTarget = ord;
+					if (Game.orderingMode === 'manual') {
+						event.preventDefault();
+						dropTarget = ord;
+					}
 				}}
 				ondragend={() => {
 					if (Game.orderingMode === 'manual') {
