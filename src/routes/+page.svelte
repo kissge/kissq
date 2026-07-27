@@ -311,7 +311,7 @@
 		class="attendants"
 		style:grid-template-columns={`repeat(${Layout.columnCount}, 1fr)`}
 		style:grid-template-rows={`repeat(${Math.ceil(Game.orderedAttendants.length / Layout.columnCount)}, ${Game.activeRules.length > 1 ? 'auto' : ''} 1fr auto auto)`}
-		style:height={`calc(100dvh - ${Layout.headerClientHeight}px - ${Layout.footerClientHeight}px - 25px${QuestionConsole.showQuestionWindow ? ' - 6.25em - 0.7rem' : ''})`}
+		style:height={`calc(100dvh - ${Layout.headerClientHeight}px - ${Layout.footerClientHeight}px - 22px${QuestionConsole.showQuestionWindow ? ' - 6.25em - 0.7rem' : ''})`}
 		bind:this={Layout.container}
 	>
 		{#each Game.orderedAttendants as ai, ord (ai)}
