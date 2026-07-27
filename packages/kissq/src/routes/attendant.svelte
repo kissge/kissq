@@ -343,6 +343,10 @@
 			opacity: 1;
 			color: #0004;
 		}
+
+		&:focus {
+			box-shadow: 3px 3px 6px #00000080;
+		}
 	}
 
 	.answerer,
