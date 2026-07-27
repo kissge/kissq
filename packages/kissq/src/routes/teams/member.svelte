@@ -239,7 +239,7 @@
 		border-bottom: 1px solid #333;
 		border-radius: 0 0.75em 0.75em 0;
 		background-color: #00000040;
-		height: 1.25em;
+		height: 1.5em;
 		color: #fff;
 		text-shadow:
 			0px 10px 50px #444,
