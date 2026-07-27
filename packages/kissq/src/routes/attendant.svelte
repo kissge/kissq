@@ -74,7 +74,7 @@
 	style:display={Wasedashiki.lastButtonID == undefined && !Wasedashiki.buttonMappingRestored
 		? 'none'
 		: ''}
-	disabled={Wasedashiki.lastButtonID == undefined && !Wasedashiki.buttonMappingRestored}
+	disabled={Wasedashiki.lastButtonID == undefined}
 	{@attach tooltip(
 		`このプレイヤーが持っているボタンは${Wasedashiki.buttonMapping[ai] == null ? '???' : Wasedashiki.buttonMapping[ai]}番です。クリックで紐づけ`
 	)}
