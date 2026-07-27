@@ -181,7 +181,7 @@
 
 	<div
 		class="attendants"
-		style:height={`calc(100vh - ${Layout.headerClientHeight + Layout.footerClientHeight}px - 30px ${QuestionConsole.showQuestionWindow ? '- 6.25em - 0.7rem' : ''})`}
+		style:height={`calc(100dvh - ${Layout.headerClientHeight + Layout.footerClientHeight}px - 45px ${QuestionConsole.showQuestionWindow ? '- 6.25em - 0.7rem' : ''})`}
 	>
 		{#each Game.attendantsPerTeam as seats, ti (ti)}
 			<div
