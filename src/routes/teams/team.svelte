@@ -170,5 +170,18 @@
 		.spacer {
 			flex-grow: 1;
 		}
+
+		button {
+			backdrop-filter: blur(10px);
+			box-shadow: 3px 3px 6px #00000080;
+			border: none;
+			border-radius: 0;
+			background-color: #00000040;
+			color: #fff;
+
+			&:hover {
+				background-color: #ffffff10;
+			}
+		}
 	}
 </style>

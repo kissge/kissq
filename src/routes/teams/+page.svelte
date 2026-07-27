@@ -390,7 +390,8 @@
 		backdrop-filter: blur(10px);
 		transition:
 			background-color 0.3s ease,
-			backdrop-filter 0.3s ease;
+			backdrop-filter 0.3s ease,
+			scale 0.3s ease;
 		box-shadow: 0 0 15px #eeea;
 		border-radius: 1.5em 0 1em 0;
 		padding: 0.25em;
@@ -404,6 +405,10 @@
 		&.won {
 			box-shadow: 0 2px 2px 6px rgb(61 184 61);
 			background-color: rgba(114 250 114 / 0.5);
+		}
+
+		&:hover {
+			scale: 1.02;
 		}
 	}
 
