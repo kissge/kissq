@@ -362,9 +362,10 @@
 	}
 
 	.attendants {
-		display: flex;
-		flex-wrap: wrap;
-		justify-content: space-between;
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(560px, 1fr));
+		align-content: start;
+		align-items: stretch;
 		gap: 1em;
 		user-select: none;
 	}
@@ -383,6 +384,7 @@
 		border-radius: 1.5em 0 1em 0;
 		background-color: #ffffff40;
 		padding: 0.25em;
+		padding-bottom: 3em;
 		min-width: 0;
 		color: #fff;
 		text-shadow:
