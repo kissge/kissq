@@ -130,7 +130,7 @@
 	}
 
 	function onDragEnd() {
-		if (orderedAttendants) {
+		if (isDragAvailable && orderedAttendants) {
 			opener.postMessage({
 				command: 'reorderAttendants',
 				attendantID: order === 'same' ? isDragging : orderedAttendants.length - isDragging! - 1,
