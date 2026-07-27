@@ -1,14 +1,12 @@
 <script lang="ts">
 	import { fade } from 'svelte/transition';
 	import Toastify from 'toastify-js';
-	import type { Attendant } from '$lib/attendant';
 	import { RemoveHistoryEntry } from '$lib/historyEntry';
 	import { tooltip, tooltipInteractive } from '$lib/tooltip.svelte';
 	import { getWasedashikiContext } from '$lib/wasedashiki.svelte';
 	import { getGameContext } from './game.svelte';
 
 	let {
-		att,
 		ti,
 		si,
 		ai,
@@ -17,7 +15,6 @@
 		batsuCount,
 		maxSeat
 	}: {
-		att: Attendant;
 		ti: number;
 		si: number;
 		ai: number;
@@ -129,7 +126,7 @@
 						[ai]: Wasedashiki.lastButtonID!
 					};
 					Toastify({
-						text: `ボタン${Wasedashiki.lastButtonID}は${att.name || `プレイヤー${ai + 1}`}が持っています`
+						text: `ボタン${Wasedashiki.lastButtonID}は${Game.attendants[ai].name || `プレイヤー${ai + 1}`}が持っています`
 					}).showToast();
 				}
 			}}
@@ -150,7 +147,7 @@
 						Wasedashiki.answerers[(Wasedashiki.buttonMapping[ai] ?? 0) - 1]?.rank === 'late'
 				}
 			]}
-			bind:value={att.name}
+			bind:value={Game.attendants[ai].name}
 			placeholder={`プレイヤー${ai + 1}`}
 			onpaste={(e) => Game.handlePasteEvent(e, ai, ti)}
 		/>
