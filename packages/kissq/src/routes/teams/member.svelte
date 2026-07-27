@@ -168,7 +168,7 @@
 	</div>
 	{#if Game.currentState.teams[ti].teamLife === 'alive' && (Game.currentState.defaultRule.mode === 'aql' ? batsuCount < 2 : true) && sAtt?.life === 'alive' && sAtt.yasuDisplay === 0}
 		<div class="buttons" data-attendant-id={ai}>
-			<div style="opacity: 0; pointer-events: none">
+			<div style="opacity: 0; pointer-events: none; position: absolute">
 				<button
 					class="delete-btn"
 					disabled={Game.currentState.teams[ti].attendantIDsPerSeat
