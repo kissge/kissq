@@ -8,7 +8,7 @@
 	import se1 from '$lib/assets/se1.mp3';
 	import se2 from '$lib/assets/se2.mp3';
 	import se3 from '$lib/assets/se3.mp3';
-	import { loadFromHash } from '$lib/attendant';
+	import { loadFromHash, saveToHash } from '$lib/attendant';
 	import AppearanceDialog from '$lib/components/appearanceDialog.svelte';
 	import EffectEditDialog from '$lib/components/effectEditDialog.svelte';
 	import Footer from '$lib/components/footer.svelte';
@@ -274,18 +274,7 @@
 	});
 
 	$effect(() => {
-		const data = { attendants: Game.attendants, buttonMapping: Wasedashiki.buttonMapping };
-		$state.snapshot(data);
-		untrack(() => {
-			if (data.attendants.every(({ name }) => name === '')) {
-				window.history.replaceState(null, '', ' ');
-			} else {
-				// eslint-disable-next-line svelte/prefer-svelte-reactivity
-				const url = new URL(document.URL);
-				url.hash = encodeURIComponent(JSON.stringify(data));
-				location.replace(url);
-			}
-		});
+		saveToHash(Game.attendants, Wasedashiki.buttonMapping);
 	});
 </script>
 
@@ -305,7 +294,7 @@
 		: 'auto 1fr auto'}
 	class="main"
 >
-	<Header {Game} battleMode="single" {editRule} />
+	<Header {Game} battleMode="single" {showTotalOverride} {editRule} />
 
 	<QuestionWindow />
 

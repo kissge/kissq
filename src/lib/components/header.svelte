@@ -9,10 +9,12 @@
 	let {
 		Game,
 		battleMode,
+		showTotalOverride,
 		editRule
 	}: {
 		Game: GameClassBase<'single'> | GameClassBase<'team'>;
 		battleMode: 'single' | 'team';
+		showTotalOverride: boolean;
 		editRule: () => void;
 	} = $props();
 
@@ -38,14 +40,20 @@
 </script>
 
 <header bind:clientHeight={Layout.headerClientHeight}>
-	<div>
-		Next:
-		{#key Game.currentState.questionCount}
-			<span class="crossfade" in:fade={{ delay: 500 }} out:fade>
-				Q{hideQuestionCount ? '???' : Game.currentState.questionCount}
-			</span>
-		{/key}
-	</div>
+	{#if showTotalOverride}
+		<div>
+			Total: {Game.totalQuestionCount + Game.currentState.questionCount - 1} Q's
+		</div>
+	{:else}
+		<div>
+			Next:
+			{#key Game.currentState.questionCount}
+				<span class="crossfade" in:fade={{ delay: 500 }} out:fade>
+					Q{hideQuestionCount ? '???' : Game.currentState.questionCount}
+				</span>
+			{/key}
+		</div>
+	{/if}
 	<h1>
 		<span
 			contenteditable

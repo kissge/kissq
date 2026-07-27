@@ -17,6 +17,7 @@ export abstract class GameClassBase<BattleMode extends 'single' | 'team'> {
 	abstract rules: Rule[];
 	abstract history: HistoryEntry[];
 	abstract gameTitle: string;
+	abstract totalQuestionCount: number;
 	abstract currentState: GameState;
 	abstract playSounds: boolean;
 	abstract wasedashikiMode: WasedashikiMode | undefined;
@@ -47,6 +48,7 @@ export abstract class GameClassBase<BattleMode extends 'single' | 'team'> {
 				batsu: att.totalScore.batsu + att.batsuCount
 			};
 		});
+		this.totalQuestionCount += this.currentState.questionCount - 1;
 
 		this.Logger!.push();
 
