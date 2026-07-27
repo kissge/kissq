@@ -393,7 +393,6 @@
 			backdrop-filter 0.3s ease;
 		box-shadow: 0 0 15px #eeea;
 		border-radius: 1.5em 0 1em 0;
-		background-color: #ffffff40;
 		padding: 0.25em;
 		padding-bottom: 3em;
 		min-width: 0;
