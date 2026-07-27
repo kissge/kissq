@@ -171,38 +171,40 @@
 	</div>
 	{#if Game.currentState.teams[ti].teamLife === 'alive' && (Game.currentState.defaultRule.mode === 'aql' ? batsuCount < 2 : true) && sAtt?.life === 'alive' && sAtt.yasuDisplay === 0}
 		<div class="buttons" data-attendant-id={ai}>
-			<button
-				class="delete-btn"
-				disabled={Game.currentState.teams[ti].attendantIDsPerSeat
-					.flat()
-					.filter((a) => a != null && Game.currentState.attendants[a].life !== 'removed').length <=
-					1}
-				onclick={() => Game.history.push(new RemoveHistoryEntry(ai))}
-				{@attach tooltip('このプレイヤーをリストから削除します。')}
-				tabindex={-1}
-			>
-				削除
-			</button>
-			<select
-				disabled={Game.history.length > 0 ||
-					Game.currentState.teams[ti].attendantIDsPerSeat
+			<div style="opacity: 0">
+				<button
+					class="delete-btn"
+					disabled={Game.currentState.teams[ti].attendantIDsPerSeat
 						.flat()
 						.filter((a) => a != null && Game.currentState.attendants[a].life !== 'removed')
 						.length <= 1}
-				bind:value={Game.attendants[ai].team}
-				onchange={() => {
-					const t = Game.attendants[ai].team;
-					Game.attendants[ai].team = Infinity;
-					Game.attendants[ai].seat = Game.currentState.teams[t].attendantIDsPerSeat.length;
-					Game.attendants[ai].team = t;
-				}}
-				{@attach tooltip('このプレイヤーのチームを変更します。')}
-				tabindex={-1}
-			>
-				{#each Game.teams as team, j (j)}
-					<option value={j}>{team?.slice(0, 5) || `チーム${j + 1}`}</option>
-				{/each}
-			</select>
+					onclick={() => Game.history.push(new RemoveHistoryEntry(ai))}
+					{@attach tooltip('このプレイヤーをリストから削除します。')}
+					tabindex={-1}
+				>
+					削除
+				</button>
+				<select
+					disabled={Game.history.length > 0 ||
+						Game.currentState.teams[ti].attendantIDsPerSeat
+							.flat()
+							.filter((a) => a != null && Game.currentState.attendants[a].life !== 'removed')
+							.length <= 1}
+					bind:value={Game.attendants[ai].team}
+					onchange={() => {
+						const t = Game.attendants[ai].team;
+						Game.attendants[ai].team = Infinity;
+						Game.attendants[ai].seat = Game.currentState.teams[t].attendantIDsPerSeat.length;
+						Game.attendants[ai].team = t;
+					}}
+					{@attach tooltip('このプレイヤーのチームを変更します。')}
+					tabindex={-1}
+				>
+					{#each Game.teams as team, j (j)}
+						<option value={j}>{team?.slice(0, 5) || `チーム${j + 1}`}</option>
+					{/each}
+				</select>
+			</div>
 			<button class="maru-btn" onclick={() => Game.clickMaru(ai)} tabindex={-1}> O </button>
 			<button class="batsu-btn" onclick={() => Game.clickBatsu(ai)} tabindex={-1}> X </button>
 		</div>
@@ -372,12 +374,17 @@
 		.buttons {
 			display: flex;
 			position: absolute;
-			right: 0em;
+			right: 2em;
 			align-items: center;
 			gap: 2px;
 			opacity: 0;
 			height: 100%;
 			pointer-events: none;
+
+			&:is(:hover > *) {
+				opacity: 1;
+				pointer-events: auto;
+			}
 
 			button,
 			select {

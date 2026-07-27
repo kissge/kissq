@@ -349,18 +349,6 @@
 	>
 		%teams%
 	</select>
-	<br />
-
-	<button
-		data-onclick="document.querySelector('.buttons[data-attendant-id=\'' + this.parentElement.dataset.attendantId + '\'] .maru-btn').click()"
-	>
-		O
-	</button>
-	<button
-		data-onclick="document.querySelector('.buttons[data-attendant-id=\'' + this.parentElement.dataset.attendantId + '\'] .batsu-btn').click()"
-	>
-		X
-	</button>
 </template>
 
 <Pushers {Game} />
