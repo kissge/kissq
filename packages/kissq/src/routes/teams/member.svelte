@@ -232,10 +232,11 @@
 		display: grid;
 		grid-template-columns: subgrid;
 		grid-column: 1 / -1;
+		backdrop-filter: blur(0px);
 		transition: opacity 1s ease;
 		border-bottom: 1px solid #333;
 		border-radius: 0 0.75em 0.75em 0;
-		background-color: #00000010;
+		background-color: #00000040;
 		height: 1.25em;
 		color: #fff;
 		text-shadow:
