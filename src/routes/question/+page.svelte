@@ -607,7 +607,7 @@
 		color: #888;
 	}
 
-	.history-entry {
+	header.console .history-entry {
 		display: inline-block;
 		border-top-right-radius: 1em;
 		border-bottom-right-radius: 1em;
