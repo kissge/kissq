@@ -1,6 +1,4 @@
 import { untrack } from 'svelte';
-import type { GameClassBase } from './game';
-import type { WasedashikiClass } from './wasedashiki.svelte';
 
 export interface Attendant {
 	name: string;
