@@ -306,6 +306,7 @@ export class AttendantState {
 	toJSON() {
 		return {
 			...this,
+			team: undefined, // Avoid circular reference
 			yasuDisplay: this.yasuDisplay,
 			isLizhi: this.isLizhi,
 			isLoseLizhi: this.isLoseLizhi
