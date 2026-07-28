@@ -198,6 +198,22 @@ export class Rule {
 				return this.lose!;
 		}
 	}
+
+	static from(rule: Rule & object): Rule {
+		return new Rule(
+			rule.mode,
+			rule.win,
+			rule.lose,
+			rule.maru,
+			rule.batsu,
+			rule.transit,
+			rule.yasuPerMaru,
+			rule.yasuMode,
+			rule.yasuPerBatsu,
+			rule.roulette,
+			rule.isRemoved
+		);
+	}
 }
 
 export function getActiveRulesText(

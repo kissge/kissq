@@ -44,23 +44,7 @@
 		const result = await ruleTeamEditDialog.open(Game.rules);
 
 		if (result) {
-			if (
-				Game.history.length > 0 &&
-				confirm(
-					'全員のスコアのリセットも行いますか？\n\n※ しない場合、トロフィーが消えることなどがあります\n※ まだゲームの途中であれば無視してください'
-				)
-			) {
-				Game.clearHistory(Wasedashiki);
-			}
-
-			const removedIndices = result.flatMap(({ isRemoved }, i) => (isRemoved ? [i] : []));
-			Game.rules = result.filter(({ isRemoved }) => !isRemoved);
-			Game.attendants.forEach((att) => {
-				att.group = Math.max(0, att.group - removedIndices.filter((i) => i <= att.group).length);
-			});
-
-			// showMarubatsuOverride = false;
-			// showScore = true;
+			Game.updateRules(result, Wasedashiki);
 		}
 	}
 

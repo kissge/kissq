@@ -3,6 +3,7 @@ import { qZero } from '$lib/question';
 import type { AttendantState } from '$lib/state';
 import { getWasedashikiContext } from '$lib/wasedashiki.svelte';
 import type { GameClassBase } from './game';
+import { Rule } from './rule';
 
 const urlParams = new URLSearchParams(typeof location !== 'undefined' ? location.search : '');
 
@@ -67,6 +68,13 @@ export class QuestionConsoleClass {
 				}
 				break;
 
+			case 'updateRules':
+				this.Game.updateRules(
+					event.data.rules.map((r: Rule) => Rule.from(r)),
+					this.Wasedashiki
+				);
+				break;
+
 			case 'reorderAttendants': // single-only
 				this.Game.attendants[this.Game.orderedAttendants[event.data.attendantID]].manualOrder =
 					event.data.newOrder;
@@ -106,6 +114,7 @@ export class QuestionConsoleClass {
 						mode: this.Game.battleMode,
 						currentState: state,
 						history: this.Game.history,
+						rules: this.Game.rules,
 						orderedAttendants: this.Game.orderedAttendants,
 						orderingMode: this.Game.orderingMode,
 						answerers: this.Wasedashiki.answerers,
