@@ -209,7 +209,7 @@
 					team: Game.teams.length - 1,
 					seat: 0,
 					trophyCount: 0,
-					totalScore: { num: 0, den: 0 },
+					totalScore: { num: 0, den: 0, maru: 0, batsu: 0 },
 					manualOrder: Game.attendants.length
 				});
 			}}>＋ チーム追加</button
