@@ -75,6 +75,10 @@ export class QuestionConsoleClass {
 				);
 				break;
 
+			case 'updateAttendantGroup':
+				this.Game.attendants[event.data.attendantID].group = event.data.group;
+				break;
+
 			case 'reorderAttendants': // single-only
 				this.Game.attendants[this.Game.orderedAttendants[event.data.attendantID]].manualOrder =
 					event.data.newOrder;
@@ -112,6 +116,7 @@ export class QuestionConsoleClass {
 					JSON.stringify({
 						command: 'syncState',
 						mode: this.Game.battleMode,
+						attendants: this.Game.attendants,
 						currentState: state,
 						history: this.Game.history,
 						rules: this.Game.rules,

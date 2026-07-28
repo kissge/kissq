@@ -2,6 +2,7 @@
 	import { onMount } from 'svelte';
 	import { flip } from 'svelte/animate';
 	import { fade, fly } from 'svelte/transition';
+	import type { Attendant } from '$lib/attendant';
 	import RuleEditDialog from '$lib/components/ruleEditDialog.svelte';
 	import type { HistoryEntry } from '$lib/historyEntry';
 	import { parseCSV, qZero } from '$lib/question';
@@ -18,6 +19,7 @@
 	let fontSize = $state(6);
 	let isKeyboardEnabled = $state(true);
 
+	let attendants = $state<Attendant[]>([]);
 	let currentState = $state<GameState>();
 	let history = $state<HistoryEntry[]>([]);
 	let rules = $state<Rule[]>([]);
@@ -75,6 +77,8 @@
 			})
 	);
 
+	let activeRules = $derived(rules.flatMap((rule, i) => (rule.isRemoved ? [] : { rule, i })));
+
 	let inputDialog: HTMLDialogElement;
 	let ruleEditDialog: { open: (rules: Rule[]) => Promise<Rule[] | null> };
 
@@ -104,6 +108,7 @@
 		switch (event.data.command) {
 			case 'syncState':
 				battleMode = event.data.mode;
+				attendants = event.data.attendants;
 				currentState = event.data.currentState;
 				history = event.data.history;
 				rules = event.data.rules;
@@ -307,6 +312,30 @@
 					{#if isDragAvailable}
 						<span class="drag-handle">⠿</span>
 					{/if}
+
+					{#if activeRules.length > 1}
+						<select
+							bind:value={attendants[i].group}
+							onchange={(event) => {
+								const newGroup = Number.parseInt((event.target as HTMLSelectElement).value);
+								console.log({
+									command: 'updateAttendantGroup',
+									attendantID: i,
+									group: newGroup
+								});
+								opener.postMessage({
+									command: 'updateAttendantGroup',
+									attendantID: i,
+									group: newGroup
+								});
+							}}
+						>
+							{#each activeRules as { i } (i)}
+								<option value={i}>{String.fromCodePoint(65 + i)}</option>
+							{/each}
+						</select>
+					{/if}
+
 					{#if att.life !== 'removed'}
 						{att.name || '--'}
 						{#if att.isLizhi}
