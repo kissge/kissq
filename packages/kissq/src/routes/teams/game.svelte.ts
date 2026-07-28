@@ -68,7 +68,7 @@ export class GameClass extends GameClassBase<'team'> {
 			team: teamID,
 			seat: Math.max(0, this.attendantsPerTeam[teamID].length - 1),
 			trophyCount: 0,
-			totalScore: { num: 0, den: 0 },
+			totalScore: { num: 0, den: 0, maru: 0, batsu: 0 },
 			manualOrder: this.attendants.length
 		});
 	}
