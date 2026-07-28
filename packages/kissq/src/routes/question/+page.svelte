@@ -74,7 +74,7 @@
 
 	let inputDialog: HTMLDialogElement;
 
-	let attendantElements: HTMLElement[] = [];
+	let attendantElements: HTMLElement[] = $state([]);
 	let isDragging = $state<number | null>(null);
 	let dropTarget = $state<number | null>(null);
 	let isDragAvailable = $derived(
