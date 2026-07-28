@@ -322,11 +322,6 @@
 							bind:value={attendants[ai].group}
 							onchange={(event) => {
 								const newGroup = Number.parseInt((event.target as HTMLSelectElement).value);
-								console.log({
-									command: 'updateAttendantGroup',
-									attendantID: ai,
-									group: newGroup
-								});
 								opener.postMessage({
 									command: 'updateAttendantGroup',
 									attendantID: ai,

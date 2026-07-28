@@ -95,20 +95,7 @@ export class QuestionConsoleClass {
 		if (this.subWindow && !this.subWindow.closed) {
 			// Prevent circular object (only necessary for team, fyi)
 			const state = Object.fromEntries(
-				Object.entries(this.Game.currentState).flatMap(([k, v]) =>
-					k === 'teams'
-						? []
-						: k === 'attendants'
-							? [
-									[
-										k,
-										v.map((v: AttendantState) =>
-											Object.fromEntries(Object.entries(v).filter(([k]) => k !== 'team'))
-										)
-									]
-								]
-							: [[k, v]]
-				)
+				Object.entries(this.Game.currentState).flatMap(([k, v]) => (k === 'teams' ? [] : [[k, v]]))
 			);
 
 			this.subWindow.postMessage(
