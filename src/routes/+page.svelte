@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { watch } from 'runed';
-	import { onMount, untrack } from 'svelte';
+	import { onMount } from 'svelte';
 	import { flip } from 'svelte/animate';
 	import { fade, slide } from 'svelte/transition';
 	import Toastify from 'toastify-js';
