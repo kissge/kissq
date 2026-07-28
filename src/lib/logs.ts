@@ -72,7 +72,7 @@ export class LoggerClass<T extends 'single' | 'team' = 'single' | 'team'> {
 	}
 
 	_stateToLog(): LogStateEntry[] {
-		const entries = this.Game.currentState.attendants.flatMap<LogStateEntry>((att, i) => {
+		const entries = this.Game.currentState.attendants.flatMap<LogStateEntry>((att, ai) => {
 			if (att.life === 'removed') {
 				return [];
 			}
@@ -82,11 +82,11 @@ export class LoggerClass<T extends 'single' | 'team' = 'single' | 'team'> {
 					return {
 						mode: 'marubatsu',
 						name: att.name,
-						group: this.Game.attendants[i].group,
+						group: this.Game.attendants[ai].group,
 						maruCount: att.maruCount,
 						batsuCount: att.batsuCount,
 						life: att.life,
-						i
+						i: ai
 					};
 				case 'score':
 				case 'MbyN':
@@ -94,10 +94,10 @@ export class LoggerClass<T extends 'single' | 'team' = 'single' | 'team'> {
 					return {
 						mode: att.rule.mode,
 						name: att.name,
-						group: this.Game.attendants[i].group,
+						group: this.Game.attendants[ai].group,
 						score: att.score,
 						life: att.life,
-						i
+						i: ai
 					};
 				case 'aql':
 				case 'product':
@@ -105,14 +105,14 @@ export class LoggerClass<T extends 'single' | 'team' = 'single' | 'team'> {
 					return {
 						mode: att.rule.mode,
 						name: att.name,
-						group: this.Game.attendants[i].group,
+						group: this.Game.attendants[ai].group,
 						score: att.score,
 						life: att.life,
-						team: this.Game.attendants[i].team,
-						seat: att.rule.mode === 'sum' ? null : this.Game.attendants[i].seat,
-						teamScore: this.Game.currentState.teams[this.Game.attendants[i].team].teamScore,
-						teamLife: this.Game.currentState.teams[this.Game.attendants[i].team].teamLife,
-						i
+						team: this.Game.attendants[ai].team,
+						seat: att.rule.mode === 'sum' ? null : this.Game.attendants[ai].seat,
+						teamScore: this.Game.currentState.teams[this.Game.attendants[ai].team].teamScore,
+						teamLife: this.Game.currentState.teams[this.Game.attendants[ai].team].teamLife,
+						i: ai
 					};
 			}
 		});

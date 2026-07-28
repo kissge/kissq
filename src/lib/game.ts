@@ -35,13 +35,13 @@ export abstract class GameClassBase<BattleMode extends 'single' | 'team'> {
 	abstract clickBatsu(attendantID: number, playSounds_?: boolean): Promise<void>;
 
 	clearHistory(Wasedashiki: WasedashikiClass) {
-		this.currentState.attendants.forEach((att, i) => {
-			this.attendants[i].trophyCount = att.trophyCount;
-			this.attendants[i].totalScore = {
+		this.currentState.attendants.forEach((att, ai) => {
+			this.attendants[ai].trophyCount = att.trophyCount;
+			this.attendants[ai].totalScore = {
 				num:
 					att.totalScore.num +
 					(this.enableRating
-						? this.currentState.attendants.length - this.currentState.ranking.indexOf(i) - 1
+						? this.currentState.attendants.length - this.currentState.ranking.indexOf(ai) - 1
 						: 0),
 				den: att.totalScore.den + (this.enableRating ? 1 : 0),
 				maru: att.totalScore.maru + att.maruCount,
