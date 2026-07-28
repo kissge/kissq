@@ -4,6 +4,7 @@
 	import { fade, fly } from 'svelte/transition';
 	import type { Attendant } from '$lib/attendant';
 	import RuleEditDialog from '$lib/components/ruleEditDialog.svelte';
+	import RuleTeamEditDialog from '$lib/components/ruleTeamEditDialog.svelte';
 	import type { HistoryEntry } from '$lib/historyEntry';
 	import { parseCSV, qZero } from '$lib/question';
 	import type { Rule } from '$lib/rule';
@@ -81,6 +82,7 @@
 
 	let inputDialog: HTMLDialogElement;
 	let ruleEditDialog: { open: (rules: Rule[]) => Promise<Rule[] | null> };
+	let ruleTeamEditDialog: { open: (rules: Rule[]) => Promise<Rule[] | null> };
 
 	let attendantElements: HTMLElement[] = $state([]);
 	let isDragging = $state<number | null>(null);
@@ -243,11 +245,13 @@
 			class="labeled"
 			data-label="B"
 			onclick={() => {
-				ruleEditDialog.open(rules).then((newRules) => {
-					if (newRules) {
-						opener.postMessage({ command: 'updateRules', rules: newRules });
-					}
-				});
+				(battleMode === 'single' ? ruleEditDialog : ruleTeamEditDialog)
+					.open(rules)
+					.then((newRules) => {
+						if (newRules) {
+							opener.postMessage({ command: 'updateRules', rules: newRules });
+						}
+					});
 			}}
 		>
 			ルール編集
@@ -474,6 +478,7 @@
 </dialog>
 
 <RuleEditDialog bind:this={ruleEditDialog} />
+<RuleTeamEditDialog bind:this={ruleTeamEditDialog} />
 
 <style>
 	header.console,
