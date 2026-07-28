@@ -531,10 +531,10 @@ export class GameState {
 		);
 		this.teams = attendants
 			.reduce<number[][][]>(
-				(acc, att, i) => {
+				(acc, att, ai) => {
 					acc[att.team] ??= [];
 					acc[att.team][att.seat] ??= [];
-					acc[att.team][att.seat].push(i);
+					acc[att.team][att.seat].push(ai);
 					return acc;
 				},
 				teams.map(() => [])

@@ -34,11 +34,11 @@
 	let orderedAttendants = $derived.by(() => {
 		switch (order) {
 			case 'added':
-				return currentState?.attendants.map((att, i) => ({ att, i }));
+				return currentState?.attendants.map((att, ai) => ({ att, ai }));
 			case 'same':
-				return mainScreenOrder?.map((i) => ({ att: currentState!.attendants[i], i }));
+				return mainScreenOrder?.map((ai) => ({ att: currentState!.attendants[ai], ai }));
 			case 'reverse':
-				return mainScreenOrder?.map((i) => ({ att: currentState!.attendants[i], i })).reverse();
+				return mainScreenOrder?.map((ai) => ({ att: currentState!.attendants[ai], ai })).reverse();
 			default:
 				order satisfies never;
 		}
@@ -272,33 +272,33 @@
 	</div>
 	{#if currentState && orderedAttendants}
 		<div>
-			{#each orderedAttendants as { att, i }, j (i)}
+			{#each orderedAttendants as { att, ai }, ord (ai)}
 				<div
 					class={[
 						'attendant',
 						{
-							'answerer-1st': answerers[(buttonMapping[i] ?? 0) - 1]?.rank === 1,
+							'answerer-1st': answerers[(buttonMapping[ai] ?? 0) - 1]?.rank === 1,
 							'answerer-2nd':
 								(wasedashikiMode === 'endless' || wasedashikiMode === 'double') &&
-								answerers[(buttonMapping[i] ?? 0) - 1]?.rank === 2,
+								answerers[(buttonMapping[ai] ?? 0) - 1]?.rank === 2,
 							'answerer-late':
 								wasedashikiMode === 'endless' &&
-								answerers[(buttonMapping[i] ?? 0) - 1]?.rank === 'late',
-							'drop-target': dropTarget === j
+								answerers[(buttonMapping[ai] ?? 0) - 1]?.rank === 'late',
+							'drop-target': dropTarget === ord
 						}
 					]}
 					animate:flip={{ duration: 500 }}
-					bind:this={attendantElements[i]}
+					bind:this={attendantElements[ai]}
 					role="listitem"
 					ondragstart={() => {
 						if (isDragAvailable) {
-							isDragging = j;
+							isDragging = ord;
 						}
 					}}
 					ondragover={(event) => {
 						if (isDragAvailable) {
 							event.preventDefault();
-							dropTarget = j;
+							dropTarget = ord;
 						}
 					}}
 					ondragend={() => {
@@ -306,7 +306,7 @@
 							onDragEnd();
 						}
 					}}
-					style:opacity={isDragging === j ? 0.25 : 1}
+					style:opacity={isDragging === ord ? 0.25 : 1}
 					draggable={isDragAvailable}
 				>
 					{#if isDragAvailable}
@@ -315,17 +315,17 @@
 
 					{#if activeRules.length > 1}
 						<select
-							bind:value={attendants[i].group}
+							bind:value={attendants[ai].group}
 							onchange={(event) => {
 								const newGroup = Number.parseInt((event.target as HTMLSelectElement).value);
 								console.log({
 									command: 'updateAttendantGroup',
-									attendantID: i,
+									attendantID: ai,
 									group: newGroup
 								});
 								opener.postMessage({
 									command: 'updateAttendantGroup',
-									attendantID: i,
+									attendantID: ai,
 									group: newGroup
 								});
 							}}
@@ -361,15 +361,15 @@
 						{:else}
 							<button
 								class="labeled"
-								data-label={Keys[j]?.[0] || ''}
-								onclick={() => opener.postMessage({ command: 'clickMaru', attendantID: i })}
+								data-label={Keys[ord]?.[0] || ''}
+								onclick={() => opener.postMessage({ command: 'clickMaru', attendantID: ai })}
 							>
 								O
 							</button>
 							<button
 								class="labeled"
-								data-label={Keys[j]?.[1] || ''}
-								onclick={() => opener.postMessage({ command: 'clickBatsu', attendantID: i })}
+								data-label={Keys[ord]?.[1] || ''}
+								onclick={() => opener.postMessage({ command: 'clickBatsu', attendantID: ai })}
 							>
 								X
 							</button>
