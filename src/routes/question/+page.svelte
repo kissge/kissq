@@ -2,8 +2,10 @@
 	import { onMount } from 'svelte';
 	import { flip } from 'svelte/animate';
 	import { fade, fly } from 'svelte/transition';
+	import RuleEditDialog from '$lib/components/ruleEditDialog.svelte';
 	import type { HistoryEntry } from '$lib/historyEntry';
 	import { parseCSV, qZero } from '$lib/question';
+	import type { Rule } from '$lib/rule';
 	import type { WasedashikiMode } from '$lib/serial';
 	import type { GameState } from '$lib/state';
 
@@ -18,6 +20,7 @@
 
 	let currentState = $state<GameState>();
 	let history = $state<HistoryEntry[]>([]);
+	let rules = $state<Rule[]>([]);
 	let mainScreenOrder = $state<number[]>();
 	let mainScreenOrderingMode = $state<'ranking' | 'manual'>();
 	let answerers = $state<({ rank: 1 | 2 | 'late'; delay: number } | null)[]>([]);
@@ -73,6 +76,7 @@
 	);
 
 	let inputDialog: HTMLDialogElement;
+	let ruleEditDialog: { open: (rules: Rule[]) => Promise<Rule[] | null> };
 
 	let attendantElements: HTMLElement[] = $state([]);
 	let isDragging = $state<number | null>(null);
@@ -102,6 +106,7 @@
 				battleMode = event.data.mode;
 				currentState = event.data.currentState;
 				history = event.data.history;
+				rules = event.data.rules;
 				mainScreenOrder = event.data.orderedAttendants;
 				mainScreenOrderingMode = event.data.orderingMode;
 				answerers = event.data.answerers;
@@ -228,6 +233,19 @@
 			}}
 		>
 			プレイヤー追加
+		</button>
+		<button
+			class="labeled"
+			data-label="B"
+			onclick={() => {
+				ruleEditDialog.open(rules).then((newRules) => {
+					if (newRules) {
+						opener.postMessage({ command: 'updateRules', rules: newRules });
+					}
+				});
+			}}
+		>
+			ルール編集
 		</button>
 		<div class="spacer"></div>
 		<div>
@@ -425,6 +443,8 @@
 	></textarea>
 	<button onclick={loadFromCSV}>読み込み</button>
 </dialog>
+
+<RuleEditDialog bind:this={ruleEditDialog} />
 
 <style>
 	header.console,
