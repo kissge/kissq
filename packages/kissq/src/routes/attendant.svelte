@@ -555,7 +555,7 @@
 			font-size: 0.7em;
 		}
 		.maru-count {
-			color: red;
+			color: rgb(255 65 65);
 			letter-spacing: -0.1em;
 		}
 		.batsu-count {
