@@ -1,8 +1,7 @@
 import { createContext } from 'svelte';
 import { qZero } from '$lib/question';
-import type { AttendantState } from '$lib/state';
 import { getWasedashikiContext } from '$lib/wasedashiki.svelte';
-import type { GameClassBase } from './game';
+import type { GameClassBaseType } from './game';
 import { Rule } from './rule';
 
 const urlParams = new URLSearchParams(typeof location !== 'undefined' ? location.search : '');
@@ -14,7 +13,7 @@ export class QuestionConsoleClass {
 	showQuestionWindow = $state(urlParams.has('qw'));
 	currentQuestion = $state(qZero);
 
-	constructor(public Game: GameClassBase<'single'> | GameClassBase<'team'>) {}
+	constructor(public Game: GameClassBaseType) {}
 
 	openSubWindow() {
 		this.subWindow = window.open('./question', 'questionWindow', 'popup') || undefined;

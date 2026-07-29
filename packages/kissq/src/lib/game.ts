@@ -114,3 +114,5 @@ export abstract class GameClassBase<BattleMode extends 'single' | 'team'> {
 		this.history.pop();
 	}
 }
+
+export type GameClassBaseType = GameClassBase<'single'> | GameClassBase<'team'>;

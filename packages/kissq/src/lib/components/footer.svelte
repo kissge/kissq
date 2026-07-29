@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
-	import type { GameClassBase } from '$lib/game';
+	import type { GameClassBaseType } from '$lib/game';
 	import { getLayoutContext } from '$lib/layout.svelte';
 	import { tooltip } from '$lib/tooltip.svelte';
 
@@ -8,7 +8,7 @@
 		Game,
 		children
 	}: {
-		Game: GameClassBase<'single'> | GameClassBase<'team'>;
+		Game: GameClassBaseType;
 		children: Snippet<[]>;
 	} = $props();
 

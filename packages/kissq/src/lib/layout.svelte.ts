@@ -1,7 +1,7 @@
 import { createContext } from 'svelte';
 import { Spring } from 'svelte/motion';
 import { isSafari } from './browser';
-import type { GameClassBase } from './game';
+import type { GameClassBaseType } from './game';
 
 export class LayoutClass {
 	innerWidth = $state(0);
@@ -83,7 +83,7 @@ export class LayoutClass {
 	});
 	barHeightRatioArray = $state<Spring<number>[]>([]);
 
-	constructor(public Game: GameClassBase<'single'> | GameClassBase<'team'>) {
+	constructor(public Game: GameClassBaseType) {
 		$effect(() => {
 			if (this.nameWidth.length === 0 || this.nameHeight.length === 0) {
 				return;
