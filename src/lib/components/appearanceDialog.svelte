@@ -1,4 +1,7 @@
 <script lang="ts">
+	import { tooltipInDialog as tooltip } from '$lib/tooltip.svelte';
+	import { isUnlocked } from '$lib/unlock';
+
 	let dialog: HTMLDialogElement;
 	let resolve: (result: Awaited<ReturnType<typeof open>>) => void;
 	export function open(
@@ -16,7 +19,12 @@
 		});
 	}
 
-	function save() {
+	async function save() {
+		if (!(await isUnlocked())) {
+			alert('この機能を利用するにはアンロックが必要です。');
+			return;
+		}
+
 		dialog.close();
 		resolve([wallpaper, trophy]);
 	}
@@ -93,9 +101,17 @@
 			onclick={() => {
 				dialog.close();
 				resolve(null);
-			}}>キャンセル</button
+			}}
 		>
-		<button class="primary" onclick={save}>保存する</button>
+			キャンセル
+		</button>
+		<button
+			class="primary"
+			onclick={save}
+			{@attach tooltip('この機能を利用するにはアンロックが必要です。')}
+		>
+			保存する🔒
+		</button>
 	</div>
 </dialog>
 
