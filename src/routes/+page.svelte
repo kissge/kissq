@@ -109,7 +109,6 @@
 	}
 
 	let ruleEditDialog: { open: (rules: Rule[]) => Promise<Rule[] | null> };
-	// svelte-ignore non_reactive_update ...?
 	let logDialog: { open: () => void };
 	let effectEditDialog: {
 		open: (
@@ -433,7 +432,7 @@
 		>
 			📸モード{#if screenshotModeTimer != null}をOFFに{/if}
 		</button>
-		<button onclick={logDialog.open}>履歴確認</button>
+		<button onclick={() => logDialog.open()}>履歴確認</button>
 		<button
 			onclick={() => (showMarubatsuOverride = !showMarubatsuOverride)}
 			disabled={Game.currentState.defaultRule.mode === 'marubatsu'}
@@ -494,7 +493,7 @@
 		>
 			早稲田式連携
 		</button>
-		<button onclick={unlockDialog.open}>機能アンロック</button>
+		<button onclick={() => unlockDialog.open()}>機能アンロック</button>
 	</div>
 {/if}
 
