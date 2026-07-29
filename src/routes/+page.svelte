@@ -487,7 +487,7 @@
 		</button>
 		<button
 			onclick={() => (Game.enableRating = !Game.enableRating)}
-			{@attach tooltip('レーティング自動計算のオンオフを切り替えます')}
+			{@attach tooltip('レーティング表示のオンオフを切り替えます')}
 		>
 			{#if Game.enableRating}レートON{:else}レートOFF{/if}
 		</button>
