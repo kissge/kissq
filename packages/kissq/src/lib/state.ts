@@ -572,7 +572,7 @@ export class GameState {
 		return this;
 	}
 
-	updateRanking(): GameState {
+	updateRanking(enableRating: boolean = false): GameState {
 		// sortが安定ソートであることに依存している
 
 		switch (this.defaultRule.mode) {
@@ -589,7 +589,9 @@ export class GameState {
 						// 両方生存している場合はスコア順
 						return (
 							b.score - a.score ||
-							b.totalScore.num * a.totalScore.den - a.totalScore.num * b.totalScore.den
+							(enableRating
+								? b.totalScore.num * a.totalScore.den - a.totalScore.num * b.totalScore.den
+								: 0)
 						);
 					} else {
 						const aWon = a.life === 'won' ? 1 : 0;
@@ -613,7 +615,9 @@ export class GameState {
 						return (
 							b.maruCount - a.maruCount ||
 							a.batsuCount - b.batsuCount ||
-							b.totalScore.num * a.totalScore.den - a.totalScore.num * b.totalScore.den
+							(enableRating
+								? b.totalScore.num * a.totalScore.den - a.totalScore.num * b.totalScore.den
+								: 0)
 						);
 					} else {
 						const aWon = a.life === 'won' ? 1 : 0;

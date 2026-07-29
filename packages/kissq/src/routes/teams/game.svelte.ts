@@ -31,7 +31,7 @@ export class GameClass extends GameClassBase<'team'> {
 	currentState = $derived(
 		this.history.reduce(
 			(state, entry) => entry.reducerTeam(state.clearLatestEvent()).updateRanking(),
-			new GameState(this.attendants, this.rules, this.teams).updateRanking()
+			new GameState(this.attendants, this.rules, this.teams).updateRanking(this.enableRating)
 		)
 	);
 

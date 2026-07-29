@@ -40,10 +40,8 @@ export abstract class GameClassBase<BattleMode extends 'single' | 'team'> {
 			this.attendants[ai].totalScore = {
 				num:
 					att.totalScore.num +
-					(this.enableRating
-						? this.currentState.attendants.length - this.currentState.ranking.indexOf(ai) - 1
-						: 0),
-				den: att.totalScore.den + (this.enableRating ? 1 : 0),
+					(this.currentState.attendants.length - this.currentState.ranking.indexOf(ai) - 1),
+				den: att.totalScore.den + 1,
 				maru: att.totalScore.maru + att.maruCount,
 				batsu: att.totalScore.batsu + att.batsuCount
 			};
