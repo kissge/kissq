@@ -20,6 +20,7 @@
 	import RuleEditDialog from '$lib/components/ruleEditDialog.svelte';
 	import Stars from '$lib/components/stars.svelte';
 	import StateEditDialog from '$lib/components/stateEditDialog.svelte';
+	import UnlockDialog from '$lib/components/unlockDialog.svelte';
 	import { EditHistoryEntry } from '$lib/historyEntry';
 	import { LayoutClass, setLayoutContext } from '$lib/layout.svelte';
 	import { LoggerClass, setLoggerContext } from '$lib/logs';
@@ -124,6 +125,7 @@
 	};
 	let stateEditDialog: { open: (att: AttendantState) => Promise<AttendantStateValue | null> };
 	let penaltyRoulette: { run: (choices: Penalty[]) => Promise<number> };
+	let unlockDialog: { open: () => Promise<void> };
 
 	$effect(() => {
 		if (history.length === 0) {
@@ -477,7 +479,7 @@
 			{#if Game.playSounds}🔊 ON{:else}🔇 OFF{/if}
 		</button>
 		<button onclick={editAppearance} {@attach tooltip('外観の設定を編集します')}>
-			デザイン設定
+			デザイン設定🔒
 		</button>
 		<button
 			onclick={() => (Game.enableRating = !Game.enableRating)}
@@ -492,6 +494,7 @@
 		>
 			早稲田式連携
 		</button>
+		<button onclick={unlockDialog.open}>機能アンロック</button>
 	</div>
 {/if}
 
@@ -528,6 +531,7 @@
 <AppearanceDialog bind:this={appearanceDialog} />
 <StateEditDialog bind:this={stateEditDialog} />
 <PenaltyRoulette bind:this={penaltyRoulette} />
+<UnlockDialog bind:this={unlockDialog} />
 
 <style>
 	:global(html) {
