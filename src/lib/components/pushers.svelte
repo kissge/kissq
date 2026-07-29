@@ -1,10 +1,10 @@
 <script lang="ts">
 	import { fade, fly } from 'svelte/transition';
-	import type { GameClassBase } from '$lib/game';
+	import type { GameClassBaseType } from '$lib/game';
 	import { getLayoutContext } from '$lib/layout.svelte';
 	import { getWasedashikiContext } from '$lib/wasedashiki.svelte';
 
-	let { Game }: { Game: GameClassBase<'single'> | GameClassBase<'team'> } = $props();
+	let { Game }: { Game: GameClassBaseType } = $props();
 
 	let Wasedashiki = getWasedashikiContext();
 	let Layout = getLayoutContext();

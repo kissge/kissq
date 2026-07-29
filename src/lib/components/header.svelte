@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { fade } from 'svelte/transition';
 	import HelpDialog from '$lib/components/helpDialog.svelte';
-	import type { GameClassBase } from '$lib/game';
+	import type { GameClassBaseType } from '$lib/game';
 	import { getLayoutContext } from '$lib/layout.svelte';
 	import { tooltip } from '$lib/tooltip.svelte';
 	import { getWasedashikiContext } from '$lib/wasedashiki.svelte';
@@ -12,7 +12,7 @@
 		showTotalOverride,
 		editRule
 	}: {
-		Game: GameClassBase<'single'> | GameClassBase<'team'>;
+		Game: GameClassBaseType;
 		battleMode: 'single' | 'team';
 		showTotalOverride: boolean;
 		editRule: () => void;

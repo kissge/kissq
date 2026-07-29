@@ -1,7 +1,7 @@
 import { createContext } from 'svelte';
 import Toastify from 'toastify-js';
 import { connectToSerialPort, readFromSerialPort } from '$lib/serial';
-import type { GameClassBase } from './game';
+import type { GameClassBaseType } from './game';
 
 export class WasedashikiClass {
 	serialPort = $state<SerialPort | undefined>();
@@ -13,7 +13,7 @@ export class WasedashikiClass {
 	connected = $state(false);
 	pushers = $state<number[]>([]);
 
-	constructor(public Game: GameClassBase<'single'> | GameClassBase<'team'>) {}
+	constructor(public Game: GameClassBaseType) {}
 
 	/** button ID -> attendant ID */
 	buttonReverseMapping = $derived.by(() => {
