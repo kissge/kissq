@@ -21,7 +21,6 @@
 	let Layout = getLayoutContext();
 	let Wasedashiki = getWasedashikiContext();
 
-	// svelte-ignore non_reactive_update ...?
 	let helpDialog: { open: () => void };
 
 	let hideQuestionCount = $derived(Game.currentState.defaultRule.mode === 'aql');
@@ -81,7 +80,7 @@
 			</a>
 		{/if}
 		<button
-			onclick={helpDialog.open}
+			onclick={() => helpDialog.open()}
 			{@attach tooltip(
 				`はじめにお読みください！！！！！！！！！！！！
         ！！！！！！！！！！！！！！！！！！！！！！！
