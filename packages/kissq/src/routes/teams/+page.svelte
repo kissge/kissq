@@ -6,6 +6,7 @@
 	import Toastify from 'toastify-js';
 	import 'toastify-js/src/toastify.css';
 	import { loadFromHash, saveToHash } from '$lib/attendant';
+	import AppearanceDialog from '$lib/components/appearanceDialog.svelte';
 	import Footer from '$lib/components/footer.svelte';
 	import Header from '$lib/components/header.svelte';
 	import LogDialog from '$lib/components/logDialog.svelte';
@@ -13,6 +14,7 @@
 	import QuestionWindow from '$lib/components/questionWindow.svelte';
 	import RuleTeamEditDialog from '$lib/components/ruleTeamEditDialog.svelte';
 	import Stars from '$lib/components/stars.svelte';
+	import UnlockDialog from '$lib/components/unlockDialog.svelte';
 	import { LayoutClass, setLayoutContext } from '$lib/layout.svelte';
 	import { LoggerClass, setLoggerContext } from '$lib/logs';
 	import { QuestionConsoleClass, setQuestionConsoleContext } from '$lib/questionConsole.svelte';
@@ -36,9 +38,18 @@
 	setLoggerContext(Logger);
 	Game.Logger = Logger;
 
-	// svelte-ignore non_reactive_update ...?
+	let wallpaper = $state<string | null>(null);
+	let trophy = $state<string | null>(null);
+
 	let logDialog: { open: () => void };
 	let ruleTeamEditDialog: { open: (rules: Rule[]) => Promise<Rule[] | null> };
+	let appearanceDialog: {
+		open: (
+			wallpaper: string | null,
+			trophy: string | null
+		) => Promise<[string | null, string | null] | null>;
+	};
+	let unlockDialog: { open: () => Promise<void> };
 
 	async function editRule() {
 		const result = await ruleTeamEditDialog.open(Game.rules);
@@ -65,6 +76,19 @@
 		isBannerVisible = event;
 		clearTimeout(showBannerTimeout);
 		showBannerTimeout = setTimeout(() => (isBannerVisible = null), duration);
+	}
+
+	async function editAppearance() {
+		const result = await appearanceDialog.open(wallpaper, trophy);
+		if (result) {
+			wallpaper = result[0];
+			trophy = result[1];
+			const main = document.querySelector('main') as HTMLElement;
+			main.style.backgroundImage = wallpaper ? `url(${wallpaper})` : '';
+			main.style.setProperty('--trophy-image', trophy ? `url(${trophy})` : '');
+			window.localStorage.setItem('wallpaper', wallpaper || '');
+			window.localStorage.setItem('trophy', trophy || '');
+		}
 	}
 
 	$effect(() => {
@@ -270,12 +294,15 @@
 			}}
 			{@attach tooltip('全員の名前・チーム・枠・スコアをリセットします。')}>全削除</button
 		>
-		<button onclick={logDialog.open}>履歴確認</button>
+		<button onclick={() => logDialog.open()}>履歴確認</button>
 		<button
 			onclick={() => (Game.playSounds = !Game.playSounds)}
 			{@attach tooltip('効果音のオンオフを切り替えます')}
 		>
 			{#if Game.playSounds}🔊 ON{:else}🔇 OFF{/if}
+		</button>
+		<button onclick={editAppearance} {@attach tooltip('外観の設定を編集します')}>
+			デザイン設定🔒
 		</button>
 		<button onclick={() => QuestionConsole.openSubWindow()}>操作盤表示</button>
 		<button
@@ -284,6 +311,7 @@
 		>
 			早稲田式連携
 		</button>
+		<button onclick={() => unlockDialog.open()}>機能アンロック</button>
 	</div>
 </main>
 
@@ -332,6 +360,8 @@
 
 <RuleTeamEditDialog bind:this={ruleTeamEditDialog} />
 <LogDialog bind:this={logDialog} />
+<AppearanceDialog bind:this={appearanceDialog} />
+<UnlockDialog bind:this={unlockDialog} />
 
 <style>
 	main.main {
