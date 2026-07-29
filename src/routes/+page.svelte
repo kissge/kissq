@@ -29,6 +29,7 @@
 	import { reconnect } from '$lib/serial';
 	import { AttendantState, type AttendantStateValue, type GameEvent } from '$lib/state';
 	import { tooltip } from '$lib/tooltip.svelte';
+	import { isUnlocked } from '$lib/unlock';
 	import { setWasedashikiContext, WasedashikiClass } from '$lib/wasedashiki.svelte';
 	import Attendant from './attendant.svelte';
 	import { GameClass, setGameContext } from './game.svelte';
@@ -188,15 +189,19 @@
 	onMount(() => {
 		Game.penaltyRoulette = penaltyRoulette;
 
-		wallpaper = window.localStorage.getItem('wallpaper');
-		trophy = window.localStorage.getItem('trophy');
-		const main = document.querySelector('main') as HTMLElement;
-		if (wallpaper) {
-			main.style.backgroundImage = `url(${wallpaper})`;
-		}
-		if (trophy) {
-			main.style.setProperty('--trophy-image', `url(${trophy})`);
-		}
+		isUnlocked().then((unlocked) => {
+			if (unlocked) {
+				wallpaper = window.localStorage.getItem('wallpaper');
+				trophy = window.localStorage.getItem('trophy');
+				const main = document.querySelector('main') as HTMLElement;
+				if (wallpaper) {
+					main.style.backgroundImage = `url(${wallpaper})`;
+				}
+				if (trophy) {
+					main.style.setProperty('--trophy-image', `url(${trophy})`);
+				}
+			}
+		});
 
 		const data = loadFromHash();
 		if (data) {
