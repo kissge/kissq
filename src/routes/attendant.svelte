@@ -158,7 +158,7 @@
 			{#if att.totalScore.den === 0}
 				---
 			{:else}
-				{Math.floor((att.totalScore.num / att.totalScore.den) * 492.8).toLocaleString()}
+				{att.rate.toLocaleString()}
 			{/if}
 		</span>
 	{:else if showTotalOverride}
