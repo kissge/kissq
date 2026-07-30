@@ -4,7 +4,7 @@ import { han2zen, type Attendant } from '$lib/attendant';
 import { GameClassBase } from '$lib/game';
 import { BatsuHistoryEntry, type HistoryEntry } from '$lib/historyEntry';
 import { LoggerClass } from '$lib/logs';
-import { getActiveRulesText, Rule, type Penalty } from '$lib/rule';
+import { Rule, type Penalty } from '$lib/rule';
 import type { WasedashikiMode } from '$lib/serial';
 import { playSound } from '$lib/sound';
 import { GameState } from '$lib/state';
@@ -78,7 +78,7 @@ export class GameClass extends GameClassBase<'single'> {
 	});
 
 	activeRules = $derived(this.rules.flatMap((rule, i) => (rule.isRemoved ? [] : { rule, i })));
-	activeRulesText = $derived(getActiveRulesText(this.activeRules, 'single'));
+	activeRulesText = $derived(Rule.getActiveRulesText(this.activeRules, 'single'));
 
 	windowTitle = $derived(
 		`kissQ -

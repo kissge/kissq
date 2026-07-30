@@ -90,6 +90,10 @@
 				justify-content: end;
 				gap: 0.5em;
 
+				.spacer {
+					flex: 1 0 0;
+				}
+
 				.primary:not([disabled]) {
 					background-color: #06f;
 					color: white;
