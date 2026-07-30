@@ -2,6 +2,10 @@
 	import { fade } from 'svelte/transition';
 	import { Rule, type Penalty } from '$lib/rule';
 	import { tooltipInDialog as tooltip } from '$lib/tooltip.svelte';
+	import { getGameContext } from '../../routes/game.svelte';
+	import RulePresetDialog from './rulePresetDialog.svelte';
+
+	let Game = getGameContext();
 
 	let dialog: HTMLDialogElement;
 	let resolve: (result: Awaited<ReturnType<typeof open>>) => void;
@@ -74,6 +78,29 @@
 	let activeRule = $derived(rules[activeTab]);
 	let activeRules = $derived(rules.flatMap((rule, i) => (rule.isRemoved ? [] : { rule, i })));
 
+	let rulesObject = $derived(
+		rules.map(
+			(rule) =>
+				new Rule(
+					rule.mode,
+					rule.win,
+					rule.isLoseNull ? null : rule.lose,
+					rule.maru,
+					rule.batsuMode === 'number' ? rule.batsu : rule.batsuMode,
+					rule.transit,
+					rule.isYasuPerMaruNull
+						? null
+						: { maru: rule.yasuPerMaruMaru, yasu: rule.yasuPerMaruYasu },
+					rule.yasuMode,
+					rule.yasuPerBatsu,
+					rule.rouletteName === null
+						? null
+						: { name: rule.rouletteName, choices: roulettePresets[rule.rouletteName] },
+					rule.isRemoved
+				)
+		)
+	);
+
 	let isValid = $derived(
 		rules.every(
 			({
@@ -109,28 +136,7 @@
 		if (!isValid) return;
 
 		dialog.close();
-		resolve(
-			rules.map(
-				(rule) =>
-					new Rule(
-						rule.mode,
-						rule.win,
-						rule.isLoseNull ? null : rule.lose,
-						rule.maru,
-						rule.batsuMode === 'number' ? rule.batsu : rule.batsuMode,
-						rule.transit,
-						rule.isYasuPerMaruNull
-							? null
-							: { maru: rule.yasuPerMaruMaru, yasu: rule.yasuPerMaruYasu },
-						rule.yasuMode,
-						rule.yasuPerBatsu,
-						rule.rouletteName === null
-							? null
-							: { name: rule.rouletteName, choices: roulettePresets[rule.rouletteName] },
-						rule.isRemoved
-					)
-			)
-		);
+		resolve(rulesObject);
 	}
 </script>
 
@@ -749,12 +755,22 @@
 			{/if}
 		</div>
 		<div class="buttons">
+			<RulePresetDialog
+				{Game}
+				battleMode="single"
+				{rulesObject}
+				close={() => dialog.close()}
+				{isValid}
+			/>
+			<div class="spacer"></div>
 			<button
 				onclick={() => {
 					dialog.close();
 					resolve(null);
-				}}>キャンセル</button
+				}}
 			>
+				キャンセル
+			</button>
 			<button class="primary" onclick={save} disabled={!isValid}>保存する</button>
 		</div>
 	{/if}
