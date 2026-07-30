@@ -77,6 +77,8 @@
 <style>
 	.grid-wrapper {
 		display: contents;
+		width: 100%;
+		min-width: 0;
 
 		&.group-by-seat {
 			:global {
