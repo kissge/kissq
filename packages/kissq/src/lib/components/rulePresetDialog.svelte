@@ -330,13 +330,8 @@
 		}
 
 		button {
-			opacity: 0.5;
-			transition: opacity 0.1s ease-in-out;
 			height: 2em;
 			word-break: keep-all;
-		}
-		&:hover button {
-			opacity: 1;
 		}
 	}
 
