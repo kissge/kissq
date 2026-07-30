@@ -213,6 +213,7 @@
 		flex: 1 1 100%;
 		border: none;
 		background: transparent;
+		width: 100%;
 		min-width: 0;
 		color: #fff;
 		font-size: inherit;
@@ -233,9 +234,12 @@
 		grid-column: 1 / -1;
 		backdrop-filter: blur(0px);
 		transition: opacity 1s ease;
+		box-sizing: border-box;
 		border-bottom: 1px solid #333;
 		border-radius: 0 0.75em 0.75em 0;
 		background-color: #00000040;
+		width: 100%;
+		min-width: 0;
 		height: 1.5em;
 		color: #fff;
 		text-shadow:

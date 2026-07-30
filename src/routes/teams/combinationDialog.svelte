@@ -171,6 +171,10 @@
 </dialog>
 
 <style>
+	dialog {
+		width: 80vw;
+	}
+
 	table {
 		border-collapse: collapse;
 	}
