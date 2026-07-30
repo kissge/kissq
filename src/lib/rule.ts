@@ -199,7 +199,7 @@ export class Rule {
 		}
 	}
 
-	static from(rule: Rule & object): Rule {
+	static from(rule: Rule | RulePOJO): Rule {
 		return new Rule(
 			rule.mode,
 			rule.win,
@@ -248,3 +248,7 @@ export class Rule {
 			.join(' / ');
 	}
 }
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const _ = { ...({} as Rule) };
+export type RulePOJO = typeof _;

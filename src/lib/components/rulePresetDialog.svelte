@@ -1,19 +1,18 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { fade } from 'svelte/transition';
-	import type { GameClassBaseType } from '$lib/game';
 	import { Rule } from '$lib/rule';
 	import { tooltipInDialog as tooltip } from '$lib/tooltip.svelte';
 	import { isUnlocked } from '$lib/unlock';
 
 	let {
-		Game,
+		apply,
 		battleMode,
 		rulesObject,
 		close,
 		isValid
 	}: {
-		Game: GameClassBaseType;
+		apply: (rules: Rule[], resetGroups: 'reset' | 'keep') => void;
 		battleMode: 'single' | 'team';
 		rulesObject: Rule[];
 		close: () => void;
@@ -42,7 +41,6 @@
 </script>
 
 <button
-	class="open-btn"
 	{@attach tooltip('この機能を利用するにはアンロックが必要です。')}
 	onclick={async () => {
 		if (await isUnlocked()) {
@@ -73,25 +71,20 @@
 						<strong>{name}</strong>
 						（{Rule.getActiveRulesText(
 							rules.map((rule, i) => ({ rule, i })),
-							Game.battleMode
+							battleMode
 						)}）
 						<div class="spacer"></div>
 						<button
 							onclick={() => {
-								Game.rules = rules.filter(({ isRemoved }) => !isRemoved);
-								if (
-									confirm(
-										'全プレイヤーをAグループにリセットする場合はOKを、今のグループを可能な限り維持する場合はキャンセルを押してください。'
-									)
-								) {
-									Game.attendants.forEach((_, ai) => (Game.attendants[ai].group = 0));
-								} else {
-									Game.attendants.forEach(({ group }, ai) => {
-										if (group >= Game.rules.length) {
-											Game.attendants[ai].group = 0;
-										}
-									});
-								}
+								apply(
+									rules,
+									rules.length === 1 ||
+										confirm(
+											'全プレイヤーをAグループにリセットする場合はOKを、今のグループを可能な限り維持する場合はキャンセルを押してください。'
+										)
+										? 'reset'
+										: 'keep'
+								);
 								show = false;
 								close();
 							}}
@@ -136,10 +129,6 @@
 </div>
 
 <style>
-	.open-btn {
-		anchor-name: --open-btn;
-	}
-
 	.backdrop {
 		position: absolute;
 		cursor: default;
@@ -154,10 +143,10 @@
 	}
 
 	.dialog {
-		position: absolute;
-		position-anchor: --open-btn;
-		bottom: anchor(top);
-		left: anchor(left);
+		position: fixed;
+		top: 50%;
+		left: 50%;
+		transform: translate(-50%, -50%);
 		margin-bottom: 0.25em;
 		box-shadow:
 			0 0 1em #0005,
@@ -187,7 +176,7 @@
 		}
 
 		button {
-			opacity: 0;
+			opacity: 0.5;
 			transition: opacity 0.1s ease-in-out;
 			height: 2em;
 			word-break: keep-all;

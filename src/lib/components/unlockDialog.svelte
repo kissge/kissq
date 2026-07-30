@@ -27,9 +27,10 @@
 <dialog bind:this={dialog} closedby="any">
 	<p>パスワードを入力するといくつかの追加機能がアンロックされます。</p>
 	<details>
-		<summary>利用できる機能（今日現在）</summary>
+		<summary>利用できる機能（今日現在。今後増減する可能性があります）</summary>
 		<ul>
 			<li>デザイン設定</li>
+			<li>ルールのプリセット機能</li>
 		</ul>
 	</details>
 	<p>
@@ -82,6 +83,10 @@
 		border: 1px solid #ccc;
 		border-radius: 4px;
 		padding: 0.25em 1em;
+
+		ul {
+			margin: 0.5em;
+		}
 
 		summary {
 			cursor: pointer;

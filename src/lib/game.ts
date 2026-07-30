@@ -71,28 +71,25 @@ export abstract class GameClassBase<BattleMode extends 'single' | 'team'> {
 		this.history = [];
 	}
 
-	updateRules(rules: Rule[], Wasedashiki: WasedashikiClass) {
-		if (
-			this.history.length > 0 &&
-			confirm(
-				'全員のスコアのリセットも行いますか？\n\n※ しない場合、トロフィーが消えることなどがあります\n※ まだゲームの途中であれば無視してください'
-			)
-		) {
+	updateRules(
+		rules: Rule[],
+		Wasedashiki: WasedashikiClass,
+		doClear: boolean,
+		resetGroups: 'reset' | 'keep'
+	) {
+		if (doClear) {
 			this.clearHistory(Wasedashiki);
 		}
 
-		const activeRuleCount = rules.filter(({ isRemoved }) => !isRemoved).length;
-		if (activeRuleCount === 1) {
+		if (resetGroups === 'reset') {
+			this.attendants.forEach((att) => (att.group = 0));
 			this.rules = rules.filter(({ isRemoved }) => !isRemoved);
-			this.attendants.forEach((att) => {
-				att.group = 0;
-			});
 		} else {
 			const removedIndices = rules.flatMap(({ isRemoved }, i) => (isRemoved ? [i] : []));
-			this.rules = rules.filter(({ isRemoved }) => !isRemoved);
 			this.attendants.forEach((att) => {
 				att.group = Math.max(0, att.group - removedIndices.filter((i) => i <= att.group).length);
 			});
+			this.rules = rules.filter(({ isRemoved }) => !isRemoved);
 		}
 	}
 
