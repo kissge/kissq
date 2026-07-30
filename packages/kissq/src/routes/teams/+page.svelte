@@ -194,7 +194,7 @@
 	<div
 		class="attendants-wrapper"
 		class:vertical-centering={Layout.attendantsClientHeight < Layout.attendantsWrapperClientHeight}
-		style:height={`calc(100vh - ${Layout.headerClientHeight + Layout.footerClientHeight}px - 22px ${QuestionConsole.showQuestionWindow ? '- 6.25em - 0.7rem' : ''})`}
+		style:height={`calc(100vh - ${Layout.headerClientHeight + Layout.footerClientHeight}px - 25px ${QuestionConsole.showQuestionWindow ? '- 6.25em - 0.7rem' : ''})`}
 		bind:clientHeight={Layout.attendantsWrapperClientHeight}
 	>
 		<div class="attendants" bind:clientHeight={Layout.attendantsClientHeight}>
