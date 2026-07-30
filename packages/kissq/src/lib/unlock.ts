@@ -19,5 +19,8 @@ export async function setPassword(value: string) {
 async function hash(value: string) {
 	const encoder = new TextEncoder();
 	const buffer = await window.crypto.subtle.digest('SHA-256', encoder.encode(value));
-	return new Uint8Array(buffer).toHex();
+
+	// For silencing svelte-check warning
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	return (new Uint8Array(buffer) as any).toHex();
 }

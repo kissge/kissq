@@ -6,7 +6,7 @@
 	let mode = $state<'snake' | 'random'>('snake');
 	let seatMode = $state<'all-same' | 'all-different'>('all-same');
 	let teamSize = $state<number>(2);
-	let teams = $state<number[][]>();
+	let teams = $state<number[][]>([]);
 
 	let dialog: HTMLDialogElement;
 	let resolve: (result: Awaited<ReturnType<typeof open>>) => void;
