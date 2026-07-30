@@ -4,10 +4,13 @@
 	"scripts": {
 		"dev": "wrangler dev",
 		"deploy": "wrangler deploy --minify",
-		"cf-typegen": "wrangler types --env-interface CloudflareBindings"
+		"cf-typegen": "wrangler types --env-interface CloudflareBindings",
+		"migration:apply": "wrangler d1 migrations apply Database"
 	},
 	"dependencies": {
-		"hono": "^4.12.32"
+		"@hono/zod-validator": "^0.9.0",
+		"hono": "^4.12.32",
+		"zod": "^4.4.3"
 	},
 	"devDependencies": {
 		"@types/node": "^26.1.2",

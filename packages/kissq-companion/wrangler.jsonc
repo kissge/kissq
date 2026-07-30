@@ -15,7 +15,16 @@
 		"enabled": true
 	},
 	"upload_source_maps": true,
-	"compatibility_flags": ["nodejs_compat"]
+	"compatibility_flags": [
+		"nodejs_compat"
+	],
+	"d1_databases": [
+		{
+			"binding": "Database",
+			"database_name": "kissq-companion",
+			"database_id": "0dab90c7-b0f5-4129-9445-f3ca57d32262"
+		}
+	]
 	/**
 	 * Smart Placement
 	 * https://developers.cloudflare.com/workers/configuration/smart-placement/#smart-placement
