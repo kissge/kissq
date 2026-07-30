@@ -303,6 +303,14 @@ export class AttendantState {
 		return this.life === 'alive' && this.processBatsu().life === 'lost';
 	}
 
+	get rate(): number {
+		if (this.totalScore.den === 0) {
+			return 0;
+		} else {
+			return Math.floor((this.totalScore.num / this.totalScore.den) * 492.8);
+		}
+	}
+
 	toJSON() {
 		return {
 			...this,
@@ -513,7 +521,7 @@ export class GameState {
 	teams: TeamState[];
 	questionCount: number = 1;
 	defaultRule: Rule;
-	/** 個人ランキング (single) or チームランキング (team) */
+	/** 個人ランキング (single) */
 	ranking: number[] = [];
 	latestEvent: GameEvent | null = null;
 
@@ -549,13 +557,7 @@ export class GameState {
 		}
 
 		this.defaultRule = rules[0];
-		this.ranking = (
-			this.defaultRule.mode === 'aql' ||
-			this.defaultRule.mode === 'product' ||
-			this.defaultRule.mode === 'sum'
-				? this.teams
-				: this.attendants
-		).map((_, i) => i);
+		this.ranking = this.attendants.map((_, i) => i);
 	}
 
 	increaseQuestionCount(): void {
@@ -579,6 +581,9 @@ export class GameState {
 			case 'score':
 			case 'MbyN':
 			case 'survival':
+			case 'aql':
+			case 'product':
+			case 'sum':
 				this.ranking.sort((ai, bi) => {
 					const a = this.attendants[ai];
 					const b = this.attendants[bi];
@@ -624,28 +629,6 @@ export class GameState {
 						const bWon = b.life === 'won' ? 1 : 0;
 						const aLost = a.life === 'lost' ? 1 : 0;
 						const bLost = b.life === 'lost' ? 1 : 0;
-						return bWon - aWon || aLost - bLost;
-					}
-				});
-				return this;
-
-			case 'aql':
-			case 'product':
-			case 'sum':
-				this.ranking.sort((ai, bi) => {
-					const a = this.teams[ai];
-					const b = this.teams[bi];
-
-					const bothAlive = a.teamLife === 'alive' && b.teamLife === 'alive';
-
-					if (bothAlive) {
-						// 両方生存している場合はスコア順
-						return b.teamScore - a.teamScore;
-					} else {
-						const aWon = a.teamLife === 'won' ? 1 : 0;
-						const bWon = b.teamLife === 'won' ? 1 : 0;
-						const aLost = a.teamLife === 'lost' ? 1 : 0;
-						const bLost = b.teamLife === 'lost' ? 1 : 0;
 						return bWon - aWon || aLost - bLost;
 					}
 				});

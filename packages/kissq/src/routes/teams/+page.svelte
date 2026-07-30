@@ -24,6 +24,7 @@
 	import type { GameEvent } from '$lib/state';
 	import { tooltip } from '$lib/tooltip.svelte';
 	import { setWasedashikiContext, WasedashikiClass } from '$lib/wasedashiki.svelte';
+	import CombinationDialog from './combinationDialog.svelte';
 	import { GameClass, setGameContext } from './game.svelte';
 	import Team from './team.svelte';
 
@@ -51,6 +52,7 @@
 		) => Promise<[string | null, string | null] | null>;
 	};
 	let unlockDialog: { open: () => Promise<void> };
+	let combinationDialog: { open: (game: GameClassBaseType) => Promise<void> };
 
 	async function editRule() {
 		const result = await ruleTeamEditDialog.open(Game.rules);
@@ -305,6 +307,12 @@
 		<button onclick={editAppearance} {@attach tooltip('外観の設定を編集します')}>
 			デザイン設定🔒
 		</button>
+		<button
+			onclick={() => combinationDialog.open(Game)}
+			{@attach tooltip('チーム分けを編集補助します')}
+		>
+			チーム分け
+		</button>
 		<button onclick={() => QuestionConsole.openSubWindow()}>操作盤表示</button>
 		<button
 			disabled={Wasedashiki.serialPort != null}
@@ -363,6 +371,7 @@
 <LogDialog bind:this={logDialog} />
 <AppearanceDialog bind:this={appearanceDialog} />
 <UnlockDialog bind:this={unlockDialog} />
+<CombinationDialog bind:this={combinationDialog} />
 
 <style>
 	main.main {
