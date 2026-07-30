@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { fade } from 'svelte/transition';
-	import { Rule } from '$lib/rule';
+	import { Rule, type RulePOJO } from '$lib/rule';
 	import { tooltipInDialog as tooltip } from '$lib/tooltip.svelte';
 	import { isUnlocked } from '$lib/unlock';
 
@@ -19,19 +19,177 @@
 		isValid: boolean;
 	} = $props();
 
-	interface Preset {
+	interface Preset<R> {
 		name: string;
-		rules: Rule[];
+		rules: R[];
 		battleMode: 'single' | 'team';
 	}
 
 	let show = $state(false);
 
-	let presets = $state<Preset[]>([]);
+	let presets = $state<Preset<Rule>[]>([]);
+
+	const prePresetsSingle: Preset<Rule>[] = (
+		[
+			{
+				name: 'ザー',
+				rules: [
+					{
+						mode: 'marubatsu',
+						win: 2,
+						lose: 3,
+						maru: 1,
+						batsu: 1,
+						transit: false,
+						yasuPerMaru: null,
+						yasuMode: 'constant',
+						yasuPerBatsu: 0,
+						roulette: null,
+						isRemoved: false
+					},
+					{
+						mode: 'marubatsu',
+						win: 3,
+						lose: 2,
+						maru: 1,
+						batsu: 1,
+						transit: false,
+						yasuPerMaru: null,
+						yasuMode: 'constant',
+						yasuPerBatsu: 0,
+						roulette: null,
+						isRemoved: false
+					},
+					{
+						mode: 'marubatsu',
+						win: 4,
+						lose: 2,
+						maru: 1,
+						batsu: 1,
+						transit: false,
+						yasuPerMaru: null,
+						yasuMode: 'constant',
+						yasuPerBatsu: 0,
+						roulette: null,
+						isRemoved: false
+					},
+					{
+						mode: 'marubatsu',
+						win: 5,
+						lose: 1,
+						maru: 1,
+						batsu: 1,
+						transit: false,
+						yasuPerMaru: null,
+						yasuMode: 'constant',
+						yasuPerBatsu: 0,
+						roulette: null,
+						isRemoved: false
+					}
+				],
+				battleMode: 'single'
+			},
+			{
+				name: 'ハンデ戦',
+				rules: [
+					{
+						mode: 'marubatsu',
+						win: 5,
+						lose: null,
+						maru: 1,
+						batsu: 1,
+						transit: false,
+						yasuPerMaru: null,
+						yasuMode: 'constant',
+						yasuPerBatsu: 1,
+						roulette: null,
+						isRemoved: false
+					},
+					{
+						mode: 'marubatsu',
+						win: 5,
+						lose: null,
+						maru: 1,
+						batsu: 1,
+						transit: false,
+						yasuPerMaru: null,
+						yasuMode: 'constant',
+						yasuPerBatsu: 3,
+						roulette: null,
+						isRemoved: false
+					},
+					{
+						mode: 'marubatsu',
+						win: 5,
+						lose: null,
+						maru: 1,
+						batsu: 1,
+						transit: false,
+						yasuPerMaru: null,
+						yasuMode: 'constant',
+						yasuPerBatsu: 5,
+						roulette: null,
+						isRemoved: false
+					}
+				],
+				battleMode: 'single'
+			}
+		] as const
+	).map((preset) => ({ ...preset, rules: preset.rules.map((rule) => Rule.from(rule)) }));
+	const prePresetsTeam: Preset<Rule>[] = (
+		[
+			{
+				name: '戦国合戦',
+				rules: [
+					{
+						mode: 'product',
+						win: 200,
+						lose: 3,
+						maru: 1,
+						batsu: 'updown',
+						transit: false,
+						yasuPerMaru: null,
+						yasuMode: 'constant',
+						yasuPerBatsu: 0,
+						roulette: null,
+						isRemoved: false
+					},
+					{
+						mode: 'product',
+						win: 200,
+						lose: 5,
+						maru: 1,
+						batsu: 'updown',
+						transit: false,
+						yasuPerMaru: null,
+						yasuMode: 'constant',
+						yasuPerBatsu: 0,
+						roulette: null,
+						isRemoved: false
+					}
+				],
+				battleMode: 'team'
+			}
+		] as const
+	).map((preset) => ({ ...preset, rules: preset.rules.map((rule) => Rule.from(rule)) }));
+
+	function _apply(rules: Rule[]) {
+		apply(
+			rules,
+			rules.length === 1 ||
+				confirm(
+					'全プレイヤーをAグループにリセットする場合はOKを、今のグループを可能な限り維持する場合はキャンセルを押してください。'
+				)
+				? 'reset'
+				: 'keep'
+		);
+		show = false;
+		close();
+	}
 
 	onMount(() => {
 		presets = JSON.parse(localStorage.getItem('rulePresets') || '[]').map(
-			({ name, rules, battleMode }: Preset) => ({
+			({ name, rules, battleMode }: Preset<RulePOJO>) => ({
 				name,
 				rules: rules.map((rule) => Rule.from(rule)),
 				battleMode
@@ -62,6 +220,19 @@
 <div class="dialog" style:opacity={show ? 1 : 0} style:display={show ? 'block' : 'none'}>
 	<div class="presets">
 		<ul>
+			{#each battleMode === 'single' ? prePresetsSingle : prePresetsTeam as { name, rules }, pi (name + pi)}
+				<li>
+					<div>
+						<strong>{name}</strong>
+						（{Rule.getActiveRulesText(
+							rules.map((rule, i) => ({ rule, i })),
+							battleMode
+						)}）
+						<div class="spacer"></div>
+						<button onclick={() => _apply(rules)}>適用</button>
+					</div>
+				</li>
+			{/each}
 			{#each presets
 				.map((preset, pi) => ({ preset, pi }))
 				.filter(({ preset }) => preset.battleMode === battleMode)
@@ -74,23 +245,7 @@
 							battleMode
 						)}）
 						<div class="spacer"></div>
-						<button
-							onclick={() => {
-								apply(
-									rules,
-									rules.length === 1 ||
-										confirm(
-											'全プレイヤーをAグループにリセットする場合はOKを、今のグループを可能な限り維持する場合はキャンセルを押してください。'
-										)
-										? 'reset'
-										: 'keep'
-								);
-								show = false;
-								close();
-							}}
-						>
-							適用
-						</button>
+						<button onclick={() => _apply(rules)}>適用</button>
 						<button
 							onclick={() => {
 								presets = presets.filter((_, i) => i !== pi);
@@ -101,8 +256,6 @@
 						</button>
 					</div>
 				</li>
-			{:else}
-				プリセットがありません。
 			{/each}
 		</ul>
 	</div>
@@ -172,6 +325,7 @@
 		}
 
 		strong {
+			min-width: 6em;
 			word-break: break-all;
 		}
 

@@ -216,7 +216,7 @@ export class Rule {
 	}
 
 	static getActiveRulesText(
-		activeRules: { rule: Rule; i: number }[],
+		activeRules: { rule: Rule | RulePOJO; i: number }[],
 		battleMode: 'single' | 'team'
 	): string {
 		if (activeRules.length === 1) {
@@ -251,4 +251,4 @@ export class Rule {
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const _ = { ...({} as Rule) };
-export type RulePOJO = typeof _;
+export type RulePOJO = Omit<typeof _, 'max'>;
