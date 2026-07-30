@@ -164,7 +164,7 @@
 		</div>
 
 		<div class="buttons">
-			<button onclick={close}>閉じる</button>
+			<button onclick={close}>キャンセル</button>
 			<button class="primary" onclick={apply}>反映させる</button>
 		</div>
 	{/if}
