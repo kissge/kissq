@@ -3,6 +3,8 @@
 	import { fade } from 'svelte/transition';
 	import type { GameClassBaseType } from '$lib/game';
 	import { Rule } from '$lib/rule';
+	import { tooltipInDialog as tooltip } from '$lib/tooltip.svelte';
+	import { isUnlocked } from '$lib/unlock';
 
 	let {
 		Game,
@@ -39,7 +41,17 @@
 	});
 </script>
 
-<button class="open-btn" onclick={() => (show = !show)}>プリセット</button>
+<button
+	class="open-btn"
+	{@attach tooltip('この機能を利用するにはアンロックが必要です。')}
+	onclick={async () => {
+		if (await isUnlocked()) {
+			show = !show;
+		}
+	}}
+>
+	プリセット🔒
+</button>
 
 <button
 	class="backdrop"
