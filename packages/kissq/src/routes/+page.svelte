@@ -139,11 +139,23 @@
 		const result = await ruleEditDialog.open(Game.rules);
 
 		if (result) {
-			Game.updateRules(result, Wasedashiki);
-			showMarubatsuOverride = false;
-			showTotalOverride = false;
-			showScore = true;
+			updateRules(result, 'keep');
 		}
+	}
+
+	function updateRules(rules: Rule[], resetGroups: 'reset' | 'keep') {
+		Game.updateRules(
+			rules,
+			Wasedashiki,
+			Game.history.length > 0 &&
+				confirm(
+					'全員のスコアのリセットも行いますか？\n\n※ しない場合、トロフィーが消えることなどがあります\n※ まだゲームの途中であれば無視してください'
+				),
+			resetGroups
+		);
+		showMarubatsuOverride = false;
+		showTotalOverride = false;
+		showScore = true;
 	}
 
 	async function editEffects() {
@@ -529,7 +541,7 @@
 
 <Pushers {Game} />
 
-<RuleEditDialog bind:this={ruleEditDialog} />
+<RuleEditDialog bind:this={ruleEditDialog} apply={updateRules} />
 <LogDialog bind:this={logDialog} />
 <EffectEditDialog bind:this={effectEditDialog} />
 <AppearanceDialog bind:this={appearanceDialog} />

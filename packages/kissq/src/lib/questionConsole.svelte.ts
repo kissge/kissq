@@ -2,7 +2,7 @@ import { createContext } from 'svelte';
 import { qZero } from '$lib/question';
 import { getWasedashikiContext } from '$lib/wasedashiki.svelte';
 import type { GameClassBaseType } from './game';
-import { Rule } from './rule';
+import { Rule, type RulePOJO } from './rule';
 
 const urlParams = new URLSearchParams(typeof location !== 'undefined' ? location.search : '');
 
@@ -69,8 +69,10 @@ export class QuestionConsoleClass {
 
 			case 'updateRules':
 				this.Game.updateRules(
-					event.data.rules.map((r: Rule) => Rule.from(r)),
-					this.Wasedashiki
+					event.data.rules.map((r: RulePOJO) => Rule.from(r)),
+					this.Wasedashiki,
+					event.data.doClear,
+					event.data.resetGroups
 				);
 				break;
 

@@ -58,8 +58,20 @@
 		const result = await ruleTeamEditDialog.open(Game.rules);
 
 		if (result) {
-			Game.updateRules(result, Wasedashiki);
+			updateRules(result, 'keep');
 		}
+	}
+
+	function updateRules(rules: Rule[], resetGroups: 'reset' | 'keep') {
+		Game.updateRules(
+			rules,
+			Wasedashiki,
+			Game.history.length > 0 &&
+				confirm(
+					'全員のスコアのリセットも行いますか？\n\n※ しない場合、トロフィーが消えることなどがあります\n※ まだゲームの途中であれば無視してください'
+				),
+			resetGroups
+		);
 	}
 
 	let isBannerVisible = $state<GameEvent | null>(null);
@@ -367,7 +379,7 @@
 
 <Pushers {Game} />
 
-<RuleTeamEditDialog bind:this={ruleTeamEditDialog} />
+<RuleTeamEditDialog bind:this={ruleTeamEditDialog} apply={updateRules} />
 <LogDialog bind:this={logDialog} />
 <AppearanceDialog bind:this={appearanceDialog} />
 <UnlockDialog bind:this={unlockDialog} />

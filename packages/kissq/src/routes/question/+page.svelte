@@ -154,6 +154,19 @@
 		}
 	}
 
+	function apply(rules: Rule[], resetGroups: 'reset' | 'keep'): void {
+		opener.postMessage({
+			command: 'updateRules',
+			rules: rules.map((r) => ({ ...r })),
+			doClear:
+				history.length > 0 &&
+				confirm(
+					'全員のスコアのリセットも行いますか？\n\n※ しない場合、トロフィーが消えることなどがあります\n※ まだゲームの途中であれば無視してください'
+				),
+			resetGroups
+		});
+	}
+
 	$effect(() => {
 		opener.postMessage({
 			command: 'updateQuestion',
@@ -249,7 +262,16 @@
 					.open(rules)
 					.then((newRules) => {
 						if (newRules) {
-							opener.postMessage({ command: 'updateRules', rules: newRules });
+							opener.postMessage({
+								command: 'updateRules',
+								rules: newRules,
+								doClear:
+									history.length > 0 &&
+									confirm(
+										'全員のスコアのリセットも行いますか？\n\n※ しない場合、トロフィーが消えることなどがあります\n※ まだゲームの途中であれば無視してください'
+									),
+								resetGroups: 'keep'
+							});
 						}
 					});
 			}}
@@ -472,8 +494,8 @@
 	<button onclick={loadFromCSV}>読み込み</button>
 </dialog>
 
-<RuleEditDialog bind:this={ruleEditDialog} />
-<RuleTeamEditDialog bind:this={ruleTeamEditDialog} />
+<RuleEditDialog bind:this={ruleEditDialog} {apply} />
+<RuleTeamEditDialog bind:this={ruleTeamEditDialog} {apply} />
 
 <style>
 	header.console,

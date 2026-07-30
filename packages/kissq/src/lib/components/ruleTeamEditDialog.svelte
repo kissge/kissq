@@ -1,10 +1,13 @@
 <script lang="ts">
 	import { Rule, type Penalty } from '$lib/rule';
 	import { tooltipInDialog as tooltip } from '$lib/tooltip.svelte';
-	import { getGameContext } from '../../routes/teams/game.svelte';
 	import RulePresetDialog from './rulePresetDialog.svelte';
 
-	let Game = getGameContext();
+	let {
+		apply
+	}: {
+		apply: (rules: Rule[], resetGroups: 'reset' | 'keep') => void;
+	} = $props();
 
 	let dialog: HTMLDialogElement;
 	let resolve: (result: Awaited<ReturnType<typeof open>>) => void;
@@ -546,7 +549,7 @@
 		</div>
 		<div class="buttons">
 			<RulePresetDialog
-				{Game}
+				{apply}
 				battleMode="team"
 				{rulesObject}
 				close={() => dialog.close()}
@@ -557,8 +560,10 @@
 				onclick={() => {
 					dialog.close();
 					resolve(null);
-				}}>キャンセル</button
+				}}
 			>
+				キャンセル
+			</button>
 			<button class="primary" onclick={save} disabled={!isValid}>保存する</button>
 		</div>
 	{/if}

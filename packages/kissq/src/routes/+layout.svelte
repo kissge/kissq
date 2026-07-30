@@ -85,6 +85,10 @@
 			max-height: 90dvh;
 			font-size: 1.5rem;
 
+			p:first-child {
+				margin-top: 0;
+			}
+
 			.buttons {
 				display: flex;
 				justify-content: end;

@@ -2,10 +2,13 @@
 	import { fade } from 'svelte/transition';
 	import { Rule, type Penalty } from '$lib/rule';
 	import { tooltipInDialog as tooltip } from '$lib/tooltip.svelte';
-	import { getGameContext } from '../../routes/game.svelte';
 	import RulePresetDialog from './rulePresetDialog.svelte';
 
-	let Game = getGameContext();
+	let {
+		apply
+	}: {
+		apply: (rules: Rule[], resetGroups: 'reset' | 'keep') => void;
+	} = $props();
 
 	let dialog: HTMLDialogElement;
 	let resolve: (result: Awaited<ReturnType<typeof open>>) => void;
@@ -756,7 +759,7 @@
 		</div>
 		<div class="buttons">
 			<RulePresetDialog
-				{Game}
+				{apply}
 				battleMode="single"
 				{rulesObject}
 				close={() => dialog.close()}
