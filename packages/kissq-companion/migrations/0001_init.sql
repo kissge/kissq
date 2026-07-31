@@ -20,4 +20,6 @@ CREATE TABLE IF NOT EXISTS likes (
 );
 
 CREATE INDEX index_session_id_shown ON questions(session_id, shown);
+CREATE INDEX index_id_session_id ON questions(id, session_id);
+CREATE INDEX index_session_id ON questions(session_id);
 CREATE INDEX index_question_id ON likes(question_id);
