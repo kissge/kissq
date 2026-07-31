@@ -40,6 +40,7 @@
 		"vite": "^7.0.4"
 	},
 	"dependencies": {
+		"hono": "^4.12.32",
 		"json-2-csv": "^5.5.11",
 		"toastify-js": "^1.12.0"
 	}
