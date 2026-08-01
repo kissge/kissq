@@ -1,12 +1,57 @@
 <script lang="ts">
-	import { fade } from 'svelte/transition';
-	import type { APIClient } from '$lib/api';
+	import confetti from 'canvas-confetti';
+	import { onMount } from 'svelte';
+	import { fade, fly } from 'svelte/transition';
+	import { getAPIClient, type APIClient } from '$lib/api';
 	import { getQuestionConsoleContext } from '$lib/questionConsole.svelte';
 
 	let QuestionConsole = getQuestionConsoleContext();
 
-	const sessionID = new URLSearchParams(location.search).get('session');
+	const sessionID =
+		typeof location !== 'undefined' ? new URLSearchParams(location.search).get('session') : null;
 	let client: APIClient | undefined;
+	let totalLikes = $state(0);
+	let currentLikes = $state(0);
+	let firstConfetti = 0;
+
+	$effect(() => {
+		if (totalLikes > 0 && firstConfetti >= 2) {
+			confetti({
+				origin: { x: randomInRange(0.2, 0.8), y: (Math.random() - 0.5) / 4 + 0.5 }
+			});
+		}
+
+		++firstConfetti;
+	});
+
+	onMount(() => {
+		if (sessionID) {
+			client = getAPIClient();
+		}
+
+		const timerID = setInterval(async () => {
+			if (client && sessionID && QuestionConsole.showQuestionWindow) {
+				const questions = await (
+					await client.api.likes[':session_id'].$get({
+						param: { session_id: sessionID }
+					})
+				).json();
+
+				totalLikes = questions.reduce((acc, { like_count }) => acc + like_count, 0);
+				currentLikes =
+					questions.find((q) => q.question_id === QuestionConsole.currentQuestion.id)?.like_count ??
+					0;
+			}
+		}, 1000);
+
+		return () => {
+			clearInterval(timerID);
+		};
+	});
+
+	function randomInRange(min: number, max: number): number {
+		return Math.random() * (max - min) + min;
+	}
 </script>
 
 {#if QuestionConsole.showQuestionWindow}
@@ -23,6 +68,13 @@
 					{/each}
 				</p>
 			{/key}
+			{#if currentLikes > 0}
+				<div class="likes" transition:fly>
+					{#each { length: currentLikes }, i (i)}
+						<span transition:fly>♥</span>
+					{/each}
+				</div>
+			{/if}
 			<div class="answer">
 				A.
 				{#each QuestionConsole.currentQuestion.answer.split(/(（.+?）|\(.+?\)|【.+?】|［.+?］)/) as part, i (i)}
@@ -73,6 +125,21 @@
 			font-weight: lighter;
 			font-size: smaller;
 		}
+	}
+
+	.likes {
+		display: inline-block;
+		position: absolute;
+		bottom: -0.5em;
+		left: 1em;
+		backdrop-filter: blur(10px);
+		transition: 0.3s translate 1s ease;
+		margin-top: 0.5em;
+		box-shadow: 0 0 15px #eeea;
+		border-radius: 0.5em;
+		background-color: #000c;
+		padding: 0.35em 1em 0.15em;
+		color: #f66;
 	}
 
 	.answer {

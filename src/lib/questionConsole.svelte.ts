@@ -34,7 +34,7 @@ export class QuestionConsoleClass {
 				break;
 
 			case 'updateQuestion':
-				this.currentQuestion = { question: event.data.question, answer: event.data.answer };
+				this.currentQuestion = event.data;
 				break;
 
 			case 'clickMaru':

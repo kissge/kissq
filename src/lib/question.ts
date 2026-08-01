@@ -1,8 +1,12 @@
 import { csv2json } from 'json-2-csv';
 
-export const qZero = { question: 'ここに問題が表示されます', answer: 'ここに答えが表示されます' };
+export const qZero = {
+	id: 0,
+	question: 'ここに問題が表示されます',
+	answer: 'ここに答えが表示されます'
+};
 
-export function parseCSV(rawInput: string): { question: string; answer: string }[] {
+export function parseCSV(rawInput: string): { id: number; question: string; answer: string }[] {
 	const tabCount = rawInput.match(/\t/g)?.length ?? 0;
 	const commaCount = rawInput.match(/,/g)?.length ?? 0;
 	const delimiter = tabCount > commaCount ? '\t' : ',';
@@ -20,7 +24,8 @@ export function parseCSV(rawInput: string): { question: string; answer: string }
 				delimiter: { field: delimiter },
 				headerFields: ['question', 'answer']
 			}) as { question: unknown; answer: unknown }[]
-		).map(({ question, answer }) => ({
+		).map(({ question, answer }, id) => ({
+			id: id + 1,
 			question: String(question),
 			answer: String(answer)
 		}))
