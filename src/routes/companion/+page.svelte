@@ -137,7 +137,7 @@
 
 <style>
 	main {
-		padding: 1rem;
+		margin-top: 1rem;
 	}
 
 	.carousel {
@@ -205,7 +205,7 @@
 
 	.slide {
 		display: flex;
-		flex: 1 0 80%;
+		flex: 1 0 70%;
 		flex-direction: column;
 		justify-content: space-between;
 		gap: 1em;
@@ -218,10 +218,10 @@
 		font-size: 1.2em;
 
 		&:first-child {
-			margin-left: 10%;
+			margin-left: 15%;
 		}
 		&:last-child {
-			flex: 0 0 10%;
+			flex: 0 0 30%;
 			background: url('https://cdnjs.cloudflare.com/ajax/libs/galleriffic/2.0.1/css/loader.gif')
 				no-repeat center;
 		}
