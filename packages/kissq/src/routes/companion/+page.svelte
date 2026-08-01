@@ -39,7 +39,7 @@
 							setTimeout(() => {
 								document
 									.querySelector(`[data-question-id="${questions!.at(-1)?.id}"]`)
-									?.scrollIntoView({ behavior: 'smooth' });
+									?.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
 							}, 200);
 						}
 					});
@@ -76,7 +76,7 @@
 					showSpinner = true;
 					document
 						.querySelector(`[data-question-id="${questions!.at(-1)?.id}"]`)
-						?.scrollIntoView({ behavior: 'smooth' });
+						?.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
 					fetchQuestions()?.then(() => {
 						showSpinner = false;
 					});
