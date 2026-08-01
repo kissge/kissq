@@ -10,7 +10,7 @@
 	const sessionID =
 		typeof location !== 'undefined' ? new URLSearchParams(location.search).get('session') : null;
 	let client: APIClient | undefined;
-	let totalLikes = $state(0);
+	let totalLikes = $state(-1);
 	let currentLikes = $state(0);
 	let firstConfetti = 0;
 
@@ -31,10 +31,8 @@
 
 		const timerID = setInterval(async () => {
 			if (client && sessionID && QuestionConsole.showQuestionWindow) {
-				const questions = await (
-					await client.api.likes[':session_id'].$get({
-						param: { session_id: sessionID }
-					})
+				const questions: { question_id: number; like_count: number }[] = await (
+					await client.api.likes[':session_id'].$get({ param: { session_id: sessionID } })
 				).json();
 
 				totalLikes = questions.reduce((acc, { like_count }) => acc + like_count, 0);
