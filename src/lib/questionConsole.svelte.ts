@@ -11,6 +11,7 @@ export class QuestionConsoleClass {
 
 	subWindow = $state<Window>();
 	showQuestionWindow = $state(urlParams.has('qw'));
+	showQRCode = $state(false);
 	currentQuestion = $state(qZero);
 
 	constructor(public Game: GameClassBaseType) {}
@@ -84,6 +85,10 @@ export class QuestionConsoleClass {
 				this.Game.attendants[this.Game.orderedAttendants[event.data.attendantID]].manualOrder =
 					event.data.newOrder;
 				this.Game.orderedAttendants.forEach((a, i) => (this.Game.attendants[a].manualOrder = i));
+				break;
+
+			case 'toggleQRCode':
+				this.showQRCode = !this.showQRCode;
 				break;
 
 			case 'ping':
