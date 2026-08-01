@@ -15,9 +15,14 @@ export function parseCSV(rawInput: string): { question: string; answer: string }
 
 	return [
 		qZero,
-		...(csv2json(lines, {
-			delimiter: { field: delimiter },
-			headerFields: ['question', 'answer']
-		}) as { question: string; answer: string }[])
+		...(
+			csv2json(lines, {
+				delimiter: { field: delimiter },
+				headerFields: ['question', 'answer']
+			}) as { question: unknown; answer: unknown }[]
+		).map(({ question, answer }) => ({
+			question: String(question),
+			answer: String(answer)
+		}))
 	];
 }
