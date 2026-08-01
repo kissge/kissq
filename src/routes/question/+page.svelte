@@ -193,14 +193,12 @@
 
 		if (client && companionSessionID && index > 0) {
 			(async () => {
-				await (
-					await client.api.question.show.$post({
-						json: {
-							sessionID: companionSessionID,
-							questionID: index
-						}
-					})
-				).json();
+				await client.api.question.show.$post({
+					json: {
+						sessionID: companionSessionID,
+						questionID: index
+					}
+				});
 				remoteQuestions.find((q) => q.id === index)!.shown = true;
 				remoteQuestions = await (
 					await client.api.questions[':session_id'].$get({
