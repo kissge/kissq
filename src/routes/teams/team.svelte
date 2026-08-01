@@ -2,6 +2,7 @@
 	import { fade } from 'svelte/transition';
 	import type { Attendant } from '$lib/attendant';
 	import { tooltip } from '$lib/tooltip.svelte';
+	import { getDnDContext } from './dnd.svelte';
 	import { getGameContext } from './game.svelte';
 	import Seat from './seat.svelte';
 
@@ -14,6 +15,14 @@
 	} = $props();
 
 	let Game = getGameContext();
+	let DnD = getDnDContext();
+
+	let maxSeat = $derived(
+		seats.reduce(
+			(max, atts) => Math.max(max, atts?.reduce((m, { att }) => Math.max(m, att.seat), 0) ?? 0),
+			0
+		)
+	);
 </script>
 
 <div class="life">
@@ -50,6 +59,30 @@
 			<Seat {seats} {ti} {atts} {si} />
 		{/if}
 	{/each}
+
+	{#if DnD.dragTarget?.ti === ti && (Game.currentState.defaultRule.mode === 'aql' || Game.currentState.defaultRule.mode === 'product')}
+		<div
+			class="new-seat"
+			class:is-drop-target={DnD.dropTarget?.type === 'seat' &&
+				DnD.dropTarget.ti === ti &&
+				DnD.dropTarget.si === maxSeat + 1}
+			ondragover={(event) => {
+				if (DnD.dragTarget && DnD.dragTarget.ti === ti) {
+					event.preventDefault();
+					DnD.setDropTarget({ type: 'seat', ti, si: maxSeat + 1 });
+				}
+			}}
+			ondragleave={() => DnD.setDropTarget()}
+			role="listitem"
+		>
+			<div class="seat-id">
+				{maxSeat + 2}<small>枠</small>
+			</div>
+			<div class="name-dummy">新しい枠</div>
+			<div></div>
+		</div>
+	{/if}
+
 	<div class="bottom-buttons">
 		<button
 			disabled={Game.history.length > 0}
@@ -183,6 +216,41 @@
 
 			&[disabled] {
 				opacity: 0.1;
+			}
+		}
+	}
+
+	.new-seat {
+		display: grid;
+		grid-template-columns: 2em 1fr 4.5em;
+		grid-column: 1 / -1;
+		align-content: start;
+
+		&.is-drop-target {
+			box-shadow: 0 0 10px #f008;
+			background-color: yellow;
+			color: #000;
+		}
+
+		.name-dummy {
+			background-color: #00000040;
+			text-align: center;
+		}
+	}
+
+	:global {
+		.seat-id {
+			display: flex;
+			grid-column: 1 / 2;
+			justify-content: center;
+			align-items: center;
+			gap: 0.1em;
+			border-radius: 1em 0 0 1em;
+			background-color: #aaa3;
+
+			small {
+				margin-top: 0.75em;
+				font-size: 0.5em;
 			}
 		}
 	}

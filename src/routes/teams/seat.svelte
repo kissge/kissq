@@ -2,6 +2,7 @@
 	import { fade } from 'svelte/transition';
 	import type { Attendant } from '$lib/attendant';
 	import { tooltip } from '$lib/tooltip.svelte';
+	import { getDnDContext } from './dnd.svelte';
 	import { getGameContext } from './game.svelte';
 	import Member from './member.svelte';
 
@@ -18,15 +19,10 @@
 	} = $props();
 
 	let Game = getGameContext();
+	let DnD = getDnDContext();
 
 	let rowStart = $derived(
 		seats.slice(0, si).reduce((sum, seatAtts) => sum + (seatAtts?.length ?? 0), 1)
-	);
-	let maxSeat = $derived(
-		seats.reduce(
-			(max, atts) => Math.max(max, atts?.reduce((m, { att }) => Math.max(m, att.seat), 0) ?? 0),
-			0
-		)
 	);
 	let batsuCount = $derived(
 		atts.reduce((sum, { ai }) => sum + Game.currentState.attendants[ai].batsuCount, 0)
@@ -45,6 +41,21 @@
 		class:group-by-seat={Game.currentState.defaultRule.mode === 'aql' ||
 			Game.currentState.defaultRule.mode === 'product'}
 	>
+		<div
+			class="seat-id"
+			style:grid-row={`${rowStart} / span ${atts.length}`}
+			style:display={atts.length > 0 &&
+			(Game.currentState.defaultRule.mode === 'aql' ||
+				Game.currentState.defaultRule.mode === 'product')
+				? ''
+				: 'none'}
+			class:is-drop-target={DnD.dropTarget?.type === 'seat' &&
+				DnD.dropTarget.ti === ti &&
+				DnD.dropTarget.si === si}
+		>
+			{si + 1}<small>枠</small>
+		</div>
+
 		<div
 			class="seat-total"
 			style:grid-row={`${rowStart} / span ${atts.length}`}
@@ -68,8 +79,9 @@
 				{'✕'.repeat(batsuCount)}
 			</div>
 		</div>
+
 		{#each atts.filter(({ ai }) => Game.currentState.attendants[ai]?.life !== 'removed') as { ai }, mi (mi)}
-			<Member {ti} {si} {ai} {mi} {rowStart} {batsuCount} {maxSeat} />
+			<Member {ti} {si} {ai} {mi} {rowStart} {batsuCount} />
 		{/each}
 	</div>
 {/if}
@@ -105,6 +117,14 @@
 					}
 				}
 			}
+		}
+	}
+
+	.seat-id {
+		&.is-drop-target {
+			box-shadow: 0 0 10px #f008;
+			background-color: yellow;
+			color: #000;
 		}
 	}
 

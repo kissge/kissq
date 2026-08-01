@@ -24,6 +24,7 @@
 	import { tooltip } from '$lib/tooltip.svelte';
 	import { setWasedashikiContext, WasedashikiClass } from '$lib/wasedashiki.svelte';
 	import CombinationDialog from './combinationDialog.svelte';
+	import { DnDClass, setDnDContext } from './dnd.svelte';
 	import { GameClass, setGameContext } from './game.svelte';
 	import Team from './team.svelte';
 
@@ -38,6 +39,8 @@
 	let Logger = new LoggerClass('team', Game);
 	setLoggerContext(Logger);
 	Game.Logger = Logger;
+	let DnD = new DnDClass();
+	setDnDContext(DnD);
 
 	let wallpaper = $state<string | null>(null);
 	let trophy = $state<string | null>(null);
@@ -202,6 +205,15 @@
 					class="team"
 					animate:flip={{ duration: 200 }}
 					class:won={Game.currentState.teams[ti].teamLife === 'won'}
+					class:is-drop-target={DnD.dropTarget?.type === 'team' && DnD.dropTarget.ti === ti}
+					ondragover={(event) => {
+						if (DnD.dragTarget && DnD.dragTarget.ti !== ti) {
+							event.preventDefault();
+							DnD.setDropTarget({ type: 'team', ti });
+						}
+					}}
+					ondragleave={() => DnD.setDropTarget()}
+					role="listitem"
 				>
 					<Team {seats} {ti} />
 				</div>
@@ -368,12 +380,6 @@
 	>
 		削除
 	</button>
-	<br />
-	<select
-		data-onchange="s = document.querySelector('.buttons[data-attendant-id=\'' + this.parentElement.dataset.attendantId + '\'] select'); s.selectedIndex = this.selectedIndex; s.dispatchEvent(new Event('change'))"
-	>
-		%teams%
-	</select>
 </template>
 
 <Pushers {Game} />
@@ -446,6 +452,11 @@
 			0px 10px 50px #444;
 	}
 
+	.is-drop-target {
+		box-shadow: 0 0 10px #f008;
+		background-color: yellow;
+	}
+
 	#other-menu {
 		position: absolute;
 		position-area: top;
@@ -458,8 +469,7 @@
 		font-size: 1.2em;
 		text-align: center;
 
-		button,
-		select {
+		button {
 			min-width: 4em;
 			height: 2em;
 			font-size: 1em;
