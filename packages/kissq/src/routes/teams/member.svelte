@@ -4,6 +4,7 @@
 	import { RemoveHistoryEntry } from '$lib/historyEntry';
 	import { tooltip, tooltipInteractive } from '$lib/tooltip.svelte';
 	import { getWasedashikiContext } from '$lib/wasedashiki.svelte';
+	import { getDnDContext } from './dnd.svelte';
 	import { getGameContext } from './game.svelte';
 
 	let {
@@ -12,8 +13,7 @@
 		ai,
 		mi,
 		rowStart,
-		batsuCount,
-		maxSeat
+		batsuCount
 	}: {
 		ti: number;
 		si: number;
@@ -21,11 +21,11 @@
 		mi: number;
 		rowStart: number;
 		batsuCount: number;
-		maxSeat: number;
 	} = $props();
 
 	let Game = getGameContext();
 	let Wasedashiki = getWasedashikiContext();
+	let DnD = getDnDContext();
 
 	let sAtt = $derived(Game.currentState.attendants[ai]);
 </script>
@@ -47,37 +47,55 @@
 		tooltipInteractive(
 			typeof document !== 'undefined'
 				? `<div data-attendant-id="${ai}">` +
-						document
-							.getElementById('hover-menu')!
-							.innerHTML.replaceAll('data-on', 'on')
-							.replace(
-								'%teams%',
-								Game.teams
-									.map(
-										(team, j) =>
-											`<option ${ti === j ? 'selected' : ''}>${team.slice(0, 5) || `チーム${j + 1}`}</option>`
-									)
-									.join('')
-							) +
+						document.getElementById('hover-menu')!.innerHTML.replaceAll('data-on', 'on') +
 						'</div>'
 				: ''
 		)}
+	draggable={Game.history.length === 0}
+	role="listitem"
+	class:is-dragging={DnD.dragTarget?.ai === ai}
+	class:is-drop-target={DnD.dropTarget?.type === 'seat' &&
+		DnD.dropTarget.ti === ti &&
+		DnD.dropTarget.si === si}
+	ondragstart={() => {
+		setTimeout(() => DnD.setDragTarget({ ai, ti, si, mi }), 0);
+	}}
+	ondragend={() => {
+		if (!DnD.dragTarget || !DnD.dropTarget) {
+			DnD.setDragTarget();
+			DnD.setDropTarget();
+			return;
+		}
+
+		if (DnD.dropTarget.type === 'seat') {
+			Game.attendants[ai].seat = DnD.dropTarget.si;
+		} else {
+			Game.attendants[ai].team = DnD.dropTarget.ti;
+			Game.attendants[ai].seat =
+				Game.currentState.teams[DnD.dropTarget.ti].attendantIDsPerSeat.length;
+		}
+
+		// seatがとびとびになったかもしれないので、前に詰める
+		const emptySeats = Array.from(
+			{ length: Game.currentState.teams[ti].attendantIDsPerSeat.length },
+			(_, si) =>
+				(Game.currentState.teams[ti].attendantIDsPerSeat[si]?.length ?? 0) > 0 ? null : si
+		).filter((v): v is number => v != null);
+		for (const att of Game.attendants) {
+			att.seat -= emptySeats.filter((s) => s < att.seat).length;
+		}
+
+		DnD.setDragTarget();
+		DnD.setDropTarget();
+	}}
+	ondragover={(event) => {
+		if (DnD.dragTarget?.ti === ti) {
+			event.preventDefault();
+			DnD.setDropTarget({ type: 'seat', ti, si });
+		}
+	}}
+	ondragleave={() => DnD.setDropTarget()}
 >
-	<div
-		class="seat"
-		style:display={Game.currentState.defaultRule.mode === 'aql' ||
-		Game.currentState.defaultRule.mode === 'product'
-			? ''
-			: 'none'}
-		class:even={Game.attendants[ai].seat % 2 === 1}
-		{@attach tooltip('枠を変更します。')}
-	>
-		<select bind:value={Game.attendants[ai].seat}>
-			{#each Array.from({ length: maxSeat + 2 }, (_, si) => si) as si (si)}
-				<option value={si}>{si + 1}</option>
-			{/each}
-		</select>
-	</div>
 	<div>
 		{#if Game.activeRules.length > 1}
 			<button
@@ -151,6 +169,7 @@
 			placeholder={`プレイヤー${ai + 1}`}
 			onpaste={(e) => Game.handlePasteEvent(e, ai, ti)}
 		/>
+		<div class="drag-handle">⠿</div>
 		<small class="yasu">
 			{#if sAtt?.yasuDisplay > 0}
 				{#if sAtt.yasuCount === 'next'}次{/if}
@@ -181,26 +200,6 @@
 				>
 					削除
 				</button>
-				<select
-					disabled={Game.history.length > 0 ||
-						Game.currentState.teams[ti].attendantIDsPerSeat
-							.flat()
-							.filter((a) => a != null && Game.currentState.attendants[a].life !== 'removed')
-							.length <= 1}
-					bind:value={Game.attendants[ai].team}
-					onchange={() => {
-						const t = Game.attendants[ai].team;
-						Game.attendants[ai].team = Infinity;
-						Game.attendants[ai].seat = Game.currentState.teams[t].attendantIDsPerSeat.length;
-						Game.attendants[ai].team = t;
-					}}
-					{@attach tooltip('このプレイヤーのチームを変更します。')}
-					tabindex={-1}
-				>
-					{#each Game.teams as team, j (j)}
-						<option value={j}>{team?.slice(0, 5) || `チーム${j + 1}`}</option>
-					{/each}
-				</select>
 			</div>
 			<button class="maru-btn" onclick={() => Game.clickMaru(ai)} tabindex={-1}>O</button>
 			<button class="batsu-btn" onclick={() => Game.clickBatsu(ai)} tabindex={-1}>X</button>
@@ -248,15 +247,14 @@
 
 		&.first-member {
 			border-top: 1px solid #333;
-			border-top-left-radius: 0.5em;
-
-			& .seat {
-				border-top-left-radius: 0.5em;
-			}
 		}
 
 		&.with-seat {
-			grid-column: 1 / -2;
+			grid-column: 2 / -2;
+		}
+
+		&[draggable='true'] {
+			cursor: grab;
 		}
 
 		&:hover {
@@ -290,6 +288,15 @@
 
 		&:has(.answerer-1st) {
 			animation: answerer-1st-wrapper 0.3s ease infinite alternate;
+		}
+
+		.drag-handle {
+			padding: 0 0.5em;
+			color: #fff8;
+
+			&:is(:hover > *) {
+				color: #000;
+			}
 		}
 
 		.button-mapping {
@@ -353,33 +360,10 @@
 			}
 		}
 
-		.seat {
-			background: #0004;
-			color: #fff;
-
-			&.even {
-				background: #000a;
-			}
-
-			select {
-				cursor: pointer;
-				border: none;
-				background: transparent;
-				width: 100%;
-				color: #fff;
-				font-size: inherit;
-				text-align: center;
-
-				option {
-					background: #000;
-				}
-			}
-		}
-
 		.buttons {
 			display: flex;
 			position: absolute;
-			right: 2em;
+			right: 4em;
 			align-items: center;
 			gap: 2px;
 			opacity: 0;
@@ -391,11 +375,18 @@
 				pointer-events: auto;
 			}
 
-			button,
-			select {
+			button {
 				height: 2em;
 				font-size: 0.5em;
 			}
 		}
+	}
+
+	.is-dragging {
+		opacity: 0.2;
+	}
+
+	.is-drop-target {
+		background-color: yellow;
 	}
 </style>
