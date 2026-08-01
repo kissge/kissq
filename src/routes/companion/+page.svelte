@@ -174,7 +174,7 @@
 
 	.carousel::scroll-button(*) {
 		position: absolute;
-		top: 50dvh;
+		top: 50svh;
 		transition: 0.25s all ease-in-out;
 		cursor: pointer;
 		box-shadow: 0 0 10px #000;
@@ -212,7 +212,7 @@
 		border-radius: 10px;
 		background-color: #333;
 		padding: 1em;
-		height: calc(100dvh - 110px);
+		height: calc(100svh - 110px);
 		scroll-snap-align: center;
 		color: #fff;
 		font-size: 1.2em;
