@@ -2,6 +2,7 @@
 	import { onMount } from 'svelte';
 	import { flip } from 'svelte/animate';
 	import { fade, fly } from 'svelte/transition';
+	import { getAPIClient, type APIClient } from '$lib/api';
 	import type { Attendant } from '$lib/attendant';
 	import RuleEditDialog from '$lib/components/ruleEditDialog.svelte';
 	import RuleTeamEditDialog from '$lib/components/ruleTeamEditDialog.svelte';
@@ -31,6 +32,13 @@
 	let buttonMapping = $state<Record<number, number>>({});
 	let wasedashikiMode = $state<WasedashikiMode>();
 	let order = $state<'added' | 'same' | 'reverse'>('added');
+
+	let enableCompanion = $state(false);
+	let companionSessionID = $state('');
+	let client = $state<APIClient>();
+	let remoteQuestions = $state<
+		{ id: number; question: string; answer: string; shown: boolean; likedBy: string[] }[]
+	>([]);
 
 	let orderedAttendants = $derived.by(() => {
 		switch (order) {
@@ -130,6 +138,15 @@
 
 	function processKeyboardInput(event: KeyboardEvent) {
 		if (isKeyboardEnabled) {
+			const tag = (event.target as HTMLElement | null)?.tagName.toLowerCase();
+			if (
+				tag === 'input' ||
+				tag === 'textarea' ||
+				(event.target as HTMLElement | null)?.isContentEditable
+			) {
+				return;
+			}
+
 			const button = document.querySelector(
 				`button.labeled[data-label="${event.key.toUpperCase()}"]`
 			) as HTMLElement | null;
@@ -167,13 +184,35 @@
 		});
 	}
 
-	$effect(() => {
+	function showQuestion(index: number) {
+		currentIndex = index;
 		opener.postMessage({
 			command: 'updateQuestion',
 			...questions[currentIndex]
 		});
+
+		if (client && companionSessionID && index > 0) {
+			(async () => {
+				await (
+					await client.api.question.show.$post({
+						json: {
+							sessionID: companionSessionID,
+							questionID: index
+						}
+					})
+				).json();
+				remoteQuestions.find((q) => q.id === index)!.shown = true;
+				remoteQuestions = await (
+					await client.api.questions[':session_id'].$get({
+						param: { session_id: companionSessionID },
+						query: { shown: 'all' }
+					})
+				).json();
+			})();
+		}
+
 		document.querySelector('table:not(:hover) tr.current')?.scrollIntoView({ block: 'center' });
-	});
+	}
 
 	$effect(() => {
 		(document.querySelector(':root') as HTMLElement).style.setProperty(
@@ -188,6 +227,22 @@
 			questions = JSON.parse(stored);
 		}
 
+		enableCompanion = !!window.localStorage.getItem('enableCompanion');
+		if (enableCompanion) {
+			client = getAPIClient();
+			companionSessionID = window.localStorage.getItem('companionSessionID') ?? '';
+			if (companionSessionID) {
+				(async () => {
+					remoteQuestions = await (
+						await client.api.questions[':session_id'].$get({
+							param: { session_id: companionSessionID },
+							query: { shown: 'all' }
+						})
+					).json();
+				})();
+			}
+		}
+
 		window.addEventListener('message', processWindowMessage);
 		window.addEventListener('keydown', processKeyboardInput);
 
@@ -200,9 +255,31 @@
 		};
 	});
 
-	function loadFromCSV() {
+	async function loadFromCSV() {
 		questions = parseCSV(rawInput);
 		window.localStorage.setItem('questions', JSON.stringify(questions));
+
+		if (enableCompanion && companionSessionID && client) {
+			window.localStorage.setItem('companionSessionID', companionSessionID);
+			console.log(
+				await (
+					await client.api.questions.$put({
+						json: {
+							sessionID: companionSessionID,
+							questions: questions.map((q, id) => ({ ...q, id })).slice(1)
+						}
+					})
+				).json()
+			);
+
+			remoteQuestions = await (
+				await client.api.questions[':session_id'].$get({
+					param: { session_id: companionSessionID },
+					query: { shown: 'all' }
+				})
+			).json();
+		}
+
 		inputDialog.close();
 	}
 </script>
@@ -432,11 +509,14 @@
 			{#each questions as { question, answer }, index (question)}
 				<tr class:current={index === currentIndex}>
 					<td>
-						<button onclick={() => (currentIndex = index)}>
+						{#if remoteQuestions.find((q) => q.id === index)?.shown}
+							<span style="color: green">✔</span>
+						{/if}
+						<button onclick={() => showQuestion(index)}>
 							{index}.
 						</button>
 					</td>
-					<td class:error={!question?.trim()}>
+					<td class:error={!question?.trim?.()}>
 						{#each question.split(/(（.+?）|\(.+?\)|【.+?】|［.+?］)/) as part, i (i)}
 							{#if i % 2}
 								<em>{part}</em>
@@ -444,8 +524,15 @@
 								{part}
 							{/if}
 						{/each}
+						{#if (remoteQuestions.find((q) => q.id === index)?.likedBy.length ?? 0) > 0}
+							<br />
+							Liked by
+							<span style="color: red; font-weight: bold;">
+								{remoteQuestions.find((q) => q.id === index)!.likedBy.join(', ')}
+							</span>
+						{/if}
 					</td>
-					<td class:error={!answer?.trim()}>
+					<td class:error={!answer?.trim?.()}>
 						{answer}
 					</td>
 				</tr>
@@ -465,7 +552,7 @@
 		class="labeled"
 		data-label="N"
 		disabled={currentIndex === 0}
-		onclick={() => --currentIndex}
+		onclick={() => showQuestion(currentIndex - 1)}
 	>
 		← 前の問題へ
 	</button>
@@ -473,7 +560,7 @@
 		class="labeled"
 		data-label="M"
 		disabled={currentIndex === questions.length - 1}
-		onclick={() => ++currentIndex}
+		onclick={() => showQuestion(currentIndex + 1)}
 	>
 		次の問題へ →
 	</button>
@@ -486,6 +573,11 @@
 	<p style="font-size: 0.5em;">
 		ヒント：スプレッドシート上で質問と回答の列を選択してコピーするとTSV形式になります。
 	</p>
+
+	{#if enableCompanion}
+		<input type="text" bind:value={companionSessionID} placeholder="コンパニオンのセッションID" />
+	{/if}
+
 	<textarea
 		bind:value={rawInput}
 		onpaste={() => setTimeout(loadFromCSV, 0)}

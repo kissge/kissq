@@ -9,27 +9,35 @@ const app = new Hono<{ Bindings: CloudflareBindings }>()
 	.get(
 		'/api/questions/:session_id',
 		zValidator('param', z.object({ session_id: z.string() })),
+		zValidator('query', z.object({ shown: z.enum(['true', 'false', 'all']) })),
 		async (c) => {
 			const { session_id } = c.req.valid('param');
+			const { shown } = c.req.valid('query');
 			const { results } = await c.env.Database.prepare(
 				`SELECT questions.*, likes.user_name
 				 FROM questions
-				 LEFT JOIN likes ON questions.id = likes.question_id
-				 WHERE session_id = ? AND shown = TRUE
+				 LEFT JOIN likes ON questions.id = likes.question_id AND questions.session_id = likes.session_id
+				 WHERE questions.session_id = ? ${shown !== 'all' ? `AND shown = ${shown === 'true' ? 1 : 0}` : ''}
 				 ORDER BY id`
 			)
 				.bind(session_id)
-				.run<{ id: number; question: string; answer: string; user_name: string | null }>();
+				.run<{
+					id: number;
+					question: string;
+					answer: string;
+					shown: boolean;
+					user_name: string | null;
+				}>();
 
 			const grouped = results.reduce<
-				{ id: number; question: string; answer: string; likedBy: string[] }[]
-			>((acc, { id, question, answer, user_name }) => {
+				{ id: number; question: string; answer: string; shown: boolean; likedBy: string[] }[]
+			>((acc, { id, question, answer, shown, user_name }) => {
 				const q = acc.find((q) => q.id === id);
 
 				if (q) {
 					q.likedBy.push(user_name!);
 				} else {
-					acc.push({ id, question, answer, likedBy: user_name != null ? [user_name] : [] });
+					acc.push({ id, question, answer, shown, likedBy: user_name != null ? [user_name] : [] });
 				}
 
 				return acc;
@@ -55,18 +63,24 @@ const app = new Hono<{ Bindings: CloudflareBindings }>()
 					.bind(sessionID)
 					.run();
 
-				const {
-					meta: { changes }
-				} = await c.env.Database.prepare(
-					`INSERT INTO questions (id, session_id, question, answer)
-					 VALUES ${questions.map(() => '(?, ?, ?, ?)').join(', ')}`
-				)
-					.bind(
-						...questions.flatMap(({ id, question, answer }) => [id, sessionID, question, answer])
-					)
-					.run();
+				let totalChanges = 0;
 
-				return c.json({ success: true, changes });
+				while (questions.length > 0) {
+					const chunk = questions.splice(0, 10);
+
+					const {
+						meta: { changes }
+					} = await c.env.Database.prepare(
+						`INSERT INTO questions (id, session_id, question, answer)
+					 VALUES ${chunk.map(() => '(?, ?, ?, ?)').join(', ')}`
+					)
+						.bind(...chunk.flatMap(({ id, question, answer }) => [id, sessionID, question, answer]))
+						.run();
+
+					totalChanges += changes;
+				}
+
+				return c.json({ success: true, totalChanges });
 			} catch (error) {
 				return c.json({ success: false, error: parseError(error) }, 400);
 			}
@@ -108,12 +122,17 @@ const app = new Hono<{ Bindings: CloudflareBindings }>()
 	)
 	.put(
 		'/api/like',
-		zValidator('json', z.object({ questionID: z.number(), userName: z.string() })),
+		zValidator(
+			'json',
+			z.object({ questionID: z.number(), sessionID: z.string(), userName: z.string() })
+		),
 		async (c) => {
 			try {
-				const { questionID, userName } = c.req.valid('json');
-				await c.env.Database.prepare('INSERT INTO likes (question_id, user_name) VALUES (?, ?)')
-					.bind(questionID, userName)
+				const { questionID, sessionID, userName } = c.req.valid('json');
+				await c.env.Database.prepare(
+					'INSERT INTO likes (question_id, session_id, user_name) VALUES (?, ?, ?)'
+				)
+					.bind(questionID, sessionID, userName)
 					.run();
 
 				return c.json({ success: true });
