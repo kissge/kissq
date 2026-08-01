@@ -1,8 +1,12 @@
 <script lang="ts">
 	import { fade } from 'svelte/transition';
+	import type { APIClient } from '$lib/api';
 	import { getQuestionConsoleContext } from '$lib/questionConsole.svelte';
 
 	let QuestionConsole = getQuestionConsoleContext();
+
+	const sessionID = new URLSearchParams(location.search).get('session');
+	let client: APIClient | undefined;
 </script>
 
 {#if QuestionConsole.showQuestionWindow}
