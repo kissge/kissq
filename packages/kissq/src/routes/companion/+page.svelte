@@ -137,7 +137,7 @@
 
 <style>
 	main {
-		margin-top: 1rem;
+		padding-top: 1rem;
 	}
 
 	.carousel {
