@@ -136,6 +136,14 @@
 </dialog>
 
 <style>
+	:global {
+		html,
+		body {
+			height: 100svh;
+			overflow-y: hidden;
+		}
+	}
+
 	.carousel {
 		display: flex;
 		justify-self: center;
