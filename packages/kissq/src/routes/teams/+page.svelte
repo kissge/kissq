@@ -4,7 +4,6 @@
 	import { flip } from 'svelte/animate';
 	import { fade, slide } from 'svelte/transition';
 	import Toastify from 'toastify-js';
-	import 'toastify-js/src/toastify.css';
 	import { loadFromHash, saveToHash } from '$lib/attendant';
 	import AppearanceDialog from '$lib/components/appearanceDialog.svelte';
 	import Footer from '$lib/components/footer.svelte';

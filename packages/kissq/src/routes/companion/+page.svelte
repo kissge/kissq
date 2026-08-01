@@ -3,8 +3,12 @@
 	import { getAPIClient, type APIClient } from '$lib/api';
 
 	let client: APIClient | undefined;
-	let sessionID =
-		typeof location !== 'undefined' ? new URL(location.href).searchParams.get('session') : null;
+	let sessionID: string | undefined;
+	let userName = $state<string>();
+
+	let currentSlide = $state<number>(0);
+
+	let nameDialog: HTMLDialogElement;
 
 	let questions = $state<
 		{
@@ -27,7 +31,15 @@
 				})
 				.then((res) => {
 					res.json().then((data) => {
+						const doScroll = questions?.at(-1)?.id === currentSlide;
 						questions = data;
+						if (doScroll) {
+							setTimeout(() => {
+								document
+									.querySelector(`[data-question-id="${questions!.at(-1)?.id}"]`)
+									?.scrollIntoView({ behavior: 'smooth' });
+							}, 200);
+						}
 					});
 				});
 		}
@@ -35,6 +47,12 @@
 
 	onMount(() => {
 		client = getAPIClient();
+		userName = window.localStorage.getItem('userName') || undefined;
+		sessionID = new URLSearchParams(location.search).get('session') || undefined;
+
+		if (!userName) {
+			nameDialog.showModal();
+		}
 
 		fetchQuestions();
 		const timerID = setInterval(fetchQuestions, 10000);
@@ -42,56 +60,232 @@
 	});
 </script>
 
+<svelte:head>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+</svelte:head>
+
 <main>
-	<table>
-		<thead>
-			<tr>
-				<th>Q.</th>
-				<th>A.</th>
-				<th></th>
-			</tr>
-		</thead>
-		<tbody>
-			{#each questions as question (question.id)}
-				<tr>
-					<td>{question.question}</td>
-					<td>{question.answer}</td>
-					<td>
-						{'❤'.repeat(likes[question.id])}
+	<div
+		class="carousel"
+		{...{
+			onscrollsnapchange: (event: Event & { snapTargetInline?: HTMLElement }) => {
+				const target = event?.snapTargetInline?.dataset?.questionId;
+				if (target == null) {
+					document
+						.querySelector(`[data-question-id="${questions!.at(-1)?.id}"]`)
+						?.scrollIntoView({ behavior: 'smooth' });
+					fetchQuestions();
+				} else {
+					currentSlide = Number.parseInt(target);
+				}
+			}
+		}}
+	>
+		{#each questions as question (question.id)}
+			<div class="slide" data-question-id={question.id}>
+				<p class="question">{question.question}</p>
+				<p class="answer">A. {question.answer}</p>
+				<div class="spacer"></div>
+				<div class="likes">
+					いいね！
+					<div>
 						<button
 							onclick={() => {
 								client?.api.like.$put({
 									json: {
 										sessionID: sessionID!,
 										questionID: question.id,
-										userName: 'current_user_id'
+										userName: userName!
 									}
 								});
 								likes = { ...likes, [question.id]: (likes[question.id] || 0) + 1 };
 							}}
 						>
-							❤
+							♡
 						</button>
-					</td>
-				</tr>
-			{/each}
-		</tbody>
-	</table>
-	<button onclick={fetchQuestions}>Refresh</button>
+						{'♥ '.repeat(likes[question.id])}
+					</div>
+				</div>
+			</div>
+		{/each}
+		{#if (questions?.length ?? 0) > 0}
+			<div class="slide"></div>
+		{/if}
+	</div>
 </main>
+
+<dialog bind:this={nameDialog}>
+	<p>いいね機能に使うお名前を入力してください。</p>
+	<div>
+		<input bind:value={userName} />
+		<button
+			disabled={!userName}
+			onclick={() => {
+				window.localStorage.setItem('userName', userName!);
+				nameDialog.close();
+			}}
+		>
+			OK
+		</button>
+	</div>
+</dialog>
 
 <style>
 	main {
 		padding: 1rem;
 	}
 
-	table {
-		border-collapse: collapse;
+	.carousel {
+		display: flex;
+		justify-self: center;
+		gap: 10px;
 		width: 100%;
+		overflow-x: auto;
+		scroll-snap-type: x mandatory;
+		scroll-marker-group: after;
+		position: relative;
 	}
-	th,
-	td {
-		border: 1px solid #ccc;
-		padding: 8px;
+
+	.carousel::-webkit-scrollbar {
+		display: none;
+		scrollbar-width: none;
+	}
+
+	@media (prefers-reduced-motion: no-preference) {
+		.carousel {
+			scroll-behavior: smooth;
+		}
+	}
+
+	.carousel::scroll-button(left) {
+		left: 2.5%;
+		content: '☚' / 'Prev';
+	}
+
+	.carousel::scroll-button(right) {
+		right: 2.5%;
+		content: '☛' / 'Next';
+	}
+
+	.carousel::scroll-button(*) {
+		position: absolute;
+		top: 50dvh;
+		transition: 0.25s all ease-in-out;
+		cursor: pointer;
+		box-shadow: 0 0 10px #000;
+		border-radius: 50%;
+		background-color: #fff;
+		width: 30px;
+		height: 30px;
+		font-size: 20px;
+	}
+
+	.carousel::scroll-button(*):hover {
+		background-color: #e1e1e1;
+	}
+
+	.carousel::scroll-button(*):disabled {
+		opacity: 0.2;
+		color: #000;
+	}
+
+	.carousel::scroll-marker-group {
+		display: flex;
+		position: absolute;
+		left: 50%;
+		gap: 10px;
+		transform: translateX(-50%);
+		margin-top: 25px;
+	}
+
+	.slide {
+		display: flex;
+		flex: 1 0 80%;
+		flex-direction: column;
+		justify-content: space-between;
+		gap: 1em;
+		border-radius: 10px;
+		background-color: #333;
+		padding: 1em;
+		height: calc(100dvh - 110px);
+		scroll-snap-align: center;
+		color: #fff;
+		font-size: 1.2em;
+
+		&:first-child {
+			margin-left: 10%;
+		}
+		&:last-child {
+			flex: 0 0 10%;
+			background: url('https://cdnjs.cloudflare.com/ajax/libs/galleriffic/2.0.1/css/loader.gif')
+				no-repeat center;
+		}
+
+		p {
+			margin: 0;
+		}
+	}
+
+	.question {
+		text-align: justify;
+	}
+
+	.answer {
+		font-weight: bold;
+		text-align: right;
+	}
+
+	.spacer {
+		flex: 1;
+	}
+
+	.likes {
+		color: #f66;
+
+		div {
+			display: inline-block;
+			word-break: break-word;
+		}
+
+		button {
+			display: inline;
+			cursor: pointer;
+			box-shadow: none;
+			border: none;
+			background: none;
+			padding: 0;
+			color: #f66;
+			font-size: 1.05em;
+		}
+	}
+
+	.slide::scroll-marker {
+		transition: 0.1s all ease-in-out;
+		border: 1px solid #424242;
+		border-radius: 50%;
+		width: 5px;
+		height: 5px;
+		content: '';
+	}
+
+	.slide:last-child::scroll-marker {
+		display: none;
+	}
+
+	.slide::scroll-marker:hover {
+		background-color: #e3e3e3;
+	}
+
+	.slide::scroll-marker:target-current {
+		background-color: #424242;
+	}
+
+	input {
+		font-size: 1em;
+	}
+
+	dialog div {
+		display: flex;
+		gap: 0.5rem;
 	}
 </style>

@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import Toastify from 'toastify-js';
+	import 'toastify-js/src/toastify.css';
 	// @ts-expect-error PWA
 	import { pwaInfo } from 'virtual:pwa-info';
 	import { isSafari } from '$lib/browser';
