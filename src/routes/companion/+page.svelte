@@ -136,14 +136,11 @@
 </dialog>
 
 <style>
-	main {
-		padding-top: 1rem;
-	}
-
 	.carousel {
 		display: flex;
 		justify-self: center;
 		gap: 10px;
+		margin-top: 2em;
 		width: 100%;
 		overflow-x: auto;
 		scroll-snap-type: x mandatory;
@@ -200,7 +197,7 @@
 		left: 50%;
 		gap: 10px;
 		transform: translateX(-50%);
-		margin-top: 25px;
+		margin-top: 15px;
 	}
 
 	.slide {
