@@ -37,7 +37,7 @@
 	let companionSessionID = $state('');
 	let client = $state<APIClient>();
 	let remoteQuestions = $state<
-		{ id: number; question: string; answer: string; shown: boolean; likedBy: string[] }[]
+		{ id: number; question: string; answer: string; shown: 0 | 1; likedBy: string[] }[]
 	>([]);
 
 	let orderedAttendants = $derived.by(() => {
