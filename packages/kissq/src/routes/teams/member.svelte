@@ -82,7 +82,9 @@
 				(Game.currentState.teams[ti].attendantIDsPerSeat[si]?.length ?? 0) > 0 ? null : si
 		).filter((v): v is number => v != null);
 		for (const att of Game.attendants) {
-			att.seat -= emptySeats.filter((s) => s < att.seat).length;
+			if (att.team === ti) {
+				att.seat -= emptySeats.filter((s) => s < att.seat).length;
+			}
 		}
 
 		DnD.setDragTarget();
