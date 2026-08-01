@@ -2,6 +2,7 @@
 	import confetti from 'canvas-confetti';
 	import { onMount } from 'svelte';
 	import { fade, fly } from 'svelte/transition';
+	import { base } from '$app/paths';
 	import { getAPIClient, type APIClient } from '$lib/api';
 	import { getQuestionConsoleContext } from '$lib/questionConsole.svelte';
 
@@ -9,6 +10,13 @@
 
 	const sessionID =
 		typeof location !== 'undefined' ? new URLSearchParams(location.search).get('session') : null;
+	const companionURL =
+		typeof location === 'undefined'
+			? null
+			: location.origin + base + '/companion?session=' + sessionID;
+	const qrCodeURL =
+		'https://api.qrserver.com/v1/create-qr-code/?size=500x500&data=' +
+		encodeURIComponent(companionURL ?? '');
 	let client: APIClient | undefined;
 	let totalLikes = $state(-1);
 	let currentLikes = $state(0);
@@ -87,6 +95,12 @@
 	</div>
 {/if}
 
+{#if typeof location !== 'undefined' && QuestionConsole.showQRCode}
+	<div transition:fly={{ y: 200, duration: 300 }} class="qr-code">
+		<img src={qrCodeURL} alt="QRコード" />
+	</div>
+{/if}
+
 <style>
 	.question {
 		position: relative;
@@ -157,6 +171,28 @@
 		&:is(.question:active *) {
 			translate: 0 60%;
 			transition-delay: 0s;
+		}
+	}
+
+	.qr-code {
+		position: fixed;
+		top: 50%;
+		left: 50%;
+		transform: translate(-50%, -50%);
+		z-index: 1000;
+		box-sizing: border-box;
+		box-shadow: 0 0 25px #fff;
+		border-radius: 0.5em;
+		background-color: #fff;
+		padding: 2em;
+		width: min(50dvw, 50dvh);
+		height: min(50dvw, 50dvh);
+
+		img {
+			border-radius: 0.5em;
+			width: 100%;
+			height: 100%;
+			object-fit: contain;
 		}
 	}
 </style>

@@ -72,7 +72,7 @@ const app = new Hono<{ Bindings: CloudflareBindings }>()
 						meta: { changes }
 					} = await c.env.Database.prepare(
 						`INSERT INTO questions (id, session_id, question, answer)
-					 VALUES ${chunk.map(() => '(?, ?, ?, ?)').join(', ')}`
+						 VALUES ${chunk.map(() => '(?, ?, ?, ?)').join(', ')}`
 					)
 						.bind(...chunk.flatMap(({ id, question, answer }) => [id, sessionID, question, answer]))
 						.run();

@@ -565,6 +565,11 @@
 	<button onclick={() => window.opener.postMessage({ command: 'toggleQuestionWindow' })}>
 		問題ウィンドウを表示・非表示
 	</button>
+	{#if enableCompanion}
+		<button onclick={() => window.opener.postMessage({ command: 'toggleQRCode' })}>
+			QRコードを表示・非表示
+		</button>
+	{/if}
 </footer>
 
 <dialog closedby="any" bind:this={inputDialog}>
