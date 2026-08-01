@@ -20,11 +20,13 @@
 		}[]
 	>();
 
+	let showSpinner = $state(false);
+
 	let likes = $derived(Object.fromEntries(questions?.map((q) => [q.id, q.likedBy.length]) || []));
 
 	function fetchQuestions() {
 		if (client && sessionID) {
-			client.api.questions[':session_id']
+			return client.api.questions[':session_id']
 				.$get({
 					param: { session_id: sessionID },
 					query: { shown: 'true' }
@@ -71,10 +73,13 @@
 			onscrollsnapchange: (event: Event & { snapTargetInline?: HTMLElement }) => {
 				const target = event?.snapTargetInline?.dataset?.questionId;
 				if (target == null) {
+					showSpinner = true;
 					document
 						.querySelector(`[data-question-id="${questions!.at(-1)?.id}"]`)
 						?.scrollIntoView({ behavior: 'smooth' });
-					fetchQuestions();
+					fetchQuestions()?.then(() => {
+						showSpinner = false;
+					});
 				} else {
 					currentSlide = Number.parseInt(target);
 				}
@@ -109,7 +114,7 @@
 			</div>
 		{/each}
 		{#if (questions?.length ?? 0) > 0}
-			<div class="slide"></div>
+			<div class="slide" style:opacity={showSpinner ? 1 : 0}></div>
 		{/if}
 	</div>
 </main>
