@@ -259,6 +259,10 @@
 			cursor: grab;
 		}
 
+		&[draggable='false'] .drag-handle {
+			opacity: 0.2;
+		}
+
 		&:hover {
 			background: white;
 			input {
@@ -293,6 +297,7 @@
 		}
 
 		.drag-handle {
+			transition: opacity 0.25s ease-in-out;
 			padding: 0 0.5em;
 			color: #fff8;
 
