@@ -232,7 +232,7 @@
 		enableCompanion = !!window.localStorage.getItem('enableCompanion');
 		if (enableCompanion) {
 			client = getAPIClient();
-			companionSessionID = window.localStorage.getItem('companionSessionID') ?? '';
+			companionSessionID = new URLSearchParams(location.search).get('session') ?? '';
 			if (companionSessionID) {
 				(async () => {
 					remoteQuestions = await (
@@ -262,7 +262,6 @@
 		window.localStorage.setItem('questions', JSON.stringify(questions));
 
 		if (enableCompanion && companionSessionID && client) {
-			window.localStorage.setItem('companionSessionID', companionSessionID);
 			console.log(
 				await (
 					await client.api.questions.$put({
@@ -576,10 +575,6 @@
 	<p style="font-size: 0.5em;">
 		ヒント：スプレッドシート上で質問と回答の列を選択してコピーするとTSV形式になります。
 	</p>
-
-	{#if enableCompanion}
-		<input type="text" bind:value={companionSessionID} placeholder="コンパニオンのセッションID" />
-	{/if}
 
 	<textarea
 		bind:value={rawInput}
