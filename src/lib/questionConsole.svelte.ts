@@ -1,4 +1,5 @@
 import { createContext } from 'svelte';
+import { SvelteURLSearchParams } from 'svelte/reactivity';
 import { qZero } from '$lib/question';
 import { getWasedashikiContext } from '$lib/wasedashiki.svelte';
 import type { GameClassBaseType } from './game';
@@ -17,7 +18,8 @@ export class QuestionConsoleClass {
 	constructor(public Game: GameClassBaseType) {}
 
 	openSubWindow() {
-		this.subWindow = window.open('./question', 'questionWindow', 'popup') || undefined;
+		const search = '?' + new SvelteURLSearchParams(location.search).toString();
+		this.subWindow = window.open('./question' + search, 'questionWindow', 'popup') || undefined;
 	}
 
 	processWindowMessage(event: MessageEvent) {
