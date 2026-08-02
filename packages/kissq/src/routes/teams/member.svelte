@@ -296,7 +296,7 @@
 			padding: 0 0.5em;
 			color: #fff8;
 
-			&:is(:hover > *) {
+			&:is(.member:hover *) {
 				color: #000;
 			}
 		}
