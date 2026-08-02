@@ -261,6 +261,10 @@
 	.answer {
 		font-weight: bold;
 		text-align: right;
+
+		small {
+			display: inline-block;
+		}
 	}
 
 	small {
