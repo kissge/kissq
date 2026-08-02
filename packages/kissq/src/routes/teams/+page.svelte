@@ -205,15 +205,6 @@
 					class="team"
 					animate:flip={{ duration: 200 }}
 					class:won={Game.currentState.teams[ti].teamLife === 'won'}
-					class:is-drop-target={DnD.dropTarget?.type === 'team' && DnD.dropTarget.ti === ti}
-					ondragover={(event) => {
-						if (DnD.dragTarget && DnD.dragTarget.ti !== ti) {
-							event.preventDefault();
-							DnD.setDropTarget({ type: 'team', ti });
-						}
-					}}
-					ondragleave={() => DnD.setDropTarget()}
-					role="listitem"
 				>
 					<Team {seats} {ti} />
 				</div>
@@ -450,11 +441,6 @@
 		text-shadow:
 			0px 10px 50px #444,
 			0px 10px 50px #444;
-	}
-
-	.is-drop-target {
-		box-shadow: 0 0 10px #f008;
-		background-color: yellow;
 	}
 
 	#other-menu {

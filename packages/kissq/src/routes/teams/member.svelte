@@ -54,9 +54,7 @@
 	draggable={Game.history.length === 0}
 	role="listitem"
 	class:is-dragging={DnD.dragTarget?.ai === ai}
-	class:is-drop-target={DnD.dropTarget?.type === 'seat' &&
-		DnD.dropTarget.ti === ti &&
-		DnD.dropTarget.si === si}
+	class:is-drop-target={DnD.dropTarget?.ti === ti && DnD.dropTarget.si === si}
 	ondragstart={() => {
 		setTimeout(() => DnD.setDragTarget({ ai, ti, si, mi }), 0);
 	}}
@@ -67,13 +65,8 @@
 			return;
 		}
 
-		if (DnD.dropTarget.type === 'seat') {
-			Game.attendants[ai].seat = DnD.dropTarget.si;
-		} else {
-			Game.attendants[ai].team = DnD.dropTarget.ti;
-			Game.attendants[ai].seat =
-				Game.currentState.teams[DnD.dropTarget.ti].attendantIDsPerSeat.length;
-		}
+		Game.attendants[ai].team = DnD.dropTarget.ti;
+		Game.attendants[ai].seat = DnD.dropTarget.si;
 
 		// seatがとびとびになったかもしれないので、前に詰める
 		const emptySeats = Array.from(
@@ -91,10 +84,8 @@
 		DnD.setDropTarget();
 	}}
 	ondragover={(event) => {
-		if (DnD.dragTarget?.ti === ti) {
-			event.preventDefault();
-			DnD.setDropTarget({ type: 'seat', ti, si });
-		}
+		event.preventDefault();
+		DnD.setDropTarget({ ti, si });
 	}}
 	ondragleave={() => DnD.setDropTarget()}
 >
