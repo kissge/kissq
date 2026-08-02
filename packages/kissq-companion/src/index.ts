@@ -25,23 +25,43 @@ const app = new Hono<{ Bindings: CloudflareBindings }>()
 					id: number;
 					question: string;
 					answer: string;
+					comment: string;
 					shown: boolean;
+					shown_at: string;
 					user_name: string | null;
 				}>();
 
 			const grouped = results.reduce<
-				{ id: number; question: string; answer: string; shown: boolean; likedBy: string[] }[]
-			>((acc, { id, question, answer, shown, user_name }) => {
+				{
+					id: number;
+					question: string;
+					answer: string;
+					comment: string;
+					shown: boolean;
+					shownAt: string;
+					likedBy: string[];
+				}[]
+			>((acc, { id, question, answer, comment, shown, shown_at, user_name }) => {
 				const q = acc.find((q) => q.id === id);
 
 				if (q) {
 					q.likedBy.push(user_name!);
 				} else {
-					acc.push({ id, question, answer, shown, likedBy: user_name != null ? [user_name] : [] });
+					acc.push({
+						id,
+						question,
+						answer,
+						comment,
+						shown,
+						shownAt: shown_at,
+						likedBy: user_name != null ? [user_name] : []
+					});
 				}
 
 				return acc;
 			}, []);
+
+			grouped.sort((a, b) => (a.shownAt ?? '').localeCompare(b.shownAt ?? '') || a.id - b.id);
 
 			return c.json(grouped);
 		}
@@ -52,7 +72,14 @@ const app = new Hono<{ Bindings: CloudflareBindings }>()
 			'json',
 			z.object({
 				sessionID: z.string(),
-				questions: z.array(z.object({ id: z.number(), question: z.string(), answer: z.string() }))
+				questions: z.array(
+					z.object({
+						id: z.number(),
+						question: z.string(),
+						answer: z.string(),
+						comment: z.string()
+					})
+				)
 			})
 		),
 		async (c) => {
@@ -71,10 +98,18 @@ const app = new Hono<{ Bindings: CloudflareBindings }>()
 					const {
 						meta: { changes }
 					} = await c.env.Database.prepare(
-						`INSERT INTO questions (id, session_id, question, answer)
-						 VALUES ${chunk.map(() => '(?, ?, ?, ?)').join(', ')}`
+						`INSERT INTO questions (id, session_id, question, answer, comment)
+						 VALUES ${chunk.map(() => '(?, ?, ?, ?, ?)').join(', ')}`
 					)
-						.bind(...chunk.flatMap(({ id, question, answer }) => [id, sessionID, question, answer]))
+						.bind(
+							...chunk.flatMap(({ id, question, answer, comment }) => [
+								id,
+								sessionID,
+								question,
+								answer,
+								comment
+							])
+						)
 						.run();
 
 					totalChanges += changes;
@@ -93,7 +128,9 @@ const app = new Hono<{ Bindings: CloudflareBindings }>()
 			try {
 				const { sessionID, questionID } = c.req.valid('json');
 				await c.env.Database.prepare(
-					'UPDATE questions SET shown = TRUE WHERE id = ? AND session_id = ?'
+					`UPDATE questions
+					 SET shown = TRUE, shown_at = CURRENT_TIMESTAMP
+					 WHERE id = ? AND session_id = ?`
 				)
 					.bind(questionID, sessionID)
 					.run();
