@@ -8,6 +8,7 @@
 	import RuleTeamEditDialog from '$lib/components/ruleTeamEditDialog.svelte';
 	import type { HistoryEntry } from '$lib/historyEntry';
 	import { parseCSV, qZero } from '$lib/question';
+	import type { Message } from '$lib/questionConsole.svelte';
 	import type { Rule } from '$lib/rule';
 	import type { WasedashikiMode } from '$lib/serial';
 	import type { GameState } from '$lib/state';
@@ -159,12 +160,11 @@
 	}
 
 	function onDragEnd() {
-		if (orderedAttendants) {
-			opener.postMessage({
+		if (orderedAttendants && isDragging != null && dropTarget != null) {
+			postMessage({
 				command: 'reorderAttendants',
-				attendantID: order === 'same' ? isDragging : orderedAttendants.length - isDragging! - 1,
-				newOrder:
-					order === 'same' ? dropTarget! - 0.5 : orderedAttendants.length - dropTarget! - 0.5
+				attendantID: order === 'same' ? isDragging : orderedAttendants.length - isDragging - 1,
+				newOrder: order === 'same' ? dropTarget - 0.5 : orderedAttendants.length - dropTarget - 0.5
 			});
 			isDragging = null;
 			dropTarget = null;
@@ -172,7 +172,7 @@
 	}
 
 	function apply(rules: Rule[], resetGroups: 'reset' | 'keep'): void {
-		opener.postMessage({
+		postMessage({
 			command: 'updateRules',
 			rules: rules.map((r) => ({ ...r })),
 			doClear:
@@ -186,7 +186,7 @@
 
 	function showQuestion(index: number) {
 		currentIndex = index;
-		opener.postMessage({
+		postMessage({
 			command: 'updateQuestion',
 			...questions[currentIndex]
 		});
@@ -210,6 +210,10 @@
 		}
 
 		document.querySelector('table:not(:hover) tr.current')?.scrollIntoView({ block: 'center' });
+	}
+
+	function postMessage(message: Message) {
+		opener.postMessage(message);
 	}
 
 	$effect(() => {
@@ -244,7 +248,7 @@
 		window.addEventListener('message', processWindowMessage);
 		window.addEventListener('keydown', processKeyboardInput);
 
-		const timer = setInterval(() => opener.postMessage({ command: 'ping' }), 1000);
+		const timer = setInterval(() => postMessage({ command: 'ping' }), 1000);
 
 		return () => {
 			window.removeEventListener('message', processWindowMessage);
@@ -288,11 +292,7 @@
 
 <header class="console" class:show-keyboard={isKeyboardEnabled}>
 	<div>
-		<button
-			class="labeled"
-			data-label="Z"
-			onclick={() => opener.postMessage({ command: 'clickUndo' })}
-		>
+		<button class="labeled" data-label="Z" onclick={() => postMessage({ command: 'clickUndo' })}>
 			元に戻す
 		</button>
 		<button
@@ -302,7 +302,7 @@
 					yasuCount === 'next' && (yasuMode !== 'constant' || yasuPerBatsu > 0)
 			)}
 			data-label="X"
-			onclick={() => opener.postMessage({ command: 'clickThrough' })}
+			onclick={() => postMessage({ command: 'clickThrough' })}
 		>
 			スルー
 		</button>
@@ -311,7 +311,7 @@
 			data-label="C"
 			onclick={() => {
 				if (confirm('リセットしてよろしいですか？')) {
-					opener.postMessage({ command: 'clickReset' });
+					postMessage({ command: 'clickReset' });
 				}
 			}}
 		>
@@ -323,7 +323,7 @@
 			onclick={() => {
 				let name = prompt('プレイヤーの名前を入力してください');
 				if (name) {
-					opener.postMessage({ command: 'addAttendant', name });
+					postMessage({ command: 'addAttendant', name });
 				}
 			}}
 		>
@@ -337,7 +337,7 @@
 					.open(rules)
 					.then((newRules) => {
 						if (newRules) {
-							opener.postMessage({
+							postMessage({
 								command: 'updateRules',
 								rules: newRules,
 								doClear:
@@ -419,7 +419,7 @@
 							bind:value={attendants[ai].group}
 							onchange={(event) => {
 								const newGroup = Number.parseInt((event.target as HTMLSelectElement).value);
-								opener.postMessage({
+								postMessage({
 									command: 'updateAttendantGroup',
 									attendantID: ai,
 									group: newGroup
@@ -458,14 +458,14 @@
 							<button
 								class="labeled"
 								data-label={Keys[ord]?.[0] || ''}
-								onclick={() => opener.postMessage({ command: 'clickMaru', attendantID: ai })}
+								onclick={() => postMessage({ command: 'clickMaru', attendantID: ai })}
 							>
 								O
 							</button>
 							<button
 								class="labeled"
 								data-label={Keys[ord]?.[1] || ''}
-								onclick={() => opener.postMessage({ command: 'clickBatsu', attendantID: ai })}
+								onclick={() => postMessage({ command: 'clickBatsu', attendantID: ai })}
 							>
 								X
 							</button>
@@ -562,11 +562,11 @@
 	>
 		次の問題へ →
 	</button>
-	<button onclick={() => window.opener.postMessage({ command: 'toggleQuestionWindow' })}>
+	<button onclick={() => postMessage({ command: 'toggleQuestionWindow' })}>
 		問題ウィンドウを表示・非表示
 	</button>
 	{#if enableCompanion}
-		<button onclick={() => window.opener.postMessage({ command: 'toggleQRCode' })}>
+		<button onclick={() => postMessage({ command: 'toggleQRCode' })}>
 			QRコードを表示・非表示
 		</button>
 	{/if}
