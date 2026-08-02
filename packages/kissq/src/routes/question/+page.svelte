@@ -199,7 +199,7 @@
 						questionID: index
 					}
 				});
-				remoteQuestions.find((q) => q.id === index)!.shown = true;
+				remoteQuestions.find((q) => q.id === index)!.shown = 1;
 				remoteQuestions = await (
 					await client.api.questions[':session_id'].$get({
 						param: { session_id: companionSessionID },

@@ -88,8 +88,24 @@
 	>
 		{#each questions as question (question.id)}
 			<div class="slide" data-question-id={question.id}>
-				<p class="question">{question.question}</p>
-				<p class="answer">A. {question.answer}</p>
+				<p class="question">
+					{#each question.question.split(/(（.+?）|\(.+?\)|【.+?】|［.+?］)/) as part, i (i)}
+						{#if i % 2}
+							<small>{part}</small>
+						{:else}
+							{part}
+						{/if}
+					{/each}
+				</p>
+				<p class="answer">
+					A. {#each question.answer.split(/(（.+?）|\(.+?\)|【.+?】|［.+?］)/) as part, i (i)}
+						{#if i % 2}
+							<small>{part}</small>
+						{:else}
+							{part}
+						{/if}
+					{/each}
+				</p>
 				<div class="spacer"></div>
 				<div class="likes">
 					いいね！
@@ -245,6 +261,11 @@
 	.answer {
 		font-weight: bold;
 		text-align: right;
+	}
+
+	small {
+		opacity: 0.6;
+		font-weight: lighter;
 	}
 
 	.spacer {
