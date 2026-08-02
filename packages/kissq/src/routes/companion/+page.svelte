@@ -112,6 +112,8 @@
 					</div>
 				</div>
 			</div>
+		{:else}
+			<div class="slide" style="flex: 0 0 62.5%"></div>
 		{/each}
 		{#if (questions?.length ?? 0) > 0}
 			<div class="slide" style:opacity={showSpinner ? 1 : 0}></div>
