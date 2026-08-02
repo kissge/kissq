@@ -49,9 +49,7 @@
 				Game.currentState.defaultRule.mode === 'product')
 				? ''
 				: 'none'}
-			class:is-drop-target={DnD.dropTarget?.type === 'seat' &&
-				DnD.dropTarget.ti === ti &&
-				DnD.dropTarget.si === si}
+			class:is-drop-target={DnD.dropTarget?.ti === ti && DnD.dropTarget.si === si}
 		>
 			{si + 1}<small>枠</small>
 		</div>

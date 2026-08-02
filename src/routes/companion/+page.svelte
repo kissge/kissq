@@ -86,7 +86,7 @@
 			}
 		}}
 	>
-		{#each questions as question (question.id)}
+		{#each questions ?? [] as question (question.id)}
 			<div class="slide" data-question-id={question.id}>
 				<p class="question">
 					{#each question.question.split(/(（.+?）|\(.+?\)|【.+?】|［.+?］)/) as part, i (i)}
