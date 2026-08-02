@@ -2,7 +2,7 @@
 	import { watch } from 'runed';
 	import { onMount } from 'svelte';
 	import { flip } from 'svelte/animate';
-	import { fade, slide } from 'svelte/transition';
+	import { fade, fly, slide } from 'svelte/transition';
 	import Toastify from 'toastify-js';
 	import { loadFromHash, saveToHash } from '$lib/attendant';
 	import AppearanceDialog from '$lib/components/appearanceDialog.svelte';
@@ -213,6 +213,22 @@
 			{/each}
 		</div>
 	</div>
+
+	{#if DnD.dragTarget}
+		<div
+			class="team new-team"
+			class:is-drop-target={DnD.dropTarget?.ti === Game.teams.length && DnD.dropTarget.si === 0}
+			transition:fly={{ x: 200 }}
+			ondragover={(event) => {
+				event.preventDefault();
+				DnD.setDropTarget({ ti: Game.teams.length, si: 0 });
+			}}
+			ondragleave={() => DnD.setDropTarget()}
+			role="listitem"
+		>
+			新しいチーム
+		</div>
+	{/if}
 
 	<Footer {Game}>
 		<button
@@ -441,6 +457,24 @@
 		text-shadow:
 			0px 10px 50px #444,
 			0px 10px 50px #444;
+	}
+
+	.new-team {
+		display: flex;
+		position: fixed;
+		right: 1em;
+		bottom: 1em;
+		justify-content: center;
+		align-items: center;
+		z-index: 10000;
+		background: #0008;
+		padding-top: 0.75em;
+		width: 10em;
+
+		&.is-drop-target {
+			background: yellow;
+			color: black;
+		}
 	}
 
 	#other-menu {

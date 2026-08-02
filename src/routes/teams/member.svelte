@@ -65,6 +65,10 @@
 			return;
 		}
 
+		if (DnD.dropTarget.ti === Game.teams.length) {
+			Game.teams.push('');
+		}
+
 		Game.attendants[ai].team = DnD.dropTarget.ti;
 		Game.attendants[ai].seat = DnD.dropTarget.si;
 
