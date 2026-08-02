@@ -60,16 +60,14 @@
 		{/if}
 	{/each}
 
-	{#if DnD.dragTarget?.ti === ti && (Game.currentState.defaultRule.mode === 'aql' || Game.currentState.defaultRule.mode === 'product')}
+	{#if DnD.dragTarget && (Game.currentState.defaultRule.mode === 'aql' || Game.currentState.defaultRule.mode === 'product')}
 		<div
 			class="new-seat"
-			class:is-drop-target={DnD.dropTarget?.type === 'seat' &&
-				DnD.dropTarget.ti === ti &&
-				DnD.dropTarget.si === maxSeat + 1}
+			class:is-drop-target={DnD.dropTarget?.ti === ti && DnD.dropTarget.si === maxSeat + 1}
 			ondragover={(event) => {
-				if (DnD.dragTarget && DnD.dragTarget.ti === ti) {
+				if (DnD.dragTarget) {
 					event.preventDefault();
-					DnD.setDropTarget({ type: 'seat', ti, si: maxSeat + 1 });
+					DnD.setDropTarget({ ti, si: maxSeat + 1 });
 				}
 			}}
 			ondragleave={() => DnD.setDropTarget()}
