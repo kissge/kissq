@@ -215,14 +215,14 @@
 		flex: 1 0 70%;
 		flex-direction: column;
 		justify-content: space-between;
-		gap: 1em;
+		gap: 1.2rem;
 		border-radius: 10px;
 		background-color: #333;
-		padding: 1em;
+		padding: 1.2rem;
 		height: calc(100svh - 110px);
 		scroll-snap-align: center;
 		color: #fff;
-		font-size: 1.2em;
+		font-size: 6.5svw;
 
 		&:first-child {
 			margin-left: 15%;
