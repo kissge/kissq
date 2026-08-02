@@ -57,7 +57,7 @@
 		}
 
 		fetchQuestions();
-		const timerID = setInterval(fetchQuestions, 10000);
+		const timerID = setInterval(fetchQuestions, 3000);
 		return () => clearInterval(timerID);
 	});
 </script>
