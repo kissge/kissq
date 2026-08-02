@@ -29,21 +29,23 @@ export class QuestionConsoleClass {
 			}
 		}
 
-		switch (event.data.command) {
+		const message: Message = event.data;
+
+		switch (message.command) {
 			case 'toggleQuestionWindow':
 				this.showQuestionWindow = !this.showQuestionWindow;
 				break;
 
 			case 'updateQuestion':
-				this.currentQuestion = event.data;
+				this.currentQuestion = message;
 				break;
 
 			case 'clickMaru':
-				this.Game.clickMaru(event.data.attendantID);
+				this.Game.clickMaru(message.attendantID);
 				break;
 
 			case 'clickBatsu':
-				this.Game.clickBatsu(event.data.attendantID);
+				this.Game.clickBatsu(message.attendantID);
 				break;
 
 			case 'clickThrough':
@@ -60,29 +62,29 @@ export class QuestionConsoleClass {
 
 			case 'addAttendant':
 				if (this.Game.battleMode === 'single') {
-					this.Game.addAttendant(event.data.name);
+					this.Game.addAttendant(message.name);
 				} else {
 					if (this.Game.attendantsPerTeam.length > 0) {
-						this.Game.addAttendant(this.Game.attendantsPerTeam.length - 1, event.data.name);
+						this.Game.addAttendant(this.Game.attendantsPerTeam.length - 1, message.name);
 					}
 				}
 				break;
 
 			case 'updateRules':
 				this.Game.updateRules(
-					event.data.rules.map((r: RulePOJO) => Rule.from(r)),
+					message.rules.map((r: RulePOJO) => Rule.from(r)),
 					this.Wasedashiki,
-					event.data.doClear,
-					event.data.resetGroups
+					message.doClear,
+					message.resetGroups
 				);
 				break;
 
 			case 'updateAttendantGroup':
-				this.Game.attendants[event.data.attendantID].group = event.data.group;
+				this.Game.attendants[message.attendantID].group = message.group;
 				break;
 
 			case 'reorderAttendants': // single-only
-				this.Game.attendants[this.Game.orderedAttendants[event.data.attendantID]].manualOrder =
+				this.Game.attendants[this.Game.orderedAttendants[message.attendantID]].manualOrder =
 					event.data.newOrder;
 				this.Game.orderedAttendants.forEach((a, i) => (this.Game.attendants[a].manualOrder = i));
 				break;
@@ -94,6 +96,9 @@ export class QuestionConsoleClass {
 			case 'ping':
 				this.syncState();
 				break;
+
+			default:
+				message satisfies never;
 		}
 	}
 
@@ -127,3 +132,18 @@ export class QuestionConsoleClass {
 
 export const [getQuestionConsoleContext, setQuestionConsoleContext] =
 	createContext<QuestionConsoleClass>();
+
+export type Message =
+	| { command: 'toggleQuestionWindow' }
+	| { command: 'updateQuestion'; id: number; question: string; answer: string }
+	| { command: 'clickMaru'; attendantID: number }
+	| { command: 'clickBatsu'; attendantID: number }
+	| { command: 'clickThrough' }
+	| { command: 'clickUndo' }
+	| { command: 'clickReset' }
+	| { command: 'addAttendant'; name: string }
+	| { command: 'updateRules'; rules: RulePOJO[]; doClear: boolean; resetGroups: 'reset' | 'keep' }
+	| { command: 'updateAttendantGroup'; attendantID: number; group: number }
+	| { command: 'reorderAttendants'; attendantID: number; newOrder: number }
+	| { command: 'toggleQRCode' }
+	| { command: 'ping' };
