@@ -137,7 +137,7 @@ export const [getQuestionConsoleContext, setQuestionConsoleContext] =
 
 export type Message =
 	| { command: 'toggleQuestionWindow' }
-	| { command: 'updateQuestion'; id: number; question: string; answer: string }
+	| { command: 'updateQuestion'; id: number; question: string; answer: string; comment: string }
 	| { command: 'clickMaru'; attendantID: number }
 	| { command: 'clickBatsu'; attendantID: number }
 	| { command: 'clickThrough' }

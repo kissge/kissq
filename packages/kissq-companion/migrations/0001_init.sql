@@ -7,8 +7,9 @@ CREATE TABLE IF NOT EXISTS questions (
   session_id TEXT NOT NULL,
   question   TEXT NOT NULL,
   answer     TEXT NOT NULL,
+  comment    TEXT NOT NULL,
   shown      BOOLEAN NOT NULL DEFAULT FALSE,
-  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  shown_at   DATETIME DEFAULT NULL,
   PRIMARY KEY (id, session_id)
 );
 

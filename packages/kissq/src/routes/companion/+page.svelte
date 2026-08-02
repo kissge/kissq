@@ -106,6 +106,9 @@
 						{/if}
 					{/each}
 				</p>
+				<p>
+					{question.comment}
+				</p>
 				<div class="spacer"></div>
 				<div class="likes">
 					いいね！
@@ -238,7 +241,7 @@
 		height: calc(100svh - 110px);
 		scroll-snap-align: center;
 		color: #fff;
-		font-size: 6.5svw;
+		font-size: 5.5svw;
 
 		&:first-child {
 			margin-left: 15%;
