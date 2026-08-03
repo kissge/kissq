@@ -2,8 +2,12 @@ import { createContext } from 'svelte';
 import { SvelteURLSearchParams } from 'svelte/reactivity';
 import { qZero } from '$lib/question';
 import { getWasedashikiContext } from '$lib/wasedashiki.svelte';
+import type { Attendant } from './attendant';
 import type { GameClassBaseType } from './game';
+import type { HistoryEntry } from './historyEntry';
 import { Rule, type RulePOJO } from './rule';
+import type { WasedashikiMode } from './serial';
+import type { GameState } from './state';
 
 const urlParams = new URLSearchParams(typeof location !== 'undefined' ? location.search : '');
 
@@ -31,7 +35,7 @@ export class QuestionConsoleClass {
 			}
 		}
 
-		const message: Message = event.data;
+		const message: IncomingMessage = event.data;
 
 		switch (message.command) {
 			case 'toggleQuestionWindow':
@@ -109,7 +113,7 @@ export class QuestionConsoleClass {
 			// Prevent circular object (only necessary for team, fyi)
 			const state = Object.fromEntries(
 				Object.entries(this.Game.currentState).flatMap(([k, v]) => (k === 'teams' ? [] : [[k, v]]))
-			);
+			) as GameState;
 
 			this.subWindow.postMessage(
 				JSON.parse(
@@ -125,7 +129,7 @@ export class QuestionConsoleClass {
 						answerers: this.Wasedashiki.answerers,
 						buttonMapping: this.Wasedashiki.buttonMapping,
 						wasedashikiMode: this.Game.wasedashikiMode
-					})
+					} satisfies OutgoingMessage)
 				)
 			);
 		}
@@ -135,7 +139,7 @@ export class QuestionConsoleClass {
 export const [getQuestionConsoleContext, setQuestionConsoleContext] =
 	createContext<QuestionConsoleClass>();
 
-export type Message =
+export type IncomingMessage =
 	| { command: 'toggleQuestionWindow' }
 	| { command: 'updateQuestion'; id: number; question: string; answer: string; comment: string }
 	| { command: 'clickMaru'; attendantID: number }
@@ -149,3 +153,17 @@ export type Message =
 	| { command: 'reorderAttendants'; attendantID: number; newOrder: number }
 	| { command: 'toggleQRCode' }
 	| { command: 'ping' };
+
+export interface OutgoingMessage {
+	command: 'syncState';
+	mode: 'single' | 'team';
+	attendants: Attendant[];
+	currentState: GameState;
+	history: HistoryEntry[];
+	rules: Rule[];
+	orderedAttendants: number[];
+	orderingMode: 'ranking' | 'manual';
+	answerers: ({ rank: 1 | 2 | 'late'; delay: number } | null)[];
+	buttonMapping: Record<number, number>;
+	wasedashikiMode?: WasedashikiMode;
+}
