@@ -565,7 +565,7 @@
 		問題ウィンドウを表示・非表示
 	</button>
 	{#if enableCompanion}
-		<button onclick={() => postMessage({ command: 'toggleQRCode' })}>
+		<button disabled={!companionSessionID} onclick={() => postMessage({ command: 'toggleQRCode' })}>
 			QRコードを表示・非表示
 		</button>
 	{/if}
