@@ -8,7 +8,7 @@
 	import RuleTeamEditDialog from '$lib/components/ruleTeamEditDialog.svelte';
 	import type { HistoryEntry } from '$lib/historyEntry';
 	import { parseCSV, qZero } from '$lib/question';
-	import type { Message } from '$lib/questionConsole.svelte';
+	import type { IncomingMessage, OutgoingMessage } from '$lib/questionConsole.svelte';
 	import type { Rule } from '$lib/rule';
 	import type { WasedashikiMode } from '$lib/serial';
 	import type { GameState } from '$lib/state';
@@ -115,7 +115,7 @@
 		['P', ';']
 	];
 
-	function processWindowMessage(event: MessageEvent) {
+	function processWindowMessage(event: MessageEvent<OutgoingMessage>) {
 		switch (event.data.command) {
 			case 'syncState':
 				battleMode = event.data.mode;
@@ -212,7 +212,7 @@
 		document.querySelector('table:not(:hover) tr.current')?.scrollIntoView({ block: 'center' });
 	}
 
-	function postMessage(message: Message) {
+	function postMessage(message: IncomingMessage) {
 		opener.postMessage(message);
 	}
 
