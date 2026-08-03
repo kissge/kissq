@@ -207,8 +207,26 @@
 					削除
 				</button>
 			</div>
-			<button class="maru-btn" onclick={() => Game.clickMaru(ai)} tabindex={-1}>O</button>
-			<button class="batsu-btn" onclick={() => Game.clickBatsu(ai)} tabindex={-1}>X</button>
+			<button
+				class="maru-btn"
+				onclick={() => Game.clickMaru(ai)}
+				{@attach tooltip(
+					`${Game.attendants[ai].name || 'このプレイヤー'}に1○をつけて、問題カウントを1進めます（休みの人がいれば1休減ります）`
+				)}
+			>
+				O
+			</button>
+			<button
+				class="batsu-btn"
+				onclick={() => Game.clickBatsu(ai)}
+				{@attach tooltip(
+					Game.currentState.defaultRule.chance === 'single'
+						? `${Game.attendants[ai].name || 'このプレイヤー'}に1×をつけて問題カウントを1進めます（休みの人がいれば1休減ります）`
+						: `${Game.attendants[ai].name || 'このプレイヤー'}に1×をつけます（誰も正解しなければ最後にスルーボタンを押すのを忘れずに！）`
+				)}
+			>
+				X
+			</button>
 		</div>
 	{/if}
 </div>

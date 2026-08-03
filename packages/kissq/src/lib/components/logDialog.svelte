@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { getLoggerContext, type LogEntry, type LogStateTeamEntry } from '$lib/logs';
+	import ChanceIndicator from './chanceIndicator.svelte';
 
 	let Logger = getLoggerContext();
 
@@ -56,6 +57,7 @@
 					<tr>
 						<td colspan="7">
 							{log.rules}
+							<ChanceIndicator chance={log.chance} />
 						</td>
 					</tr>
 					{#each log.state as att, j (j)}

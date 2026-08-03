@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { fade } from 'svelte/transition';
+	import { fade, fly } from 'svelte/transition';
 	import { Rule, type Penalty } from '$lib/rule';
 	import { tooltipInDialog as tooltip } from '$lib/tooltip.svelte';
 	import RulePresetDialog from './rulePresetDialog.svelte';
@@ -86,6 +86,7 @@
 			(rule) =>
 				new Rule(
 					rule.mode,
+					rules[0].chance,
 					rule.win,
 					rule.isLoseNull ? null : rule.lose,
 					rule.maru,
@@ -158,7 +159,7 @@
 							: `${String.fromCodePoint(65 + i)}グループのプレイヤーに適用されるルールを編集します。`
 					)}
 				>
-					{activeRules.length === 1 ? '全員' : String.fromCodePoint(65 + i)}
+					{activeRules.length === 1 ? '全員' : i === 0 ? 'A / 全員' : String.fromCodePoint(65 + i)}
 				</button>
 			{/each}
 			<button
@@ -199,6 +200,7 @@
 					onclick={() => {
 						rules[activeTab] = {
 							mode: 'marubatsu',
+							chance: 'endless',
 							win: 7,
 							isLoseNull: false,
 							lose: 3,
@@ -222,6 +224,7 @@
 					onclick={() => {
 						rules[activeTab] = {
 							mode: 'marubatsu',
+							chance: 'endless',
 							win: 5,
 							isLoseNull: true,
 							lose: 3,
@@ -245,6 +248,7 @@
 					onclick={() => {
 						rules[activeTab] = {
 							mode: 'marubatsu',
+							chance: 'endless',
 							win: 15,
 							isLoseNull: true,
 							lose: 3,
@@ -268,6 +272,7 @@
 					onclick={() => {
 						rules[activeTab] = {
 							mode: 'score',
+							chance: 'endless',
 							win: 5,
 							isLoseNull: false,
 							lose: -5,
@@ -291,6 +296,7 @@
 					onclick={() => {
 						rules[activeTab] = {
 							mode: 'MbyN',
+							chance: 'endless',
 							win: 10,
 							isLoseNull: false,
 							lose: 0,
@@ -314,6 +320,7 @@
 					onclick={() => {
 						rules[activeTab] = {
 							mode: 'score',
+							chance: 'endless',
 							win: 10,
 							isLoseNull: false,
 							lose: -10,
@@ -337,6 +344,7 @@
 					onclick={() => {
 						rules[activeTab] = {
 							mode: 'survival',
+							chance: 'endless',
 							win: 0,
 							isLoseNull: false,
 							lose: 30,
@@ -360,6 +368,7 @@
 					onclick={() => {
 						rules[activeTab] = {
 							mode: 'marubatsu',
+							chance: 'endless',
 							win: 4,
 							isLoseNull: true,
 							lose: 3,
@@ -383,6 +392,7 @@
 					onclick={() => {
 						rules[activeTab] = {
 							mode: 'marubatsu',
+							chance: 'endless',
 							win: 7,
 							isLoseNull: true,
 							lose: 3,
@@ -406,6 +416,7 @@
 					onclick={() => {
 						rules[activeTab] = {
 							mode: 'marubatsu',
+							chance: 'endless',
 							win: 7,
 							isLoseNull: false,
 							lose: 2,
@@ -429,6 +440,7 @@
 					onclick={() => {
 						rules[activeTab] = {
 							mode: 'score',
+							chance: 'endless',
 							win: 4,
 							isLoseNull: true,
 							lose: 3,
@@ -449,6 +461,24 @@
 					通過席
 				</button>
 			</div>
+
+			{#if activeTab === 0}
+				<div transition:fly={{ y: 100 }}>押せる人数</div>
+				<div transition:fly={{ y: 100 }}>
+					<label {@attach tooltip('〇、スルーのほか✕を押しても問題カウントが直ちに進みます。')}>
+						<input type="radio" bind:group={activeRule.chance} value="single" />
+						シングルチャンス
+					</label>
+					<label
+						{@attach tooltip(
+							'〇、スルーを押したときは問題カウントが進みますが、✕を押しても問題カウントが進みません。'
+						)}
+					>
+						<input type="radio" bind:group={activeRule.chance} value="endless" />
+						エンドレスチャンス
+					</label>
+				</div>
+			{/if}
 
 			<div>モード</div>
 			<div>

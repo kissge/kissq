@@ -4,6 +4,8 @@ export class Rule {
 	constructor(
 		/** ゲームモード */
 		public mode: 'score' | 'marubatsu' | 'MbyN' | 'survival' | 'aql' | 'product' | 'sum',
+		/** シングルチャンス／エンドレスチャンス */
+		public chance: 'single' | 'endless',
 		/** 勝利に必要なスコアまたはマル数またはスコアの平方根 */
 		public win: number,
 		/** 敗北に必要なスコア（負数）またはバツ数（正数） */
@@ -202,6 +204,7 @@ export class Rule {
 	static from(rule: Rule | RulePOJO): Rule {
 		return new Rule(
 			rule.mode,
+			rule.chance,
 			rule.win,
 			rule.lose,
 			rule.maru,

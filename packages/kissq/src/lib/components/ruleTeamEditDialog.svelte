@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { fly } from 'svelte/transition';
 	import { Rule, type Penalty } from '$lib/rule';
 	import { tooltipInDialog as tooltip } from '$lib/tooltip.svelte';
 	import RulePresetDialog from './rulePresetDialog.svelte';
@@ -84,8 +85,9 @@
 		rules.map(
 			(rule) =>
 				new Rule(
-					rule.mode,
-					rule.win,
+					rules[0].mode,
+					rules[0].chance,
+					rules[0].win,
 					rule.isLoseNull ? null : rule.lose,
 					rule.maru,
 					rule.batsuMode === 'number' ? rule.batsu : rule.batsuMode,
@@ -201,12 +203,13 @@
 
 		<div class="table">
 			{#if activeTab === 0}
-				<div style="margin: 2rem 0">定番</div>
-				<div style="margin: 2rem 0" class="presets">
+				<div style="margin: 2rem 0" transition:fly={{ y: 100 }}>定番</div>
+				<div style="margin: 2rem 0" class="presets" transition:fly={{ y: 100 }}>
 					<button
 						onclick={() => {
 							rules[activeTab] = {
 								mode: 'aql',
+								chance: 'endless',
 								win: 200,
 								isLoseNull: true,
 								lose: -3,
@@ -231,6 +234,7 @@
 						onclick={() => {
 							rules[activeTab] = {
 								mode: 'aql',
+								chance: 'endless',
 								win: 70,
 								isLoseNull: true,
 								lose: -3,
@@ -255,6 +259,7 @@
 						onclick={() => {
 							rules[activeTab] = {
 								mode: 'aql',
+								chance: 'endless',
 								win: 24,
 								isLoseNull: true,
 								lose: -3,
@@ -279,6 +284,7 @@
 						onclick={() => {
 							rules[activeTab] = {
 								mode: 'product',
+								chance: 'endless',
 								win: 10,
 								isLoseNull: true,
 								lose: 3,
@@ -303,6 +309,7 @@
 						onclick={() => {
 							rules[activeTab] = {
 								mode: 'sum',
+								chance: 'endless',
 								win: 10,
 								isLoseNull: true,
 								lose: -3,
@@ -325,8 +332,24 @@
 					</button>
 				</div>
 
-				<div>モード</div>
-				<div>
+				<div transition:fly={{ y: 100 }}>押せる人数</div>
+				<div transition:fly={{ y: 100 }}>
+					<label {@attach tooltip('〇、スルーのほか✕を押しても問題カウントが直ちに進みます。')}>
+						<input type="radio" bind:group={activeRule.chance} value="single" />
+						シングルチャンス
+					</label>
+					<label
+						{@attach tooltip(
+							'〇、スルーを押したときは問題カウントが進みますが、✕を押しても問題カウントが進みません。'
+						)}
+					>
+						<input type="radio" bind:group={activeRule.chance} value="endless" />
+						エンドレスチャンス
+					</label>
+				</div>
+
+				<div transition:fly={{ y: 100 }}>モード</div>
+				<div transition:fly={{ y: 100 }}>
 					<label>
 						<input type="radio" bind:group={activeRule.mode} value="sum" onchange={copyRule} />
 						足し算

@@ -1,5 +1,6 @@
 import { createContext } from 'svelte';
 import type { GameClassBase } from './game';
+import type { WasedashikiMode } from './serial';
 import type { Life } from './state';
 
 export type LogStateEntry = LogStateSingleEntry | LogStateTeamEntry;
@@ -38,6 +39,7 @@ export type LogStateTeamEntry = {
 export interface LogEntry {
 	startAt: string;
 	mode?: 'single' | 'team';
+	chance?: WasedashikiMode;
 	gameTitle: string;
 	questionCount: number;
 	rules: string;
@@ -61,6 +63,7 @@ export class LoggerClass<T extends 'single' | 'team' = 'single' | 'team'> {
 				timeStyle: 'long'
 			}),
 			mode: this.battleMode,
+			chance: this.Game.rules[0].chance,
 			gameTitle: this.Game.gameTitle,
 			questionCount: this.Game.currentState.questionCount - 1,
 			rules: this.Game.activeRulesText,
@@ -142,6 +145,7 @@ export class LoggerClass<T extends 'single' | 'team' = 'single' | 'team'> {
 
 		logs[logs.length - 1] = {
 			...logs[logs.length - 1],
+			chance: this.Game.rules[0].chance,
 			gameTitle: this.Game.gameTitle,
 			questionCount: this.Game.currentState.questionCount - 1,
 			rules: this.Game.activeRulesText,

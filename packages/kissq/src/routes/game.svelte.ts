@@ -13,7 +13,7 @@ export class GameClass extends GameClassBase<'single'> {
 	battleMode = 'single' as const;
 
 	attendants = $state<Attendant[]>([]);
-	rules = $state([new Rule('marubatsu', 7, 3, 1, 1, false, null, 'constant', 0, null)]);
+	rules = $state([new Rule('marubatsu', 'single', 7, 3, 1, 1, false, null, 'constant', 0, null)]);
 	history = $state<HistoryEntry[]>([]);
 	gameTitle = $state('');
 	totalQuestionCount = $state(0);
@@ -125,9 +125,12 @@ export class GameClass extends GameClassBase<'single'> {
 			playSound(se2);
 		}
 
-		const single = this.wasedashikiMode === 'single' || this.wasedashikiMode === 'handicap';
-
 		const rule = this.currentState.attendants[attendantID].rule;
+		const single =
+			rule.chance === 'single' ||
+			this.wasedashikiMode === 'single' ||
+			this.wasedashikiMode === 'handicap';
+
 		if (rule.yasuMode === 'roulette' && this.penaltyRoulette) {
 			const selection = await this.penaltyRoulette.run(rule.roulette!.choices);
 			this.history.push(

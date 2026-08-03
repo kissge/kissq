@@ -36,6 +36,7 @@
 				rules: [
 					{
 						mode: 'marubatsu',
+						chance: 'endless',
 						win: 2,
 						lose: 3,
 						maru: 1,
@@ -49,6 +50,7 @@
 					},
 					{
 						mode: 'marubatsu',
+						chance: 'endless',
 						win: 3,
 						lose: 2,
 						maru: 1,
@@ -62,6 +64,7 @@
 					},
 					{
 						mode: 'marubatsu',
+						chance: 'endless',
 						win: 4,
 						lose: 2,
 						maru: 1,
@@ -75,6 +78,7 @@
 					},
 					{
 						mode: 'marubatsu',
+						chance: 'endless',
 						win: 5,
 						lose: 1,
 						maru: 1,
@@ -94,6 +98,7 @@
 				rules: [
 					{
 						mode: 'marubatsu',
+						chance: 'endless',
 						win: 5,
 						lose: null,
 						maru: 1,
@@ -107,6 +112,7 @@
 					},
 					{
 						mode: 'marubatsu',
+						chance: 'endless',
 						win: 5,
 						lose: null,
 						maru: 1,
@@ -120,6 +126,7 @@
 					},
 					{
 						mode: 'marubatsu',
+						chance: 'endless',
 						win: 5,
 						lose: null,
 						maru: 1,
@@ -134,7 +141,7 @@
 				],
 				battleMode: 'single'
 			}
-		] as const
+		] as const satisfies Preset<RulePOJO>[]
 	).map((preset) => ({ ...preset, rules: preset.rules.map((rule) => Rule.from(rule)) }));
 	const prePresetsTeam: Preset<Rule>[] = (
 		[
@@ -143,6 +150,7 @@
 				rules: [
 					{
 						mode: 'product',
+						chance: 'endless',
 						win: 200,
 						lose: 3,
 						maru: 1,
@@ -156,6 +164,7 @@
 					},
 					{
 						mode: 'product',
+						chance: 'endless',
 						win: 200,
 						lose: 5,
 						maru: 1,
@@ -170,7 +179,7 @@
 				],
 				battleMode: 'team'
 			}
-		] as const
+		] as const satisfies Preset<RulePOJO>[]
 	).map((preset) => ({ ...preset, rules: preset.rules.map((rule) => Rule.from(rule)) }));
 
 	function _apply(rules: Rule[]) {

@@ -14,7 +14,9 @@ export class GameClass extends GameClassBase<'team'> {
 
 	attendants = $state<Attendant[]>([]);
 	teams = $state<string[]>([]);
-	rules = $state([new Rule('aql', 200, null, 1, 'updown', false, null, 'constant', 0, null)]);
+	rules = $state([
+		new Rule('aql', 'single', 200, null, 1, 'updown', false, null, 'constant', 0, null)
+	]);
 	history = $state<HistoryEntry[]>([]);
 	gameTitle = $state('');
 	totalQuestionCount = $state(0);
@@ -92,7 +94,10 @@ export class GameClass extends GameClassBase<'team'> {
 	}
 
 	async clickBatsu(attendantID: number, playSounds_: boolean = true) {
-		const single = this.wasedashikiMode === 'single' || this.wasedashikiMode === 'handicap';
+		const single =
+			this.currentState.attendants[attendantID].rule.chance === 'single' ||
+			this.wasedashikiMode === 'single' ||
+			this.wasedashikiMode === 'handicap';
 		this.history.push(new BatsuHistoryEntry(attendantID, single));
 		if (this.playSounds && playSounds_) {
 			playSound(se2);
