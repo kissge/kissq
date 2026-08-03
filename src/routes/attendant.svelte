@@ -184,7 +184,7 @@
 				<span in:fade>
 					{att.totalScore.batsu + att.batsuCount}
 				</span>
-			{/key} ×
+			{/key} ✕
 		</span>
 	{:else if showRate}
 		<span {@attach tooltip('レート')} class="rate">
@@ -203,7 +203,7 @@
 				<span in:fade class:lose-lizhi={att.isLoseLizhi}>
 					{att.batsuCount}
 				</span>
-			{/key} ×
+			{/key} ✕
 		</span>
 	{:else if att.rule.mode === 'score' || att.rule.mode === 'survival'}
 		<span>
@@ -224,7 +224,7 @@
 	{:else}
 		<span class="m-by-n-score">
 			<small>
-				{att.maruCount} × {att.rule.win - att.batsuCount}
+				{att.maruCount} ✕ {att.rule.win - att.batsuCount}
 			</small>
 			{#key att.score}
 				<span class="crossfade" class:lose-lizhi={att.isLoseLizhi} in:fade={{ delay: 500 }} out:fade
@@ -364,8 +364,8 @@
 			class="batsu-btn"
 			{@attach tooltip(
 				Game.currentState.defaultRule.chance === 'single'
-					? `${att.name || 'このプレイヤー'}に1×をつけて問題カウントを1進めます（休みの人がいれば1休減ります）`
-					: `${att.name || 'このプレイヤー'}に1×をつけます（誰も正解しなければ最後にスルーボタンを押すのを忘れずに！）`,
+					? `${att.name || 'このプレイヤー'}に1✕をつけて問題カウントを1進めます（休みの人がいれば1休減ります）`
+					: `${att.name || 'このプレイヤー'}に1✕をつけます（誰も正解しなければ最後にスルーボタンを押すのを忘れずに！）`,
 				{ placement: 'bottom' }
 			)}
 		>
