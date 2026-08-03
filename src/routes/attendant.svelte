@@ -350,7 +350,9 @@
 			onclick={() => Game.clickBatsu(ai)}
 			class="batsu-btn"
 			{@attach tooltip(
-				`${att.name || 'このプレイヤー'}に1×をつけます（誰も正解しなければ最後にスルーボタンを押すのを忘れずに！）`,
+				Game.currentState.defaultRule.chance === 'single'
+					? `${att.name || 'このプレイヤー'}に1×をつけて問題カウントを1進めます（休みの人がいれば1休減ります）`
+					: `${att.name || 'このプレイヤー'}に1×をつけます（誰も正解しなければ最後にスルーボタンを押すのを忘れずに！）`,
 				{ placement: 'bottom' }
 			)}
 		>

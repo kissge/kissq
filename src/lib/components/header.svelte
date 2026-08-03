@@ -7,6 +7,7 @@
 	import { tooltip } from '$lib/tooltip.svelte';
 	import { isUnlocked } from '$lib/unlock';
 	import { getWasedashikiContext } from '$lib/wasedashiki.svelte';
+	import ChanceIndicator from './chanceIndicator.svelte';
 
 	let {
 		Game,
@@ -28,6 +29,7 @@
 	let helpDialog: { open: () => void };
 
 	let hideQuestionCount = $derived(Game.currentState.defaultRule.mode === 'aql');
+	let chance = $derived(Game.wasedashikiMode || Game.rules[0].chance);
 
 	const search = typeof location !== 'undefined' ? location.search : '';
 	let hash = $derived(
@@ -102,15 +104,7 @@
 	<div>
 		Rule:
 		{Game.activeRulesText}
-		{#if Game.wasedashikiMode}
-			({Game.wasedashikiMode === 'single'
-				? '1C'
-				: Game.wasedashikiMode === 'double'
-					? '2C'
-					: Game.wasedashikiMode === 'endless'
-						? '∞C'
-						: '1C'})
-		{/if}
+		<ChanceIndicator {chance} />
 		<button onclick={editRule} {@attach tooltip('ルールとルールグループを編集します。')}>
 			編集
 		</button>
