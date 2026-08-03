@@ -200,7 +200,7 @@
 					onclick={() => {
 						rules[activeTab] = {
 							mode: 'marubatsu',
-							chance: 'endless',
+							chance: 'single',
 							win: 7,
 							isLoseNull: false,
 							lose: 3,
@@ -218,7 +218,7 @@
 						};
 					}}
 				>
-					7○3×
+					7〇3✕<small>（シングルチャンス）</small>
 				</button>
 				<button
 					onclick={() => {
@@ -242,7 +242,7 @@
 						};
 					}}
 				>
-					5○1休
+					5〇1休
 				</button>
 				<button
 					onclick={() => {
@@ -266,7 +266,7 @@
 						};
 					}}
 				>
-					15○1休、5○ごとに5休
+					15〇1休、5〇ごとに5休
 				</button>
 				<button
 					onclick={() => {

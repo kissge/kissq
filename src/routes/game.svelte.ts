@@ -13,7 +13,7 @@ export class GameClass extends GameClassBase<'single'> {
 	battleMode = 'single' as const;
 
 	attendants = $state<Attendant[]>([]);
-	rules = $state([new Rule('marubatsu', 'single', 7, 3, 1, 1, false, null, 'constant', 0, null)]);
+	rules = $state([new Rule('marubatsu', 'endless', 7, 3, 1, 1, false, null, 'constant', 0, null)]);
 	history = $state<HistoryEntry[]>([]);
 	gameTitle = $state('');
 	totalQuestionCount = $state(0);
