@@ -15,6 +15,7 @@
 			id: number;
 			question: string;
 			answer: string;
+			comment: string;
 			shown: boolean;
 			likedBy: string[];
 		}[]
