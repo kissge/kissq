@@ -4,7 +4,9 @@
 	import { fade, fly } from 'svelte/transition';
 	import { base } from '$app/paths';
 	import { getAPIClient, type APIClient } from '$lib/api';
+	import seLike from '$lib/assets/like.ogg';
 	import { getQuestionConsoleContext } from '$lib/questionConsole.svelte';
+	import { playSound } from '$lib/sound';
 
 	let QuestionConsole = getQuestionConsoleContext();
 
@@ -27,6 +29,7 @@
 			confetti({
 				origin: { x: randomInRange(0.2, 0.8), y: (Math.random() - 0.5) / 4 + 0.5 }
 			});
+			playSound(seLike);
 		}
 
 		++firstConfetti;
