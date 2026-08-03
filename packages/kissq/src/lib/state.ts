@@ -320,6 +320,19 @@ export class AttendantState {
 		}
 	}
 
+	sortTotalScore(enableRating: boolean): number[] {
+		return [
+			// Maru
+			this.totalScore.maru + this.maruCount,
+			// Batsu (inverse)
+			-(this.totalScore.batsu + this.batsuCount),
+			// Trophy
+			this.trophyCount + (this.life === 'won' ? 1 : 0),
+			// Rate
+			enableRating ? this.totalScore.num / this.totalScore.den : 0
+		];
+	}
+
 	get yasuDisplay(): number {
 		if (this.yasuCount === 'next') {
 			if (this.rule.yasuMode === 'maru') {

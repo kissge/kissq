@@ -164,15 +164,7 @@
 ></div>
 
 <div class="score" style:opacity={showScore ? 1 : 0}>
-	{#if Game.history.length === 0 && att.rule.mode !== 'survival' && att.rule.mode !== 'score' && Game.enableRating}
-		<span {@attach tooltip('レート')} class="rate">
-			{#if att.totalScore.den === 0}
-				---
-			{:else}
-				{att.rate.toLocaleString()}
-			{/if}
-		</span>
-	{:else if showTotalOverride}
+	{#if showTotalOverride}
 		<small style="display: inline-block">通<br />算</small>
 		<span class="maru-count">
 			{#key att.totalScore.maru + att.maruCount}
@@ -187,6 +179,14 @@
 					{att.totalScore.batsu + att.batsuCount}
 				</span>
 			{/key} ×
+		</span>
+	{:else if Game.history.length === 0 && att.rule.mode !== 'survival' && att.rule.mode !== 'score' && Game.enableRating}
+		<span {@attach tooltip('レート')} class="rate">
+			{#if att.totalScore.den === 0}
+				---
+			{:else}
+				{att.rate.toLocaleString()}
+			{/if}
 		</span>
 	{:else if showMarubatsuOverride || att.rule.mode === 'marubatsu'}
 		<span class="maru-count">
@@ -282,7 +282,12 @@
 	{/each}
 </div>
 
-{#if att.life === 'won'}
+{#if showTotalOverride}
+	<div class="total" in:fade>
+		<small>通算</small>
+		{Game.totalScoreRanks[ai]} 位
+	</div>
+{:else if att.life === 'won'}
 	<div class="won" in:fade>
 		{Game.currentState.ranks[ai]} 位
 	</div>
@@ -600,6 +605,7 @@
 	}
 
 	.buttons,
+	.total,
 	.yasu,
 	.won,
 	.lost {
@@ -614,6 +620,15 @@
 			0px 0px 5px #000,
 			0px 0px 5px #000,
 			0px 0px 5px #000;
+	}
+
+	.total {
+		font-size: 0.75em;
+
+		small {
+			padding-right: 0.1em;
+			font-size: 0.65em;
+		}
 	}
 
 	.buttons {
