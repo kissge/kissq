@@ -567,7 +567,7 @@
 				left: 0.4em;
 				translate: 0% -50%;
 				content: '通算';
-				font-size: 0.4em;
+				font-size: 0.3em;
 				writing-mode: vertical-rl;
 				white-space: pre;
 			}
