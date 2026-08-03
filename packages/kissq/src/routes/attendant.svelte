@@ -50,6 +50,13 @@
 
 	let att = $derived(Game.currentState.attendants[ai]);
 	let barHeight: number = $derived(Layout.barHeightRatioArray[ai]?.current ?? 0);
+
+	let showRate = $derived(
+		Game.history.length === 0 &&
+			att.rule.mode !== 'survival' &&
+			att.rule.mode !== 'score' &&
+			Game.enableRating
+	);
 </script>
 
 {#if Wasedashiki.buttonMapping[ai] != null}
@@ -163,7 +170,7 @@
 	bind:clientHeight={Layout.nameHeight[ai]}
 ></div>
 
-<div class="score" class:showTotalOverride style:opacity={showScore ? 1 : 0}>
+<div class="score" class:showTotalOverride class:showRate style:opacity={showScore ? 1 : 0}>
 	{#if showTotalOverride}
 		<span class="maru-count">
 			{#key att.totalScore.maru + att.maruCount}
@@ -179,7 +186,7 @@
 				</span>
 			{/key} ×
 		</span>
-	{:else if Game.history.length === 0 && att.rule.mode !== 'survival' && att.rule.mode !== 'score' && Game.enableRating}
+	{:else if showRate}
 		<span {@attach tooltip('レート')} class="rate">
 			{#if att.totalScore.den === 0}
 				---
@@ -550,7 +557,8 @@
 		text-align: center;
 		text-shadow: 0 0 5px #000e;
 
-		&.showTotalOverride {
+		&.showTotalOverride,
+		&.showRate {
 			padding-left: 0.4em;
 			&::after {
 				display: block;
@@ -558,11 +566,16 @@
 				top: 50%;
 				left: 0.4em;
 				translate: 0% -50%;
-				content: '通\A算';
+				content: '通算';
 				font-size: 0.4em;
-				line-height: 1.2;
+				writing-mode: vertical-rl;
 				white-space: pre;
 			}
+		}
+		&:not(.showTotalOverride).showRate::after {
+			content: 'レート';
+			font-size: 0.26em;
+			writing-mode: vertical-rl;
 		}
 
 		> * {
