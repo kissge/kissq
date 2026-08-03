@@ -30,6 +30,7 @@
 	import { tooltip } from '$lib/tooltip.svelte';
 	import { isUnlocked } from '$lib/unlock';
 	import { setWasedashikiContext, WasedashikiClass } from '$lib/wasedashiki.svelte';
+	import { wave } from '$lib/waveEffect';
 	import Attendant from './attendant.svelte';
 	import { GameClass, setGameContext } from './game.svelte';
 
@@ -355,7 +356,7 @@
 				/>
 			</div>
 		{:else}
-			<div class="no-team">🍔プレイヤーを追加してください🍔</div>
+			<div class="no-team" {@attach wave()}>🍔プレイヤーを追加してください🍔</div>
 		{/each}
 		{#if Game.orderingMode === 'manual'}
 			<div
