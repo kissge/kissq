@@ -46,10 +46,10 @@ export class Rule {
 				}
 
 				if (this.batsu === 'batsu') {
-					str += `、N回目の誤答で-N点`;
+					str += '、N回目の誤答で-N点';
 				} else if (this.batsu === 'updown') {
 					// dummy
-					str += `、誤答でゼロ〇に`;
+					str += '、誤答でゼロ〇に';
 				} else if (this.batsu < 0 && this.batsu !== -1) {
 					str += `、誤答${this.batsu}点`;
 				}
@@ -89,10 +89,10 @@ export class Rule {
 				}
 
 				if (this.batsu === 'batsu') {
-					str += `、N回目の誤答で-N点`;
+					str += '、N回目の誤答で-N点';
 				} else if (this.batsu === 'updown') {
 					// dummy
-					str += `、誤答でゼロ〇に`;
+					str += '、誤答でゼロ〇に';
 				} else if (this.batsu < 0 && this.batsu !== -1) {
 					str += `、誤答${this.batsu}点`;
 				}
@@ -104,10 +104,10 @@ export class Rule {
 					str += `、正解${-this.maru}点`;
 				}
 				if (this.batsu === 'batsu') {
-					str += `、N回目の誤答で-N点`;
+					str += '、N回目の誤答で-N点';
 				} else if (this.batsu === 'updown') {
 					// dummy
-					str += `、誤答でゼロ〇に`;
+					str += '、誤答でゼロ〇に';
 				} else {
 					str += `、誤答${this.batsu}点`;
 				}
@@ -133,10 +133,10 @@ export class Rule {
 				}
 
 				if (this.batsu === 'batsu') {
-					str += `、N回目の誤答で-N点`;
+					str += '、N回目の誤答で-N点';
 				} else if (this.batsu === 'updown') {
 					// dummy
-					str += `、誤答でゼロ〇に`;
+					str += '、誤答でゼロ〇に';
 				} else if (this.batsu < 0 && this.batsu !== -1) {
 					str += `、誤答${this.batsu}点`;
 				}
@@ -155,10 +155,10 @@ export class Rule {
 				}
 
 				if (this.batsu === 'batsu') {
-					str += `、N回目の誤答で-N点`;
+					str += '、N回目の誤答で-N点';
 				} else if (this.batsu === 'updown') {
 					// dummy
-					str += `、誤答でゼロ〇に`;
+					str += '、誤答でゼロ〇に';
 				} else if (this.batsu < 0 && this.batsu !== -1) {
 					str += `、誤答${this.batsu}点`;
 				}
@@ -178,7 +178,7 @@ export class Rule {
 		} else if (this.yasuMode === 'batsu') {
 			str += `、N回目の誤答で${this.yasuPerBatsu !== 1 ? this.yasuPerBatsu : ''}N休`;
 		} else if (this.yasuMode === 'roulette') {
-			str += `、誤答で？？？`;
+			str += '、誤答で？？？';
 		} else if (this.yasuPerBatsu > 0) {
 			str += `、誤答${this.yasuPerBatsu}休`;
 		}
