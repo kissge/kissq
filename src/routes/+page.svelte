@@ -127,7 +127,7 @@
 	let unlockDialog: { open: () => Promise<void> };
 
 	$effect(() => {
-		if (history.length === 0) {
+		if (Game.history.length === 0) {
 			return;
 		}
 
