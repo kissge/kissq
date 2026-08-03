@@ -458,7 +458,7 @@
 		</button>
 		<button
 			onclick={() => (showTotalOverride = !showTotalOverride)}
-			{@attach tooltip('今日の通算成績表示に切り替えます')}
+			{@attach tooltip('今日の通算成績表示に切り替えます（団体戦の内容も合算されています）')}
 		>
 			通算表示{#if showTotalOverride}をOFFに{/if}
 		</button>
