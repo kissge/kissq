@@ -43,12 +43,43 @@
 			: ''
 	);
 
+	function calcSize() {
+		const header = document.getElementById('global-header')!;
+		header.classList.add('calculating');
+
+		const space = [...document.querySelectorAll('#global-header .spacer')].reduce(
+			(sum, el) => sum + el.clientWidth,
+			0
+		);
+
+		const ruleSpan = document.getElementById('rule')!;
+		ruleSpan.style.maxWidth = `${space}px`;
+		header.classList.remove('calculating');
+
+		const ruleInnerSpan = document.getElementById('rule-inner')!;
+		if (ruleSpan.clientWidth < ruleInnerSpan.clientWidth) {
+			ruleInnerSpan.classList.add('truncated');
+		} else {
+			ruleInnerSpan.classList.remove('truncated');
+		}
+
+		ruleInnerSpan.style.animationDuration = `${Math.max(7, (ruleInnerSpan.clientWidth / ruleSpan.clientWidth) ** 0.6 * 7)}s`;
+	}
+
 	onMount(async () => {
 		unlocked = await isUnlocked();
+		calcSize();
+	});
+
+	$effect(() => {
+		void Game.activeRulesText;
+		calcSize();
 	});
 </script>
 
-<header bind:clientHeight={Layout.headerClientHeight}>
+<svelte:window onresize={calcSize} />
+
+<header id="global-header" bind:clientHeight={Layout.headerClientHeight}>
 	{#if showTotalOverride}
 		<div>
 			Total: {Game.totalQuestionCount + Game.currentState.questionCount - 1} Q's
@@ -62,6 +93,7 @@
 			{/key}
 		</div>
 	{/if}
+	<div class="spacer"></div>
 	<h1>
 		<span
 			contenteditable
@@ -89,6 +121,7 @@
 			</a>
 		{/if}
 		<button
+			id="help-btn"
 			onclick={() => helpDialog.open()}
 			{@attach tooltip(
 				`はじめにお読みください！！！！！！！！！！！！
@@ -101,11 +134,20 @@
 			？
 		</button>
 	</h1>
-	<div>
-		Rule:
-		{Game.activeRulesText}
+	<div class="spacer"></div>
+	<div class="rule-wrapper">
+		<span id="rule">
+			<span id="rule-inner">
+				Rule:
+				{Game.activeRulesText}
+			</span>
+		</span>
 		<ChanceIndicator {chance} />
-		<button onclick={editRule} {@attach tooltip('ルールとルールグループを編集します。')}>
+		<button
+			id="edit-rule-btn"
+			onclick={editRule}
+			{@attach tooltip('ルールとルールグループを編集します。')}
+		>
 			編集
 		</button>
 	</div>
@@ -165,9 +207,59 @@
 		text-decoration: none;
 	}
 
+	.spacer {
+		display: none;
+		flex: 1 1 0;
+	}
+
+	.rule-wrapper {
+		display: flex;
+		align-items: flex-end;
+		gap: 0.25em;
+	}
+
+	#rule {
+		display: inline-block;
+		translate: 0 -0.15em;
+		overflow: hidden;
+		text-align: right;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	#rule-inner {
+		display: inline-block;
+
+		:global(&.truncated) {
+			animation: scroll 7s linear infinite;
+		}
+	}
+
+	:global(.calculating) {
+		#rule {
+			display: none;
+		}
+
+		.spacer {
+			display: block;
+		}
+	}
+
 	@keyframes blink {
 		to {
 			opacity: 0;
+		}
+	}
+
+	@keyframes scroll {
+		0% {
+			transform: translateX(0%);
+		}
+		20% {
+			transform: translateX(0%);
+		}
+		100% {
+			transform: translateX(-100%);
 		}
 	}
 </style>
