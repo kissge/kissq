@@ -143,7 +143,8 @@ export function saveToHash(
 	const data = {
 		attendants: attendants.map((att) => ({
 			...att,
-			totalScore: { num: 0, den: 0, maru: 0, batsu: 0 }
+			totalScore: { num: 0, den: 0, maru: 0, batsu: 0 },
+			trophyCount: 0
 		})),
 		buttonMapping
 	};
