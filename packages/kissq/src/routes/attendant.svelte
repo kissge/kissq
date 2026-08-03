@@ -118,6 +118,17 @@
 {/if}
 <div
 	bind:textContent={Game.attendants[ai].name}
+	onfocus={(event) => {
+		if (!Game.attendants[ai].name) {
+			const selection = window.getSelection();
+			const range = document.createRange();
+			selection?.removeAllRanges();
+			range.selectNodeContents(event.target as HTMLElement);
+			range.collapse(false);
+			selection?.addRange(range);
+			(event.target as HTMLElement).focus();
+		}
+	}}
 	onblur={() => {
 		const tmp = han2zen(Game.attendants[ai].name.replace(/[\r\n]/g, ''));
 		if (tmp !== Game.attendants[ai].name) {
@@ -147,7 +158,7 @@
 	style:justify-content={Layout.nameDirection ? '' : 'center'}
 	style:text-align={Layout.nameDirection ? '' : 'center'}
 	style:--bar-height-ratio={Layout.barMax !== null ? Math.min(barHeight / Layout.barMax, 1) : -999}
-	{@attach tooltip('ダブルクリックして名前を編集', { placement: 'bottom' })}
+	{@attach tooltip('クリックして名前を編集', { placement: 'bottom' })}
 	bind:clientWidth={Layout.nameWidth[ai]}
 	bind:clientHeight={Layout.nameHeight[ai]}
 ></div>
