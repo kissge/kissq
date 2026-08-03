@@ -49,7 +49,7 @@ export class Rule {
 					str += `、N回目の誤答で-N点`;
 				} else if (this.batsu === 'updown') {
 					// dummy
-					str += `、誤答でゼロ○に`;
+					str += `、誤答でゼロ〇に`;
 				} else if (this.batsu < 0 && this.batsu !== -1) {
 					str += `、誤答${this.batsu}点`;
 				}
@@ -60,22 +60,22 @@ export class Rule {
 				break;
 
 			case 'marubatsu':
-				str = `${this.win}○`;
+				str = `${this.win}〇`;
 
 				if (this.lose !== null) {
-					str += `${this.lose}×`;
+					str += `${this.lose}✕`;
 				}
 
 				if (this.maru !== 1) {
-					str += `、正解+${this.maru}○`;
+					str += `、正解+${this.maru}〇`;
 				}
 
 				if (this.batsu === 'batsu') {
-					str += `、N回目の誤答でN×`;
+					str += '、N回目の誤答でN✕';
 				} else if (this.batsu === 'updown') {
-					str += `、誤答でゼロ○に`;
+					str += '、誤答でゼロ〇に';
 				} else if (this.batsu !== 1 && this.batsu !== 0) {
-					str += `、誤答+${this.batsu}×`;
+					str += `、誤答+${this.batsu}✕`;
 				}
 				break;
 
@@ -92,7 +92,7 @@ export class Rule {
 					str += `、N回目の誤答で-N点`;
 				} else if (this.batsu === 'updown') {
 					// dummy
-					str += `、誤答でゼロ○に`;
+					str += `、誤答でゼロ〇に`;
 				} else if (this.batsu < 0 && this.batsu !== -1) {
 					str += `、誤答${this.batsu}点`;
 				}
@@ -107,7 +107,7 @@ export class Rule {
 					str += `、N回目の誤答で-N点`;
 				} else if (this.batsu === 'updown') {
 					// dummy
-					str += `、誤答でゼロ○に`;
+					str += `、誤答でゼロ〇に`;
 				} else {
 					str += `、誤答${this.batsu}点`;
 				}
@@ -136,7 +136,7 @@ export class Rule {
 					str += `、N回目の誤答で-N点`;
 				} else if (this.batsu === 'updown') {
 					// dummy
-					str += `、誤答でゼロ○に`;
+					str += `、誤答でゼロ〇に`;
 				} else if (this.batsu < 0 && this.batsu !== -1) {
 					str += `、誤答${this.batsu}点`;
 				}
@@ -158,7 +158,7 @@ export class Rule {
 					str += `、N回目の誤答で-N点`;
 				} else if (this.batsu === 'updown') {
 					// dummy
-					str += `、誤答でゼロ○に`;
+					str += `、誤答でゼロ〇に`;
 				} else if (this.batsu < 0 && this.batsu !== -1) {
 					str += `、誤答${this.batsu}点`;
 				}
@@ -170,11 +170,11 @@ export class Rule {
 		}
 
 		if (this.yasuPerMaru) {
-			str += `、${this.yasuPerMaru.maru}○ごとに${this.yasuPerMaru.yasu}休`;
+			str += `、${this.yasuPerMaru.maru}〇ごとに${this.yasuPerMaru.yasu}休`;
 		}
 
 		if (this.yasuMode === 'maru') {
-			str += `、誤答（現在のマル数）${this.yasuPerBatsu !== 1 ? '×' + this.yasuPerBatsu : ''}休`;
+			str += `、誤答（現在のマル数）${this.yasuPerBatsu !== 1 ? '✕' + this.yasuPerBatsu : ''}休`;
 		} else if (this.yasuMode === 'batsu') {
 			str += `、N回目の誤答で${this.yasuPerBatsu !== 1 ? this.yasuPerBatsu : ''}N休`;
 		} else if (this.yasuMode === 'roulette') {
