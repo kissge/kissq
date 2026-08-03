@@ -1,9 +1,11 @@
 export type Penalty = { type: 'yasu'; count: number } | { type: 'zero' };
 
+export type RuleType = 'score' | 'marubatsu' | 'MbyN' | 'survival' | 'aql' | 'product' | 'sum';
+
 export class Rule {
 	constructor(
 		/** ゲームモード */
-		public mode: 'score' | 'marubatsu' | 'MbyN' | 'survival' | 'aql' | 'product' | 'sum',
+		public mode: RuleType,
 		/** シングルチャンス／エンドレスチャンス */
 		public chance: 'single' | 'endless',
 		/** 勝利に必要なスコアまたはマル数またはスコアの平方根 */

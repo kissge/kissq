@@ -284,10 +284,12 @@
 
 {#if att.life === 'won'}
 	<div class="won" in:fade>
-		{Game.currentState.ranking.indexOf(ai) + 1}位
+		{Game.currentState.ranks[ai]} 位
 	</div>
 {:else if att.life === 'lost'}
-	<div class="lost" in:fade>失格</div>
+	<div class="lost" in:fade>
+		{Game.currentState.ranks[ai]} 位
+	</div>
 {:else if att.yasuDisplay > 0}
 	<div class="yasu" in:fade>
 		{#key att.yasuDisplay}
