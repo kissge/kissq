@@ -56,14 +56,16 @@
 		ruleSpan.style.maxWidth = `${space}px`;
 		header.classList.remove('calculating');
 
-		const ruleInnerSpan = document.getElementById('rule-inner')!;
+		const ruleInnerSpan = document.querySelector<HTMLDivElement>('.rule-inner')!;
+		const scroller = document.querySelector<HTMLDivElement>('.scroller')!;
 		if (ruleSpan.clientWidth < ruleInnerSpan.clientWidth) {
-			ruleInnerSpan.classList.add('truncated');
+			scroller.classList.add('truncated');
 		} else {
-			ruleInnerSpan.classList.remove('truncated');
+			scroller.classList.remove('truncated');
 		}
 
-		ruleInnerSpan.style.animationDuration = `${Math.max(7, (ruleInnerSpan.clientWidth / ruleSpan.clientWidth) ** 0.6 * 7)}s`;
+		scroller.style.animationDuration = `${Math.max(7, (ruleInnerSpan.clientWidth / ruleSpan.clientWidth) * 5)}s`;
+		console.log(Math.max(7, (ruleInnerSpan.clientWidth / ruleSpan.clientWidth) * 5));
 	}
 
 	onMount(async () => {
@@ -137,9 +139,15 @@
 	<div class="spacer"></div>
 	<div class="rule-wrapper">
 		<span id="rule">
-			<span id="rule-inner">
-				Rule:
-				{Game.activeRulesText}
+			<span class="scroller">
+				<span class="rule-inner">
+					Rule:
+					{Game.activeRulesText}
+				</span>
+				<span class="rule-inner">
+					Rule:
+					{Game.activeRulesText}
+				</span>
 			</span>
 		</span>
 		<ChanceIndicator {chance} />
@@ -227,16 +235,28 @@
 		white-space: nowrap;
 	}
 
-	#rule-inner {
+	.scroller {
 		display: inline-block;
 
-		:global(&.truncated) {
-			animation: scroll 7s linear infinite;
+		:global(&:not(.truncated) .rule-inner:last-child) {
+			display: none;
 		}
+	}
+
+	.rule-inner {
+		display: inline-block;
+	}
+
+	:global(.scroller.truncated) {
+		animation: scroll 7s linear infinite;
 	}
 
 	:global(.calculating) {
 		#rule {
+			display: none;
+		}
+
+		.rule-inner + .rule-inner {
 			display: none;
 		}
 
@@ -255,11 +275,8 @@
 		0% {
 			transform: translateX(0%);
 		}
-		20% {
-			transform: translateX(0%);
-		}
 		100% {
-			transform: translateX(-100%);
+			transform: translateX(-50%);
 		}
 	}
 </style>
