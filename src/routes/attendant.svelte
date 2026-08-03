@@ -131,7 +131,7 @@
 	}}
 	onblur={() => {
 		const tmp = han2zen(Game.attendants[ai].name.replace(/[\r\n]/g, ''));
-		if (tmp !== Game.attendants[ai].name) {
+		if (tmp !== Game.attendants[ai].name || !tmp) {
 			Game.attendants[ai].name = ' ';
 			setTimeout(() => (Game.attendants[ai].name = tmp), 1);
 		}
