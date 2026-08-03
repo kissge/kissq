@@ -209,7 +209,7 @@
 					<Team {seats} {ti} />
 				</div>
 			{:else}
-				<div class="no-team">チームがありません🍔</div>
+				<div class="no-team">🍔チームがありません🍔</div>
 			{/each}
 		</div>
 	</div>
@@ -450,8 +450,10 @@
 	}
 
 	.no-team {
-		flex: 1 1 100%;
-		margin-top: calc(40dvh - 1em);
+		position: fixed;
+		top: 50%;
+		left: 50%;
+		transform: translate(-50%, -50%);
 		color: #fff;
 		text-align: center;
 		text-shadow:

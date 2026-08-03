@@ -354,6 +354,8 @@
 					{showBanner}
 				/>
 			</div>
+		{:else}
+			<div class="no-team">🍔プレイヤーを追加してください🍔</div>
 		{/each}
 		{#if Game.orderingMode === 'manual'}
 			<div
@@ -647,14 +649,13 @@
 				content: '';
 			}
 
-			&:empty::before {
-				display: flex;
-				grid-column: 1 / -1;
-				justify-content: center;
-				align-items: center;
-				content: '🍔プレイヤーを追加してください🍔';
-				color: #aaa;
-				font-size: 3rem;
+			.no-team {
+				position: fixed;
+				top: 50%;
+				left: 50%;
+				transform: translate(-50%, -50%);
+				color: #fff;
+				text-align: center;
 			}
 		}
 	}
