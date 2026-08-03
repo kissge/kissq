@@ -43,6 +43,10 @@ export class MaruHistoryEntry implements HistoryEntry {
 			state.latestEvent = { type: 'won', attendantID: this.attendantID };
 		}
 
+		if (att.life !== 'won' && life === 'won') {
+			att.lifeChangedAt = state.questionCount;
+		}
+
 		att.maruCount = maruCount;
 		att.score = score;
 		att.life = life;
@@ -138,6 +142,11 @@ export class BatsuHistoryEntry implements HistoryEntry {
 		}
 
 		const { maruCount, batsuCount, score, life, yasuCount } = att.processBatsu(this.penalty);
+
+		if (att.life !== 'lost' && life === 'lost') {
+			att.lifeChangedAt = -state.questionCount;
+		}
+
 		att.maruCount = maruCount;
 		att.batsuCount = batsuCount;
 		att.score = score;

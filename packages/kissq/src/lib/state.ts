@@ -1,5 +1,6 @@
 import type { Attendant } from './attendant';
-import { Rule, type Penalty } from './rule';
+import { Rule, type Penalty, type RuleType } from './rule';
+import { arrayCompare } from './utils';
 
 export type Life = 'alive' | 'won' | 'lost' | 'removed';
 export class AttendantState {
@@ -19,6 +20,7 @@ export class AttendantState {
 			batsu: 0
 		},
 		public life: Life = 'alive',
+		public lifeChangedAt: number | null = null,
 		public score: number = 0,
 		public maruCount: number = 0,
 		public batsuCount: number = 0,
@@ -273,6 +275,51 @@ export class AttendantState {
 		}
 	}
 
+	sortScore(enableRating: boolean, mode: RuleType | 'mixed'): number[] {
+		switch (mode) {
+			case 'score':
+			case 'MbyN':
+			case 'survival':
+			case 'aql':
+			case 'product':
+			case 'sum':
+				return [
+					// Life
+					this.life === 'won' ? 1 : this.life === 'lost' ? -1 : 0,
+					// When did life change (inverse)
+					-(this.lifeChangedAt ?? 0),
+					// Score
+					this.score,
+					// Rate
+					enableRating ? this.totalScore.num / this.totalScore.den : 0
+				];
+
+			case 'marubatsu':
+				return [
+					// Life
+					this.life === 'won' ? 1 : this.life === 'lost' ? -1 : 0,
+					// When did life change (inverse)
+					-(this.lifeChangedAt ?? 0),
+					// Maru
+					this.maruCount,
+					// Batsu (inverse)
+					-this.batsuCount,
+					// Rate
+					enableRating ? this.totalScore.num / this.totalScore.den : 0
+				];
+
+			case 'mixed':
+				return [
+					// Life
+					this.life === 'won' ? 1 : this.life === 'lost' ? -1 : 0,
+					// When did life change (inverse)
+					-(this.lifeChangedAt ?? 0),
+					// Rate
+					enableRating ? this.totalScore.num / this.totalScore.den : 0
+				];
+		}
+	}
+
 	get yasuDisplay(): number {
 		if (this.yasuCount === 'next') {
 			if (this.rule.yasuMode === 'maru') {
@@ -521,8 +568,10 @@ export class GameState {
 	teams: TeamState[];
 	questionCount: number = 1;
 	defaultRule: Rule;
-	/** 個人ランキング (single) */
+	/** attendant IDの配列（個人ランキング） */
 	ranking: number[] = [];
+	/** 順位 (1-indexed) の配列（個人ランキング） */
+	ranks: number[] = [];
 	latestEvent: GameEvent | null = null;
 
 	constructor(attendants: Attendant[], rules: Rule[], teams: string[] = []) {
@@ -577,63 +626,33 @@ export class GameState {
 	updateRanking(enableRating: boolean = false): GameState {
 		// sortが安定ソートであることに依存している
 
-		switch (this.defaultRule.mode) {
-			case 'score':
-			case 'MbyN':
-			case 'survival':
-			case 'aql':
-			case 'product':
-			case 'sum':
-				this.ranking.sort((ai, bi) => {
-					const a = this.attendants[ai];
-					const b = this.attendants[bi];
+		const mixed = this.attendants.some((a, _, all) => a.rule.mode !== all[0].rule.mode);
 
-					const bothAlive = a.life === 'alive' && b.life === 'alive';
+		this.ranking.sort((a, b) =>
+			arrayCompare(
+				this.attendants[b].sortScore(enableRating, mixed ? 'mixed' : this.attendants[b].rule.mode),
+				this.attendants[a].sortScore(enableRating, mixed ? 'mixed' : this.attendants[a].rule.mode)
+			)
+		);
 
-					if (bothAlive) {
-						// 両方生存している場合はスコア順
-						return (
-							b.score - a.score ||
-							(enableRating
-								? b.totalScore.num * a.totalScore.den - a.totalScore.num * b.totalScore.den
-								: 0)
-						);
-					} else {
-						const aWon = a.life === 'won' ? 1 : 0;
-						const bWon = b.life === 'won' ? 1 : 0;
-						const aLost = a.life === 'lost' ? 1 : 0;
-						const bLost = b.life === 'lost' ? 1 : 0;
-						return bWon - aWon || aLost - bLost;
-					}
-				});
-				return this;
+		this.ranks = [];
+		this.ranking.forEach((ai, rank) => {
+			const me = this.attendants[ai];
+			const previous = this.attendants[this.ranking[rank - 1]];
+			if (
+				rank === 0 ||
+				arrayCompare(
+					me.sortScore(enableRating, mixed ? 'mixed' : me.rule.mode),
+					previous.sortScore(enableRating, mixed ? 'mixed' : previous.rule.mode)
+				) !== 0
+			) {
+				this.ranks[ai] = rank + 1;
+			} else {
+				this.ranks[ai] = this.ranks[this.ranking[rank - 1]];
+			}
+		});
 
-			case 'marubatsu':
-				this.ranking.sort((ai, bi) => {
-					const a = this.attendants[ai];
-					const b = this.attendants[bi];
-
-					const bothAlive = a.life === 'alive' && b.life === 'alive';
-
-					if (bothAlive) {
-						// 両方生存している場合はマル数順、バツ数逆順
-						return (
-							b.maruCount - a.maruCount ||
-							a.batsuCount - b.batsuCount ||
-							(enableRating
-								? b.totalScore.num * a.totalScore.den - a.totalScore.num * b.totalScore.den
-								: 0)
-						);
-					} else {
-						const aWon = a.life === 'won' ? 1 : 0;
-						const bWon = b.life === 'won' ? 1 : 0;
-						const aLost = a.life === 'lost' ? 1 : 0;
-						const bLost = b.life === 'lost' ? 1 : 0;
-						return bWon - aWon || aLost - bLost;
-					}
-				});
-				return this;
-		}
+		return this;
 	}
 
 	checkIfLastSurvivor(): GameState {
