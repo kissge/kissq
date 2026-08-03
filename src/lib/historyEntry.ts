@@ -152,6 +152,10 @@ export class BatsuHistoryEntry implements HistoryEntry {
 		const { ti, team } = state.getTeamByAttendantID(this.attendantID);
 		const att = state.attendants[this.attendantID];
 
+		if (this.increaseQuestionCount) {
+			state.increaseQuestionCount();
+		}
+
 		const { maruCount, batsuCount, score, life, yasuCount, teamScore, teamLife } =
 			team.processBatsu(this.attendantID, this.penalty);
 		att.maruCount = maruCount;
