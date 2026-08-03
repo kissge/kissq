@@ -163,9 +163,8 @@
 	bind:clientHeight={Layout.nameHeight[ai]}
 ></div>
 
-<div class="score" style:opacity={showScore ? 1 : 0}>
+<div class="score" class:showTotalOverride style:opacity={showScore ? 1 : 0}>
 	{#if showTotalOverride}
-		<small style="display: inline-block">通<br />算</small>
 		<span class="maru-count">
 			{#key att.totalScore.maru + att.maruCount}
 				<span in:fade>
@@ -550,6 +549,21 @@
 		line-height: 0.9;
 		text-align: center;
 		text-shadow: 0 0 5px #000e;
+
+		&.showTotalOverride {
+			padding-left: 0.4em;
+			&::after {
+				display: block;
+				position: absolute;
+				top: 50%;
+				left: 0.4em;
+				translate: 0% -50%;
+				content: '通\A算';
+				font-size: 0.4em;
+				line-height: 1.2;
+				white-space: pre;
+			}
+		}
 
 		> * {
 			display: inline-block;
