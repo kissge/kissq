@@ -23,6 +23,7 @@
 	import type { GameEvent } from '$lib/state';
 	import { tooltip } from '$lib/tooltip.svelte';
 	import { setWasedashikiContext, WasedashikiClass } from '$lib/wasedashiki.svelte';
+	import { wave } from '$lib/waveEffect';
 	import CombinationDialog from './combinationDialog.svelte';
 	import { DnDClass, setDnDContext } from './dnd.svelte';
 	import { GameClass, setGameContext } from './game.svelte';
@@ -209,7 +210,7 @@
 					<Team {seats} {ti} />
 				</div>
 			{:else}
-				<div class="no-team">🍔チームがありません🍔</div>
+				<div class="no-team" {@attach wave()}>🍔チームがありません🍔</div>
 			{/each}
 		</div>
 	</div>
