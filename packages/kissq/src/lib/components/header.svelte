@@ -1,9 +1,11 @@
 <script lang="ts">
-	import { fade } from 'svelte/transition';
+	import { onMount } from 'svelte';
+	import { fly } from 'svelte/transition';
 	import HelpDialog from '$lib/components/helpDialog.svelte';
 	import type { GameClassBaseType } from '$lib/game';
 	import { getLayoutContext } from '$lib/layout.svelte';
 	import { tooltip } from '$lib/tooltip.svelte';
+	import { isUnlocked } from '$lib/unlock';
 	import { getWasedashikiContext } from '$lib/wasedashiki.svelte';
 
 	let {
@@ -21,6 +23,8 @@
 	let Layout = getLayoutContext();
 	let Wasedashiki = getWasedashikiContext();
 
+	let unlocked = $state(false);
+
 	let helpDialog: { open: () => void };
 
 	let hideQuestionCount = $derived(Game.currentState.defaultRule.mode === 'aql');
@@ -36,6 +40,10 @@
 				)
 			: ''
 	);
+
+	onMount(async () => {
+		unlocked = await isUnlocked();
+	});
 </script>
 
 <header bind:clientHeight={Layout.headerClientHeight}>
@@ -45,11 +53,10 @@
 		</div>
 	{:else}
 		<div>
-			Next:
 			{#key Game.currentState.questionCount}
-				<span class="crossfade" in:fade={{ delay: 500 }} out:fade>
-					Q{hideQuestionCount ? '???' : Game.currentState.questionCount}
-				</span>
+				<div in:fly={unlocked ? { x: -100 } : { x: 100 }}>
+					Next: Q{hideQuestionCount ? '???' : Game.currentState.questionCount}
+				</div>
 			{/key}
 		</div>
 	{/if}
