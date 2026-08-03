@@ -133,10 +133,14 @@
 				</div>
 			</div>
 		{:else}
-			<div class="slide" style="flex: 0 0 62.5%"></div>
+			<div class="slide" style="flex: 0 0 70%">
+				<div class="spinner"></div>
+			</div>
 		{/each}
 		{#if (questions?.length ?? 0) > 0}
-			<div class="slide" style:opacity={showSpinner ? 1 : 0}></div>
+			<div class="slide" style:opacity={showSpinner ? 1 : 0}>
+				<div class="spinner"></div>
+			</div>
 		{/if}
 	</div>
 </main>
@@ -164,14 +168,22 @@
 			height: 100svh;
 			overflow-y: hidden;
 		}
+
+		body {
+			background-image: url('$lib/assets/wallpaper.jpg');
+			background-position: center center;
+			background-size: cover;
+			background-color: rgb(15 18 33);
+		}
 	}
 
 	.carousel {
 		display: flex;
 		justify-self: center;
 		gap: 10px;
-		margin-top: 2em;
+		padding-top: 2em;
 		width: 100%;
+		height: 100%;
 		overflow-x: auto;
 		scroll-snap-type: x mandatory;
 		scroll-marker-group: after;
@@ -227,7 +239,7 @@
 		left: 50%;
 		gap: 10px;
 		transform: translateX(-50%);
-		margin-top: 15px;
+		margin-top: -15px;
 	}
 
 	.slide {
@@ -236,25 +248,46 @@
 		flex-direction: column;
 		justify-content: space-between;
 		gap: 1.2rem;
+		backdrop-filter: blur(5px);
+		box-sizing: border-box;
+		box-shadow: 0 0 7px #fff;
 		border-radius: 10px;
-		background-color: #333;
-		padding: 1.2rem;
-		height: calc(100svh - 110px);
+		padding: 1em;
+		height: calc(100svh - 75px);
 		scroll-snap-align: center;
 		color: #fff;
-		font-size: 5.5svw;
+		font-size: min(5.5svw, 4.5svh);
 
 		&:first-child {
 			margin-left: 15%;
 		}
 		&:last-child {
 			flex: 0 0 30%;
-			background: url('https://cdnjs.cloudflare.com/ajax/libs/galleriffic/2.0.1/css/loader.gif')
-				no-repeat center;
+			backdrop-filter: none;
+			box-shadow: none;
+
+			.spinner {
+				animation: spin 1s linear infinite;
+				margin: auto;
+				border: 5px solid #f3f3f3;
+				border-top: 5px solid #555;
+				border-radius: 50%;
+				width: 50px;
+				height: 50px;
+			}
 		}
 
 		p {
 			margin: 0;
+		}
+	}
+
+	@keyframes spin {
+		0% {
+			transform: rotate(0deg);
+		}
+		100% {
+			transform: rotate(360deg);
 		}
 	}
 
@@ -302,7 +335,7 @@
 
 	.slide::scroll-marker {
 		transition: 0.1s all ease-in-out;
-		border: 1px solid #424242;
+		border: 1px solid #ddd;
 		border-radius: 50%;
 		width: 5px;
 		height: 5px;
@@ -318,7 +351,7 @@
 	}
 
 	.slide::scroll-marker:target-current {
-		background-color: #424242;
+		background-color: #ddd;
 	}
 
 	input {
