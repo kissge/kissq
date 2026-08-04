@@ -65,7 +65,6 @@
 		}
 
 		scroller.style.animationDuration = `${Math.max(7, (ruleInnerSpan.clientWidth / ruleSpan.clientWidth) * 5)}s`;
-		console.log(Math.max(7, (ruleInnerSpan.clientWidth / ruleSpan.clientWidth) * 5));
 	}
 
 	onMount(async () => {
