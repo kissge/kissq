@@ -178,6 +178,12 @@
 		}
 	}
 
+	async function toggleTotalOverride() {
+		if (await isUnlocked()) {
+			showTotalOverride = !showTotalOverride;
+		}
+	}
+
 	async function editState(attendantID: number, att: AttendantState) {
 		const result = await stateEditDialog.open(att);
 		if (result) {
@@ -460,10 +466,12 @@
 			マルバツ表示{#if showMarubatsuOverride}をOFFに{/if}
 		</button>
 		<button
-			onclick={() => (showTotalOverride = !showTotalOverride)}
-			{@attach tooltip('今日の通算成績表示に切り替えます（団体戦の内容も合算されています）')}
+			onclick={toggleTotalOverride}
+			{@attach tooltip(
+				'今日の通算成績表示に切り替えます（団体戦の内容も合算されています）（※この機能はアンロックが必要です）'
+			)}
 		>
-			通算表示{#if showTotalOverride}をOFFに{/if}
+			通算表示{#if showTotalOverride}をOFFに{/if}🔒
 		</button>
 		<button
 			onclick={() => (showScore = !showScore)}
