@@ -53,6 +53,8 @@ export interface LogFilters {
 }
 
 export class LoggerClass<T extends 'single' | 'team' = 'single' | 'team'> {
+	startAt: string | null = null;
+
 	constructor(
 		public battleMode: T,
 		public Game: GameClassBase<T>
@@ -61,12 +63,14 @@ export class LoggerClass<T extends 'single' | 'team' = 'single' | 'team'> {
 	push(): void {
 		const logs = this.load();
 
+		this.startAt = new Date().toLocaleString('ja', {
+			timeZone: 'Asia/Tokyo',
+			dateStyle: 'short',
+			timeStyle: 'long'
+		});
+
 		logs.push({
-			startAt: new Date().toLocaleString('ja', {
-				timeZone: 'Asia/Tokyo',
-				dateStyle: 'short',
-				timeStyle: 'long'
-			}),
+			startAt: this.startAt,
 			mode: this.battleMode,
 			chance: this.Game.rules[0].chance,
 			gameTitle: this.Game.gameTitle,
@@ -148,8 +152,14 @@ export class LoggerClass<T extends 'single' | 'team' = 'single' | 'team'> {
 			return;
 		}
 
-		logs[logs.length - 1] = {
-			...logs[logs.length - 1],
+		const index = logs.findIndex((log) => log.startAt === this.startAt);
+
+		if (index === -1) {
+			throw new Error('LoggerClass.update: log entry not found');
+		}
+
+		logs[index] = {
+			...logs[index],
 			chance: this.Game.rules[0].chance,
 			gameTitle: this.Game.gameTitle,
 			questionCount: this.Game.currentState.questionCount - 1,
