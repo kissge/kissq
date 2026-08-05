@@ -224,6 +224,12 @@ export class Rule {
 		activeRules: { rule: Rule | RulePOJO; i: number }[],
 		battleMode: 'single' | 'team'
 	): string {
+		for (let i = 0; i < activeRules.length; i++) {
+			if (!(activeRules[i].rule instanceof Rule)) {
+				activeRules[i].rule = Rule.from(activeRules[i].rule);
+			}
+		}
+
 		if (activeRules.length === 1) {
 			return String(activeRules[0].rule);
 		}
