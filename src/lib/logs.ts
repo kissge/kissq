@@ -47,6 +47,11 @@ export interface LogEntry {
 	state: LogStateEntry[];
 }
 
+export interface LogFilters {
+	row: 'all' | 'won';
+	column: ('team' | 'seat' | 'name' | 'score' | 'seatScore' | 'status')[];
+}
+
 export class LoggerClass<T extends 'single' | 'team' = 'single' | 'team'> {
 	constructor(
 		public battleMode: T,
@@ -128,8 +133,8 @@ export class LoggerClass<T extends 'single' | 'team' = 'single' | 'team'> {
 		} else {
 			return (entries as LogStateTeamEntry[]).toSorted(
 				(a, b) =>
-					this.Game.currentState.ranking.indexOf(a.team) -
-						this.Game.currentState.ranking.indexOf(b.team) ||
+					this.Game.currentState.teams[b.team].teamScore -
+						this.Game.currentState.teams[a.team].teamScore ||
 					(a.seat ?? Infinity) - (b.seat ?? Infinity) ||
 					b.score - a.score
 			);

@@ -94,6 +94,7 @@
 				display: flex;
 				justify-content: end;
 				gap: 0.5em;
+				margin-top: 0.5em;
 
 				.spacer {
 					flex: 1 0 0;
