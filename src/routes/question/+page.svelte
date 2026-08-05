@@ -9,9 +9,10 @@
 	import type { HistoryEntry } from '$lib/historyEntry';
 	import { parseCSV, qZero } from '$lib/question';
 	import type { IncomingMessage, OutgoingMessage } from '$lib/questionConsole.svelte';
-	import type { Rule } from '$lib/rule';
+	import { Rule } from '$lib/rule';
 	import type { WasedashikiMode } from '$lib/serial';
 	import type { GameState } from '$lib/state';
+	import { tooltip } from '$lib/tooltip.svelte';
 
 	const opener = (typeof window !== 'undefined' ? window.opener : {}) as Window;
 
@@ -88,6 +89,20 @@
 	);
 
 	let activeRules = $derived(rules.flatMap((rule, i) => (rule.isRemoved ? [] : { rule, i })));
+
+	let chance = $derived.by(() => {
+		switch (wasedashikiMode || rules[0]?.chance) {
+			case 'single':
+			case 'handicap':
+				return '(1C)';
+			case 'double':
+				return '(2C)';
+			case 'endless':
+				return '(∞C)';
+			default:
+				return '';
+		}
+	});
 
 	let inputDialog: HTMLDialogElement;
 	let ruleEditDialog: { open: (rules: Rule[]) => Promise<Rule[] | null> };
@@ -349,6 +364,14 @@
 						}
 					});
 			}}
+			{@attach tooltip(
+				rules.length > 0
+					? Rule.getActiveRulesText(
+							rules.map((rule, i) => ({ rule, i })),
+							battleMode
+						) + chance
+					: 'Loading...'
+			)}
 		>
 			ルール編集
 		</button>
