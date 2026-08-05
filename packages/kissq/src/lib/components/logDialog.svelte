@@ -1,6 +1,13 @@
 <script lang="ts">
-	import { getLoggerContext, type LogEntry, type LogStateTeamEntry } from '$lib/logs';
+	import { onMount } from 'svelte';
+	import {
+		getLoggerContext,
+		type LogEntry,
+		type LogFilters,
+		type LogStateTeamEntry
+	} from '$lib/logs';
 	import ChanceIndicator from './chanceIndicator.svelte';
+	import LogFilterDialog from './logFilterDialog.svelte';
 
 	let Logger = getLoggerContext();
 
@@ -11,6 +18,21 @@
 	}
 
 	let logs = $state<LogEntry[]>([]);
+	let filters = $state<LogFilters>({
+		row: 'all',
+		column: ['team', 'seat', 'name', 'score', 'seatScore', 'status']
+	});
+
+	onMount(() => {
+		const savedFilters = window.localStorage.getItem('logFilters');
+		if (savedFilters) {
+			filters = JSON.parse(savedFilters);
+		}
+	});
+
+	$effect(() => {
+		window.localStorage.setItem('logFilters', JSON.stringify(filters));
+	});
 </script>
 
 <dialog bind:this={dialog} closedby="any">
@@ -51,7 +73,7 @@
 							{/if}
 						</td>
 						<td colspan="2">
-							{log.questionCount}<span>問目まで</span>
+							{log.questionCount}<span class="no-select">問目まで</span>
 						</td>
 					</tr>
 					<tr>
@@ -65,59 +87,108 @@
 							{#if 'team' in att && log.teams}
 								{#if teams?.[j] != null}
 									<td colspan={att.seat == null ? 2 : 1} rowspan={teams[j]}>
-										{log.teams[att.team] || `チーム${att.team + 1}`}
+										<span
+											class:hidden={!filters.column.includes('team') ||
+												(filters.row === 'won' && att.teamLife !== 'won')}
+										>
+											{log.teams[att.team] || `チーム${att.team + 1}`}
+										</span>
 									</td>
 								{/if}
 								{#if att.seat != null}
 									<td>
-										{att.seat + 1}<span>枠</span>
+										<span
+											class:hidden={!filters.column.includes('seat') ||
+												(filters.row === 'won' && att.teamLife !== 'won')}
+										>
+											{att.seat + 1}<span class="no-select">枠</span>
+										</span>
 									</td>
 								{/if}
 							{/if}
 							<td colspan={'team' in att ? 1 : 3}>
-								{att.name || `プレイヤー${att.i + 1}`}
-								{#if showGroup}
-									({String.fromCodePoint(65 + att.group)})
-								{/if}
+								<span
+									class:hidden={!filters.column.includes('name') ||
+										(filters.row === 'won' &&
+											(('team' in att && att.teamLife !== 'won') ||
+												(!('team' in att) && att.life !== 'won')))}
+								>
+									{att.name || `プレイヤー${att.i + 1}`}
+									{#if showGroup}
+										({String.fromCodePoint(65 + att.group)})
+									{/if}
+								</span>
 							</td>
 							{#if att.mode === 'marubatsu'}
 								<td>
-									{att.maruCount}
-									<span>〇</span>
+									<span
+										class:hidden={!filters.column.includes('score') ||
+											(filters.row === 'won' && !('team' in att) && att.life !== 'won')}
+									>
+										{att.maruCount}
+										<span class="no-select">〇</span>
+									</span>
 								</td>
 								<td>
-									{att.batsuCount}
-									<span>×</span>
+									<span
+										class:hidden={!filters.column.includes('score') ||
+											(filters.row === 'won' && !('team' in att) && att.life !== 'won')}
+									>
+										{att.batsuCount}
+										<span class="no-select">×</span>
+									</span>
 								</td>
 							{:else}
 								<td colspan="2">
-									{att.score}
-									<span>
-										pt{#if att.score !== 1}s{/if}
+									<span
+										class:hidden={!filters.column.includes('score') ||
+											(filters.row === 'won' &&
+												(('team' in att && att.teamLife !== 'won') ||
+													(!('team' in att) && att.life !== 'won')))}
+									>
+										{att.score}
+										<span class="no-select">
+											pt{#if att.score !== 1}s{/if}
+										</span>
 									</span>
 								</td>
 							{/if}
 							{#if 'team' in att}
 								{#if teams?.[j] != null}
 									<td rowspan={teams[j]}>
-										{att.teamScore}
-										<span>
-											pt{#if att.teamScore !== 1}s{/if}
+										<span
+											class:hidden={!filters.column.includes('seatScore') ||
+												(filters.row === 'won' && 'team' in att && att.teamLife !== 'won')}
+										>
+											{att.teamScore}
+											<span class="no-select">
+												pt{#if att.teamScore !== 1}s{/if}
+											</span>
 										</span>
 									</td>
 									<td rowspan={teams[j]}>
-										{#if att.teamLife === 'won'}
-											勝利
-										{/if}
+										<span
+											class:hidden={!filters.column.includes('status') ||
+												(filters.row === 'won' && 'team' in att && att.teamLife !== 'won')}
+										>
+											{#if att.teamLife === 'won'}
+												勝利
+											{/if}
+										</span>
 									</td>
 								{/if}
 							{:else}
 								<td colspan="2">
-									{#if att.life === 'won'}
-										勝利
-									{:else if att.life === 'lost'}
-										失格
-									{/if}
+									<span
+										class:hidden={!filters.column.includes('status') ||
+											(filters.row === 'won' && !('team' in att) && att.life !== 'won')}
+									>
+										{#if att.life === 'won'}
+											勝利
+										{:else if att.life === 'lost'}
+											失格
+										{/if}
+									</span>
 								</td>
 							{/if}
 						</tr>
@@ -131,6 +202,8 @@
 	</div>
 
 	<div class="buttons">
+		<LogFilterDialog bind:filters />
+		<div class="spacer"></div>
 		<button onclick={() => dialog.close()}>閉じる</button>
 	</div>
 </dialog>
@@ -168,7 +241,7 @@
 			text-align: right;
 			word-break: break-word;
 
-			span {
+			.no-select {
 				user-select: none;
 			}
 		}
@@ -177,5 +250,10 @@
 			background-color: #333;
 			color: #fff;
 		}
+	}
+
+	.hidden {
+		opacity: 0.2;
+		user-select: none;
 	}
 </style>
