@@ -97,7 +97,11 @@
 		dropTarget = null;
 	}
 
-	function toggleScreenshotMode() {
+	async function toggleScreenshotMode() {
+		if (!(await isUnlocked())) {
+			return;
+		}
+
 		if (screenshotModeTimer != null) {
 			clearInterval(screenshotModeTimer);
 			screenshotModeTimer = undefined;
@@ -453,9 +457,11 @@
 		</button>
 		<button
 			onclick={toggleScreenshotMode}
-			{@attach tooltip('画面写真を撮りやすいようにプレイヤー名をぼかします')}
+			{@attach tooltip(
+				'画面写真を撮りやすいようにプレイヤー名をぼかします（※この機能はアンロックが必要です）'
+			)}
 		>
-			📸モード{#if screenshotModeTimer != null}をOFFに{/if}
+			📸モード{#if screenshotModeTimer != null}をOFFに{/if}🔒
 		</button>
 		<button onclick={() => logDialog.open()}>履歴確認</button>
 		<button
