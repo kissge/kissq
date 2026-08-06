@@ -53,6 +53,24 @@ export class MaruHistoryEntry implements HistoryEntry {
 		att.trophyCount = trophyCount;
 		att.yasuCount = yasuCount;
 
+		if (otherScoreDiff === 'transit') {
+			state.attendants.forEach((a, ai) => {
+				if (ai !== this.attendantID && a.isLizhi) {
+					a.score = 0;
+				}
+			});
+		} else if (otherScoreDiff !== 0) {
+			state.attendants.forEach((a, ai) => {
+				if (ai !== this.attendantID && a.life === 'alive') {
+					a.score += otherScoreDiff;
+					if (a.score <= 0) {
+						a.life = 'lost';
+						a.lifeChangedAt = state.questionCount;
+					}
+				}
+			});
+		}
+
 		if (life === 'alive' && att.processMaru().life === 'won') {
 			if (att.rule.transit) {
 				state.latestEvent = { type: 'transit', attendantID: this.attendantID };
@@ -61,26 +79,6 @@ export class MaruHistoryEntry implements HistoryEntry {
 			} else {
 				state.latestEvent = { type: 'lizhi', attendantID: this.attendantID };
 			}
-		}
-
-		if (otherScoreDiff === 'transit') {
-			if (state.latestEvent?.type !== 'transit') {
-				state.attendants.forEach((a) => {
-					if (a.isLizhi) {
-						a.score = 0;
-					}
-				});
-			}
-		} else if (otherScoreDiff !== 0) {
-			state.attendants.forEach((a, i) => {
-				if (i !== this.attendantID && a.life === 'alive') {
-					a.score += otherScoreDiff;
-					if (a.score <= 0) {
-						a.life = 'lost';
-						a.lifeChangedAt = state.questionCount;
-					}
-				}
-			});
 		}
 
 		return state;
