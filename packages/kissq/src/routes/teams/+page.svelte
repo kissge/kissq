@@ -247,7 +247,7 @@
 			スルー
 		</button>
 		<button
-			onclick={Game.clickUndo}
+			onclick={() => Game.clickUndo()}
 			disabled={Game.history.length === 0}
 			{@attach tooltip('直前の操作を無かったことにします。')}
 			style="max-width: 20dvw"
