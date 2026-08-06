@@ -77,6 +77,7 @@ export class MaruHistoryEntry implements HistoryEntry {
 					a.score += otherScoreDiff;
 					if (a.score <= 0) {
 						a.life = 'lost';
+						a.lifeChangedAt = state.questionCount;
 					}
 				}
 			});
