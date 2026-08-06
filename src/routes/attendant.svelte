@@ -310,6 +310,10 @@
 	<div class="lost" in:fade>
 		{Game.currentState.ranks[ai]} 位
 	</div>
+{:else if Game.currentState.ifFinished}
+	<div class="finished" in:fade>
+		{Game.currentState.ranks[ai]} 位
+	</div>
 {:else if att.yasuDisplay > 0}
 	<div class="yasu" in:fade>
 		{#key att.yasuDisplay}
@@ -644,7 +648,8 @@
 	.total,
 	.yasu,
 	.won,
-	.lost {
+	.lost,
+	.finished {
 		align-content: center;
 		margin: 0 -1em;
 		text-align: center;
