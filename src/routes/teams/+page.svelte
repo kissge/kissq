@@ -424,7 +424,7 @@
 	.team {
 		display: grid;
 		grid-template-rows: 2em 1fr;
-		grid-template-columns: 2em minmax(0, 1fr) 2em;
+		grid-template-columns: 4em minmax(0, 1fr) 2em;
 		row-gap: 0.25em;
 		flex: 1 1 560px;
 		backdrop-filter: blur(10px);

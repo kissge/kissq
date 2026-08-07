@@ -392,7 +392,8 @@ export class TeamState {
 
 	constructor(
 		public attendantIDsPerSeat: (number[] | undefined)[],
-		public attendants: AttendantState[]
+		public attendants: AttendantState[],
+		public lifeChangedAt: number | null = null
 	) {
 		if (this.attendants[0].rule.mode === 'aql') {
 			this.teamScore = 1;
@@ -562,6 +563,17 @@ export class TeamState {
 				throw new Error();
 		}
 	}
+
+	sortScore(): number[] {
+		return [
+			// Life
+			this.teamLife === 'won' ? 1 : this.teamLife === 'lost' ? -1 : 0,
+			// When did life change (inverse)
+			-(this.lifeChangedAt ?? 0),
+			// Score
+			this.teamScore
+		];
+	}
 }
 
 export type GameEventType =
@@ -595,6 +607,8 @@ export class GameState {
 	ranking: number[] = [];
 	/** 順位 (1-indexed) の配列（個人ランキング） */
 	ranks: number[] = [];
+	/** 順位 (1-indexed) の配列（チームランキング） */
+	teamRanks: number[] = [];
 	latestEvent: GameEvent | null = null;
 
 	constructor(attendants: Attendant[], rules: Rule[], teams: string[] = []) {
@@ -649,6 +663,7 @@ export class GameState {
 	updateRanking(enableRating: boolean = false): GameState {
 		// sortが安定ソートであることに依存している
 
+		// 個人ランキング
 		const mixed = this.attendants.some((a, _, all) => a.rule.mode !== all[0].rule.mode);
 
 		this.ranking.sort((a, b) =>
@@ -672,6 +687,21 @@ export class GameState {
 				this.ranks[ai] = rank + 1;
 			} else {
 				this.ranks[ai] = this.ranks[this.ranking[rank - 1]];
+			}
+		});
+
+		// チームランキング
+		const teamRanking = this.teams
+			.map((t, ti) => ({ ...t, ti }))
+			.toSorted((a, b) => b.teamScore - a.teamScore);
+
+		this.teamRanks = [];
+		teamRanking.forEach((team, rank) => {
+			const previous = teamRanking[rank - 1];
+			if (rank === 0 || team.teamScore !== previous.teamScore) {
+				this.teamRanks[team.ti] = rank + 1;
+			} else {
+				this.teamRanks[team.ti] = this.teamRanks[previous.ti];
 			}
 		});
 
