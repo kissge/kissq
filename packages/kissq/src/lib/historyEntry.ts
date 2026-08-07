@@ -96,6 +96,10 @@ export class MaruHistoryEntry implements HistoryEntry {
 			state.latestEvent = { type: 'won', teamID: ti };
 		}
 
+		if (team.teamLife !== 'won' && teamLife === 'won') {
+			team.lifeChangedAt = state.questionCount;
+		}
+
 		att.maruCount = maruCount;
 		att.score = score;
 		att.life = life;
