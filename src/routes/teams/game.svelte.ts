@@ -15,7 +15,7 @@ export class GameClass extends GameClassBase<'team'> {
 	attendants = $state<Attendant[]>([]);
 	teams = $state<string[]>([]);
 	rules = $state([
-		new Rule('aql', 'endless', 200, null, 1, 'updown', false, null, 'constant', 0, null)
+		new Rule('aql', 'endless', 200, null, null, 1, 'updown', false, null, 'constant', 0, null)
 	]);
 	history = $state<HistoryEntry[]>([]);
 	gameTitle = $state('');
@@ -32,7 +32,8 @@ export class GameClass extends GameClassBase<'team'> {
 
 	currentState = $derived(
 		this.history.reduce(
-			(state, entry) => entry.reducerTeam(state.clearLatestEvent()).updateRanking(),
+			(state, entry) =>
+				entry.reducerTeam(state.clearLatestEvent()).updateRanking().checkIfFinished(),
 			new GameState(this.attendants, this.rules, this.teams).updateRanking(this.enableRating)
 		)
 	);

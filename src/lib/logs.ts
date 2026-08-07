@@ -39,6 +39,7 @@ export type LogStateTeamEntry = {
 export interface LogEntry {
 	startAt: string;
 	mode?: 'single' | 'team';
+	questionLimit?: number;
 	chance?: WasedashikiMode;
 	gameTitle: string;
 	questionCount: number;
@@ -72,6 +73,7 @@ export class LoggerClass<T extends 'single' | 'team' = 'single' | 'team'> {
 		logs.push({
 			startAt: this.startAt,
 			mode: this.battleMode,
+			questionLimit: this.Game.rules[0].questionLimit ?? undefined,
 			chance: this.Game.rules[0].chance,
 			gameTitle: this.Game.gameTitle,
 			questionCount: this.Game.currentState.questionCount - 1,
@@ -160,6 +162,7 @@ export class LoggerClass<T extends 'single' | 'team' = 'single' | 'team'> {
 
 		logs[index] = {
 			...logs[index],
+			questionLimit: this.Game.rules[0].questionLimit ?? undefined,
 			chance: this.Game.rules[0].chance,
 			gameTitle: this.Game.gameTitle,
 			questionCount: this.Game.currentState.questionCount - 1,

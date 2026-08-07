@@ -13,7 +13,9 @@ export class GameClass extends GameClassBase<'single'> {
 	battleMode = 'single' as const;
 
 	attendants = $state<Attendant[]>([]);
-	rules = $state([new Rule('marubatsu', 'endless', 7, 3, 1, 1, false, null, 'constant', 0, null)]);
+	rules = $state([
+		new Rule('marubatsu', 'endless', 7, 3, null, 1, 1, false, null, 'constant', 0, null)
+	]);
 	history = $state<HistoryEntry[]>([]);
 	gameTitle = $state('');
 	totalQuestionCount = $state(0);
@@ -34,7 +36,11 @@ export class GameClass extends GameClassBase<'single'> {
 	currentState = $derived(
 		this.history.reduce(
 			(state, entry) =>
-				entry.reducer(state.clearLatestEvent()).checkIfLastSurvivor().updateRanking(),
+				entry
+					.reducer(state.clearLatestEvent())
+					.checkIfLastSurvivor()
+					.updateRanking()
+					.checkIfFinished(),
 			new GameState(this.attendants, this.rules).updateRanking(this.enableRating)
 		)
 	);

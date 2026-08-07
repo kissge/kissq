@@ -28,7 +28,9 @@
 
 	let helpDialog: { open: () => void };
 
-	let hideQuestionCount = $derived(Game.currentState.defaultRule.mode === 'aql');
+	let hideQuestionCount = $derived(
+		Game.currentState.defaultRule.mode === 'aql' && !Game.currentState.ifFinished
+	);
 	let chance = $derived(Game.wasedashikiMode || Game.rules[0].chance);
 
 	const search = typeof location !== 'undefined' ? location.search : '';
@@ -73,7 +75,7 @@
 	});
 
 	$effect(() => {
-		void Game.activeRulesText;
+		void [Game.activeRulesText, Game.currentState.defaultRule.questionLimit];
 		calcSize();
 	});
 </script>
@@ -90,6 +92,11 @@
 			{#key Game.currentState.questionCount}
 				<div in:fly={unlocked ? { x: -100 } : { x: 100 }}>
 					Next: Q{hideQuestionCount ? '???' : Game.currentState.questionCount}
+					{#if Game.currentState.defaultRule.questionLimit !== null}
+						<small>
+							/ <small>{Game.currentState.defaultRule.questionLimit}</small>
+						</small>
+					{/if}
 				</div>
 			{/key}
 		</div>

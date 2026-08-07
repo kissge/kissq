@@ -551,6 +551,8 @@
 			{effect3Name}
 		{:else if isBannerVisible.type === 'transit'}
 			通過席
+		{:else if isBannerVisible.type === 'finished'}
+			問題終了
 		{/if}
 	</div>
 {/if}

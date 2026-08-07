@@ -74,6 +74,9 @@
 						</td>
 						<td colspan="2">
 							{log.questionCount}<span class="no-select">問目まで</span>
+							{#if log.questionLimit != null}
+								/ {log.questionLimit}<span class="no-select">問</span>
+							{/if}
 						</td>
 					</tr>
 					<tr>

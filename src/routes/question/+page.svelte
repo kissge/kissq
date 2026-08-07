@@ -511,6 +511,9 @@
 	{/if}
 
 	Next: Q{currentState?.questionCount}
+	{#if rules[0]?.questionLimit != null}
+		/ {rules[0].questionLimit}
+	{/if}
 	{#each historyDisplay as entry (entry.key)}
 		<div
 			class={['history-entry', entry.type]}
@@ -521,6 +524,9 @@
 			{entry.text}
 		</div>
 	{/each}
+	{#if rules[0]?.questionLimit != null && (currentState?.questionCount ?? 0) > rules[0].questionLimit}
+		<div class="history-entry finished" in:fly={{ x: 100, duration: 1000 }}>問題終了</div>
+	{/if}
 </header>
 
 <main class="console">
@@ -810,7 +816,8 @@
 		&.lose {
 			background: #00f;
 		}
-		&.through {
+		&.through,
+		&.finished {
 			background: #0f0;
 		}
 	}
