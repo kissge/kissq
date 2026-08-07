@@ -186,14 +186,16 @@
 				<span in:fade>
 					{att.totalScore.maru + att.maruCount}
 				</span>
-			{/key} 〇
+			{/key}
+			<span class="symbol">〇</span>
 		</span>
 		<span class="batsu-count">
 			{#key att.totalScore.batsu + att.batsuCount}
 				<span in:fade>
 					{att.totalScore.batsu + att.batsuCount}
 				</span>
-			{/key} ✕
+			{/key}
+			<span class="symbol">✕</span>
 		</span>
 	{:else if showRate}
 		<span {@attach tooltip('レート')} class="rate">
@@ -205,14 +207,16 @@
 		</span>
 	{:else if showMarubatsuOverride || att.rule.mode === 'marubatsu'}
 		<span class="maru-count">
-			{#key att.maruCount}<span in:fade>{att.maruCount}</span>{/key} 〇
+			{#key att.maruCount}<span in:fade>{att.maruCount}</span>{/key}
+			<span class="symbol">〇</span>
 		</span>
 		<span class="batsu-count">
 			{#key att.batsuCount}
 				<span in:fade class:lose-lizhi={att.isLoseLizhi}>
 					{att.batsuCount}
 				</span>
-			{/key} ✕
+			{/key}
+			<span class="symbol">✕</span>
 		</span>
 	{:else if att.rule.mode === 'score' || att.rule.mode === 'survival'}
 		<span>
@@ -621,6 +625,11 @@
 		.batsu-count {
 			color: rgb(140 140 255);
 			letter-spacing: -0.1em;
+		}
+
+		.symbol {
+			display: inline-block;
+			width: 1em;
 		}
 
 		.consecutive-count {
