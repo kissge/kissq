@@ -13,21 +13,25 @@
 	let dialog: HTMLDialogElement;
 	let resolve: (result: Awaited<ReturnType<typeof open>>) => void;
 	export function open(rules_: Rule[]): Promise<Rule[] | null> {
-		rules = rules_.map(({ lose, questionLimit, batsu, yasuPerMaru, roulette, ...rule }) => {
-			return {
-				...rule,
-				isLoseNull: lose === null,
-				lose: lose ?? (rule.mode === 'score' ? -5 : 3),
-				isQuestionLimitNull: questionLimit === null,
-				questionLimit: questionLimit ?? 30,
-				batsuMode: typeof batsu === 'number' ? 'number' : batsu,
-				batsu: typeof batsu === 'number' ? batsu : 0,
-				isYasuPerMaruNull: yasuPerMaru === null,
-				yasuPerMaruMaru: yasuPerMaru?.maru ?? 5,
-				yasuPerMaruYasu: yasuPerMaru?.yasu ?? 5,
-				rouletteName: roulette?.name ?? null
-			};
-		});
+		rules = rules_.map(
+			({ lose, questionLimit, attendantLimit, batsu, yasuPerMaru, roulette, ...rule }) => {
+				return {
+					...rule,
+					isLoseNull: lose === null,
+					lose: lose ?? (rule.mode === 'score' ? -5 : 3),
+					isQuestionLimitNull: questionLimit === null,
+					questionLimit: questionLimit ?? 30,
+					isAttendantLimitNull: attendantLimit === null,
+					attendantLimit: attendantLimit ?? 1,
+					batsuMode: typeof batsu === 'number' ? 'number' : batsu,
+					batsu: typeof batsu === 'number' ? batsu : 0,
+					isYasuPerMaruNull: yasuPerMaru === null,
+					yasuPerMaruMaru: yasuPerMaru?.maru ?? 5,
+					yasuPerMaruYasu: yasuPerMaru?.yasu ?? 5,
+					rouletteName: roulette?.name ?? null
+				};
+			}
+		);
 		activeTab = rules.findIndex((r) => !r.isRemoved);
 
 		dialog.showModal();
@@ -40,11 +44,16 @@
 
 	/** クローンを容易にするため、オブジェクトプロパティを使わない */
 	interface EditingRule
-		extends Omit<Rule, 'lose' | 'questionLimit' | 'batsu' | 'yasuPerMaru' | 'roulette' | 'max'> {
+		extends Omit<
+			Rule,
+			'lose' | 'questionLimit' | 'attendantLimit' | 'batsu' | 'yasuPerMaru' | 'roulette' | 'max'
+		> {
 		isLoseNull: boolean;
 		lose: NonNullable<Rule['lose']>;
 		isQuestionLimitNull: boolean;
 		questionLimit: NonNullable<Rule['questionLimit']>;
+		isAttendantLimitNull: boolean;
+		attendantLimit: NonNullable<Rule['attendantLimit']>;
 		batsuMode: (Rule['batsu'] & string) | 'number';
 		batsu: number;
 		isYasuPerMaruNull: boolean;
@@ -95,6 +104,7 @@
 					rule.win,
 					rule.isLoseNull ? null : rule.lose,
 					rule.isQuestionLimitNull ? null : rule.questionLimit,
+					rule.isAttendantLimitNull ? null : rule.attendantLimit,
 					rule.maru,
 					rule.batsuMode === 'number' ? rule.batsu : rule.batsuMode,
 					rule.transit,
@@ -118,6 +128,8 @@
 				lose,
 				isQuestionLimitNull,
 				questionLimit,
+				isAttendantLimitNull,
+				attendantLimit,
 				isLoseNull,
 				batsuMode,
 				isYasuPerMaruNull,
@@ -130,6 +142,7 @@
 				(mode === 'survival' ? lose > 0 && !isLoseNull : true) &&
 				(mode !== 'score' && mode !== 'survival' ? batsuMode !== 'batsu' : true) &&
 				(isQuestionLimitNull ? true : Number.isInteger(questionLimit) && questionLimit > 0) &&
+				(isAttendantLimitNull ? true : Number.isInteger(attendantLimit) && attendantLimit > 0) &&
 				(isYasuPerMaruNull
 					? true
 					: Number.isInteger(yasuPerMaruMaru) &&
@@ -215,6 +228,8 @@
 							lose: 3,
 							isQuestionLimitNull: true,
 							questionLimit: 30,
+							isAttendantLimitNull: true,
+							attendantLimit: 1,
 							maru: 1,
 							batsu: 1,
 							batsuMode: 'number',
@@ -241,6 +256,8 @@
 							lose: 3,
 							isQuestionLimitNull: true,
 							questionLimit: 30,
+							isAttendantLimitNull: true,
+							attendantLimit: 1,
 							maru: 1,
 							batsu: 1,
 							batsuMode: 'number',
@@ -267,6 +284,8 @@
 							lose: 3,
 							isQuestionLimitNull: true,
 							questionLimit: 30,
+							isAttendantLimitNull: true,
+							attendantLimit: 1,
 							maru: 1,
 							batsu: 1,
 							batsuMode: 'number',
@@ -293,6 +312,8 @@
 							lose: -5,
 							isQuestionLimitNull: true,
 							questionLimit: 30,
+							isAttendantLimitNull: true,
+							attendantLimit: 1,
 							maru: 1,
 							batsu: -1,
 							batsuMode: 'number',
@@ -319,6 +340,8 @@
 							lose: 0,
 							isQuestionLimitNull: true,
 							questionLimit: 30,
+							isAttendantLimitNull: true,
+							attendantLimit: 1,
 							maru: 1,
 							batsu: 1,
 							batsuMode: 'number',
@@ -345,6 +368,8 @@
 							lose: -10,
 							isQuestionLimitNull: true,
 							questionLimit: 30,
+							isAttendantLimitNull: true,
+							attendantLimit: 1,
 							maru: 1,
 							batsu: -1,
 							batsuMode: 'batsu',
@@ -371,6 +396,8 @@
 							lose: 30,
 							isQuestionLimitNull: true,
 							questionLimit: 30,
+							isAttendantLimitNull: true,
+							attendantLimit: 1,
 							maru: 1,
 							batsu: -2,
 							batsuMode: 'number',
@@ -397,6 +424,8 @@
 							lose: 3,
 							isQuestionLimitNull: true,
 							questionLimit: 30,
+							isAttendantLimitNull: true,
+							attendantLimit: 1,
 							maru: 1,
 							batsu: 1,
 							batsuMode: 'number',
@@ -423,6 +452,8 @@
 							lose: 3,
 							isQuestionLimitNull: true,
 							questionLimit: 30,
+							isAttendantLimitNull: true,
+							attendantLimit: 1,
 							maru: 1,
 							batsu: 1,
 							batsuMode: 'number',
@@ -449,6 +480,8 @@
 							lose: 2,
 							isQuestionLimitNull: true,
 							questionLimit: 30,
+							isAttendantLimitNull: true,
+							attendantLimit: 1,
 							maru: 1,
 							batsu: 1,
 							batsuMode: 'updown',
@@ -475,6 +508,8 @@
 							lose: 3,
 							isQuestionLimitNull: true,
 							questionLimit: 30,
+							isAttendantLimitNull: true,
+							attendantLimit: 1,
 							maru: 1,
 							batsu: -1,
 							batsuMode: 'number',
@@ -530,6 +565,24 @@
 					</label>
 				</div>
 			{/if}
+
+			<div>勝ち抜け人数</div>
+			<div>
+				<label>
+					<input type="radio" bind:group={activeRule.isAttendantLimitNull} value={false} />
+					<input
+						type="number"
+						min="1"
+						bind:value={activeRule.attendantLimit}
+						onfocus={() => (activeRule.isAttendantLimitNull = false)}
+					/>
+					人
+				</label>
+				<label>
+					<input type="radio" bind:group={activeRule.isAttendantLimitNull} value={true} />
+					無制限
+				</label>
+			</div>
 
 			<div>モード</div>
 			<div>

@@ -81,6 +81,20 @@ export class MaruHistoryEntry implements HistoryEntry {
 			}
 		}
 
+		if (att.rule.attendantLimit != null) {
+			if (
+				state.attendants.filter((a) => a.group === att.group && a.life === 'won').length >=
+				att.rule.attendantLimit
+			) {
+				state.attendants.forEach((a) => {
+					if (a.group === att.group && a.life === 'alive') {
+						a.life = 'lost';
+						a.lifeChangedAt = -state.questionCount;
+					}
+				});
+			}
+		}
+
 		return state;
 	}
 
@@ -262,8 +276,24 @@ export class WinHistoryEntry implements HistoryEntry {
 	}
 
 	reducer(state: GameState): GameState {
-		state.attendants[this.attendantID].life = 'won';
-		state.attendants[this.attendantID].trophyCount++;
+		const att = state.attendants[this.attendantID];
+		att.life = 'won';
+		att.trophyCount++;
+
+		if (att.rule.attendantLimit != null) {
+			if (
+				state.attendants.filter((a) => a.group === att.group && a.life === 'won').length >=
+				att.rule.attendantLimit
+			) {
+				state.attendants.forEach((a) => {
+					if (a.group === att.group && a.life === 'alive') {
+						a.life = 'lost';
+						a.lifeChangedAt = -state.questionCount;
+					}
+				});
+			}
+		}
+
 		return state;
 	}
 
@@ -308,12 +338,29 @@ export class EditHistoryEntry implements HistoryEntry {
 	}
 
 	reducer(state: GameState): GameState {
-		state.attendants[this.attendantID].trophyCount = this.newState.trophyCount;
-		state.attendants[this.attendantID].life = this.newState.life;
-		state.attendants[this.attendantID].maruCount = this.newState.maruCount;
-		state.attendants[this.attendantID].batsuCount = this.newState.batsuCount;
-		state.attendants[this.attendantID].yasuCount = this.newState.yasuCount;
-		state.attendants[this.attendantID].score = this.newState.score;
+		const att = state.attendants[this.attendantID];
+
+		att.trophyCount = this.newState.trophyCount;
+		att.life = this.newState.life;
+		att.maruCount = this.newState.maruCount;
+		att.batsuCount = this.newState.batsuCount;
+		att.yasuCount = this.newState.yasuCount;
+		att.score = this.newState.score;
+
+		if (att.rule.attendantLimit != null) {
+			if (
+				state.attendants.filter((a) => a.group === att.group && a.life === 'won').length >=
+				att.rule.attendantLimit
+			) {
+				state.attendants.forEach((a) => {
+					if (a.group === att.group && a.life === 'alive') {
+						a.life = 'lost';
+						a.lifeChangedAt = -state.questionCount;
+					}
+				});
+			}
+		}
+
 		return state;
 	}
 
