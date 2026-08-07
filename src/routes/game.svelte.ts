@@ -14,7 +14,7 @@ export class GameClass extends GameClassBase<'single'> {
 
 	attendants = $state<Attendant[]>([]);
 	rules = $state([
-		new Rule('marubatsu', 'endless', 7, 3, null, 1, 1, false, null, 'constant', 0, null)
+		new Rule('marubatsu', 'endless', 7, 3, null, null, 1, 1, false, null, 'constant', 0, null)
 	]);
 	history = $state<HistoryEntry[]>([]);
 	gameTitle = $state('');

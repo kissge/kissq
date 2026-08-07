@@ -14,6 +14,8 @@ export class Rule {
 		public lose: number | null,
 		/** 限定問題数 */
 		public questionLimit: number | null,
+		/** 勝ち抜け人数 */
+		public attendantLimit: number | null,
 		/** 1問正解で得られるスコアまたはマル数 */
 		public maru: number,
 		/** 1問誤答で得られるスコア（負数）またはバツ数（正数）またはその時点のバツ数 */
@@ -185,6 +187,10 @@ export class Rule {
 			str += `、誤答${this.yasuPerBatsu}休`;
 		}
 
+		if (this.attendantLimit !== null) {
+			str += `（${this.attendantLimit}人）`;
+		}
+
 		return str;
 	}
 
@@ -212,6 +218,7 @@ export class Rule {
 			rule.win,
 			rule.lose,
 			rule.questionLimit,
+			rule.attendantLimit,
 			rule.maru,
 			rule.batsu,
 			rule.transit,
