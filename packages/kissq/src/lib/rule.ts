@@ -12,6 +12,8 @@ export class Rule {
 		public win: number,
 		/** 敗北に必要なスコア（負数）またはバツ数（正数） */
 		public lose: number | null,
+		/** 限定問題数 */
+		public questionLimit: number | null,
 		/** 1問正解で得られるスコアまたはマル数 */
 		public maru: number,
 		/** 1問誤答で得られるスコア（負数）またはバツ数（正数）またはその時点のバツ数 */
@@ -209,6 +211,7 @@ export class Rule {
 			rule.chance,
 			rule.win,
 			rule.lose,
+			rule.questionLimit,
 			rule.maru,
 			rule.batsu,
 			rule.transit,

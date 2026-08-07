@@ -204,7 +204,8 @@
 			text-shadow: 0 0 15px #444;
 			white-space: nowrap;
 
-			&.won {
+			&.won,
+			&.finished {
 				backdrop-filter: blur(10px);
 				background-color: rgba(255 100 100 / 0.3);
 				color: white;

@@ -13,11 +13,13 @@
 	let dialog: HTMLDialogElement;
 	let resolve: (result: Awaited<ReturnType<typeof open>>) => void;
 	export function open(rules_: Rule[]): Promise<Rule[] | null> {
-		rules = rules_.map(({ lose, batsu, yasuPerMaru, roulette, ...rule }) => {
+		rules = rules_.map(({ lose, questionLimit, batsu, yasuPerMaru, roulette, ...rule }) => {
 			return {
 				...rule,
 				isLoseNull: lose === null,
 				lose: lose ?? (rule.mode === 'score' ? -5 : 3),
+				isQuestionLimitNull: questionLimit === null,
+				questionLimit: questionLimit ?? 30,
 				batsuMode: typeof batsu === 'number' ? 'number' : batsu,
 				batsu: typeof batsu === 'number' ? batsu : 0,
 				isYasuPerMaruNull: yasuPerMaru === null,
@@ -37,9 +39,12 @@
 	}
 
 	/** クローンを容易にするため、オブジェクトプロパティを使わない */
-	interface EditingRule extends Omit<Rule, 'lose' | 'batsu' | 'yasuPerMaru' | 'roulette' | 'max'> {
+	interface EditingRule
+		extends Omit<Rule, 'lose' | 'questionLimit' | 'batsu' | 'yasuPerMaru' | 'roulette' | 'max'> {
 		isLoseNull: boolean;
 		lose: NonNullable<Rule['lose']>;
+		isQuestionLimitNull: boolean;
+		questionLimit: NonNullable<Rule['questionLimit']>;
 		batsuMode: (Rule['batsu'] & string) | 'number';
 		batsu: number;
 		isYasuPerMaruNull: boolean;
@@ -89,6 +94,7 @@
 					rules[0].chance,
 					rule.win,
 					rule.isLoseNull ? null : rule.lose,
+					rule.isQuestionLimitNull ? null : rule.questionLimit,
 					rule.maru,
 					rule.batsuMode === 'number' ? rule.batsu : rule.batsuMode,
 					rule.transit,
@@ -110,6 +116,8 @@
 			({
 				mode,
 				lose,
+				isQuestionLimitNull,
+				questionLimit,
 				isLoseNull,
 				batsuMode,
 				isYasuPerMaruNull,
@@ -121,6 +129,7 @@
 			}) =>
 				(mode === 'survival' ? lose > 0 && !isLoseNull : true) &&
 				(mode !== 'score' && mode !== 'survival' ? batsuMode !== 'batsu' : true) &&
+				(isQuestionLimitNull ? true : Number.isInteger(questionLimit) && questionLimit > 0) &&
 				(isYasuPerMaruNull
 					? true
 					: Number.isInteger(yasuPerMaruMaru) &&
@@ -204,6 +213,8 @@
 							win: 7,
 							isLoseNull: false,
 							lose: 3,
+							isQuestionLimitNull: true,
+							questionLimit: 30,
 							maru: 1,
 							batsu: 1,
 							batsuMode: 'number',
@@ -228,6 +239,8 @@
 							win: 5,
 							isLoseNull: true,
 							lose: 3,
+							isQuestionLimitNull: true,
+							questionLimit: 30,
 							maru: 1,
 							batsu: 1,
 							batsuMode: 'number',
@@ -252,6 +265,8 @@
 							win: 15,
 							isLoseNull: true,
 							lose: 3,
+							isQuestionLimitNull: true,
+							questionLimit: 30,
 							maru: 1,
 							batsu: 1,
 							batsuMode: 'number',
@@ -276,6 +291,8 @@
 							win: 5,
 							isLoseNull: false,
 							lose: -5,
+							isQuestionLimitNull: true,
+							questionLimit: 30,
 							maru: 1,
 							batsu: -1,
 							batsuMode: 'number',
@@ -300,6 +317,8 @@
 							win: 10,
 							isLoseNull: false,
 							lose: 0,
+							isQuestionLimitNull: true,
+							questionLimit: 30,
 							maru: 1,
 							batsu: 1,
 							batsuMode: 'number',
@@ -324,6 +343,8 @@
 							win: 10,
 							isLoseNull: false,
 							lose: -10,
+							isQuestionLimitNull: true,
+							questionLimit: 30,
 							maru: 1,
 							batsu: -1,
 							batsuMode: 'batsu',
@@ -348,6 +369,8 @@
 							win: 0,
 							isLoseNull: false,
 							lose: 30,
+							isQuestionLimitNull: true,
+							questionLimit: 30,
 							maru: 1,
 							batsu: -2,
 							batsuMode: 'number',
@@ -372,6 +395,8 @@
 							win: 4,
 							isLoseNull: true,
 							lose: 3,
+							isQuestionLimitNull: true,
+							questionLimit: 30,
 							maru: 1,
 							batsu: 1,
 							batsuMode: 'number',
@@ -396,6 +421,8 @@
 							win: 7,
 							isLoseNull: true,
 							lose: 3,
+							isQuestionLimitNull: true,
+							questionLimit: 30,
 							maru: 1,
 							batsu: 1,
 							batsuMode: 'number',
@@ -420,6 +447,8 @@
 							win: 7,
 							isLoseNull: false,
 							lose: 2,
+							isQuestionLimitNull: true,
+							questionLimit: 30,
 							maru: 1,
 							batsu: 1,
 							batsuMode: 'updown',
@@ -444,6 +473,8 @@
 							win: 4,
 							isLoseNull: true,
 							lose: 3,
+							isQuestionLimitNull: true,
+							questionLimit: 30,
 							maru: 1,
 							batsu: -1,
 							batsuMode: 'number',
@@ -476,6 +507,26 @@
 					>
 						<input type="radio" bind:group={activeRule.chance} value="endless" />
 						エンドレスチャンス
+					</label>
+				</div>
+
+				<div transition:fly={{ y: 100 }} {@attach tooltip('この問題数終わったら終了となります。')}>
+					限定問題数
+				</div>
+				<div transition:fly={{ y: 100 }}>
+					<label>
+						<input type="radio" bind:group={activeRule.isQuestionLimitNull} value={false} />
+						<input
+							type="number"
+							min="1"
+							bind:value={activeRule.questionLimit}
+							onfocus={() => (activeRule.isQuestionLimitNull = false)}
+						/>
+						問
+					</label>
+					<label>
+						<input type="radio" bind:group={activeRule.isQuestionLimitNull} value={true} />
+						無制限
 					</label>
 				</div>
 			{/if}

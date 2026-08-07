@@ -363,7 +363,7 @@
 		{#if 'attendantID' in isBannerVisible}
 			{Game.attendants[isBannerVisible.attendantID].name ||
 				'プレイヤー ' + (isBannerVisible.attendantID + 1)}
-		{:else}
+		{:else if 'teamID' in isBannerVisible}
 			{Game.teams[isBannerVisible.teamID] || 'チーム ' + (isBannerVisible.teamID + 1)}
 		{/if}
 		{#if isBannerVisible.type === 'won'}
@@ -378,6 +378,8 @@
 			!!
 		{:else if isBannerVisible.type === 'transit'}
 			通過席
+		{:else if isBannerVisible.type === 'finished'}
+			問題終了
 		{/if}
 	</div>
 {/if}

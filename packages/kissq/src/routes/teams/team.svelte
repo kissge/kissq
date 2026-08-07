@@ -26,8 +26,8 @@
 </script>
 
 <div class="life">
-	{#if Game.currentState.teams[ti].teamLife === 'won'}
-		<div class="won">{Game.currentState.ranking.indexOf(ti) + 1}位</div>
+	{#if Game.currentState.teams[ti].teamLife === 'won' || Game.currentState.ifFinished}
+		<div class="won">{Game.currentState.teamRanks[ti]} 位</div>
 	{:else if Game.currentState.teams[ti].teamLife === 'lost'}
 		<div class="lost">失格</div>
 	{/if}

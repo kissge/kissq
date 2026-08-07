@@ -564,9 +564,19 @@ export class TeamState {
 	}
 }
 
-export type GameEventType = 'won' | 'lizhi' | 'double-lizhi' | 'effect2' | 'effect3' | 'transit';
+export type GameEventType =
+	| 'won'
+	| 'lizhi'
+	| 'double-lizhi'
+	| 'effect2'
+	| 'effect3'
+	| 'transit'
+	| 'finished';
 
 export type GameEvent =
+	| {
+			type: 'finished';
+	  }
 	| {
 			type: GameEventType;
 			attendantID: number;
@@ -693,11 +703,23 @@ export class GameState {
 		return this;
 	}
 
+	checkIfFinished(): GameState {
+		if (this.ifFinished) {
+			this.latestEvent = { type: 'finished' };
+		}
+
+		return this;
+	}
+
 	getTeamByAttendantID(attendantID: number) {
 		const ti = this.teams.findIndex((team) =>
 			team.attendantIDsPerSeat.some((ids) => ids?.includes(attendantID))
 		);
 
 		return { ti, team: this.teams[ti] };
+	}
+
+	get ifFinished(): boolean {
+		return (this.defaultRule.questionLimit ?? Infinity) < this.questionCount;
 	}
 }
