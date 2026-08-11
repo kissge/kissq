@@ -39,10 +39,6 @@ export abstract class GameClassBase<BattleMode extends 'single' | 'team'> {
 		this.currentState.attendants.forEach((att, ai) => {
 			this.attendants[ai].trophyCount = att.trophyCount;
 			this.attendants[ai].totalScore = {
-				num:
-					att.totalScore.num +
-					(this.currentState.attendants.length - this.currentState.ranking.indexOf(ai) - 1),
-				den: att.totalScore.den + 1,
 				maru: att.totalScore.maru + att.maruCount,
 				batsu: att.totalScore.batsu + att.batsuCount
 			};
@@ -140,6 +136,16 @@ export abstract class GameClassBase<BattleMode extends 'single' | 'team'> {
 		});
 
 		return ranks;
+	}
+
+	get ratingList(): number[] {
+		const ratings = this.currentState.attendants.map((att) => att.rate);
+		const mean = ratings.reduce((acc, val) => acc + val, 0) / ratings.length;
+		const variance = ratings.reduce((acc, val) => acc + (val - mean) ** 2, 0) / ratings.length;
+		const stddev = Math.sqrt(variance);
+		const tScore = ratings.map((rating) => (stddev ? 50 + ((rating - mean) / stddev) * 10 : 50));
+
+		return tScore;
 	}
 }
 

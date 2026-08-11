@@ -199,11 +199,7 @@
 		</span>
 	{:else if showRate}
 		<span {@attach tooltip('レート')} class="rate">
-			{#if att.totalScore.den === 0}
-				---
-			{:else}
-				{att.rate.toLocaleString()}
-			{/if}
+			{Game.ratingList[ai].toFixed(1)}
 		</span>
 	{:else if showMarubatsuOverride || att.rule.mode === 'marubatsu'}
 		<span class="maru-count">

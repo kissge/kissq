@@ -146,7 +146,7 @@
 					team: ti,
 					seat: Math.floor(ai / 2),
 					trophyCount: 0,
-					totalScore: { num: 0, den: 0, maru: 0, batsu: 0 },
+					totalScore: { maru: 0, batsu: 0 },
 					manualOrder: ti * 10 + ai
 				})).flat()
 			).flat();
@@ -267,7 +267,7 @@
 					team: Game.teams.length - 1,
 					seat: 0,
 					trophyCount: 0,
-					totalScore: { num: 0, den: 0, maru: 0, batsu: 0 },
+					totalScore: { maru: 0, batsu: 0 },
 					manualOrder: Game.attendants.length
 				});
 			}}>＋ チーム追加</button
@@ -316,7 +316,7 @@
 							team: 0,
 							seat: 0,
 							trophyCount: 0,
-							totalScore: { num: 0, den: 0, maru: 0, batsu: 0 },
+							totalScore: { maru: 0, batsu: 0 },
 							manualOrder: 0
 						}
 					];
