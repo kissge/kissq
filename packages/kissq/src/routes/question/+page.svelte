@@ -532,7 +532,7 @@
 <main class="console">
 	<table>
 		<tbody>
-			{#each questions as { question, answer }, index (question)}
+			{#each questions as { question, answer }, index (question + index)}
 				<tr class:current={index === currentIndex}>
 					<td>
 						{#if remoteQuestions.find((q) => q.id === index)?.shown}
@@ -602,7 +602,7 @@
 
 <dialog closedby="any" bind:this={inputDialog}>
 	<p style="font-size: 0.5em;">
-		ヒント：スプレッドシート上で質問と回答の列を選択してコピーするとTSV形式になります。
+		ヒント：スプレッドシート上で質問と回答の列を選択してコピーするとTSV形式になります。ただし、改行が含まれるとぶっ壊れます。
 	</p>
 
 	<textarea
