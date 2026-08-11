@@ -148,7 +148,7 @@ const app = new Hono<{ Bindings: CloudflareBindings }>()
 			const { session_id } = c.req.valid('param');
 			const { results } = await c.env.Database.prepare(
 				`SELECT question_id, COUNT(*) as like_count FROM likes
-				 WHERE question_id IN (SELECT id FROM questions WHERE session_id = ?)
+				 WHERE session_id = ?
 				 GROUP BY question_id`
 			)
 				.bind(session_id)
