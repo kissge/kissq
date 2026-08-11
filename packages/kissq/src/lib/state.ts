@@ -382,10 +382,6 @@ export class AttendantState {
 		const maru = this.totalScore.maru + this.maruCount;
 		const batsu = this.totalScore.batsu + this.batsuCount;
 
-		console.log(
-			`Rate for ${this.name}: maru=${maru}, batsu=${batsu}, rate=${(maru + alpha) / (maru + batsu + beta)}`
-		);
-
 		return (maru + alpha) / (maru + batsu + beta);
 	}
 
