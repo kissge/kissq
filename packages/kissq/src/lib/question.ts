@@ -14,11 +14,30 @@ export function parseCSV(
 	const commaCount = rawInput.match(/,/g)?.length ?? 0;
 	const delimiter = tabCount > commaCount ? '\t' : ',';
 
-	const lines = rawInput
+	let lines = rawInput
 		.trim()
 		.split('\n')
 		.filter((line) => line.trim() !== '')
 		.join('\n');
+
+	if (delimiter === '\t') {
+		// Remedy for Google Sheets' broken TSV
+		lines = lines
+			.split('\n')
+			.map((line) =>
+				line
+					.split('\t')
+					.map((field) => {
+						if (field.startsWith('"') && field.endsWith('"')) {
+							return field;
+						}
+
+						return '"' + field.replace(/"/g, '""') + '"';
+					})
+					.join('\t')
+			)
+			.join('\n');
+	}
 
 	return [
 		qZero,
