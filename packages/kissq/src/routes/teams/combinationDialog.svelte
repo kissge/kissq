@@ -58,7 +58,7 @@
 					team: ti,
 					seat: seatMode === 'all-same' ? 0 : si,
 					trophyCount: 0,
-					totalScore: { num: 0, den: 0, maru: 0, batsu: 0 },
+					totalScore: { maru: 0, batsu: 0 },
 					manualOrder: ai
 				}));
 			Game.teams = teams.map(() => '');
@@ -199,13 +199,9 @@
 										チーム {i + 1}
 										{#if team[0].rate != undefined}
 											<small>
-												(Avg.&nbsp;{Math.floor(
-													team.reduce(
-														(sum, { attendantID }) =>
-															sum + Game!.currentState.attendants[attendantID!].rate,
-														0
-													) / team.length
-												).toLocaleString()})
+												(Avg.&nbsp;{(team.reduce((sum, { rate }) => sum + rate!, 0) / team.length)
+													.toLocaleString()
+													.replace(/^0/, '')})
 											</small>
 										{/if}
 									</th>
@@ -214,7 +210,7 @@
 											{ord === 0 ? '' : '、'}{name || `プレイヤー${attendantID! + 1}`}
 											{#if rate != undefined}
 												<small>
-													({rate.toLocaleString()})
+													({rate.toLocaleString().replace(/^0/, '')})
 												</small>
 											{/if}
 										{/each}

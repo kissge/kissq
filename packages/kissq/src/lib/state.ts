@@ -14,12 +14,7 @@ export class AttendantState {
 		public rule: Rule,
 		public team: TeamState | null = null,
 		public trophyCount: number = 0,
-		public totalScore: { num: number; den: number; maru: number; batsu: number } = {
-			num: 0,
-			den: 0,
-			maru: 0,
-			batsu: 0
-		},
+		public totalScore: { maru: number; batsu: number } = { maru: 0, batsu: 0 },
 		public life: Life = 'alive',
 		public lifeChangedAt: number | null = null,
 		public score: number = 0,
@@ -304,7 +299,7 @@ export class AttendantState {
 					// Score
 					this.score,
 					// Rate
-					enableRating ? this.totalScore.num / this.totalScore.den : 0
+					enableRating ? this.rate : 0
 				];
 
 			case 'marubatsu':
@@ -318,7 +313,7 @@ export class AttendantState {
 					// Batsu (inverse)
 					-this.batsuCount,
 					// Rate
-					enableRating ? this.totalScore.num / this.totalScore.den : 0
+					enableRating ? this.rate : 0
 				];
 
 			case 'mixed':
@@ -328,7 +323,7 @@ export class AttendantState {
 					// When did life change (inverse)
 					-(this.lifeChangedAt ?? 0),
 					// Rate
-					enableRating ? this.totalScore.num / this.totalScore.den : 0
+					enableRating ? this.rate : 0
 				];
 		}
 	}
@@ -342,7 +337,7 @@ export class AttendantState {
 			// Trophy
 			this.trophyCount + (this.life === 'won' ? 1 : 0),
 			// Rate
-			enableRating ? this.totalScore.num / this.totalScore.den : 0
+			enableRating ? this.rate : 0
 		];
 	}
 
@@ -381,11 +376,17 @@ export class AttendantState {
 	}
 
 	get rate(): number {
-		if (this.totalScore.den === 0) {
-			return 0;
-		} else {
-			return Math.floor((this.totalScore.num / this.totalScore.den) * 492.8);
-		}
+		const alpha = 20;
+		const beta = 30;
+
+		const maru = this.totalScore.maru + this.maruCount;
+		const batsu = this.totalScore.batsu + this.batsuCount;
+
+		console.log(
+			`Rate for ${this.name}: maru=${maru}, batsu=${batsu}, rate=${(maru + alpha) / (maru + batsu + beta)}`
+		);
+
+		return (maru + alpha) / (maru + batsu + beta);
 	}
 
 	toJSON() {
