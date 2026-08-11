@@ -256,7 +256,7 @@
 		height: calc(100svh - 75px);
 		scroll-snap-align: center;
 		color: #fff;
-		font-size: min(5.5svw, 4.5svh);
+		font-size: min(5.5svw, 3.5svh);
 
 		&:first-child {
 			margin-left: 15%;
