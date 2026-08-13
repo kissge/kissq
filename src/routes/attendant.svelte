@@ -48,8 +48,6 @@
 	let Wasedashiki = getWasedashikiContext();
 	let Layout = getLayoutContext();
 
-	let wrapperHeight = $state(0);
-
 	let att = $derived(Game.currentState.attendants[ai]);
 	let barHeight: number = $derived(Layout.barHeightRatioArray[ai]?.current ?? 0);
 
@@ -172,14 +170,7 @@
 	bind:clientHeight={Layout.nameHeight[ai]}
 ></div>
 
-<div
-	class="score"
-	class:showTotalOverride
-	class:showRate
-	style:--wrapper-height={wrapperHeight + 'px'}
-	style:opacity={showScore ? 1 : 0}
-	bind:clientHeight={wrapperHeight}
->
+<div class="score" class:showTotalOverride class:showRate style:opacity={showScore ? 1 : 0}>
 	{#if showTotalOverride}
 		<span class="maru-count">
 			{#key att.totalScore.maru + att.maruCount}
@@ -572,23 +563,18 @@
 
 		&.showTotalOverride,
 		&.showRate {
-			padding-left: 0.4em;
-			&::after {
-				display: block;
-				position: absolute;
-				top: 50%;
-				left: 0.4em;
-				translate: 0% -50%;
+			&::before {
+				display: inline-block;
+				vertical-align: middle;
+				margin-right: 0.4em;
+				padding-bottom: 0.25em;
 				content: '通算';
-				font-size: calc(var(--wrapper-height) * 0.3);
-				writing-mode: vertical-rl;
+				font-size: 0.5em;
 				white-space: pre;
 			}
 		}
 		&:not(.showTotalOverride).showRate::after {
 			content: 'レート';
-			font-size: calc(var(--wrapper-height) * 0.25);
-			writing-mode: vertical-rl;
 		}
 
 		> * {
