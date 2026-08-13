@@ -187,7 +187,7 @@
 	.carousel {
 		display: flex;
 		justify-self: center;
-		gap: 10px;
+		gap: 2em;
 		padding-top: 2em;
 		width: 100%;
 		height: 100%;
