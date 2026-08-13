@@ -382,7 +382,7 @@ export class AttendantState {
 		const maru = this.totalScore.maru + this.maruCount;
 		const batsu = this.totalScore.batsu + this.batsuCount;
 
-		return (maru + alpha) / (maru + batsu + beta);
+		return ((maru + alpha) / (maru + batsu + beta)) * Math.log10(maru + batsu + 1);
 	}
 
 	toJSON() {
