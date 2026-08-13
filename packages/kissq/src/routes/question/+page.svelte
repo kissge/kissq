@@ -16,7 +16,16 @@
 
 	const opener = (typeof window !== 'undefined' ? window.opener : {}) as Window;
 
-	let questions = $state([qZero]);
+	let questions = $state<
+		{
+			id: number;
+			question: string;
+			answer: string;
+			comment: string;
+			shown?: 0 | 1;
+			likedBy?: string[];
+		}[]
+	>([qZero]);
 	let rawInput = $state('');
 	let currentIndex = $state(0);
 
@@ -38,9 +47,6 @@
 	let enableCompanion = $state(false);
 	let companionSessionID = $state('');
 	let client = $state<APIClient>();
-	let remoteQuestions = $state<
-		{ id: number; question: string; answer: string; shown: 0 | 1; likedBy: string[] }[]
-	>([]);
 
 	let orderedAttendants = $derived.by(() => {
 		switch (order) {
@@ -214,7 +220,6 @@
 						questionID: index
 					}
 				});
-				remoteQuestions.find((q) => q.id === index)!.shown = 1;
 				await updateRemoteQuestions();
 			})();
 		}
@@ -228,7 +233,7 @@
 
 	async function updateRemoteQuestions() {
 		if (client && companionSessionID) {
-			remoteQuestions = await (
+			questions = await (
 				await client.api.questions[':session_id'].$get({
 					param: { session_id: companionSessionID },
 					query: { shown: 'all' }
@@ -245,24 +250,26 @@
 	});
 
 	onMount(() => {
-		const stored = window.localStorage.getItem('questions');
-		if (stored) {
-			questions = JSON.parse(stored);
-		}
-
 		enableCompanion = !!window.localStorage.getItem('enableCompanion');
 		if (enableCompanion) {
 			client = getAPIClient();
 			companionSessionID = new URLSearchParams(location.search).get('session') ?? '';
 			if (companionSessionID) {
 				(async () => {
-					remoteQuestions = await (
+					questions = await (
 						await client.api.questions[':session_id'].$get({
 							param: { session_id: companionSessionID },
 							query: { shown: 'all' }
 						})
 					).json();
 				})();
+			}
+		}
+
+		if (!enableCompanion || !companionSessionID) {
+			const stored = window.localStorage.getItem('questions');
+			if (stored) {
+				questions = JSON.parse(stored);
 			}
 		}
 
@@ -294,7 +301,7 @@
 				).json()
 			);
 
-			remoteQuestions = await (
+			questions = await (
 				await client.api.questions[':session_id'].$get({
 					param: { session_id: companionSessionID },
 					query: { shown: 'all' }
@@ -538,10 +545,10 @@
 <main class="console">
 	<table>
 		<tbody>
-			{#each questions as { question, answer, comment }, index (question + index)}
+			{#each questions as { question, answer, comment, shown, likedBy }, index (question + index)}
 				<tr class:current={index === currentIndex}>
 					<td rowspan={comment ? 2 : 1}>
-						{#if remoteQuestions.find((q) => q.id === index)?.shown}
+						{#if shown}
 							<span style="color: green">✔</span>
 						{/if}
 						<button onclick={() => showQuestion(index)}>
@@ -567,11 +574,11 @@
 							<small>
 								{comment}
 
-								{#if (remoteQuestions.find((q) => q.id === index)?.likedBy.length ?? 0) > 0}
+								{#if likedBy && likedBy.length > 0}
 									<br />
 									Liked by
 									<span style="color: red; font-weight: bold;">
-										{remoteQuestions.find((q) => q.id === index)!.likedBy.join(', ')}
+										{likedBy.join(', ')}
 									</span>
 								{/if}
 							</small>
