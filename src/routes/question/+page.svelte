@@ -215,12 +215,7 @@
 					}
 				});
 				remoteQuestions.find((q) => q.id === index)!.shown = 1;
-				remoteQuestions = await (
-					await client.api.questions[':session_id'].$get({
-						param: { session_id: companionSessionID },
-						query: { shown: 'all' }
-					})
-				).json();
+				await updateRemoteQuestions();
 			})();
 		}
 
@@ -229,6 +224,17 @@
 
 	function postMessage(message: IncomingMessage) {
 		opener.postMessage(message);
+	}
+
+	async function updateRemoteQuestions() {
+		if (client && companionSessionID) {
+			remoteQuestions = await (
+				await client.api.questions[':session_id'].$get({
+					param: { session_id: companionSessionID },
+					query: { shown: 'all' }
+				})
+			).json();
+		}
 	}
 
 	$effect(() => {
@@ -597,6 +603,7 @@
 		<button disabled={!companionSessionID} onclick={() => postMessage({ command: 'toggleQRCode' })}>
 			QRコードを表示・非表示
 		</button>
+		<button disabled={!companionSessionID} onclick={updateRemoteQuestions}> ↺ </button>
 	{/if}
 </footer>
 
@@ -710,6 +717,17 @@
 				color: #888;
 				font-style: normal;
 			}
+		}
+	}
+
+	footer.console {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 0.5em;
+
+		button {
+			font-size: 1em;
 		}
 	}
 
