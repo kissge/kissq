@@ -538,9 +538,9 @@
 <main class="console">
 	<table>
 		<tbody>
-			{#each questions as { question, answer }, index (question + index)}
+			{#each questions as { question, answer, comment }, index (question + index)}
 				<tr class:current={index === currentIndex}>
-					<td>
+					<td rowspan={comment ? 2 : 1}>
 						{#if remoteQuestions.find((q) => q.id === index)?.shown}
 							<span style="color: green">✔</span>
 						{/if}
@@ -556,18 +556,28 @@
 								{part}
 							{/if}
 						{/each}
-						{#if (remoteQuestions.find((q) => q.id === index)?.likedBy.length ?? 0) > 0}
-							<br />
-							Liked by
-							<span style="color: red; font-weight: bold;">
-								{remoteQuestions.find((q) => q.id === index)!.likedBy.join(', ')}
-							</span>
-						{/if}
 					</td>
 					<td class:error={!answer?.trim?.()}>
 						{answer}
 					</td>
 				</tr>
+				{#if comment}
+					<tr>
+						<td colspan="2">
+							<small>
+								{comment}
+
+								{#if (remoteQuestions.find((q) => q.id === index)?.likedBy.length ?? 0) > 0}
+									<br />
+									Liked by
+									<span style="color: red; font-weight: bold;">
+										{remoteQuestions.find((q) => q.id === index)!.likedBy.join(', ')}
+									</span>
+								{/if}
+							</small>
+						</td>
+					</tr>
+				{/if}
 			{/each}
 		</tbody>
 	</table>
