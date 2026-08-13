@@ -456,6 +456,20 @@
 			全削除
 		</button>
 		<button
+			disabled={Game.history.length > 0}
+			onclick={() => {
+				if (confirm('全員の通算勝利数🏆をリセットしますか？')) {
+					Game.attendants.forEach((att) => (att.trophyCount = 0));
+				}
+
+				if (confirm('全員の通算スコアとレートをリセットしますか？')) {
+					Game.attendants.forEach((att) => (att.totalScore = { maru: 0, batsu: 0 }));
+				}
+			}}
+		>
+			一部クリア
+		</button>
+		<button
 			onclick={toggleScreenshotMode}
 			{@attach tooltip(
 				'画面写真を撮りやすいようにプレイヤー名をぼかします（※この機能はアンロックが必要です）'
