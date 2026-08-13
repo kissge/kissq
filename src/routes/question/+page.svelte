@@ -233,12 +233,15 @@
 
 	async function updateRemoteQuestions() {
 		if (client && companionSessionID) {
-			questions = await (
-				await client.api.questions[':session_id'].$get({
-					param: { session_id: companionSessionID },
-					query: { shown: 'all' }
-				})
-			).json();
+			questions = [
+				qZero,
+				...(await (
+					await client.api.questions[':session_id'].$get({
+						param: { session_id: companionSessionID },
+						query: { shown: 'all' }
+					})
+				).json())
+			];
 		}
 	}
 
@@ -255,14 +258,7 @@
 			client = getAPIClient();
 			companionSessionID = new URLSearchParams(location.search).get('session') ?? '';
 			if (companionSessionID) {
-				(async () => {
-					questions = await (
-						await client.api.questions[':session_id'].$get({
-							param: { session_id: companionSessionID },
-							query: { shown: 'all' }
-						})
-					).json();
-				})();
+				updateRemoteQuestions();
 			}
 		}
 
@@ -301,12 +297,7 @@
 				).json()
 			);
 
-			questions = await (
-				await client.api.questions[':session_id'].$get({
-					param: { session_id: companionSessionID },
-					query: { shown: 'all' }
-				})
-			).json();
+			updateRemoteQuestions();
 		}
 
 		inputDialog.close();
