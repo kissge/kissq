@@ -128,13 +128,18 @@
 						>
 							♡
 						</button>
-						{'♥ '.repeat(likes[question.id])}
+						{#if likes[question.id] < 20}
+							{'♥ '.repeat(likes[question.id])}
+						{:else}
+							♥ ×{likes[question.id]}
+						{/if}
 					</div>
 				</div>
 			</div>
 		{:else}
 			<div class="slide" style="flex: 0 0 70%">
 				<div class="spinner"></div>
+				最初のデータが送られてくるのをお待ちください……
 			</div>
 		{/each}
 		{#if (questions?.length ?? 0) > 0}
@@ -149,6 +154,8 @@
 	<p>いいね機能に使うお名前を入力してください。</p>
 	<div>
 		<input bind:value={userName} />
+	</div>
+	<div class="right">
 		<button
 			disabled={!userName}
 			onclick={() => {
@@ -185,6 +192,7 @@
 		width: 100%;
 		height: 100%;
 		overflow-x: auto;
+		scroll-snap-stop: always;
 		scroll-snap-type: x mandatory;
 		scroll-marker-group: after;
 		position: relative;
@@ -256,7 +264,8 @@
 		height: calc(100svh - 75px);
 		scroll-snap-align: center;
 		color: #fff;
-		font-size: min(5.5svw, 3.5svh);
+		font-size: min(4svw, 3svh);
+		text-wrap: pretty;
 
 		&:first-child {
 			margin-left: 15%;
@@ -355,11 +364,12 @@
 	}
 
 	input {
+		box-sizing: border-box;
+		width: 100%;
 		font-size: 1em;
 	}
 
-	dialog div {
-		display: flex;
-		gap: 0.5rem;
+	.right {
+		text-align: right;
 	}
 </style>
