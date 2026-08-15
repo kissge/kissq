@@ -269,6 +269,8 @@
 			}
 		}
 
+		fontSize = Number(window.localStorage.getItem('fontSize') ?? fontSize);
+
 		window.addEventListener('message', processWindowMessage);
 		window.addEventListener('keydown', processKeyboardInput);
 
@@ -399,6 +401,7 @@
 				value={fontSize}
 				onchange={(e) => {
 					fontSize = Number((e.target as HTMLInputElement).value);
+					window.localStorage.setItem('fontSize', fontSize.toString());
 				}}
 			/>
 		</label>
