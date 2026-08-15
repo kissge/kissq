@@ -849,7 +849,7 @@
 		border-top-right-radius: 1em;
 		border-bottom-right-radius: 1em;
 		background: #222;
-		padding: 0.2em 2em 0.2em 1em;
+		padding: 0.2em 1em 0.2em 0.5em;
 		color: white;
 		font-weight: bold;
 		text-shadow: 0 0 5px #000;
