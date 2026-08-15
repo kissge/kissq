@@ -394,7 +394,13 @@
 		</label>
 		<label>
 			フォントサイズ
-			<input type="number" bind:value={fontSize} />
+			<input
+				type="number"
+				value={fontSize}
+				onchange={(e) => {
+					fontSize = Number((e.target as HTMLInputElement).value);
+				}}
+			/>
 		</label>
 	</div>
 	{#if currentState && orderedAttendants}
