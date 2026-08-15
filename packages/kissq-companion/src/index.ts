@@ -9,10 +9,13 @@ const app = new Hono<{ Bindings: CloudflareBindings }>()
 	.get(
 		'/api/questions/:session_id',
 		zValidator('param', z.object({ session_id: z.string() })),
-		zValidator('query', z.object({ shown: z.enum(['true', 'false', 'all']) })),
+		zValidator(
+			'query',
+			z.object({ shown: z.enum(['true', 'false', 'all']), orderBy: z.enum(['id', 'shownAt']) })
+		),
 		async (c) => {
 			const { session_id } = c.req.valid('param');
-			const { shown } = c.req.valid('query');
+			const { shown, orderBy } = c.req.valid('query');
 			const { results } = await c.env.Database.prepare(
 				`SELECT questions.*, likes.user_name
 				 FROM questions
@@ -61,7 +64,11 @@ const app = new Hono<{ Bindings: CloudflareBindings }>()
 				return acc;
 			}, []);
 
-			grouped.sort((a, b) => (a.shownAt ?? '').localeCompare(b.shownAt ?? '') || a.id - b.id);
+			if (orderBy === 'id') {
+				grouped.sort((a, b) => a.id - b.id);
+			} else if (orderBy === 'shownAt') {
+				grouped.sort((a, b) => (a.shownAt ?? '').localeCompare(b.shownAt ?? '') || a.id - b.id);
+			}
 
 			return c.json(grouped);
 		}

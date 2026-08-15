@@ -13,6 +13,7 @@
 	import type { WasedashikiMode } from '$lib/serial';
 	import type { GameState } from '$lib/state';
 	import { tooltip } from '$lib/tooltip.svelte';
+	import { collapseArray } from '$lib/utils';
 
 	const opener = (typeof window !== 'undefined' ? window.opener : {}) as Window;
 
@@ -240,7 +241,7 @@
 	}
 
 	function postMessage(message: IncomingMessage) {
-		opener.postMessage(message);
+		opener.postMessage($state.snapshot(message));
 	}
 
 	async function updateRemoteQuestions() {
@@ -250,7 +251,7 @@
 				...(await (
 					await client.api.questions[':session_id'].$get({
 						param: { session_id: companionSessionID },
-						query: { shown: 'all' }
+						query: { shown: 'all', orderBy: 'id' }
 					})
 				).json())
 			];
@@ -590,7 +591,15 @@
 									<br />
 									Liked by
 									<span style="color: red; font-weight: bold;">
-										{likedBy.join(', ')}
+										{#each Object.entries(collapseArray(likedBy)) as [user, count], i (user)}
+											{#if i > 0}
+												,
+											{/if}
+											{user}
+											{#if count > 1}
+												× {count}
+											{/if}
+										{/each}
 									</span>
 								{/if}
 							</small>

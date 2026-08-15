@@ -30,7 +30,7 @@
 			return client.api.questions[':session_id']
 				.$get({
 					param: { session_id: sessionID },
-					query: { shown: 'true' }
+					query: { shown: 'true', orderBy: 'shownAt' }
 				})
 				.then((res) => {
 					res.json().then((data) => {
