@@ -9,3 +9,17 @@ export function arrayCompare(a: number[], b: number[]): number {
 
 	return 0;
 }
+
+export function collapseArray<T extends string | number>(array: T[]): Record<T, number> {
+	const result = {} as Record<T, number>;
+
+	for (const item of array) {
+		if (result[item] === undefined) {
+			result[item] = 1;
+		} else {
+			result[item]++;
+		}
+	}
+
+	return result;
+}
