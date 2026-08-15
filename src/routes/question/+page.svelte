@@ -49,16 +49,28 @@
 	let client = $state<APIClient>();
 
 	let orderedAttendants = $derived.by(() => {
-		switch (order) {
-			case 'added':
-				return currentState?.attendants.map((att, ai) => ({ att, ai }));
-			case 'same':
-				return mainScreenOrder?.map((ai) => ({ att: currentState!.attendants[ai], ai }));
-			case 'reverse':
-				return mainScreenOrder?.map((ai) => ({ att: currentState!.attendants[ai], ai })).reverse();
-			default:
-				order satisfies never;
+		const array = (() => {
+			switch (order) {
+				case 'added':
+					return currentState?.attendants.map((att, ai) => ({ att, ai, ord: 0 }));
+				case 'same':
+					return mainScreenOrder?.map((ai) => ({ att: currentState!.attendants[ai], ai, ord: 0 }));
+				case 'reverse':
+					return mainScreenOrder
+						?.map((ai) => ({ att: currentState!.attendants[ai], ai, ord: 0 }))
+						.reverse();
+				default:
+					order satisfies never;
+			}
+		})();
+
+		for (let i = 0, j = 0; i < (array?.length ?? 0); i++) {
+			if (array![i].att.life !== 'removed') {
+				array![i].ord = j++;
+			}
 		}
+
+		return array;
 	});
 
 	let historyDisplay = $derived(
@@ -408,7 +420,7 @@
 	</div>
 	{#if currentState && orderedAttendants}
 		<div>
-			{#each orderedAttendants as { att, ai }, ord (ai)}
+			{#each orderedAttendants as { att, ai, ord: ord2 }, ord (ai)}
 				<div
 					class={[
 						'attendant',
@@ -492,14 +504,14 @@
 						{:else}
 							<button
 								class="labeled"
-								data-label={Keys[ord]?.[0] || ''}
+								data-label={Keys[ord2]?.[0] || ''}
 								onclick={() => postMessage({ command: 'clickMaru', attendantID: ai })}
 							>
 								O
 							</button>
 							<button
 								class="labeled"
-								data-label={Keys[ord]?.[1] || ''}
+								data-label={Keys[ord2]?.[1] || ''}
 								onclick={() => postMessage({ command: 'clickBatsu', attendantID: ai })}
 							>
 								X
