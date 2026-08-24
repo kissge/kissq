@@ -573,7 +573,7 @@
 				white-space: pre;
 			}
 		}
-		&:not(.showTotalOverride).showRate::after {
+		&:not(.showTotalOverride).showRate::before {
 			content: 'レート';
 		}
 
@@ -597,9 +597,6 @@
 			}
 		}
 
-		.rate {
-			font-size: 0.7em;
-		}
 		.maru-count {
 			color: rgb(255 65 65);
 			letter-spacing: -0.1em;
