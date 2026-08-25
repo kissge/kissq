@@ -75,7 +75,7 @@ export class WasedashikiClass {
 
 				if (
 					line === '' ||
-					/.+ 24/.test(line) ||
+					/.+ \d+/.test(line) ||
 					line.startsWith('WASEDA') ||
 					line.startsWith('Copyright')
 				) {
@@ -135,11 +135,11 @@ export class WasedashikiClass {
 				}
 
 				const parts = line.split(' ').map((n) => Number.parseInt(n));
-				if (parts.length === 1 && 1 <= parts[0] && parts[0] <= 24) {
+				if (parts.length === 1 && 1 <= parts[0] && parts[0] <= 32) {
 					this.lastButtonID = parts[0];
 					this.pushers.shift();
 					const second = this.pushers[0];
-					this.answerers = Array.from({ length: 24 }, (_, i) =>
+					this.answerers = Array.from({ length: 32 }, (_, i) =>
 						i === parts[0] - 1
 							? this.answerers[i]?.delay
 								? { rank: 1, delay: this.answerers[i].delay }
@@ -172,7 +172,7 @@ export class WasedashikiClass {
 								break;
 						}
 					}
-				} else if (parts.length === 2 && 101 <= parts[0] && parts[0] <= 124) {
+				} else if (parts.length === 2 && 101 <= parts[0] && parts[0] <= 132) {
 					let rank: 1 | 2 | 'late' = 'late';
 					if (parts[1] === 0) {
 						rank = 1;
@@ -183,7 +183,7 @@ export class WasedashikiClass {
 						this.pushers.push(parts[0] - 100);
 					}
 
-					this.answerers = Array.from({ length: 24 }, (_, i) =>
+					this.answerers = Array.from({ length: 32 }, (_, i) =>
 						i === parts[0] - 101 && parts[1] > 0 ? { rank, delay: parts[1] } : this.answerers[i]
 					);
 				} else {
