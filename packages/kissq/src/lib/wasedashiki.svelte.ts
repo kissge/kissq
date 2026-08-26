@@ -75,7 +75,7 @@ export class WasedashikiClass {
 
 				if (
 					line === '' ||
-					/.+ (24|32)/.test(line) ||
+					/^[^0-9]+ (24|32)/.test(line) ||
 					line.startsWith('WASEDA') ||
 					line.startsWith('Copyright')
 				) {
