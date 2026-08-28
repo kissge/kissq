@@ -142,7 +142,7 @@ export class AttendantState {
 				if (this.rule.lose !== null && batsuCount >= this.rule.lose) {
 					life = 'lost';
 				} else if (this.rule.chance === 'single') {
-					yasuCount = this.yasuActual;
+					yasuCount = this.yasuActual(maruCount, batsuCount);
 				} else {
 					yasuCount = 'next';
 				}
@@ -169,7 +169,7 @@ export class AttendantState {
 				if (this.rule.lose !== null && score <= this.rule.lose) {
 					life = 'lost';
 				} else if (this.rule.chance === 'single') {
-					yasuCount = this.yasuActual;
+					yasuCount = this.yasuActual(maruCount, batsuCount);
 				} else {
 					yasuCount = 'next';
 				}
@@ -189,7 +189,7 @@ export class AttendantState {
 				if (this.rule.win - batsuCount <= 0) {
 					life = 'lost';
 				} else if (this.rule.chance === 'single') {
-					yasuCount = this.yasuActual;
+					yasuCount = this.yasuActual(maruCount, batsuCount);
 				} else {
 					yasuCount = 'next';
 				}
@@ -212,7 +212,7 @@ export class AttendantState {
 					score = 0;
 					life = 'lost';
 				} else if (this.rule.chance === 'single') {
-					yasuCount = this.yasuActual;
+					yasuCount = this.yasuActual(maruCount, batsuCount);
 				} else {
 					yasuCount = 'next';
 				}
@@ -247,7 +247,7 @@ export class AttendantState {
 				if (this.rule.lose !== null && score <= this.rule.lose) {
 					life = 'lost';
 				} else if (this.rule.chance === 'single') {
-					yasuCount = this.yasuActual;
+					yasuCount = this.yasuActual(maruCount, batsuCount);
 				} else {
 					yasuCount = 'next';
 				}
@@ -266,7 +266,7 @@ export class AttendantState {
 				if (this.rule.lose !== null && score <= this.rule.lose) {
 					life = 'lost';
 				} else if (this.rule.chance === 'single') {
-					yasuCount = this.yasuActual;
+					yasuCount = this.yasuActual(maruCount, batsuCount);
 				} else {
 					yasuCount = 'next';
 				}
@@ -343,17 +343,17 @@ export class AttendantState {
 
 	get yasuDisplay(): number {
 		if (this.yasuCount === 'next') {
-			return this.yasuActual;
+			return this.yasuActual(this.maruCount, this.batsuCount);
 		} else {
 			return this.yasuCount;
 		}
 	}
 
-	get yasuActual(): number {
+	yasuActual(maruCount: number, batsuCount: number): number {
 		if (this.rule.yasuMode === 'maru') {
-			return (this.maruCount || 1) * this.rule.yasuPerBatsu;
+			return (maruCount || 1) * this.rule.yasuPerBatsu;
 		} else if (this.rule.yasuMode === 'batsu') {
-			return this.batsuCount * this.rule.yasuPerBatsu;
+			return batsuCount * this.rule.yasuPerBatsu;
 		} else if (this.rule.yasuMode === 'roulette') {
 			return this.lastPenalty?.type === 'yasu' ? this.lastPenalty.count : 0;
 		} else {
