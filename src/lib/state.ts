@@ -186,7 +186,9 @@ export class AttendantState {
 					score = 0;
 				}
 
-				if (this.rule.win - batsuCount <= 0) {
+				if (
+					this.rule.lose === null ? this.rule.win - batsuCount <= 0 : this.rule.lose <= batsuCount
+				) {
 					life = 'lost';
 				} else if (this.rule.chance === 'single') {
 					yasuCount = this.yasuActual(maruCount, batsuCount);

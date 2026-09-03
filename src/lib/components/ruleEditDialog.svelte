@@ -336,8 +336,8 @@
 							mode: 'MbyN',
 							chance: 'endless',
 							win: 10,
-							isLoseNull: false,
-							lose: 0,
+							isLoseNull: true,
+							lose: 5,
 							isQuestionLimitNull: true,
 							questionLimit: 30,
 							isAttendantLimitNull: true,
@@ -702,29 +702,27 @@
 					{activeRule.mode !== 'marubatsu' ? 'pts' : '○'} 以上
 				</div>
 
-				{#if activeRule.mode !== 'MbyN'}
-					<div>失格条件</div>
-					<div>
-						<label
-							{@attach tooltip(
-								activeRule.mode === 'marubatsu'
-									? '失格バツ数を正の数で入力'
-									: '失格スコアを負の数で入力'
-							)}
-						>
-							<input type="radio" bind:group={activeRule.isLoseNull} value={false} />
-							<input
-								type="number"
-								bind:value={activeRule.lose}
-								onfocus={() => (activeRule.isLoseNull = false)}
-							/>
-							{activeRule.mode === 'score' ? 'pts 以下' : '× 以上'}
-						</label>
-						<label>
-							<input type="radio" bind:group={activeRule.isLoseNull} value={true} />失格なし
-						</label>
-					</div>
-				{/if}
+				<div>失格条件</div>
+				<div>
+					<label
+						{@attach tooltip(
+							activeRule.mode === 'marubatsu' || activeRule.mode === 'MbyN'
+								? '失格バツ数を正の数で入力'
+								: '失格スコアを負の数で入力'
+						)}
+					>
+						<input type="radio" bind:group={activeRule.isLoseNull} value={false} />
+						<input
+							type="number"
+							bind:value={activeRule.lose}
+							onfocus={() => (activeRule.isLoseNull = false)}
+						/>
+						{activeRule.mode === 'score' ? 'pts 以下' : '× 以上'}
+					</label>
+					<label>
+						<input type="radio" bind:group={activeRule.isLoseNull} value={true} />失格なし
+					</label>
+				</div>
 			{/if}
 
 			<div>1問正解で</div>

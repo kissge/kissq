@@ -86,7 +86,9 @@ export class Rule {
 			case 'MbyN':
 				str = `${this.win} by ${this.win}（${this.win ** 2}点先取）`;
 
-				// loseは無視される
+				if (this.lose !== null) {
+					str += `、${this.lose}✕で失格`;
+				}
 
 				if (this.maru !== 1) {
 					str += `、正解+${this.maru}点`;
