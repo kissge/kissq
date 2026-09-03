@@ -717,7 +717,11 @@
 		}
 
 		.lizhi {
+			position: absolute;
+			top: -0.5em;
+			left: -0.5em;
 			background: #dddd0e;
+			font-size: 0.75em;
 		}
 		.won {
 			background: #7cfc00;
