@@ -246,9 +246,7 @@ export class AttendantState {
 					0
 				);
 
-				if (this.rule.lose !== null && score <= this.rule.lose) {
-					life = 'lost';
-				} else if (this.rule.chance === 'single') {
+				if (this.rule.chance === 'single') {
 					yasuCount = this.yasuActual(maruCount, batsuCount);
 				} else {
 					yasuCount = 'next';
@@ -265,9 +263,7 @@ export class AttendantState {
 							? -score
 							: this.rule.batsu;
 
-				if (this.rule.lose !== null && score <= this.rule.lose) {
-					life = 'lost';
-				} else if (this.rule.chance === 'single') {
+				if (this.rule.chance === 'single') {
 					yasuCount = this.yasuActual(maruCount, batsuCount);
 				} else {
 					yasuCount = 'next';
