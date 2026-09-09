@@ -20,7 +20,9 @@ export class AttendantState {
 		public score: number = 0,
 		public maruCount: number = 0,
 		public batsuCount: number = 0,
-		public yasuCount: number | 'next' = 0
+		public yasuCount: number | 'next' = 0,
+		public trueMaruCount: number = 0,
+		public trueBatsuCount: number = 0
 	) {
 		if (rule.mode === 'survival') {
 			this.score = rule.lose!;

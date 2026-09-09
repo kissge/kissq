@@ -173,17 +173,17 @@
 <div class="score" class:showTotalOverride class:showRate style:opacity={showScore ? 1 : 0}>
 	{#if showTotalOverride}
 		<span class="maru-count">
-			{#key att.totalScore.maru + att.maruCount}
+			{#key att.totalScore.maru + att.trueMaruCount}
 				<span in:fade>
-					{att.totalScore.maru + att.maruCount}
+					{att.totalScore.maru + att.trueMaruCount}
 				</span>
 			{/key}
 			<span class="symbol">〇</span>
 		</span>
 		<span class="batsu-count">
-			{#key att.totalScore.batsu + att.batsuCount}
+			{#key att.totalScore.batsu + att.trueBatsuCount}
 				<span in:fade>
-					{att.totalScore.batsu + att.batsuCount}
+					{att.totalScore.batsu + att.trueBatsuCount}
 				</span>
 			{/key}
 			<span class="symbol">✕</span>
