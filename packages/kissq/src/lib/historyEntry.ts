@@ -52,6 +52,7 @@ export class MaruHistoryEntry implements HistoryEntry {
 		att.life = life;
 		att.trophyCount = trophyCount;
 		att.yasuCount = yasuCount;
+		++att.trueMaruCount;
 
 		if (otherScoreDiff === 'transit') {
 			state.attendants.forEach((a, ai) => {
@@ -119,6 +120,7 @@ export class MaruHistoryEntry implements HistoryEntry {
 		att.life = life;
 		att.trophyCount = trophyCount;
 		att.yasuCount = yasuCount;
+		++att.trueMaruCount;
 		team.teamScore = teamScore;
 		team.teamLife = teamLife;
 
@@ -170,6 +172,7 @@ export class BatsuHistoryEntry implements HistoryEntry {
 		att.life = life;
 		att.yasuCount = yasuCount;
 		att.lastPenalty = this.penalty;
+		++att.trueBatsuCount;
 
 		return state;
 	}
@@ -190,6 +193,7 @@ export class BatsuHistoryEntry implements HistoryEntry {
 		att.life = life;
 		att.yasuCount = yasuCount;
 		att.lastPenalty = this.penalty;
+		++att.trueBatsuCount;
 		team.teamScore = teamScore;
 		team.teamLife = teamLife;
 

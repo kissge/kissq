@@ -39,8 +39,8 @@ export abstract class GameClassBase<BattleMode extends 'single' | 'team'> {
 		this.currentState.attendants.forEach((att, ai) => {
 			this.attendants[ai].trophyCount = att.trophyCount;
 			this.attendants[ai].totalScore = {
-				maru: att.totalScore.maru + att.maruCount,
-				batsu: att.totalScore.batsu + att.batsuCount
+				maru: att.totalScore.maru + att.trueMaruCount,
+				batsu: att.totalScore.batsu + att.trueBatsuCount
 			};
 		});
 		this.totalQuestionCount += this.currentState.questionCount - 1;
