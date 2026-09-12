@@ -37,7 +37,7 @@
 	</details>
 	<p>
 		パスワードを入手するには、<a
-			href="https://www.amazon.co.jp/hz/wishlist/ls/3O1HPXPHBAXM0?sort=custom"
+			href="https://www.amazon.co.jp/hz/wishlist/ls/1E7FJD98L3TW6?sort=custom"
 			target="_blank"
 		>
 			こちら
