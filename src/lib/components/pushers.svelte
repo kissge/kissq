@@ -49,7 +49,7 @@
 						<div
 							style:scale={(Game.attendants[attendantID]?.name.length ?? 0) > 9 ? '0.8 1' : '1 1'}
 						>
-							{Game.attendants[attendantID]?.name || `プレイヤー${attendantID}`}
+							{Game.attendants[attendantID]?.name || `プレイヤー${attendantID + 1}`}
 						</div>
 					</div>
 				</div>
