@@ -383,6 +383,9 @@
 	</div>
 
 	<Footer {Game}>
+		{#if Game.rules[0].bulkAdjustment}
+			<button popovertarget="bulk-menu">まとめて加減点</button>
+		{/if}
 		<button
 			onclick={() => Game.clickThrough()}
 			class={{
@@ -543,6 +546,28 @@
 		<button onclick={() => unlockDialog.open()}>機能アンロック</button>
 	</div>
 {/if}
+
+<div popover id="bulk-menu" role="menu" tabindex="-1">
+	<select
+		bind:value={Game.bulkAdjustmentScore}
+		onchange={() => {
+			Game.bulkAdjustmentTarget = Array.from({ length: Game.attendants.length }, () => false);
+		}}
+	>
+		<option value={null}>点数</option>
+		{#each Game.rules[0].bulkAdjustment! as pts, ord (ord)}
+			<option value={pts}>
+				{pts > 0 ? '+' : ''}{pts} pt{#if pts !== 1}s{/if}
+			</option>
+		{/each}
+	</select>
+	<button
+		onclick={() => {
+			Game.bulkAdjustmentScore = null;
+			document.getElementById('bulk-menu')?.hidePopover();
+		}}>キャンセル</button
+	>
+</div>
 
 {#if isBannerVisible}
 	<div class="banner-bg" transition:fade>
@@ -722,6 +747,21 @@
 		padding: 0.5em;
 		font-size: 2em;
 		user-select: none;
+	}
+
+	#bulk-menu {
+		position: absolute;
+		position-area: top;
+		display: flex;
+		gap: 0.5em;
+		margin-bottom: 0.25em;
+		box-shadow: 0 0 5px #0008;
+		border: 0;
+		font-size: 1.5em;
+
+		select {
+			font-size: 1em;
+		}
 	}
 
 	audio {

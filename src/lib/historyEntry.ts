@@ -15,7 +15,8 @@ type HistoryEntryType =
 	| RemoveHistoryEntry
 	| WinHistoryEntry
 	| LoseHistoryEntry
-	| EditHistoryEntry;
+	| EditHistoryEntry
+	| BulkAdjustHistoryEntry;
 
 export type { HistoryEntryType as HistoryEntry };
 
@@ -365,6 +366,36 @@ export class EditHistoryEntry implements HistoryEntry {
 			}
 		}
 
+		return state;
+	}
+
+	reducerTeam(): GameState {
+		throw new Error('Not implemented');
+	}
+}
+
+export class BulkAdjustHistoryEntry implements HistoryEntry {
+	type = 'bulk-adjust' as const;
+
+	constructor(
+		public attendantIDs: number[],
+		public scoreDiff: number
+	) {}
+
+	toString(): string {
+		return `${this.attendantIDs.length}人まとめて ${this.scoreDiff > 0 ? '+' : ''}${this.scoreDiff}`;
+	}
+
+	reducer(state: GameState): GameState {
+		state.increaseQuestionCount();
+		for (const attendantID of this.attendantIDs) {
+			const att = state.attendants[attendantID];
+			att.score += this.scoreDiff;
+			if (att.score <= 0) {
+				att.life = 'lost';
+				att.lifeChangedAt = -state.questionCount;
+			}
+		}
 		return state;
 	}
 

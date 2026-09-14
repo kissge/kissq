@@ -100,6 +100,8 @@
 							return `失格 ${name}`;
 						case 'edit':
 							return `手編集 ${name}`;
+						case 'bulk-adjust':
+							return `まとめて ${name}`;
 					}
 				})();
 
