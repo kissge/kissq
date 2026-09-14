@@ -38,7 +38,7 @@
 					yasuPerMaruMaru: yasuPerMaru?.maru ?? 5,
 					yasuPerMaruYasu: yasuPerMaru?.yasu ?? 5,
 					isBulkAdjustmentNull: bulkAdjustment === null,
-					bulkAdjustment: bulkAdjustment ?? [3, 2, 1, -1, -2, -3],
+					bulkAdjustment: bulkAdjustment ?? [2, -2, 1],
 					rouletteName: roulette?.name ?? null
 				};
 			}
@@ -258,7 +258,7 @@
 							yasuPerBatsu: 0,
 							rouletteName: null,
 							isBulkAdjustmentNull: true,
-							bulkAdjustment: [3, 2, 1, -1, -2, -3],
+							bulkAdjustment: [2, -2, 1],
 							isRemoved: false
 						};
 					}}
@@ -288,7 +288,7 @@
 							yasuPerBatsu: 1,
 							rouletteName: null,
 							isBulkAdjustmentNull: true,
-							bulkAdjustment: [3, 2, 1, -1, -2, -3],
+							bulkAdjustment: [2, -2, 1],
 							isRemoved: false
 						};
 					}}
@@ -318,7 +318,7 @@
 							yasuPerBatsu: 1,
 							rouletteName: null,
 							isBulkAdjustmentNull: true,
-							bulkAdjustment: [3, 2, 1, -1, -2, -3],
+							bulkAdjustment: [2, -2, 1],
 							isRemoved: false
 						};
 					}}
@@ -348,7 +348,7 @@
 							yasuPerBatsu: 0,
 							rouletteName: null,
 							isBulkAdjustmentNull: true,
-							bulkAdjustment: [3, 2, 1, -1, -2, -3],
+							bulkAdjustment: [2, -2, 1],
 							isRemoved: false
 						};
 					}}
@@ -378,7 +378,7 @@
 							yasuPerBatsu: 0,
 							rouletteName: null,
 							isBulkAdjustmentNull: true,
-							bulkAdjustment: [3, 2, 1, -1, -2, -3],
+							bulkAdjustment: [2, -2, 1],
 							isRemoved: false
 						};
 					}}
@@ -408,7 +408,7 @@
 							yasuPerBatsu: 0,
 							rouletteName: null,
 							isBulkAdjustmentNull: true,
-							bulkAdjustment: [3, 2, 1, -1, -2, -3],
+							bulkAdjustment: [2, -2, 1],
 							isRemoved: false
 						};
 					}}
@@ -438,7 +438,7 @@
 							yasuPerBatsu: 0,
 							rouletteName: null,
 							isBulkAdjustmentNull: true,
-							bulkAdjustment: [3, 2, 1, -1, -2, -3],
+							bulkAdjustment: [2, -2, 1],
 							isRemoved: false
 						};
 					}}
@@ -468,7 +468,7 @@
 							yasuPerBatsu: 1,
 							rouletteName: null,
 							isBulkAdjustmentNull: true,
-							bulkAdjustment: [3, 2, 1, -1, -2, -3],
+							bulkAdjustment: [2, -2, 1],
 							isRemoved: false
 						};
 					}}
@@ -498,7 +498,7 @@
 							yasuPerBatsu: 1,
 							rouletteName: null,
 							isBulkAdjustmentNull: true,
-							bulkAdjustment: [3, 2, 1, -1, -2, -3],
+							bulkAdjustment: [2, -2, 1],
 							isRemoved: false
 						};
 					}}
@@ -528,7 +528,7 @@
 							yasuPerBatsu: 0,
 							rouletteName: null,
 							isBulkAdjustmentNull: true,
-							bulkAdjustment: [3, 2, 1, -1, -2, -3],
+							bulkAdjustment: [2, -2, 1],
 							isRemoved: false
 						};
 					}}
@@ -558,7 +558,7 @@
 							yasuPerBatsu: 0,
 							rouletteName: null,
 							isBulkAdjustmentNull: true,
-							bulkAdjustment: [3, 2, 1, -1, -2, -3],
+							bulkAdjustment: [2, -2, 1],
 							isRemoved: false
 						};
 					}}
