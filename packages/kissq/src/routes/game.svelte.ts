@@ -2,7 +2,7 @@ import { createContext } from 'svelte';
 import se2 from '$lib/assets/se2.mp3';
 import { han2zen, type Attendant } from '$lib/attendant';
 import { GameClassBase } from '$lib/game';
-import { BatsuHistoryEntry, type HistoryEntry } from '$lib/historyEntry';
+import { BatsuHistoryEntry, BulkAdjustHistoryEntry, type HistoryEntry } from '$lib/historyEntry';
 import { LoggerClass } from '$lib/logs';
 import { Rule, type Penalty } from '$lib/rule';
 import type { WasedashikiMode } from '$lib/serial';
@@ -14,7 +14,7 @@ export class GameClass extends GameClassBase<'single'> {
 
 	attendants = $state<Attendant[]>([]);
 	rules = $state([
-		new Rule('marubatsu', 'endless', 7, 3, null, null, 1, 1, false, null, 'constant', 0, null)
+		new Rule('marubatsu', 'endless', 7, 3, null, null, 1, 1, false, null, 'constant', 0, null, null)
 	]);
 	history = $state<HistoryEntry[]>([]);
 	gameTitle = $state('');
@@ -24,6 +24,8 @@ export class GameClass extends GameClassBase<'single'> {
 
 	orderingMode = $state<'ranking' | 'manual'>('ranking');
 	enableRating = $state(false);
+	bulkAdjustmentScore = $state<number | null>(null);
+	bulkAdjustmentTarget = $state<boolean[]>([]);
 
 	Logger?: LoggerClass<'single'>;
 
@@ -145,6 +147,24 @@ export class GameClass extends GameClassBase<'single'> {
 		} else {
 			this.history.push(new BatsuHistoryEntry(attendantID, single));
 		}
+	}
+
+	bulkAdjust() {
+		if (
+			Object.values(this.bulkAdjustmentTarget).some((v) => v) &&
+			this.bulkAdjustmentScore !== null
+		) {
+			const attendantIDs = [...this.bulkAdjustmentTarget.entries()]
+				.filter(([, v]) => v)
+				.map(([i]) => i);
+			this.history.push(new BulkAdjustHistoryEntry(attendantIDs, this.bulkAdjustmentScore));
+			this.bulkAdjustmentScore = null;
+			this.bulkAdjustmentTarget = [];
+		}
+	}
+
+	addBulkAdjustmentTarget(attendantID: number) {
+		this.bulkAdjustmentTarget[attendantID] = true;
 	}
 }
 

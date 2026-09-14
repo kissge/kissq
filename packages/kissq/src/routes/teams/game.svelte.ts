@@ -15,7 +15,22 @@ export class GameClass extends GameClassBase<'team'> {
 	attendants = $state<Attendant[]>([]);
 	teams = $state<string[]>([]);
 	rules = $state([
-		new Rule('aql', 'endless', 200, null, null, null, 1, 'updown', false, null, 'constant', 0, null)
+		new Rule(
+			'aql',
+			'endless',
+			200,
+			null,
+			null,
+			null,
+			1,
+			'updown',
+			false,
+			null,
+			'constant',
+			0,
+			null,
+			null
+		)
 	]);
 	history = $state<HistoryEntry[]>([]);
 	gameTitle = $state('');
@@ -27,6 +42,9 @@ export class GameClass extends GameClassBase<'team'> {
 	orderingMode = 'manual' as const;
 	orderedAttendants = [];
 	enableRating = false;
+	bulkAdjustmentScore = null;
+	bulkAdjust = () => {};
+	addBulkAdjustmentTarget = () => {};
 
 	Logger?: LoggerClass<'team'>;
 

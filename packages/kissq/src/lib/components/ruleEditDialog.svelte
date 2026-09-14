@@ -14,7 +14,16 @@
 	let resolve: (result: Awaited<ReturnType<typeof open>>) => void;
 	export function open(rules_: Rule[]): Promise<Rule[] | null> {
 		rules = rules_.map(
-			({ lose, questionLimit, attendantLimit, batsu, yasuPerMaru, roulette, ...rule }) => {
+			({
+				lose,
+				questionLimit,
+				attendantLimit,
+				batsu,
+				yasuPerMaru,
+				roulette,
+				bulkAdjustment,
+				...rule
+			}) => {
 				return {
 					...rule,
 					isLoseNull: lose === null,
@@ -28,6 +37,8 @@
 					isYasuPerMaruNull: yasuPerMaru === null,
 					yasuPerMaruMaru: yasuPerMaru?.maru ?? 5,
 					yasuPerMaruYasu: yasuPerMaru?.yasu ?? 5,
+					isBulkAdjustmentNull: bulkAdjustment === null,
+					bulkAdjustment: bulkAdjustment ?? [3, 2, 1, -1, -2, -3],
 					rouletteName: roulette?.name ?? null
 				};
 			}
@@ -60,6 +71,8 @@
 		yasuPerMaruMaru: NonNullable<Rule['yasuPerMaru']>['maru'];
 		yasuPerMaruYasu: NonNullable<Rule['yasuPerMaru']>['yasu'];
 		rouletteName: NonNullable<Rule['roulette']>['name'] | null;
+		isBulkAdjustmentNull: boolean;
+		bulkAdjustment: NonNullable<Rule['bulkAdjustment']>;
 	}
 
 	const roulettePresets: Record<string, Penalty[]> = {
@@ -116,6 +129,7 @@
 					rule.rouletteName === null
 						? null
 						: { name: rule.rouletteName, choices: roulettePresets[rule.rouletteName] },
+					rule.isBulkAdjustmentNull ? null : rule.bulkAdjustment,
 					rule.isRemoved
 				)
 		)
@@ -137,6 +151,8 @@
 				yasuPerMaruYasu,
 				yasuMode,
 				yasuPerBatsu,
+				isBulkAdjustmentNull,
+				bulkAdjustment,
 				rouletteName
 			}) =>
 				(mode === 'survival' ? lose > 0 && !isLoseNull : true) &&
@@ -154,7 +170,8 @@
 					? yasuPerBatsu >= 0
 					: yasuMode === 'roulette'
 						? rouletteName
-						: yasuPerBatsu > 0)
+						: yasuPerBatsu > 0) &&
+				(isBulkAdjustmentNull ? true : mode === 'score' && bulkAdjustment.length > 0)
 		)
 	);
 
@@ -187,7 +204,7 @@
 			<button
 				class="tab button"
 				onclick={() => {
-					rules.push({ ...activeRules.at(-1)!.rule });
+					rules.push(JSON.parse(JSON.stringify(activeRules.at(-1)!.rule)));
 					activeTab = activeRules.at(-1)!.i;
 				}}
 				{@attach tooltip('ルールグループを追加します。')}
@@ -240,6 +257,8 @@
 							yasuMode: 'constant',
 							yasuPerBatsu: 0,
 							rouletteName: null,
+							isBulkAdjustmentNull: true,
+							bulkAdjustment: [3, 2, 1, -1, -2, -3],
 							isRemoved: false
 						};
 					}}
@@ -268,6 +287,8 @@
 							yasuMode: 'constant',
 							yasuPerBatsu: 1,
 							rouletteName: null,
+							isBulkAdjustmentNull: true,
+							bulkAdjustment: [3, 2, 1, -1, -2, -3],
 							isRemoved: false
 						};
 					}}
@@ -296,6 +317,8 @@
 							yasuMode: 'constant',
 							yasuPerBatsu: 1,
 							rouletteName: null,
+							isBulkAdjustmentNull: true,
+							bulkAdjustment: [3, 2, 1, -1, -2, -3],
 							isRemoved: false
 						};
 					}}
@@ -324,6 +347,8 @@
 							yasuMode: 'constant',
 							yasuPerBatsu: 0,
 							rouletteName: null,
+							isBulkAdjustmentNull: true,
+							bulkAdjustment: [3, 2, 1, -1, -2, -3],
 							isRemoved: false
 						};
 					}}
@@ -352,6 +377,8 @@
 							yasuMode: 'constant',
 							yasuPerBatsu: 0,
 							rouletteName: null,
+							isBulkAdjustmentNull: true,
+							bulkAdjustment: [3, 2, 1, -1, -2, -3],
 							isRemoved: false
 						};
 					}}
@@ -380,6 +407,8 @@
 							yasuMode: 'constant',
 							yasuPerBatsu: 0,
 							rouletteName: null,
+							isBulkAdjustmentNull: true,
+							bulkAdjustment: [3, 2, 1, -1, -2, -3],
 							isRemoved: false
 						};
 					}}
@@ -408,6 +437,8 @@
 							yasuMode: 'constant',
 							yasuPerBatsu: 0,
 							rouletteName: null,
+							isBulkAdjustmentNull: true,
+							bulkAdjustment: [3, 2, 1, -1, -2, -3],
 							isRemoved: false
 						};
 					}}
@@ -436,6 +467,8 @@
 							yasuMode: 'batsu',
 							yasuPerBatsu: 1,
 							rouletteName: null,
+							isBulkAdjustmentNull: true,
+							bulkAdjustment: [3, 2, 1, -1, -2, -3],
 							isRemoved: false
 						};
 					}}
@@ -464,6 +497,8 @@
 							yasuMode: 'maru',
 							yasuPerBatsu: 1,
 							rouletteName: null,
+							isBulkAdjustmentNull: true,
+							bulkAdjustment: [3, 2, 1, -1, -2, -3],
 							isRemoved: false
 						};
 					}}
@@ -492,6 +527,8 @@
 							yasuMode: 'constant',
 							yasuPerBatsu: 0,
 							rouletteName: null,
+							isBulkAdjustmentNull: true,
+							bulkAdjustment: [3, 2, 1, -1, -2, -3],
 							isRemoved: false
 						};
 					}}
@@ -520,6 +557,8 @@
 							yasuMode: 'constant',
 							yasuPerBatsu: 0,
 							rouletteName: null,
+							isBulkAdjustmentNull: true,
+							bulkAdjustment: [3, 2, 1, -1, -2, -3],
 							isRemoved: false
 						};
 					}}
@@ -886,6 +925,31 @@
 							{name}
 						</label>
 					{/each}
+				</div>
+			{/if}
+
+			{#if activeTab === 0 && activeRule.mode === 'score'}
+				<div transition:fly>まとめて加減点</div>
+				<div transition:fly>
+					<label>
+						<input type="radio" bind:group={activeRule.isBulkAdjustmentNull} value={true} />
+						使わない
+					</label>
+
+					<label>
+						<input type="radio" bind:group={activeRule.isBulkAdjustmentNull} value={false} />
+						使う
+					</label>
+
+					{#if !activeRule.isBulkAdjustmentNull}
+						<br />
+						{#each activeRule.bulkAdjustment, i (i)}
+							<input type="number" bind:value={activeRule.bulkAdjustment[i]} />
+							<button onclick={() => activeRule.bulkAdjustment.splice(i, 1)}>削除</button>
+							<br />
+						{/each}
+						<button onclick={() => activeRule.bulkAdjustment.push(0)}>追加</button>
+					{/if}
 				</div>
 			{/if}
 		</div>

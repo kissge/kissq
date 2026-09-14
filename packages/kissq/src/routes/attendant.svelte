@@ -313,6 +313,8 @@
 		{/key}
 		休
 	</div>
+{:else if Game.bulkAdjustmentScore !== null}
+	<input type="checkbox" bind:checked={Game.bulkAdjustmentTarget[ai]} />
 {:else}
 	<div
 		class="buttons"
@@ -658,6 +660,13 @@
 			padding-right: 0.1em;
 			font-size: 0.65em;
 		}
+	}
+
+	input[type='checkbox'] {
+		display: block;
+		margin: 0 auto;
+		width: 3em;
+		height: 3em;
 	}
 
 	.buttons {

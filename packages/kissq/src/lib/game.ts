@@ -27,6 +27,9 @@ export abstract class GameClassBase<BattleMode extends 'single' | 'team'> {
 	abstract orderedAttendants: number[];
 	abstract attendantsPerTeam: ({ att: Attendant; ai: number }[] | undefined)[][];
 	abstract enableRating: boolean;
+	abstract bulkAdjustmentScore: number | null;
+	abstract bulkAdjust(): void;
+	abstract addBulkAdjustmentTarget(attendantID: number): void;
 
 	abstract Logger?: LoggerClass<BattleMode>;
 

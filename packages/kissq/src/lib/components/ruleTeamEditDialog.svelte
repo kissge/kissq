@@ -107,6 +107,7 @@
 					rule.rouletteName === null
 						? null
 						: { name: rule.rouletteName, choices: roulettePresets[rule.rouletteName] },
+					null,
 					rule.isRemoved
 				)
 		)
@@ -236,6 +237,7 @@
 								yasuMode: 'constant',
 								yasuPerBatsu: 0,
 								rouletteName: null,
+								bulkAdjustment: null,
 								isRemoved: false
 							};
 							copyRule();
@@ -264,6 +266,7 @@
 								yasuMode: 'constant',
 								yasuPerBatsu: 0,
 								rouletteName: null,
+								bulkAdjustment: null,
 								isRemoved: false
 							};
 							copyRule();
@@ -292,6 +295,7 @@
 								yasuMode: 'constant',
 								yasuPerBatsu: 0,
 								rouletteName: null,
+								bulkAdjustment: null,
 								isRemoved: false
 							};
 							copyRule();
@@ -320,6 +324,7 @@
 								yasuMode: 'constant',
 								yasuPerBatsu: 0,
 								rouletteName: null,
+								bulkAdjustment: null,
 								isRemoved: false
 							};
 							copyRule();
@@ -348,6 +353,7 @@
 								yasuMode: 'constant',
 								yasuPerBatsu: 0,
 								rouletteName: null,
+								bulkAdjustment: null,
 								isRemoved: false
 							};
 							copyRule();

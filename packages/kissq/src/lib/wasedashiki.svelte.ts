@@ -73,16 +73,16 @@ export class WasedashikiClass {
 			for await (const line of readFromSerialPort(serialPort)) {
 				this.connected = true;
 
+				console.log('Received line:', JSON.stringify(line));
+
 				if (
 					line === '' ||
-					/^[^0-9]+ (24|32)/.test(line) ||
-					line.startsWith('WASEDA') ||
-					line.startsWith('Copyright')
+					/^[^0-9]+ \d+$/.test(line) ||
+					line.includes('QUIZ') ||
+					line.includes('NAKUI')
 				) {
 					continue;
 				}
-
-				console.log('Received line:', JSON.stringify(line));
 
 				switch (line) {
 					case '91':
@@ -109,26 +109,30 @@ export class WasedashikiClass {
 				}
 
 				if (line === '51' || line === '52') {
-					const answererButtonID = this.answerers.findIndex((a) => a?.rank === 1);
-					if (answererButtonID === -1) {
-						// 空押し
-						continue;
-					}
-
-					const answererAttendantID = Object.entries(this.buttonMapping).find(
-						([, id]) => id === answererButtonID + 1
-					)?.[0];
-					if (answererAttendantID !== undefined) {
-						if (line === '51') {
-							this.Game.clickMaru(Number.parseInt(answererAttendantID), false);
-							this.answerers = [];
-						} else {
-							this.Game.clickBatsu(Number.parseInt(answererAttendantID), false);
-						}
+					if (this.Game.bulkAdjustmentScore !== null) {
+						this.Game.bulkAdjust();
 					} else {
-						Toastify({
-							text: `ボタン ${answererButtonID + 1} を持っているのがどのプレイヤーか分かりません。紐づけしてください`
-						}).showToast();
+						const answererButtonID = this.answerers.findIndex((a) => a?.rank === 1);
+						if (answererButtonID === -1) {
+							// 空押し
+							continue;
+						}
+
+						const answererAttendantID = Object.entries(this.buttonMapping).find(
+							([, id]) => id === answererButtonID + 1
+						)?.[0];
+						if (answererAttendantID !== undefined) {
+							if (line === '51') {
+								this.Game.clickMaru(Number.parseInt(answererAttendantID), false);
+								this.answerers = [];
+							} else {
+								this.Game.clickBatsu(Number.parseInt(answererAttendantID), false);
+							}
+						} else {
+							Toastify({
+								text: `ボタン ${answererButtonID + 1} を持っているのがどのプレイヤーか分かりません。紐づけしてください`
+							}).showToast();
+						}
 					}
 
 					continue;
@@ -136,56 +140,67 @@ export class WasedashikiClass {
 
 				const parts = line.split(' ').map((n) => Number.parseInt(n));
 				if (parts.length === 1 && 1 <= parts[0] && parts[0] <= 32) {
-					this.lastButtonID = parts[0];
-					this.pushers.shift();
-					const second = this.pushers[0];
-					this.answerers = Array.from({ length: 32 }, (_, i) =>
-						i === parts[0] - 1
-							? this.answerers[i]?.delay
-								? { rank: 1, delay: this.answerers[i].delay }
-								: { rank: 1, delay: 0 }
-							: this.answerers[i]?.rank === 1
-								? null
-								: i + 1 === second
-									? { rank: 2, delay: this.answerers[i]!.delay }
-									: this.answerers[i]
-					);
-					const attendantID = Object.entries(this.buttonMapping).find(
-						([, id]) => id === this.lastButtonID!
-					)?.[0];
-					if (attendantID == undefined) {
-						Toastify({
-							text: `ボタン ${this.lastButtonID} を持っているのがどのプレイヤーか分かりません。紐づけしてください`
-						}).showToast();
-					} else {
-						const att = this.Game.currentState.attendants[Number.parseInt(attendantID)];
-						const name = att.name || `プレイヤー${Number.parseInt(attendantID) + 1}`;
-						switch (att.life) {
-							case 'removed':
-								Toastify({ text: `${name}は削除されています` }).showToast();
-								break;
-							case 'won':
-								Toastify({ text: `${name}は勝ち抜け済みです` }).showToast();
-								break;
-							case 'lost':
-								Toastify({ text: `${name}は失格済み・封鎖中です` }).showToast();
-								break;
+					if (this.Game.bulkAdjustmentScore === null) {
+						this.lastButtonID = parts[0];
+						this.pushers.shift();
+						const second = this.pushers[0];
+						this.answerers = Array.from({ length: 32 }, (_, i) =>
+							i === parts[0] - 1
+								? this.answerers[i]?.delay
+									? { rank: 1, delay: this.answerers[i].delay }
+									: { rank: 1, delay: 0 }
+								: this.answerers[i]?.rank === 1
+									? null
+									: i + 1 === second
+										? { rank: 2, delay: this.answerers[i]!.delay }
+										: this.answerers[i]
+						);
+						const attendantID = Object.entries(this.buttonMapping).find(
+							([, id]) => id === this.lastButtonID!
+						)?.[0];
+						if (attendantID == undefined) {
+							Toastify({
+								text: `ボタン ${this.lastButtonID} を持っているのがどのプレイヤーか分かりません。紐づけしてください`
+							}).showToast();
+						} else {
+							const att = this.Game.currentState.attendants[Number.parseInt(attendantID)];
+							const name = att.name || `プレイヤー${Number.parseInt(attendantID) + 1}`;
+							switch (att.life) {
+								case 'removed':
+									Toastify({ text: `${name}は削除されています` }).showToast();
+									break;
+								case 'won':
+									Toastify({ text: `${name}は勝ち抜け済みです` }).showToast();
+									break;
+								case 'lost':
+									Toastify({ text: `${name}は失格済み・封鎖中です` }).showToast();
+									break;
+							}
 						}
 					}
 				} else if (parts.length === 2 && 101 <= parts[0] && parts[0] <= 132) {
-					let rank: 1 | 2 | 'late' = 'late';
-					if (parts[1] === 0) {
-						rank = 1;
-					} else {
-						if (this.pushers.length === 0) {
-							rank = 2;
+					if (this.Game.bulkAdjustmentScore !== null) {
+						const answererAttendantID = Object.entries(this.buttonMapping).find(
+							([, id]) => id === parts[0] - 100
+						)?.[0];
+						if (answererAttendantID !== undefined) {
+							this.Game.addBulkAdjustmentTarget(Number.parseInt(answererAttendantID));
 						}
-						this.pushers.push(parts[0] - 100);
-					}
+					} else {
+						let rank: 1 | 2 | 'late' = 'late';
+						if (parts[1] === 0) {
+							rank = 1;
+						} else {
+							if (this.pushers.length === 0) {
+								rank = 2;
+							}
+							this.pushers.push(parts[0] - 100);
+						}
 
-					this.answerers = Array.from({ length: 32 }, (_, i) =>
-						i === parts[0] - 101 && parts[1] > 0 ? { rank, delay: parts[1] } : this.answerers[i]
-					);
+						this.answerers = Array.from({ length: 32 }, (_, i) =>
+							i === parts[0] - 101 && parts[1] > 0 ? { rank, delay: parts[1] } : this.answerers[i]
+						);
+					}
 				} else {
 					Toastify({ text: `デバッグ情報: ${JSON.stringify(line)}` }).showToast();
 					console.warn('serial:', JSON.stringify(line));

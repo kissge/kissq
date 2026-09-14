@@ -48,6 +48,7 @@
 						yasuMode: 'constant',
 						yasuPerBatsu: 0,
 						roulette: null,
+						bulkAdjustment: null,
 						isRemoved: false
 					},
 					{
@@ -64,6 +65,7 @@
 						yasuMode: 'constant',
 						yasuPerBatsu: 0,
 						roulette: null,
+						bulkAdjustment: null,
 						isRemoved: false
 					},
 					{
@@ -80,6 +82,7 @@
 						yasuMode: 'constant',
 						yasuPerBatsu: 0,
 						roulette: null,
+						bulkAdjustment: null,
 						isRemoved: false
 					},
 					{
@@ -96,6 +99,7 @@
 						yasuMode: 'constant',
 						yasuPerBatsu: 0,
 						roulette: null,
+						bulkAdjustment: null,
 						isRemoved: false
 					}
 				],
@@ -118,6 +122,7 @@
 						yasuMode: 'constant',
 						yasuPerBatsu: 1,
 						roulette: null,
+						bulkAdjustment: null,
 						isRemoved: false
 					},
 					{
@@ -134,6 +139,7 @@
 						yasuMode: 'constant',
 						yasuPerBatsu: 3,
 						roulette: null,
+						bulkAdjustment: null,
 						isRemoved: false
 					},
 					{
@@ -150,6 +156,7 @@
 						yasuMode: 'constant',
 						yasuPerBatsu: 5,
 						roulette: null,
+						bulkAdjustment: null,
 						isRemoved: false
 					}
 				],
@@ -176,6 +183,7 @@
 						yasuMode: 'constant',
 						yasuPerBatsu: 0,
 						roulette: null,
+						bulkAdjustment: null,
 						isRemoved: false
 					},
 					{
@@ -192,6 +200,7 @@
 						yasuMode: 'constant',
 						yasuPerBatsu: 0,
 						roulette: null,
+						bulkAdjustment: null,
 						isRemoved: false
 					}
 				],

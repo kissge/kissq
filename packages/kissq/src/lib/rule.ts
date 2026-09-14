@@ -30,6 +30,8 @@ export class Rule {
 		public yasuPerBatsu: number,
 		/** ルーレット */
 		public roulette: { name: string; choices: Penalty[] } | null,
+		/** まとめて加減点 */
+		public bulkAdjustment: number[] | null,
 		/** 削除済みかどうか */
 		public isRemoved: boolean = false
 	) {}
