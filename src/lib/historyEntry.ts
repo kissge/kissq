@@ -390,10 +390,6 @@ export class BulkAdjustHistoryEntry implements HistoryEntry {
 		for (const attendantID of this.attendantIDs) {
 			const att = state.attendants[attendantID];
 			att.score += this.scoreDiff;
-			if (att.score <= 0) {
-				att.life = 'lost';
-				att.lifeChangedAt = -state.questionCount;
-			}
 		}
 		return state;
 	}
