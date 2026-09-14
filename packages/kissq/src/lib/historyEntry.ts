@@ -387,7 +387,6 @@ export class BulkAdjustHistoryEntry implements HistoryEntry {
 	}
 
 	reducer(state: GameState): GameState {
-		state.increaseQuestionCount();
 		for (const attendantID of this.attendantIDs) {
 			const att = state.attendants[attendantID];
 			att.score += this.scoreDiff;
