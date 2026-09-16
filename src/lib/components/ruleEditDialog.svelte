@@ -181,6 +181,61 @@
 		dialog.close();
 		resolve(rulesObject);
 	}
+
+	function debugInfo() {
+		let debugString = '';
+		for (const rule of rules) {
+			debugString += 'Rule: ' + JSON.stringify(rule, null, 2) + '\n';
+			debugString += `
+				(mode === 'survival' ? lose > 0 && !isLoseNull : true)
+					${rule.mode === 'survival'} ? ${rule.lose} > 0 && !${rule.isLoseNull} : true
+
+				(mode !== 'score' && mode !== 'survival' ? batsuMode !== 'batsu' : true)
+					${rule.mode !== 'score'} && ${rule.mode !== 'survival'} ? ${rule.batsuMode} !== 'batsu' : true
+
+				(isQuestionLimitNull ? true : Number.isInteger(questionLimit) && questionLimit > 0)
+					${rule.isQuestionLimitNull} ? true : ${Number.isInteger(rule.questionLimit)} && ${rule.questionLimit} > 0
+
+				(isAttendantLimitNull ? true : Number.isInteger(attendantLimit) && attendantLimit > 0)
+					${rule.isAttendantLimitNull} ? true : ${Number.isInteger(rule.attendantLimit)} && ${rule.attendantLimit} > 0
+
+				(isYasuPerMaruNull
+					? true
+					: Number.isInteger(yasuPerMaruMaru) &&
+						yasuPerMaruMaru > 0 &&
+						Number.isInteger(yasuPerMaruYasu) &&
+						yasuPerMaruYasu > 0)
+					(${rule.isYasuPerMaruNull}
+						? true
+						: ${Number.isInteger(rule.yasuPerMaruMaru)} &&
+						${rule.yasuPerMaruMaru} > 0 &&
+						${Number.isInteger(rule.yasuPerMaruYasu)} &&
+						${rule.yasuPerMaruYasu} > 0)
+
+				Number.isInteger(yasuPerBatsu)
+					${Number.isInteger(rule.yasuPerBatsu)}
+
+				(yasuMode === 'constant'
+					? yasuPerBatsu >= 0
+					: yasuMode === 'roulette'
+						? rouletteName
+						: yasuPerBatsu > 0)
+					(${rule.yasuMode} === 'constant'
+						? ${rule.yasuPerBatsu} >= 0
+						: ${rule.yasuMode} === 'roulette'
+							? ${rule.rouletteName}
+							: ${rule.yasuPerBatsu} > 0)
+
+				(isBulkAdjustmentNull ? true : mode === 'score' && bulkAdjustment.length > 0)
+					(${rule.isBulkAdjustmentNull} ? true : ${rule.mode} === 'score' && ${rule.bulkAdjustment.length} > 0
+		)
+					--------------------------------------------------
+			`;
+		}
+
+		const win = window.open('about:blank', '_blank');
+		win?.document.write(`<pre>${debugString}</pre>`);
+	}
 </script>
 
 <dialog bind:this={dialog}>
@@ -961,6 +1016,12 @@
 				close={() => dialog.close()}
 				{isValid}
 			/>
+			<button
+				{@attach tooltip(
+					'保存ボタンが押せないバグが報告されています。もし遭遇したらこのボタンを押して表示される内容を作者に共有してくださいm(__)m'
+				)}
+				onclick={debugInfo}>HELP</button
+			>
 			<div class="spacer"></div>
 			<button
 				onclick={() => {
