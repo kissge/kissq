@@ -36,13 +36,13 @@
 		<div bind:clientHeight={pushersClientHeight}>
 			{#each Wasedashiki.answererRanking as [attendantID, answerer] (attendantID)}
 				<div class="attendant" in:fly={{ y: 300 }} out:fly={{ y: -300 }}>
-					<div class="time" style:opacity={answerer.delay === 0 ? 0 : 1}>
-						+ {(answerer.delay / 1000).toFixed(3) ?? ''} s
+					<div class="rank">
+						{answerer.totalRank + 1} <small>着 / {Wasedashiki.pushers.length}</small>
 					</div>
 					<div
 						class="name"
-						class:answerer-1st={answerer.rank === 1}
-						class:answerer-2nd={answerer.rank === 2 &&
+						class:answerer-1st={answerer.currentRank === 1}
+						class:answerer-2nd={answerer.currentRank === 2 &&
 							Game.wasedashikiMode !== 'single' &&
 							Game.wasedashikiMode !== 'handicap'}
 					>
@@ -51,6 +51,9 @@
 						>
 							{Game.attendants[attendantID]?.name || `プレイヤー${attendantID + 1}`}
 						</div>
+					</div>
+					<div class="time" style:opacity={answerer.delay === 0 ? 0 : 1}>
+						+ {(answerer.delay / 1000).toFixed(3) ?? ''} s
 					</div>
 				</div>
 			{/each}
@@ -84,9 +87,19 @@
 
 		.attendant {
 			display: grid;
-			grid-template-columns: 3em 1fr;
+			grid-template-columns: 3em 1fr 3em;
 			align-items: center;
 			width: 80%;
+		}
+
+		.rank {
+			z-index: 9999;
+			border: 1px solid white;
+			border-radius: 1em;
+			background: black;
+			color: white;
+			font-size: 0.5em;
+			line-height: 1.5;
 		}
 
 		.time {
@@ -100,6 +113,7 @@
 		}
 
 		.name {
+			margin-right: -1em;
 			margin-left: -1em;
 			background: #222;
 			padding: 0.1em 0;

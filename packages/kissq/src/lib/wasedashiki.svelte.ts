@@ -2,24 +2,28 @@ import { createContext } from 'svelte';
 import Toastify from 'toastify-js';
 import { connectToSerialPort, readFromSerialPort } from '$lib/serial';
 import type { GameClassBaseType } from './game';
+import type { AttendantID, ButtonID } from './types';
 
 export class WasedashikiClass {
 	serialPort = $state<SerialPort | undefined>();
-	answerers = $state<({ rank: 1 | 2 | 'late'; delay: number } | null)[]>([]);
-	lastButtonID = $state<number | undefined>();
+	answerers = $state<({ currentRank: 1 | 2 | 'late'; totalRank: number; delay: number } | null)[]>(
+		[]
+	);
+	lastButtonID = $state<ButtonID | undefined>();
 	/** attendant ID -> button ID */
-	buttonMapping = $state<Record<number, number>>({});
+	buttonMapping = $state<Record<AttendantID, ButtonID>>({});
 	buttonMappingRestored = $state(false);
 	connected = $state(false);
-	pushers = $state<number[]>([]);
+	pushers = $state<ButtonID[]>([]);
+	cursor = $state(0);
 
 	constructor(public Game: GameClassBaseType) {}
 
 	/** button ID -> attendant ID */
 	buttonReverseMapping = $derived.by(() => {
-		const reverse: Record<number, number> = {};
+		const reverse: Record<ButtonID, AttendantID> = {};
 		for (const [attendantID, buttonID] of Object.entries(this.buttonMapping)) {
-			reverse[buttonID] = Number(attendantID);
+			reverse[buttonID as ButtonID] = Number(attendantID) as AttendantID;
 		}
 		return reverse;
 	});
@@ -28,7 +32,7 @@ export class WasedashikiClass {
 		Object.entries(this.answerers)
 			.filter(([, v]) => v != null)
 			.toSorted((a, b) => a[1]!.delay - b[1]!.delay)
-			.map(([k, v]) => [this.buttonReverseMapping[Number(k) + 1], v!] as const)
+			.map(([k, v]) => [this.buttonReverseMapping[(Number(k) + 1) as ButtonID], v!] as const)
 	);
 
 	async initiateSerialConnection(serialPort_?: SerialPort) {
@@ -105,6 +109,7 @@ export class WasedashikiClass {
 						// リセット
 						this.answerers = [];
 						this.pushers = [];
+						this.cursor = 0;
 						continue;
 				}
 
@@ -112,7 +117,7 @@ export class WasedashikiClass {
 					if (this.Game.bulkAdjustmentScore !== null) {
 						this.Game.bulkAdjust();
 					} else {
-						const answererButtonID = this.answerers.findIndex((a) => a?.rank === 1);
+						const answererButtonID = this.answerers.findIndex((a) => a?.currentRank === 1);
 						if (answererButtonID === -1) {
 							// 空押し
 							continue;
@@ -141,18 +146,25 @@ export class WasedashikiClass {
 				const parts = line.split(' ').map((n) => Number.parseInt(n));
 				if (parts.length === 1 && 1 <= parts[0] && parts[0] <= 32) {
 					if (this.Game.bulkAdjustmentScore === null) {
-						this.lastButtonID = parts[0];
-						this.pushers.shift();
-						const second = this.pushers[0];
+						++this.cursor;
+						this.lastButtonID = parts[0] as ButtonID;
 						this.answerers = Array.from({ length: 32 }, (_, i) =>
 							i === parts[0] - 1
 								? this.answerers[i]?.delay
-									? { rank: 1, delay: this.answerers[i].delay }
-									: { rank: 1, delay: 0 }
-								: this.answerers[i]?.rank === 1
+									? {
+											currentRank: 1,
+											totalRank: this.answerers[i].totalRank,
+											delay: this.answerers[i].delay
+										}
+									: { currentRank: 1, totalRank: 0, delay: 0 }
+								: this.answerers[i]?.currentRank === 1
 									? null
-									: i + 1 === second
-										? { rank: 2, delay: this.answerers[i]!.delay }
+									: this.pushers[this.cursor] - 1 === i
+										? {
+												currentRank: 2,
+												totalRank: this.answerers[i]!.totalRank,
+												delay: this.answerers[i]!.delay
+											}
 										: this.answerers[i]
 						);
 						const attendantID = Object.entries(this.buttonMapping).find(
@@ -190,15 +202,15 @@ export class WasedashikiClass {
 						let rank: 1 | 2 | 'late' = 'late';
 						if (parts[1] === 0) {
 							rank = 1;
-						} else {
-							if (this.pushers.length === 0) {
-								rank = 2;
-							}
-							this.pushers.push(parts[0] - 100);
+						} else if (this.pushers.length === 1) {
+							rank = 2;
 						}
+						this.pushers.push((parts[0] - 100) as ButtonID);
 
 						this.answerers = Array.from({ length: 32 }, (_, i) =>
-							i === parts[0] - 101 && parts[1] > 0 ? { rank, delay: parts[1] } : this.answerers[i]
+							i === parts[0] - 101 && parts[1] > 0
+								? { currentRank: rank, totalRank: this.pushers.length - 1, delay: parts[1] }
+								: this.answerers[i]
 						);
 					}
 				} else {
