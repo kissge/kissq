@@ -228,5 +228,9 @@
 		:global(body) {
 			height: 100vh;
 		}
+
+		.toastify {
+			font-size: 2rem;
+		}
 	}
 </style>
