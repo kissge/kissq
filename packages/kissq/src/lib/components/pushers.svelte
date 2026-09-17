@@ -56,7 +56,11 @@
 							{/if}
 						</div>
 					</div>
-					<div class="time" style:opacity={answerer.delay === 0 ? 0 : 1}>
+					<div
+						class="time"
+						style:opacity={answerer.delay === 0 ? 0 : 1}
+						style:background={answerer.delay < 10 ? 'red' : 'black'}
+					>
 						+ {(answerer.delay / 1000).toFixed(3) ?? ''} s
 					</div>
 				</div>
