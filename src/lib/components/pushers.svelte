@@ -2,6 +2,7 @@
 	import { fade, fly } from 'svelte/transition';
 	import type { GameClassBaseType } from '$lib/game';
 	import { getLayoutContext } from '$lib/layout.svelte';
+	import type { AttendantID } from '$lib/types';
 	import { getWasedashikiContext } from '$lib/wasedashiki.svelte';
 
 	let { Game }: { Game: GameClassBaseType } = $props();
@@ -11,6 +12,8 @@
 
 	let innerHeight = $state(0);
 	let pushersClientHeight = $state(0);
+
+	let buttonMappingTarget = $state(0);
 
 	let pushersTop = $derived.by(() => {
 		if (pushersClientHeight === 0) {
@@ -41,7 +44,8 @@
 					</div>
 					<div
 						class="name"
-						class:answerer-1st={answerer.currentRank === 1}
+						class:answerer-1st={answerer.currentRank === 1 && !isNaN(attendantID)}
+						class:answerer-1st-uncertain={answerer.currentRank === 1 && isNaN(attendantID)}
 						class:answerer-2nd={answerer.currentRank === 2 &&
 							Game.wasedashikiMode !== 'single' &&
 							Game.wasedashikiMode !== 'handicap'}
@@ -50,7 +54,20 @@
 							style:scale={(Game.attendants[attendantID]?.name.length ?? 0) > 9 ? '0.8 1' : '1 1'}
 						>
 							{#if isNaN(attendantID)}
-								<div style:scale="0.6 1">？（後で手動で何とかしてください）</div>
+								{#if answerer.currentRank === 1}
+									<select bind:value={buttonMappingTarget}>
+										{#each Game.attendants as attendant, id (id)}
+											<option value={id}>{attendant.name || `プレイヤー${id + 1}`}</option>
+										{/each}
+									</select>
+									<button
+										onclick={() => Wasedashiki.setButtonMapping(buttonMappingTarget as AttendantID)}
+									>
+										に紐づける
+									</button>
+								{:else}
+									？？？
+								{/if}
 							{:else}
 								{Game.attendants[attendantID]?.name || `プレイヤー${attendantID + 1}`}
 							{/if}
@@ -130,8 +147,19 @@
 			text-shadow: 0 0 15px #fff8;
 		}
 
+		select {
+			border: none;
+			background: lightyellow;
+			padding: 0.1em;
+			font-size: 1em;
+		}
+
 		.answerer-1st {
 			animation: answerer-1st 0.3s ease infinite alternate;
+		}
+
+		.answerer-1st,
+		.answerer-1st-uncertain {
 			box-shadow:
 				0px 0px 25px #aa0a,
 				0px 0px 25px #aa0a,

@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { fade, fly } from 'svelte/transition';
-	import Toastify from 'toastify-js';
 	import se1 from '$lib/assets/se1.mp3';
 	import { han2zen } from '$lib/attendant';
 	import {
@@ -13,6 +12,7 @@
 	import { playSound } from '$lib/sound';
 	import type { AttendantState, GameEvent } from '$lib/state';
 	import { tooltip } from '$lib/tooltip.svelte';
+	import type { AttendantID } from '$lib/types';
 	import { getWasedashikiContext } from '$lib/wasedashiki.svelte';
 	import { getGameContext } from './game.svelte';
 
@@ -30,7 +30,7 @@
 		effect3Name,
 		showBanner
 	}: {
-		ai: number;
+		ai: AttendantID;
 		ord: number;
 		screenshotModeTimer: number | NodeJS.Timeout | undefined;
 		screenshotOffset: number;
@@ -61,7 +61,7 @@
 
 {#if Wasedashiki.buttonMapping[ai] != null}
 	{@const j = Wasedashiki.buttonMapping[ai] - 1}
-	{#if Wasedashiki.answerers[j]?.rank}
+	{#if Wasedashiki.answerers[j]?.currentRank}
 		{#if Wasedashiki.answerers[j].delay > 0}
 			<div class="answerer">
 				+&thinsp;{(Wasedashiki.answerers[j].delay / 1000).toFixed(3)} s
@@ -87,21 +87,7 @@
 	{@attach tooltip(
 		`このプレイヤーが持っているボタンは${Wasedashiki.buttonMapping[ai] == null ? '???' : Wasedashiki.buttonMapping[ai]}番です。クリックで紐づけ`
 	)}
-	onclick={() => {
-		if (Wasedashiki.lastButtonID !== undefined) {
-			Wasedashiki.buttonMapping = {
-				...Object.fromEntries(
-					Object.entries(Wasedashiki.buttonMapping).filter(
-						([, v]) => v !== Wasedashiki.lastButtonID
-					)
-				),
-				[ai]: Wasedashiki.lastButtonID!
-			};
-			Toastify({
-				text: `ボタン${Wasedashiki.lastButtonID}は${att.name || `プレイヤー${ai + 1}`}が持っています`
-			}).showToast();
-		}
-	}}
+	onclick={() => Wasedashiki.setButtonMapping(ai as AttendantID)}
 >
 	{Wasedashiki.buttonMapping[ai] ?? '?'}
 </button>
@@ -152,13 +138,14 @@
 		{
 			blurred: screenshotModeTimer != null && ai !== Game.orderedAttendants[screenshotOffset],
 			'show-bar': showScore,
-			'answerer-1st': Wasedashiki.answerers[(Wasedashiki.buttonMapping[ai] ?? 0) - 1]?.rank === 1,
+			'answerer-1st':
+				Wasedashiki.answerers[(Wasedashiki.buttonMapping[ai] ?? 0) - 1]?.currentRank === 1,
 			'answerer-2nd':
 				(Game.wasedashikiMode === 'endless' || Game.wasedashikiMode === 'double') &&
-				Wasedashiki.answerers[(Wasedashiki.buttonMapping[ai] ?? 0) - 1]?.rank === 2,
+				Wasedashiki.answerers[(Wasedashiki.buttonMapping[ai] ?? 0) - 1]?.currentRank === 2,
 			'answerer-late':
 				Game.wasedashikiMode === 'endless' &&
-				Wasedashiki.answerers[(Wasedashiki.buttonMapping[ai] ?? 0) - 1]?.rank === 'late'
+				Wasedashiki.answerers[(Wasedashiki.buttonMapping[ai] ?? 0) - 1]?.currentRank === 'late'
 		}
 	]}
 	style:writing-mode={Layout.nameDirection}

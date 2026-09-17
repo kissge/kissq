@@ -3,6 +3,7 @@
 	import Toastify from 'toastify-js';
 	import { RemoveHistoryEntry } from '$lib/historyEntry';
 	import { tooltip, tooltipInteractive } from '$lib/tooltip.svelte';
+	import type { AttendantID } from '$lib/types';
 	import { getWasedashikiContext } from '$lib/wasedashiki.svelte';
 	import { getDnDContext } from './dnd.svelte';
 	import { getGameContext } from './game.svelte';
@@ -123,13 +124,16 @@
 		{/if}
 		<button
 			class="button-mapping"
-			style={Wasedashiki.buttonMapping[ai] == null
+			style={Wasedashiki.buttonMapping[ai as AttendantID] == null
 				? undefined
-				: 1 <= Wasedashiki.buttonMapping[ai] && Wasedashiki.buttonMapping[ai] <= 6
+				: 1 <= Wasedashiki.buttonMapping[ai as AttendantID] &&
+					  Wasedashiki.buttonMapping[ai as AttendantID] <= 6
 					? 'background-color: red; color: white'
-					: 7 <= Wasedashiki.buttonMapping[ai] && Wasedashiki.buttonMapping[ai] <= 12
+					: 7 <= Wasedashiki.buttonMapping[ai as AttendantID] &&
+						  Wasedashiki.buttonMapping[ai as AttendantID] <= 12
 						? 'background-color: blue; color: white'
-						: 13 <= Wasedashiki.buttonMapping[ai] && Wasedashiki.buttonMapping[ai] <= 18
+						: 13 <= Wasedashiki.buttonMapping[ai as AttendantID] &&
+							  Wasedashiki.buttonMapping[ai as AttendantID] <= 18
 							? 'background-color: yellow; color: black'
 							: 'background-color: green; color: white'}
 			style:display={Wasedashiki.lastButtonID == undefined && !Wasedashiki.buttonMappingRestored
@@ -137,7 +141,7 @@
 				: ''}
 			disabled={Wasedashiki.lastButtonID == undefined}
 			{@attach tooltip(
-				`このプレイヤーが持っているボタンは${Wasedashiki.buttonMapping[ai] == null ? '???' : Wasedashiki.buttonMapping[ai]}番です。クリックで紐づけ`
+				`このプレイヤーが持っているボタンは${Wasedashiki.buttonMapping[ai as AttendantID] == null ? '???' : Wasedashiki.buttonMapping[ai as AttendantID]}番です。クリックで紐づけ`
 			)}
 			onclick={() => {
 				if (Wasedashiki.lastButtonID !== undefined) {
@@ -147,31 +151,34 @@
 								([, v]) => v !== Wasedashiki.lastButtonID
 							)
 						),
-						[ai]: Wasedashiki.lastButtonID!
+						[ai as AttendantID]: Wasedashiki.lastButtonID!
 					};
 					Toastify({
-						text: `ボタン${Wasedashiki.lastButtonID}は${Game.attendants[ai].name || `プレイヤー${ai + 1}`}が持っています`
+						text: `ボタン${Wasedashiki.lastButtonID}は${Game.attendants[ai as AttendantID].name || `プレイヤー${ai + 1}`}が持っています`
 					}).showToast();
 				}
 			}}
 		>
-			{Wasedashiki.buttonMapping[ai] ?? '?'}
+			{Wasedashiki.buttonMapping[ai as AttendantID] ?? '?'}
 		</button>
 		<input
 			class={[
 				'name',
 				{
 					'answerer-1st':
-						Wasedashiki.answerers[(Wasedashiki.buttonMapping[ai] ?? 0) - 1]?.rank === 1,
+						Wasedashiki.answerers[(Wasedashiki.buttonMapping[ai as AttendantID] ?? 0) - 1]
+							?.currentRank === 1,
 					'answerer-2nd':
 						(Game.wasedashikiMode === 'endless' || Game.wasedashikiMode === 'double') &&
-						Wasedashiki.answerers[(Wasedashiki.buttonMapping[ai] ?? 0) - 1]?.rank === 2,
+						Wasedashiki.answerers[(Wasedashiki.buttonMapping[ai as AttendantID] ?? 0) - 1]
+							?.currentRank === 2,
 					'answerer-late':
 						Game.wasedashikiMode === 'endless' &&
-						Wasedashiki.answerers[(Wasedashiki.buttonMapping[ai] ?? 0) - 1]?.rank === 'late'
+						Wasedashiki.answerers[(Wasedashiki.buttonMapping[ai as AttendantID] ?? 0) - 1]
+							?.currentRank === 'late'
 				}
 			]}
-			bind:value={Game.attendants[ai].name}
+			bind:value={Game.attendants[ai as AttendantID].name}
 			placeholder={`プレイヤー${ai + 1}`}
 			onpaste={(e) => Game.handlePasteEvent(e, ai, ti)}
 		/>
