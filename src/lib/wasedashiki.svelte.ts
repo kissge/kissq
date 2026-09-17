@@ -17,6 +17,8 @@ export class WasedashikiClass {
 	pushers = $state<ButtonID[]>([]);
 	cursor = $state(0);
 
+	lastBatsuButtonTime = -Infinity;
+
 	constructor(public Game: GameClassBaseType) {}
 
 	/** button ID -> attendant ID */
@@ -120,6 +122,19 @@ export class WasedashikiClass {
 						const answererButtonID = this.answerers.findIndex((a) => a?.currentRank === 1);
 						if (answererButtonID === -1) {
 							// 空押し
+
+							if (line === '52') {
+								const currentTime = Date.now();
+								if (currentTime - this.lastBatsuButtonTime <= 1000) {
+									this.lastBatsuButtonTime = -Infinity;
+									Toastify({ text: 'スルーにします' }).showToast();
+									this.Game.clickThrough();
+
+									continue;
+								}
+								this.lastBatsuButtonTime = currentTime;
+							}
+
 							continue;
 						}
 
