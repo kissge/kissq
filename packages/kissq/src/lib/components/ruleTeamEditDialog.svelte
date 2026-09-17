@@ -108,6 +108,7 @@
 						? null
 						: { name: rule.rouletteName, choices: roulettePresets[rule.rouletteName] },
 					null,
+					rule.multiplyMinimum,
 					rule.isRemoved
 				)
 		)
@@ -238,6 +239,7 @@
 								yasuPerBatsu: 0,
 								rouletteName: null,
 								bulkAdjustment: null,
+								multiplyMinimum: 0,
 								isRemoved: false
 							};
 							copyRule();
@@ -267,6 +269,7 @@
 								yasuPerBatsu: 0,
 								rouletteName: null,
 								bulkAdjustment: null,
+								multiplyMinimum: 0,
 								isRemoved: false
 							};
 							copyRule();
@@ -296,6 +299,7 @@
 								yasuPerBatsu: 0,
 								rouletteName: null,
 								bulkAdjustment: null,
+								multiplyMinimum: 0,
 								isRemoved: false
 							};
 							copyRule();
@@ -325,6 +329,7 @@
 								yasuPerBatsu: 0,
 								rouletteName: null,
 								bulkAdjustment: null,
+								multiplyMinimum: 0,
 								isRemoved: false
 							};
 							copyRule();
@@ -354,6 +359,7 @@
 								yasuPerBatsu: 0,
 								rouletteName: null,
 								bulkAdjustment: null,
+								multiplyMinimum: 0,
 								isRemoved: false
 							};
 							copyRule();
@@ -620,6 +626,20 @@
 				</div>
 			{/if}
 			-->
+
+			{#if activeTab === 0 && activeRule.mode === 'product'}
+				<div>点数の下限</div>
+				<div>
+					<label {@attach tooltip('1枠のAさんが3◯、2枠のBさんが0◯のとき、3×0=0点になります。')}>
+						<input type="radio" bind:group={activeRule.multiplyMinimum} value={0} />
+						各枠0点
+					</label>
+					<label {@attach tooltip('1枠のAさんが3◯、2枠のBさんが0◯のとき、4×1=4点になります。')}>
+						<input type="radio" bind:group={activeRule.multiplyMinimum} value={1} />
+						各枠1点
+					</label>
+				</div>
+			{/if}
 		</div>
 		<div class="buttons">
 			<RulePresetDialog

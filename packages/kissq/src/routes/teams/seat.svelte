@@ -30,7 +30,11 @@
 	let seatTotal = $derived(
 		atts.reduce(
 			(sum, { ai }) => sum + Game.currentState.attendants[ai].score,
-			Game.currentState.defaultRule.mode === 'aql' ? 1 : 0
+			Game.currentState.defaultRule.mode === 'aql'
+				? 1
+				: Game.currentState.defaultRule.mode === 'product'
+					? (Game.currentState.defaultRule.multiplyMinimum as number)
+					: 0
 		)
 	);
 </script>

@@ -245,7 +245,7 @@ export class AttendantState {
 							: this.rule.batsu === 'updown'
 								? -score
 								: this.rule.batsu),
-					0
+					this.rule.multiplyMinimum
 				);
 
 				if (this.rule.chance === 'single') {
@@ -411,6 +411,8 @@ export class TeamState {
 	) {
 		if (this.attendants[0].rule.mode === 'aql') {
 			this.teamScore = 1;
+		} else if (this.attendants[0].rule.mode === 'product') {
+			this.teamScore = this.attendants[0].rule.multiplyMinimum;
 		}
 	}
 
@@ -550,7 +552,7 @@ export class TeamState {
 									: id === attendantID
 										? score!
 										: this.attendants[id].score),
-							0
+							this.attendants[0].rule.multiplyMinimum
 						),
 					1
 				);

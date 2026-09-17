@@ -49,6 +49,7 @@
 						yasuPerBatsu: 0,
 						roulette: null,
 						bulkAdjustment: null,
+						multiplyMinimum: 0,
 						isRemoved: false
 					},
 					{
@@ -66,6 +67,7 @@
 						yasuPerBatsu: 0,
 						roulette: null,
 						bulkAdjustment: null,
+						multiplyMinimum: 0,
 						isRemoved: false
 					},
 					{
@@ -83,6 +85,7 @@
 						yasuPerBatsu: 0,
 						roulette: null,
 						bulkAdjustment: null,
+						multiplyMinimum: 0,
 						isRemoved: false
 					},
 					{
@@ -100,6 +103,7 @@
 						yasuPerBatsu: 0,
 						roulette: null,
 						bulkAdjustment: null,
+						multiplyMinimum: 0,
 						isRemoved: false
 					}
 				],
@@ -123,6 +127,7 @@
 						yasuPerBatsu: 1,
 						roulette: null,
 						bulkAdjustment: null,
+						multiplyMinimum: 0,
 						isRemoved: false
 					},
 					{
@@ -140,6 +145,7 @@
 						yasuPerBatsu: 3,
 						roulette: null,
 						bulkAdjustment: null,
+						multiplyMinimum: 0,
 						isRemoved: false
 					},
 					{
@@ -157,6 +163,7 @@
 						yasuPerBatsu: 5,
 						roulette: null,
 						bulkAdjustment: null,
+						multiplyMinimum: 0,
 						isRemoved: false
 					}
 				],
@@ -184,6 +191,7 @@
 						yasuPerBatsu: 0,
 						roulette: null,
 						bulkAdjustment: null,
+						multiplyMinimum: 0,
 						isRemoved: false
 					},
 					{
@@ -201,6 +209,7 @@
 						yasuPerBatsu: 0,
 						roulette: null,
 						bulkAdjustment: null,
+						multiplyMinimum: 0,
 						isRemoved: false
 					}
 				],
