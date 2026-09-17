@@ -1,4 +1,5 @@
 import { untrack } from 'svelte';
+import type { AttendantID, ButtonID } from './types';
 
 export interface Attendant {
 	name: string;
@@ -13,7 +14,7 @@ export interface Attendant {
 
 export function loadFromHash(
 	team?: boolean
-): { attendants: Attendant[]; buttonMapping?: Record<number, number> } | null {
+): { attendants: Attendant[]; buttonMapping?: Record<AttendantID, ButtonID> } | null {
 	try {
 		const url = new URL(document.URL);
 		if (url.hash.length > 1) {
@@ -21,7 +22,7 @@ export function loadFromHash(
 
 			if ('attendants' in names) {
 				const attendants = names.attendants as Attendant[];
-				const buttonMapping = names.buttonMapping as Record<number, number> | undefined;
+				const buttonMapping = names.buttonMapping as Record<AttendantID, ButtonID> | undefined;
 
 				if (team && attendants.every(({ team, seat }) => team === 0 && seat === 0)) {
 					const half = Math.ceil(attendants.length / 2);
@@ -135,7 +136,7 @@ export function loadFromHash(
 
 export function saveToHash(
 	attendants: Attendant[] | undefined,
-	buttonMapping: Record<number, number>
+	buttonMapping: Record<AttendantID, ButtonID>
 ): void {
 	if (!attendants) {
 		return;

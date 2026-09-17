@@ -243,6 +243,20 @@ export class WasedashikiClass {
 			this.Game.wasedashikiMode = undefined;
 		}
 	}
+
+	setButtonMapping(attendantID: AttendantID) {
+		if (this.lastButtonID !== undefined) {
+			this.buttonMapping = {
+				...Object.fromEntries(
+					Object.entries(this.buttonMapping).filter(([, v]) => v !== this.lastButtonID)
+				),
+				[attendantID]: this.lastButtonID!
+			};
+			Toastify({
+				text: `ボタン${this.lastButtonID}は${this.Game.attendants[attendantID].name || `プレイヤー${attendantID + 1}`}が持っています`
+			}).showToast();
+		}
+	}
 }
 
 export const [getWasedashikiContext, setWasedashikiContext] = createContext<WasedashikiClass>();
