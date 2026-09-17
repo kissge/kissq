@@ -66,7 +66,7 @@
 			scroller.classList.remove('truncated');
 		}
 
-		scroller.style.animationDuration = `${Math.max(7, (ruleInnerSpan.clientWidth / ruleSpan.clientWidth) * 5)}s`;
+		scroller.style.animationDuration = `${Math.max(9, (ruleInnerSpan.clientWidth / ruleSpan.clientWidth) * 8)}s`;
 	}
 
 	onMount(async () => {
