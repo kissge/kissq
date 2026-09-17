@@ -130,6 +130,7 @@
 						? null
 						: { name: rule.rouletteName, choices: roulettePresets[rule.rouletteName] },
 					rule.isBulkAdjustmentNull ? null : rule.bulkAdjustment,
+					rule.multiplyMinimum,
 					rule.isRemoved
 				)
 		)
@@ -314,6 +315,7 @@
 							rouletteName: null,
 							isBulkAdjustmentNull: true,
 							bulkAdjustment: [2, -2, 1],
+							multiplyMinimum: 0,
 							isRemoved: false
 						};
 					}}
@@ -344,6 +346,7 @@
 							rouletteName: null,
 							isBulkAdjustmentNull: true,
 							bulkAdjustment: [2, -2, 1],
+							multiplyMinimum: 0,
 							isRemoved: false
 						};
 					}}
@@ -374,6 +377,7 @@
 							rouletteName: null,
 							isBulkAdjustmentNull: true,
 							bulkAdjustment: [2, -2, 1],
+							multiplyMinimum: 0,
 							isRemoved: false
 						};
 					}}
@@ -404,6 +408,7 @@
 							rouletteName: null,
 							isBulkAdjustmentNull: true,
 							bulkAdjustment: [2, -2, 1],
+							multiplyMinimum: 0,
 							isRemoved: false
 						};
 					}}
@@ -434,6 +439,7 @@
 							rouletteName: null,
 							isBulkAdjustmentNull: true,
 							bulkAdjustment: [2, -2, 1],
+							multiplyMinimum: 0,
 							isRemoved: false
 						};
 					}}
@@ -464,6 +470,7 @@
 							rouletteName: null,
 							isBulkAdjustmentNull: true,
 							bulkAdjustment: [2, -2, 1],
+							multiplyMinimum: 0,
 							isRemoved: false
 						};
 					}}
@@ -494,6 +501,7 @@
 							rouletteName: null,
 							isBulkAdjustmentNull: true,
 							bulkAdjustment: [2, -2, 1],
+							multiplyMinimum: 0,
 							isRemoved: false
 						};
 					}}
@@ -524,6 +532,7 @@
 							rouletteName: null,
 							isBulkAdjustmentNull: true,
 							bulkAdjustment: [2, -2, 1],
+							multiplyMinimum: 0,
 							isRemoved: false
 						};
 					}}
@@ -554,6 +563,7 @@
 							rouletteName: null,
 							isBulkAdjustmentNull: true,
 							bulkAdjustment: [2, -2, 1],
+							multiplyMinimum: 0,
 							isRemoved: false
 						};
 					}}
@@ -584,6 +594,7 @@
 							rouletteName: null,
 							isBulkAdjustmentNull: true,
 							bulkAdjustment: [2, -2, 1],
+							multiplyMinimum: 0,
 							isRemoved: false
 						};
 					}}
@@ -614,6 +625,7 @@
 							rouletteName: null,
 							isBulkAdjustmentNull: true,
 							bulkAdjustment: [2, -2, 1],
+							multiplyMinimum: 0,
 							isRemoved: false
 						};
 					}}

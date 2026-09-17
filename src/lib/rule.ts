@@ -32,6 +32,8 @@ export class Rule {
 		public roulette: { name: string; choices: Penalty[] } | null,
 		/** まとめて加減点 */
 		public bulkAdjustment: number[] | null,
+		/** 掛け算ルールでの点数の下限 */
+		public multiplyMinimum: 0 | 1,
 		/** 削除済みかどうか */
 		public isRemoved: boolean = false
 	) {}
@@ -230,6 +232,8 @@ export class Rule {
 			rule.yasuMode,
 			rule.yasuPerBatsu,
 			rule.roulette,
+			rule.bulkAdjustment ?? null,
+			rule.multiplyMinimum ?? 0,
 			rule.isRemoved
 		);
 	}
