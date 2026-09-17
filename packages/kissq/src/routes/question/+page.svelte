@@ -137,6 +137,8 @@
 	);
 
 	let battleMode = $state<'single' | 'team'>('single');
+	let lastSyncedTime = -Infinity;
+	let isSyncAlive = $state(false);
 
 	const Keys = [
 		['Q', 'A'],
@@ -154,6 +156,8 @@
 	function processWindowMessage(event: MessageEvent<OutgoingMessage>) {
 		switch (event.data.command) {
 			case 'syncState':
+				lastSyncedTime = Date.now();
+
 				battleMode = event.data.mode;
 				attendants = event.data.attendants;
 				currentState = event.data.currentState;
@@ -291,10 +295,15 @@
 
 		const timer = setInterval(() => postMessage({ command: 'ping' }), 1000);
 
+		const syncCheckTimer = setInterval(() => {
+			isSyncAlive = Date.now() - lastSyncedTime < 5000;
+		}, 1000);
+
 		return () => {
 			window.removeEventListener('message', processWindowMessage);
 			window.removeEventListener('keydown', processKeyboardInput);
 			clearInterval(timer);
+			clearInterval(syncCheckTimer);
 		};
 	});
 
@@ -530,6 +539,10 @@
 						{/if}
 					{/if}
 				</div>
+			{:else}
+				{#if !isSyncAlive}
+					メイン画面からの通信が来ていません……
+				{/if}
 			{/each}
 			{#if isDragAvailable}
 				<div
