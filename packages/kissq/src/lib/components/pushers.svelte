@@ -30,11 +30,11 @@
 
 <svelte:window bind:innerHeight />
 
-{#if Wasedashiki.answererRanking.length > 0 && !Wasedashiki.answererRanking.some( ([attendantID]) => isNaN(attendantID) )}
+{#if Wasedashiki.answererRanking.length > 0}
 	<div class="pushers-bg" in:fade></div>
 	<div class="pushers" style:top="{pushersTop}px">
 		<div bind:clientHeight={pushersClientHeight}>
-			{#each Wasedashiki.answererRanking as [attendantID, answerer] (attendantID)}
+			{#each Wasedashiki.answererRanking as [attendantID, answerer] (attendantID ?? answerer.totalRank)}
 				<div class="attendant" in:fly={{ y: 300 }} out:fly={{ y: -300 }}>
 					<div class="rank">
 						{answerer.totalRank + 1} <small>着 / {Wasedashiki.pushers.length}</small>
@@ -49,7 +49,11 @@
 						<div
 							style:scale={(Game.attendants[attendantID]?.name.length ?? 0) > 9 ? '0.8 1' : '1 1'}
 						>
-							{Game.attendants[attendantID]?.name || `プレイヤー${attendantID + 1}`}
+							{#if isNaN(attendantID)}
+								<div style:scale="0.6 1">？（後で手動で何とかしてください）</div>
+							{:else}
+								{Game.attendants[attendantID]?.name || `プレイヤー${attendantID + 1}`}
+							{/if}
 						</div>
 					</div>
 					<div class="time" style:opacity={answerer.delay === 0 ? 0 : 1}>
