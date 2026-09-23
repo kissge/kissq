@@ -57,7 +57,15 @@
 	interface EditingRule
 		extends Omit<
 			Rule,
-			'lose' | 'questionLimit' | 'attendantLimit' | 'batsu' | 'yasuPerMaru' | 'roulette' | 'max'
+			| 'lose'
+			| 'questionLimit'
+			| 'attendantLimit'
+			| 'batsu'
+			| 'yasuPerMaru'
+			| 'roulette'
+			| 'max'
+			| 'toDetailsStrings'
+			| 'toSharedStrings'
 		> {
 		isLoseNull: boolean;
 		lose: NonNullable<Rule['lose']>;
