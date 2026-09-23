@@ -423,6 +423,8 @@
 			<input
 				type="number"
 				value={fontSize}
+				min="1"
+				max="40"
 				onchange={(e) => {
 					fontSize = Number((e.target as HTMLInputElement).value);
 					window.localStorage.setItem('fontSize', fontSize.toString());
