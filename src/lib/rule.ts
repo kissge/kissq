@@ -200,6 +200,99 @@ export class Rule {
 		return str;
 	}
 
+	toDetailsStrings(): string[] {
+		const arr: string[] = [];
+
+		switch (this.mode) {
+			case 'score':
+				arr.push(`${this.win}点獲得で勝ち抜け`);
+
+				if (this.lose !== null) {
+					arr.push(`${this.lose}点で失格`);
+				}
+
+				arr.push(`1問正解で${this.maru}点`);
+
+				if (this.batsu === 'batsu') {
+					arr.push(`N回目の誤答で-N点`);
+				} else if (this.batsu === 'updown') {
+					arr.push(`誤答でゼロ〇に`);
+				} else if (this.batsu < 0 && this.batsu !== -1) {
+					arr.push(`1問誤答で${this.batsu}点`);
+				}
+
+				if (this.transit) {
+					arr.push(`${this.win - 1}点で通過席`);
+				}
+				break;
+
+			case 'marubatsu':
+				arr.push(`正解数が${this.win}問到達で勝ち抜け`);
+
+				if (this.lose !== null) {
+					arr.push(`誤答数が${this.lose}問到達で失格`);
+				}
+
+				if (this.maru !== 1) {
+					arr.push(`※ 1問正解で正解数 +${this.maru}`);
+				}
+
+				if (this.batsu === 'batsu') {
+					arr.push(`N回目の誤答で誤答数がN増える`);
+				} else if (this.batsu === 'updown') {
+					arr.push(`誤答するたびに正解数がゼロにリセット`);
+				} else if (this.batsu !== 1 && this.batsu !== 0) {
+					arr.push(`※ 1問誤答で誤答数 +${this.batsu}`);
+				}
+				break;
+
+			case 'MbyN':
+				arr.push(`はじめ、正答ポイントをゼロ点、誤答ポイントを${this.win}点持った状態でスタート`);
+				arr.push('スコアは正答ポイントと誤答ポイントを掛け算した値');
+				arr.push(`掛けて${this.win ** 2}点獲得で勝ち抜け`);
+
+				if (this.lose !== null) {
+					arr.push(`誤答ポイントが${this.lose}点減ってしまうと失格`);
+				}
+
+				if (this.maru !== 1) {
+					arr.push(`※ 1問正解で正答ポイント +${this.maru}`);
+				}
+
+				if (this.batsu === 'batsu') {
+					arr.push(`N回目の誤答で誤答ポイントがN減る`);
+				} else if (this.batsu === 'updown') {
+					// dummy
+					arr.push(`誤答するたびに正答ポイントがゼロにリセット`);
+				} else if (this.batsu < 0 && this.batsu !== -1) {
+					arr.push(`※ 1問誤答で誤答ポイント ${this.batsu}`);
+				}
+				break;
+
+			case 'survival':
+				arr.push(`はじめ、ポイントを${this.lose}点持った状態でスタート`);
+				arr.push(`1問正解で自分以外全員のポイントが${-this.maru}点減る`);
+
+				if (this.batsu === 'batsu') {
+					arr.push(`N回目の誤答で自分のポイントがN点減る`);
+				} else if (this.batsu === 'updown') {
+					// dummy
+					arr.push(`誤答するたびに自分のポイントがゼロにリセット`);
+				} else {
+					arr.push(`1問誤答で自分のポイントが${-this.batsu}点減る`);
+				}
+				break;
+
+			case 'aql':
+				arr.push('チームメンバーを1枠、2枠、3枠……に振り分ける');
+				arr.push(
+					`各枠のスコアは、はじめ1点で、その枠のメンバーが1問正解するごとに${this.maru}点増える`
+				);
+				arr.push(`各枠のスコアを全て掛けた値が${this.win}点到達したチームが勝ち抜け`);
+				arr.push('');
+		}
+	}
+
 	get max(): number {
 		switch (this.mode) {
 			case 'marubatsu':
@@ -241,40 +334,72 @@ export class Rule {
 	static getActiveRulesText(
 		activeRules: { rule: Rule | RulePOJO; i: number }[],
 		battleMode: 'single' | 'team'
-	): string {
+	): string;
+	static getActiveRulesText(
+		activeRules: { rule: Rule | RulePOJO; i: number }[],
+		battleMode: 'single' | 'team',
+		style: 'long'
+	): { teams: string; text: string[]; shortText: string }[];
+	static getActiveRulesText(
+		activeRules: { rule: Rule | RulePOJO; i: number }[],
+		battleMode: 'single' | 'team',
+		style: 'short' | 'long' = 'short'
+	): string | { teams: string; text: string[]; shortText: string }[] {
 		for (let i = 0; i < activeRules.length; i++) {
 			if (!(activeRules[i].rule instanceof Rule)) {
 				activeRules[i].rule = Rule.from(activeRules[i].rule);
 			}
 		}
 
-		if (activeRules.length === 1) {
-			return String(activeRules[0].rule);
+		const rules = activeRules.map(({ rule, i }) => ({ rule: Rule.from(rule), i }));
+
+		const [equals, stringify] =
+			style === 'short'
+				? [(a: string, b: string) => a === b, (rule: Rule) => rule.toString()]
+				: [
+						(a: string[], b: string[]) => a.length === b.length && a.every((v, i) => v === b[i]),
+						(rule: Rule) => rule.toDetailsStrings()
+					];
+
+		if (style === 'short' && rules.length === 1) {
+			return String(rules[0].rule);
 		}
 
-		return activeRules
-			.slice(1)
-			.reduce(
-				(acc, { rule, i }) => {
-					if (String(rule) === acc.at(-1)!.text) {
-						acc.at(-1)!.end = i;
-						return acc;
-					} else {
-						return [...acc, { start: i, end: i, text: String(rule) }];
-					}
-				},
-				[{ start: activeRules[0].i, end: activeRules[0].i, text: String(activeRules[0].rule) }]
-			)
-			.map(({ start, end, text }) => {
-				if (battleMode === 'team' && start > 0) {
-					text = text.split('、').slice(1).join('、');
+		const groupedBy = rules.slice(1).reduce(
+			(acc, { rule, i }) => {
+				// eslint-disable-next-line @typescript-eslint/no-explicit-any
+				if (equals(stringify(rule) as any, acc.at(-1)!.text as any)) {
+					acc.at(-1)!.end = i;
+					return acc;
+				} else {
+					return [...acc, { start: i, end: i, text: stringify(rule), rule }];
 				}
+			},
+			[{ start: rules[0].i, end: rules[0].i, text: stringify(rules[0].rule), rule: rules[0].rule }]
+		);
 
-				return start === end
-					? String.fromCodePoint(65 + start) + ': ' + text
-					: String.fromCodePoint(65 + start) + '–' + String.fromCodePoint(65 + end) + ': ' + text;
-			})
-			.join(' / ');
+		if (style === 'short') {
+			return groupedBy
+				.map(({ start, end, text }) => {
+					if (battleMode === 'team' && start > 0 && typeof text === 'string') {
+						text = text.split('、').slice(1).join('、');
+					}
+
+					return start === end
+						? String.fromCodePoint(65 + start) + ': ' + text
+						: String.fromCodePoint(65 + start) + '–' + String.fromCodePoint(65 + end) + ': ' + text;
+				})
+				.join(' / ');
+		} else {
+			return groupedBy.map(({ start, end, text, rule }) => ({
+				teams:
+					start === end
+						? String.fromCodePoint(65 + start)
+						: String.fromCodePoint(65 + start) + '–' + String.fromCodePoint(65 + end),
+				text,
+				shortText: rule.toString()
+			}));
+		}
 	}
 }
 
