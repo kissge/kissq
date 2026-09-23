@@ -8,6 +8,7 @@
 	import { isUnlocked } from '$lib/unlock';
 	import { getWasedashikiContext } from '$lib/wasedashiki.svelte';
 	import ChanceIndicator from './chanceIndicator.svelte';
+	import RuleDetailsDialog from './ruleDetailsDialog.svelte';
 
 	let {
 		Game,
@@ -27,6 +28,7 @@
 	let unlocked = $state(false);
 
 	let helpDialog: { open: () => void };
+	let ruleDetailsDialog: { open: () => void };
 
 	let hideQuestionCount = $derived(
 		Game.currentState.defaultRule.mode === 'aql' && !Game.currentState.ifFinished
@@ -146,14 +148,20 @@
 	<div class="rule-wrapper">
 		<span id="rule">
 			<span class="scroller">
-				<span class="rule-inner">
-					Rule:
-					{Game.activeRulesText}
-				</span>
-				<span class="rule-inner">
-					Rule:
-					{Game.activeRulesText}
-				</span>
+				{#each [0, 1], i (i)}
+					<a
+						href="."
+						class="rule-inner"
+						onclick={(event) => {
+							event.preventDefault();
+							ruleDetailsDialog.open();
+						}}
+						{@attach tooltip('ルールの詳細を表示します。')}
+					>
+						Rule:
+						{Game.activeRulesText}
+					</a>
+				{/each}
 			</span>
 		</span>
 		<ChanceIndicator {chance} />
@@ -168,6 +176,7 @@
 </header>
 
 <HelpDialog bind:this={helpDialog} />
+<RuleDetailsDialog bind:this={ruleDetailsDialog} {Game} />
 
 <style>
 	header {
@@ -206,19 +215,21 @@
 		}
 	}
 
-	a {
-		position: absolute;
-		position-anchor: --title;
-		top: calc(anchor(bottom) - 0.5em);
-		left: anchor(left);
-		z-index: 9999;
-		color: blue;
-		font-size: 0.6em;
-	}
+	h1 {
+		a {
+			position: absolute;
+			position-anchor: --title;
+			top: calc(anchor(bottom) - 0.5em);
+			left: anchor(left);
+			z-index: 9999;
+			color: blue;
+			font-size: 0.6em;
+		}
 
-	a:not(:focus, :hover) {
-		color: inherit;
-		text-decoration: none;
+		a:not(:focus, :hover) {
+			color: inherit;
+			text-decoration: none;
+		}
 	}
 
 	.spacer {
@@ -251,6 +262,14 @@
 
 	.rule-inner {
 		display: inline-block;
+		margin-left: 1em;
+		color: inherit;
+		text-decoration: none;
+
+		&:hover {
+			color: blue;
+			text-decoration: underline;
+		}
 	}
 
 	:global(.scroller.truncated) {
