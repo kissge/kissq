@@ -13,6 +13,7 @@
 	import type { WasedashikiMode } from '$lib/serial';
 	import type { GameState } from '$lib/state';
 	import { tooltip } from '$lib/tooltip.svelte';
+	import type { AttendantID } from '$lib/types';
 	import { collapseArray } from '$lib/utils';
 
 	const opener = (typeof window !== 'undefined' ? window.opener : {}) as Window;
@@ -45,6 +46,8 @@
 	/** attendant ID -> button ID */
 	let buttonMapping = $state<Record<number, number>>({});
 	let wasedashikiMode = $state<WasedashikiMode>();
+	let effect2Name = $state<string>();
+	let effect3Name = $state<string>();
 	let order = $state<'added' | 'same' | 'reverse'>('added');
 
 	let enableCompanion = $state(false);
@@ -89,7 +92,7 @@
 							: null;
 					switch (entry.type) {
 						case 'maru':
-							return `○ ${name}`;
+							return `${entry.multiplier !== 1 ? entry.multiplier : ''}○ ${name}`;
 						case 'batsu':
 							return `× ${name}`;
 						case 'through':
@@ -170,6 +173,8 @@
 				answerers = event.data.answerers;
 				buttonMapping = event.data.buttonMapping;
 				wasedashikiMode = event.data.wasedashikiMode;
+				effect2Name = event.data.effect2Name;
+				effect3Name = event.data.effect3Name;
 
 				if (battleMode === 'team') {
 					order = 'added';
@@ -533,6 +538,24 @@
 							>
 								O
 							</button>
+
+							{#if effect2Name}
+								<button
+									onclick={() =>
+										postMessage({ command: 'clickEffect2', attendantID: ai as AttendantID })}
+								>
+									2O
+								</button>
+							{/if}
+							{#if effect3Name}
+								<button
+									onclick={() =>
+										postMessage({ command: 'clickEffect3', attendantID: ai as AttendantID })}
+								>
+									3O
+								</button>
+							{/if}
+
 							<button
 								class="labeled"
 								data-label={Keys[ord2]?.[1] || ''}

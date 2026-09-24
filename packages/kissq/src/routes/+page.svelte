@@ -196,6 +196,7 @@
 
 	onMount(() => {
 		Game.penaltyRoulette = penaltyRoulette;
+		Game.showBanner = showBanner;
 
 		isUnlocked().then((unlocked) => {
 			if (unlocked) {
@@ -347,7 +348,6 @@
 					{showTotalOverride}
 					{editState}
 					bind:attendantFLIPDelay
-					{showBanner}
 				/>
 			</div>
 		{:else}

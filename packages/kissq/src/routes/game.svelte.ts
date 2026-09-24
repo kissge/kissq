@@ -42,6 +42,9 @@ export class GameClass extends GameClassBase<'single'> {
 	enableRating = $state(false);
 	effect2Name = $state<string>();
 	effect3Name = $state<string>();
+	showBanner = (options: { type: 'effect2' | 'effect3'; attendantID: number }) => {
+		void options;
+	};
 	bulkAdjustmentScore = $state<number | null>(null);
 	bulkAdjustmentTarget = $state<boolean[]>([]);
 

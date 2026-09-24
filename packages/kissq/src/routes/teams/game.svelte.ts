@@ -45,6 +45,7 @@ export class GameClass extends GameClassBase<'team'> {
 	enableRating = false;
 	effect2Name = undefined;
 	effect3Name = undefined;
+	showBanner = () => {};
 	bulkAdjustmentScore = null;
 	bulkAdjust = () => {};
 	addBulkAdjustmentTarget = () => {};
