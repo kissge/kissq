@@ -28,6 +28,8 @@ export abstract class GameClassBase<BattleMode extends 'single' | 'team'> {
 	abstract orderedAttendants: number[];
 	abstract attendantsPerTeam: ({ att: Attendant; ai: number }[] | undefined)[][];
 	abstract enableRating: boolean;
+	abstract effect2Name: string | undefined;
+	abstract effect3Name: string | undefined;
 	abstract bulkAdjustmentScore: number | null;
 	abstract bulkAdjust(): void;
 	abstract addBulkAdjustmentTarget(attendantID: number): void;

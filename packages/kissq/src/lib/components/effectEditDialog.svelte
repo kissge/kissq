@@ -1,29 +1,23 @@
 <script lang="ts">
+	import type { GameClassBaseType } from '$lib/game';
+
+	let { Game }: { Game: GameClassBaseType } = $props();
+
 	let dialog: HTMLDialogElement;
-	let resolve: (result: Awaited<ReturnType<typeof open>>) => void;
-	export function open(
-		_effect2Name: string | undefined,
-		_effect3Name: string | undefined
-	): Promise<[string | undefined, string | undefined] | null> {
-		effect2Name = _effect2Name;
-		effect3Name = _effect3Name;
+	export function open(): void {
+		effect2Name = Game.effect2Name;
+		effect3Name = Game.effect3Name;
 		isEffect2NameUndefined = !effect2Name;
 		isEffect3NameUndefined = !effect3Name;
 
 		dialog.showModal();
 		dialog.scrollTop = 0;
-
-		return new Promise((r) => {
-			resolve = r;
-		});
 	}
 
 	function save() {
+		Game.effect2Name = isEffect2NameUndefined ? undefined : effect2Name || undefined;
+		Game.effect3Name = isEffect3NameUndefined ? undefined : effect3Name || undefined;
 		dialog.close();
-		resolve([
-			isEffect2NameUndefined ? undefined : effect2Name || undefined,
-			isEffect3NameUndefined ? undefined : effect3Name || undefined
-		]);
 	}
 
 	let effect2Name = $state<string>();
@@ -74,12 +68,7 @@
 	</div>
 
 	<div class="buttons">
-		<button
-			onclick={() => {
-				dialog.close();
-				resolve(null);
-			}}>キャンセル</button
-		>
+		<button onclick={() => dialog.close()}>キャンセル</button>
 		<button class="primary" onclick={save}>保存する</button>
 	</div>
 </dialog>

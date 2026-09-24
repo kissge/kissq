@@ -40,6 +40,8 @@ export class GameClass extends GameClassBase<'single'> {
 
 	orderingMode = $state<'ranking' | 'manual'>('ranking');
 	enableRating = $state(false);
+	effect2Name = $state<string>();
+	effect3Name = $state<string>();
 	bulkAdjustmentScore = $state<number | null>(null);
 	bulkAdjustmentTarget = $state<boolean[]>([]);
 
