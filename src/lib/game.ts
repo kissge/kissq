@@ -7,6 +7,7 @@ import type { Rule } from './rule';
 import type { WasedashikiMode } from './serial';
 import { playSound } from './sound';
 import type { GameState } from './state';
+import type { AttendantID } from './types';
 import { arrayCompare } from './utils';
 import type { WasedashikiClass } from './wasedashiki.svelte';
 
@@ -58,8 +59,9 @@ export abstract class GameClassBase<BattleMode extends 'single' | 'team'> {
 				j--;
 			} else {
 				if (j < 0) {
-					Wasedashiki.buttonMapping[i + j] = Wasedashiki.buttonMapping[i];
-					delete Wasedashiki.buttonMapping[i];
+					Wasedashiki.buttonMapping[(i + j) as AttendantID] =
+						Wasedashiki.buttonMapping[i as AttendantID];
+					delete Wasedashiki.buttonMapping[i as AttendantID];
 				}
 			}
 		}

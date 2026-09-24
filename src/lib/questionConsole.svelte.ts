@@ -163,7 +163,7 @@ export interface OutgoingMessage {
 	rules: Rule[];
 	orderedAttendants: number[];
 	orderingMode: 'ranking' | 'manual';
-	answerers: ({ rank: 1 | 2 | 'late'; delay: number } | null)[];
+	answerers: ({ currentRank: 1 | 2 | 'late'; totalRank: number; delay: number } | null)[];
 	buttonMapping: Record<number, number>;
 	wasedashikiMode?: WasedashikiMode;
 }
