@@ -43,6 +43,8 @@ export class GameClass extends GameClassBase<'team'> {
 	orderingMode = 'manual' as const;
 	orderedAttendants = [];
 	enableRating = false;
+	effect2Name = undefined;
+	effect3Name = undefined;
 	bulkAdjustmentScore = null;
 	bulkAdjust = () => {};
 	addBulkAdjustmentTarget = () => {};

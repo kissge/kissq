@@ -26,8 +26,6 @@
 		showTotalOverride,
 		editState,
 		attendantFLIPDelay = $bindable(),
-		effect2Name,
-		effect3Name,
 		showBanner
 	}: {
 		ai: AttendantID;
@@ -39,8 +37,6 @@
 		showTotalOverride: boolean;
 		editState: (attendantID: number, att: AttendantState) => Promise<void>;
 		attendantFLIPDelay: number;
-		effect2Name: string | undefined;
-		effect3Name: string | undefined;
 		showBanner: (event: GameEvent | null, duration?: number) => void;
 	} = $props();
 
@@ -319,7 +315,7 @@
 		>
 			O
 		</button>
-		{#if effect2Name}
+		{#if Game.effect2Name}
 			<button
 				onclick={() => {
 					Game.history.push(new MaruHistoryEntry(ai, 2));
@@ -330,12 +326,12 @@
 					showBanner({ type: 'effect2', attendantID: ai });
 				}}
 				class="maru-btn"
-				{@attach tooltip(`${effect2Name}（+2○）`, { placement: 'bottom' })}
+				{@attach tooltip(`${Game.effect2Name}（+2○）`, { placement: 'bottom' })}
 			>
 				2O
 			</button>
 		{/if}
-		{#if effect3Name}
+		{#if Game.effect3Name}
 			<button
 				onclick={() => {
 					Game.history.push(new MaruHistoryEntry(ai, 3));
@@ -347,7 +343,7 @@
 					showBanner({ type: 'effect3', attendantID: ai });
 				}}
 				class="maru-btn"
-				{@attach tooltip(`${effect3Name}（+3○）`, { placement: 'bottom' })}
+				{@attach tooltip(`${Game.effect3Name}（+3○）`, { placement: 'bottom' })}
 			>
 				3O
 			</button>

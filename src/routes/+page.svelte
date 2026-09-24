@@ -81,9 +81,6 @@
 	let showTotalOverride = $state(false);
 	let showScore = $state(true);
 
-	let effect2Name = $state<string>();
-	let effect3Name = $state<string>();
-
 	let wallpaper = $state<string | null>(null);
 	let trophy = $state<string | null>(null);
 
@@ -116,12 +113,7 @@
 
 	let ruleEditDialog: { open: (rules: Rule[]) => Promise<Rule[] | null> };
 	let logDialog: { open: () => void };
-	let effectEditDialog: {
-		open: (
-			effect2Name: string | undefined,
-			effect3Name: string | undefined
-		) => Promise<[string | undefined, string | undefined] | null>;
-	};
+	let effectEditDialog: { open: () => void };
 	let appearanceDialog: {
 		open: (
 			wallpaper: string | null,
@@ -161,13 +153,6 @@
 		showMarubatsuOverride = false;
 		showTotalOverride = false;
 		showScore = true;
-	}
-
-	async function editEffects() {
-		const result = await effectEditDialog.open(effect2Name, effect3Name);
-		if (result) {
-			[effect2Name, effect3Name] = result;
-		}
 	}
 
 	async function editAppearance() {
@@ -362,8 +347,6 @@
 					{showTotalOverride}
 					{editState}
 					bind:attendantFLIPDelay
-					{effect2Name}
-					{effect3Name}
 					{showBanner}
 				/>
 			</div>
@@ -520,7 +503,10 @@
 		>
 			グループ順に整列
 		</button>
-		<button onclick={editEffects} {@attach tooltip('エフェクトボタンの設定を編集します')}>
+		<button
+			onclick={() => effectEditDialog.open()}
+			{@attach tooltip('エフェクトボタンの設定を編集します')}
+		>
 			エフェクトボタン設定
 		</button>
 		<button
@@ -587,9 +573,9 @@
 		{:else if isBannerVisible.type === 'double-lizhi'}
 			ダブルリーチ
 		{:else if isBannerVisible.type === 'effect2'}
-			{effect2Name}
+			{Game.effect2Name}
 		{:else if isBannerVisible.type === 'effect3'}
-			{effect3Name}
+			{Game.effect3Name}
 		{:else if isBannerVisible.type === 'transit'}
 			通過席
 		{:else if isBannerVisible.type === 'finished'}
@@ -602,7 +588,7 @@
 
 <RuleEditDialog bind:this={ruleEditDialog} apply={updateRules} />
 <LogDialog bind:this={logDialog} />
-<EffectEditDialog bind:this={effectEditDialog} />
+<EffectEditDialog bind:this={effectEditDialog} {Game} />
 <AppearanceDialog bind:this={appearanceDialog} />
 <StateEditDialog bind:this={stateEditDialog} />
 <PenaltyRoulette bind:this={penaltyRoulette} />
