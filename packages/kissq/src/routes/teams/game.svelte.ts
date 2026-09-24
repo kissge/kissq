@@ -29,7 +29,8 @@ export class GameClass extends GameClassBase<'team'> {
 			'constant',
 			0,
 			null,
-			null
+			null,
+			0
 		)
 	]);
 	history = $state<HistoryEntry[]>([]);

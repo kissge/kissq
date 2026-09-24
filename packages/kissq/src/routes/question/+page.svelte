@@ -39,7 +39,9 @@
 	let rules = $state<Rule[]>([]);
 	let mainScreenOrder = $state<number[]>();
 	let mainScreenOrderingMode = $state<'ranking' | 'manual'>();
-	let answerers = $state<({ rank: 1 | 2 | 'late'; delay: number } | null)[]>([]);
+	let answerers = $state<
+		({ currentRank: 1 | 2 | 'late'; totalRank: number; delay: number } | null)[]
+	>([]);
 	/** attendant ID -> button ID */
 	let buttonMapping = $state<Record<number, number>>({});
 	let wasedashikiMode = $state<WasedashikiMode>();
@@ -439,13 +441,13 @@
 					class={[
 						'attendant',
 						{
-							'answerer-1st': answerers[(buttonMapping[ai] ?? 0) - 1]?.rank === 1,
+							'answerer-1st': answerers[(buttonMapping[ai] ?? 0) - 1]?.currentRank === 1,
 							'answerer-2nd':
 								(wasedashikiMode === 'endless' || wasedashikiMode === 'double') &&
-								answerers[(buttonMapping[ai] ?? 0) - 1]?.rank === 2,
+								answerers[(buttonMapping[ai] ?? 0) - 1]?.currentRank === 2,
 							'answerer-late':
 								wasedashikiMode === 'endless' &&
-								answerers[(buttonMapping[ai] ?? 0) - 1]?.rank === 'late',
+								answerers[(buttonMapping[ai] ?? 0) - 1]?.currentRank === 'late',
 							'drop-target': dropTarget === ord
 						}
 					]}
