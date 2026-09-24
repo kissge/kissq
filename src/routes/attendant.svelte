@@ -1,16 +1,9 @@
 <script lang="ts">
 	import { fade, fly } from 'svelte/transition';
-	import se1 from '$lib/assets/se1.mp3';
 	import { han2zen } from '$lib/attendant';
-	import {
-		LoseHistoryEntry,
-		MaruHistoryEntry,
-		RemoveHistoryEntry,
-		WinHistoryEntry
-	} from '$lib/historyEntry';
+	import { LoseHistoryEntry, RemoveHistoryEntry, WinHistoryEntry } from '$lib/historyEntry';
 	import { getLayoutContext } from '$lib/layout.svelte';
-	import { playSound } from '$lib/sound';
-	import type { AttendantState, GameEvent } from '$lib/state';
+	import type { AttendantState } from '$lib/state';
 	import { tooltip } from '$lib/tooltip.svelte';
 	import type { AttendantID } from '$lib/types';
 	import { getWasedashikiContext } from '$lib/wasedashiki.svelte';
@@ -25,8 +18,7 @@
 		showMarubatsuOverride,
 		showTotalOverride,
 		editState,
-		attendantFLIPDelay = $bindable(),
-		showBanner
+		attendantFLIPDelay = $bindable()
 	}: {
 		ai: AttendantID;
 		ord: number;
@@ -37,7 +29,6 @@
 		showTotalOverride: boolean;
 		editState: (attendantID: number, att: AttendantState) => Promise<void>;
 		attendantFLIPDelay: number;
-		showBanner: (event: GameEvent | null, duration?: number) => void;
 	} = $props();
 
 	let Game = getGameContext();
@@ -317,14 +308,7 @@
 		</button>
 		{#if Game.effect2Name}
 			<button
-				onclick={() => {
-					Game.history.push(new MaruHistoryEntry(ai, 2));
-					if (Game.playSounds) {
-						playSound(se1);
-						setTimeout(() => playSound(se1), 150);
-					}
-					showBanner({ type: 'effect2', attendantID: ai });
-				}}
+				onclick={() => Game.clickEffect2(ai)}
 				class="maru-btn"
 				{@attach tooltip(`${Game.effect2Name}（+2○）`, { placement: 'bottom' })}
 			>
@@ -333,15 +317,7 @@
 		{/if}
 		{#if Game.effect3Name}
 			<button
-				onclick={() => {
-					Game.history.push(new MaruHistoryEntry(ai, 3));
-					if (Game.playSounds) {
-						playSound(se1);
-						setTimeout(() => playSound(se1), 150);
-						setTimeout(() => playSound(se1), 300);
-					}
-					showBanner({ type: 'effect3', attendantID: ai });
-				}}
+				onclick={() => Game.clickEffect3(ai)}
 				class="maru-btn"
 				{@attach tooltip(`${Game.effect3Name}（+3○）`, { placement: 'bottom' })}
 			>

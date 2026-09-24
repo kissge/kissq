@@ -30,6 +30,7 @@ export abstract class GameClassBase<BattleMode extends 'single' | 'team'> {
 	abstract enableRating: boolean;
 	abstract effect2Name: string | undefined;
 	abstract effect3Name: string | undefined;
+	abstract showBanner: (options: { type: 'effect2' | 'effect3'; attendantID: number }) => void;
 	abstract bulkAdjustmentScore: number | null;
 	abstract bulkAdjust(): void;
 	abstract addBulkAdjustmentTarget(attendantID: number): void;
@@ -102,6 +103,25 @@ export abstract class GameClassBase<BattleMode extends 'single' | 'team'> {
 		if (this.playSounds && playSounds_) {
 			playSound(se1);
 		}
+	}
+
+	clickEffect2(attendantID: AttendantID) {
+		this.history.push(new MaruHistoryEntry(attendantID, 2));
+		if (this.playSounds) {
+			playSound(se1);
+			setTimeout(() => playSound(se1), 150);
+		}
+		this.showBanner({ type: 'effect2', attendantID });
+	}
+
+	clickEffect3(attendantID: AttendantID) {
+		this.history.push(new MaruHistoryEntry(attendantID, 3));
+		if (this.playSounds) {
+			playSound(se1);
+			setTimeout(() => playSound(se1), 150);
+			setTimeout(() => playSound(se1), 300);
+		}
+		this.showBanner({ type: 'effect3', attendantID });
 	}
 
 	clickThrough() {

@@ -8,6 +8,7 @@ import type { HistoryEntry } from './historyEntry';
 import { Rule, type RulePOJO } from './rule';
 import type { WasedashikiMode } from './serial';
 import type { GameState } from './state';
+import type { AttendantID } from './types';
 
 const urlParams = new URLSearchParams(typeof location !== 'undefined' ? location.search : '');
 
@@ -48,6 +49,14 @@ export class QuestionConsoleClass {
 
 			case 'clickMaru':
 				this.Game.clickMaru(message.attendantID);
+				break;
+
+			case 'clickEffect2':
+				this.Game.clickEffect2(message.attendantID);
+				break;
+
+			case 'clickEffect3':
+				this.Game.clickEffect3(message.attendantID);
 				break;
 
 			case 'clickBatsu':
@@ -128,7 +137,9 @@ export class QuestionConsoleClass {
 						orderingMode: this.Game.orderingMode,
 						answerers: this.Wasedashiki.answerers,
 						buttonMapping: this.Wasedashiki.buttonMapping,
-						wasedashikiMode: this.Game.wasedashikiMode
+						wasedashikiMode: this.Game.wasedashikiMode,
+						effect2Name: this.Game.effect2Name,
+						effect3Name: this.Game.effect3Name
 					} satisfies OutgoingMessage)
 				)
 			);
@@ -143,6 +154,8 @@ export type IncomingMessage =
 	| { command: 'toggleQuestionWindow' }
 	| { command: 'updateQuestion'; id: number; question: string; answer: string; comment: string }
 	| { command: 'clickMaru'; attendantID: number }
+	| { command: 'clickEffect2'; attendantID: AttendantID }
+	| { command: 'clickEffect3'; attendantID: AttendantID }
 	| { command: 'clickBatsu'; attendantID: number }
 	| { command: 'clickThrough' }
 	| { command: 'clickUndo' }
@@ -165,5 +178,7 @@ export interface OutgoingMessage {
 	orderingMode: 'ranking' | 'manual';
 	answerers: ({ currentRank: 1 | 2 | 'late'; totalRank: number; delay: number } | null)[];
 	buttonMapping: Record<number, number>;
-	wasedashikiMode?: WasedashikiMode;
+	wasedashikiMode: WasedashikiMode | undefined;
+	effect2Name: string | undefined;
+	effect3Name: string | undefined;
 }
