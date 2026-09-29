@@ -657,6 +657,7 @@
 						<input type="radio" bind:group={activeRule.chance} value="endless" />
 						エンドレスチャンス
 					</label>
+					<div class="hint">※ 早稲田式連携中は、早稲田式早押しボタンの設定の方が優先されます。</div>
 				</div>
 
 				<div transition:fly={{ y: 100 }} {@attach tooltip('この問題数終わったら終了となります。')}>
@@ -1131,5 +1132,11 @@
 		display: flex;
 		flex-wrap: wrap;
 		gap: 2px;
+	}
+
+	.hint {
+		color: #f22;
+		font-weight: bold;
+		font-size: 0.8em;
 	}
 </style>
