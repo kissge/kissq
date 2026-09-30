@@ -23,7 +23,7 @@ export class Rule {
 		/** 通過席ルール */
 		public transit: boolean,
 		/** N問正解で得られる休みの数M */
-		public yasuPerMaru: { maru: number; yasu: number } | null,
+		public yasuPerMaru: { maru: number; yasu: number | 'maru' } | null,
 		/** 1問誤答で得られる休みの方式（定数またはその時点のマル数・バツ数） */
 		public yasuMode: 'constant' | 'maru' | 'batsu' | 'roulette',
 		/** 1問誤答で得られる休みの数 */
@@ -249,7 +249,12 @@ export class Rule {
 		}
 
 		if (this.yasuPerMaru) {
-			str += `、${this.yasuPerMaru.maru}〇ごとに${this.yasuPerMaru.yasu}休`;
+			str += `、${this.yasuPerMaru.maru}〇ごとに`;
+			if (this.yasuPerMaru.yasu === 'maru') {
+				str += '（現在のマル数）休';
+			} else {
+				str += `${this.yasuPerMaru.yasu}休`;
+			}
 		}
 
 		if (this.yasuMode === 'maru') {
@@ -414,7 +419,11 @@ export class Rule {
 		}
 
 		if (this.yasuPerMaru) {
-			arr.push(`${this.yasuPerMaru.maru}問正解ごとに${this.yasuPerMaru.yasu}問休み`);
+			if (this.yasuPerMaru.yasu === 'maru') {
+				arr.push(`${this.yasuPerMaru.maru}問正解ごとに（現在の正解数）休み`);
+			} else {
+				arr.push(`${this.yasuPerMaru.maru}問正解ごとに${this.yasuPerMaru.yasu}問休み`);
+			}
 		}
 
 		if (this.yasuMode === 'maru') {

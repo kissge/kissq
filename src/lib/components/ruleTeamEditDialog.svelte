@@ -22,9 +22,14 @@
 				questionLimit: questionLimit ?? 30,
 				batsuMode: typeof batsu === 'number' ? 'number' : batsu,
 				batsu: typeof batsu === 'number' ? batsu : 0,
-				isYasuPerMaruNull: yasuPerMaru === null,
+				yasuPerMaruMode:
+					yasuPerMaru === null
+						? null
+						: typeof yasuPerMaru.yasu === 'number'
+							? 'number'
+							: yasuPerMaru.yasu,
 				yasuPerMaruMaru: yasuPerMaru?.maru ?? 5,
-				yasuPerMaruYasu: yasuPerMaru?.yasu ?? 5,
+				yasuPerMaruYasu: typeof yasuPerMaru?.yasu === 'number' ? yasuPerMaru.yasu : 5,
 				rouletteName: roulette?.name ?? null
 			};
 		});
@@ -57,9 +62,9 @@
 		questionLimit: NonNullable<Rule['questionLimit']>;
 		batsuMode: (Rule['batsu'] & string) | 'number';
 		batsu: number;
-		isYasuPerMaruNull: boolean;
+		yasuPerMaruMode: 'maru' | 'number' | null;
 		yasuPerMaruMaru: NonNullable<Rule['yasuPerMaru']>['maru'];
-		yasuPerMaruYasu: NonNullable<Rule['yasuPerMaru']>['yasu'];
+		yasuPerMaruYasu: number;
 		rouletteName: NonNullable<Rule['roulette']>['name'] | null;
 	}
 
@@ -109,9 +114,12 @@
 					rule.maru,
 					rule.batsuMode === 'number' ? rule.batsu : rule.batsuMode,
 					rule.transit,
-					rule.isYasuPerMaruNull
+					rule.yasuPerMaruMode === null
 						? null
-						: { maru: rule.yasuPerMaruMaru, yasu: rule.yasuPerMaruYasu },
+						: {
+								maru: rule.yasuPerMaruMaru,
+								yasu: rule.yasuPerMaruMode === 'number' ? rule.yasuPerMaruYasu : 'maru'
+							},
 					rule.yasuMode,
 					rule.yasuPerBatsu,
 					rule.rouletteName === null
@@ -129,7 +137,7 @@
 			({
 				isQuestionLimitNull,
 				questionLimit,
-				isYasuPerMaruNull,
+				yasuPerMaruMode,
 				yasuPerMaruMaru,
 				yasuPerMaruYasu,
 				yasuMode,
@@ -137,12 +145,13 @@
 				rouletteName
 			}) =>
 				(isQuestionLimitNull ? true : Number.isInteger(questionLimit) && questionLimit > 0) &&
-				(isYasuPerMaruNull
+				(yasuPerMaruMode === null
 					? true
 					: Number.isInteger(yasuPerMaruMaru) &&
 						yasuPerMaruMaru > 0 &&
-						Number.isInteger(yasuPerMaruYasu) &&
-						yasuPerMaruYasu > 0) &&
+						(yasuPerMaruMode === 'number'
+							? Number.isInteger(yasuPerMaruYasu) && yasuPerMaruYasu > 0
+							: true)) &&
 				Number.isInteger(yasuPerBatsu) &&
 				(yasuMode === 'constant'
 					? yasuPerBatsu >= 0
@@ -242,7 +251,7 @@
 								batsu: 1,
 								batsuMode: 'updown',
 								transit: false,
-								isYasuPerMaruNull: true,
+								yasuPerMaruMode: null,
 								yasuPerMaruMaru: 5,
 								yasuPerMaruYasu: 5,
 								yasuMode: 'constant',
@@ -272,7 +281,7 @@
 								batsu: 1,
 								batsuMode: 'updown',
 								transit: false,
-								isYasuPerMaruNull: true,
+								yasuPerMaruMode: null,
 								yasuPerMaruMaru: 5,
 								yasuPerMaruYasu: 5,
 								yasuMode: 'constant',
@@ -302,7 +311,7 @@
 								batsu: 1,
 								batsuMode: 'updown',
 								transit: false,
-								isYasuPerMaruNull: true,
+								yasuPerMaruMode: null,
 								yasuPerMaruMaru: 5,
 								yasuPerMaruYasu: 5,
 								yasuMode: 'constant',
@@ -332,7 +341,7 @@
 								batsu: -1,
 								batsuMode: 'number',
 								transit: false,
-								isYasuPerMaruNull: true,
+								yasuPerMaruMode: null,
 								yasuPerMaruMaru: 5,
 								yasuPerMaruYasu: 5,
 								yasuMode: 'constant',
@@ -362,7 +371,7 @@
 								batsu: -1,
 								batsuMode: 'number',
 								transit: false,
-								isYasuPerMaruNull: true,
+								yasuPerMaruMode: null,
 								yasuPerMaruMaru: 5,
 								yasuPerMaruYasu: 5,
 								yasuMode: 'constant',
@@ -512,23 +521,35 @@
 				<hr />
 
 				<label>
-					<input type="radio" bind:group={activeRule.isYasuPerMaruNull} value={false} />
+					<input type="radio" bind:group={activeRule.yasuPerMaruMode} value="number" />
 					<input
 						type="number"
 						bind:value={activeRule.yasuPerMaruMaru}
-						onfocus={() => (activeRule.isYasuPerMaruNull = false)}
+						onfocus={() => (activeRule.yasuPerMaruMode = 'number')}
 						min="1"
 					/>
 					○ごとに個人
 					<input
 						type="number"
 						bind:value={activeRule.yasuPerMaruYasu}
-						onfocus={() => (activeRule.isYasuPerMaruNull = false)}
+						onfocus={() => (activeRule.yasuPerMaruMode = 'number')}
 						min="1"
 					/> 問休み
 				</label>
+				<br />
 				<label>
-					<input type="radio" bind:group={activeRule.isYasuPerMaruNull} value={true} />
+					<input type="radio" bind:group={activeRule.yasuPerMaruMode} value="maru" />
+					<input
+						type="number"
+						bind:value={activeRule.yasuPerMaruMaru}
+						onfocus={() => (activeRule.yasuPerMaruMode = 'maru')}
+						min="1"
+					/>
+					○ごとに個人（現在のマル数）問休み
+				</label>
+				<br />
+				<label>
+					<input type="radio" bind:group={activeRule.yasuPerMaruMode} value={null} />
 					なし
 				</label>
 			</div>
