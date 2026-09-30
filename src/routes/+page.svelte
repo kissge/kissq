@@ -19,6 +19,7 @@
 	import RuleEditDialog from '$lib/components/ruleEditDialog.svelte';
 	import Stars from '$lib/components/stars.svelte';
 	import StateEditDialog from '$lib/components/stateEditDialog.svelte';
+	import TransferAttendantsDialog from '$lib/components/transferAttendantsDialog.svelte';
 	import UnlockDialog from '$lib/components/unlockDialog.svelte';
 	import { EditHistoryEntry } from '$lib/historyEntry';
 	import { LayoutClass, setLayoutContext } from '$lib/layout.svelte';
@@ -123,6 +124,7 @@
 	let stateEditDialog: { open: (att: AttendantState) => Promise<AttendantStateValue | null> };
 	let penaltyRoulette: { run: (choices: Penalty[]) => Promise<number> };
 	let unlockDialog: { open: () => Promise<void> };
+	let transferAttendantsDialog: { open: () => void };
 
 	$effect(() => {
 		if (Game.history.length === 0) {
@@ -531,6 +533,9 @@
 		>
 			早稲田式連携
 		</button>
+		<button onclick={() => transferAttendantsDialog.open()}>
+			プレイヤーリストを他のタブに写す
+		</button>
 		<button onclick={() => unlockDialog.open()}>機能アンロック</button>
 	</div>
 {/if}
@@ -593,6 +598,7 @@
 <StateEditDialog bind:this={stateEditDialog} />
 <PenaltyRoulette bind:this={penaltyRoulette} />
 <UnlockDialog bind:this={unlockDialog} />
+<TransferAttendantsDialog bind:this={transferAttendantsDialog} {Game} />
 
 <style>
 	:global(html) {
