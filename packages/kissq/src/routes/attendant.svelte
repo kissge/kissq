@@ -161,6 +161,13 @@
 				</span>
 			{/key}
 			<span class="symbol">✕</span>
+		</span><br />
+		<span class="total-rate" {@attach tooltip('通算正答率')}>
+			{(
+				((att.totalScore.maru + att.trueMaruCount) /
+					(att.totalScore.batsu + att.trueBatsuCount + att.totalScore.maru + att.trueMaruCount)) *
+				100
+			).toFixed(1)}%
 		</span>
 	{:else if showRate}
 		<span {@attach tooltip('レート')} class="rate">
@@ -565,6 +572,10 @@
 		.batsu-count {
 			color: rgb(140 140 255);
 			letter-spacing: -0.1em;
+		}
+		.total-rate {
+			font-size: 0.5em;
+			line-height: 1.2;
 		}
 
 		.symbol {
