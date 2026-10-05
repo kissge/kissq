@@ -108,10 +108,7 @@ export class WasedashikiClass {
 						this.Game.wasedashikiMode = 'handicap';
 						continue;
 					case '99':
-						// リセット
-						this.answerers = [];
-						this.pushers = [];
-						this.cursor = 0;
+						this.reset();
 						continue;
 				}
 
@@ -256,6 +253,12 @@ export class WasedashikiClass {
 				text: `ボタン${this.lastButtonID}は${this.Game.attendants[attendantID].name || `プレイヤー${attendantID + 1}`}が持っています`
 			}).showToast();
 		}
+	}
+
+	reset() {
+						this.answerers = [];
+						this.pushers = [];
+						this.cursor = 0;
 	}
 }
 

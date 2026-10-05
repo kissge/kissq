@@ -2,6 +2,7 @@
 	import { fade, fly } from 'svelte/transition';
 	import type { GameClassBaseType } from '$lib/game';
 	import { getLayoutContext } from '$lib/layout.svelte';
+	import { tooltip } from '$lib/tooltip.svelte';
 	import type { AttendantID } from '$lib/types';
 	import { getWasedashikiContext } from '$lib/wasedashiki.svelte';
 
@@ -83,6 +84,18 @@
 				</div>
 			{/each}
 		</div>
+		<button
+			class="escape-btn"
+			onclick={() => {
+				alert(
+					'早稲田式の親機のリセットも行ってください。\n（赤色のボタンと青色のボタンを同時に押す）'
+				);
+				Wasedashiki.reset();
+			}}
+			{@attach tooltip('出来れば押す前に画面のスクショを作者に共有してください＞＜')}
+		>
+			にっちもさっちもいかなくなったときに押すボタン
+		</button>
 	</div>
 {/if}
 
@@ -185,9 +198,29 @@
 		pointer-events: none;
 	}
 
+	.escape-btn {
+		position: absolute;
+		right: 2em;
+		bottom: 100px;
+		opacity: 0;
+		z-index: 1000;
+		animation: appear 1s 10s ease forwards 1;
+		box-shadow: none !important;
+		border: 1px solid white;
+		background: transparent;
+		color: white;
+		font-size: 1rem;
+	}
+
 	@keyframes answerer-1st {
 		to {
 			scale: 1.1;
+		}
+	}
+
+	@keyframes appear {
+		to {
+			opacity: 1;
 		}
 	}
 </style>
