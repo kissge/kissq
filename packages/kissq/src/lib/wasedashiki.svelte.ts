@@ -70,13 +70,13 @@ export class WasedashikiClass {
 		}
 	}
 
-	async readLoopSerialPort(serialPort: SerialPort | undefined) {
+	async readLoopSerialPort(serialPort: SerialPort | undefined, mockReader?: (port: SerialPort) => AsyncGenerator<string, void, unknown>) {
 		if (!serialPort) {
 			return;
 		}
 
 		try {
-			for await (const line of readFromSerialPort(serialPort)) {
+			for await (const line of (mockReader ?? readFromSerialPort)(serialPort)) {
 				this.connected = true;
 
 				console.log('Received line:', JSON.stringify(line));
