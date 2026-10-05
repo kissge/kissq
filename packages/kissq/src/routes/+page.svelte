@@ -472,8 +472,18 @@
 			全削除
 		</button>
 		<button
-			disabled={Game.history.length > 0}
 			onclick={() => {
+				if (
+					Game.history.length > 0 &&
+					!confirm(
+						'この機能を利用するには全員リセットしないといけません。全員リセットしてよろしいですか？'
+					)
+				) {
+					return;
+				}
+
+				Game.clearHistory(Wasedashiki);
+
 				if (confirm('全員の通算勝利数🏆をリセットしますか？')) {
 					Game.attendants.forEach((att) => (att.trophyCount = 0));
 				}
