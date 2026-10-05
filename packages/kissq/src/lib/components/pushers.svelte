@@ -71,6 +71,15 @@
 								{/if}
 							{:else}
 								{Game.attendants[attendantID]?.name || `プレイヤー${attendantID + 1}`}
+								{#if Game.currentState.attendants[attendantID]?.life === 'won'}
+									（勝ち抜け済）
+								{:else if Game.currentState.attendants[attendantID]?.life === 'lost'}
+									（失格済）
+								{:else if Game.currentState.attendants[attendantID]?.life === 'removed'}
+									（削除済）
+								{:else if Game.currentState.attendants[attendantID]?.yasuCount !== 0}
+									（休み中）
+								{/if}
 							{/if}
 						</div>
 					</div>
