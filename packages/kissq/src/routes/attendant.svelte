@@ -178,14 +178,16 @@
 			{#key att.maruCount}<span in:fade>{att.maruCount}</span>{/key}
 			<span class="symbol">〇</span>
 		</span>
-		<span class="batsu-count">
-			{#key att.batsuCount}
-				<span in:fade class:lose-lizhi={att.isLoseLizhi}>
-					{att.batsuCount}
-				</span>
-			{/key}
-			<span class="symbol">✕</span>
-		</span>
+		{#if att.rule.batsu !== 0}
+			<span class="batsu-count">
+				{#key att.batsuCount}
+					<span in:fade class:lose-lizhi={att.isLoseLizhi}>
+						{att.batsuCount}
+					</span>
+				{/key}
+				<span class="symbol">✕</span>
+			</span>
+		{/if}
 	{:else if att.rule.mode === 'score' || att.rule.mode === 'survival'}
 		<span>
 			{#key att.score}
