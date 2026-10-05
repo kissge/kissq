@@ -23,6 +23,7 @@
 {@render children?.()}
 
 <style>
+	@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@100..900&display=swap');
 	:global {
 		html,
 		body {
@@ -33,7 +34,7 @@
 			padding: 0;
 			min-height: 100dvh;
 			overflow-x: hidden;
-			font-family: sans-serif;
+			font-family: 'Noto Sans JP', sans-serif;
 		}
 
 		button {
