@@ -21,6 +21,7 @@
 	import StateEditDialog from '$lib/components/stateEditDialog.svelte';
 	import TransferAttendantsDialog from '$lib/components/transferAttendantsDialog.svelte';
 	import UnlockDialog from '$lib/components/unlockDialog.svelte';
+	import WasedashikiDebug from '$lib/components/wasedashikiDebug.svelte';
 	import { EditHistoryEntry } from '$lib/historyEntry';
 	import { LayoutClass, setLayoutContext } from '$lib/layout.svelte';
 	import { LoggerClass, setLoggerContext } from '$lib/logs';
@@ -84,6 +85,8 @@
 
 	let wallpaper = $state<string | null>(null);
 	let trophy = $state<string | null>(null);
+
+	let showWasedashikiDebug = $state(false);
 
 	let isDragging = $state<number | null>(null);
 	let dropTarget = $state<number | null>(null);
@@ -183,6 +186,8 @@
 		}
 	}
 
+	let isShiftKeyDown = $state(false);
+
 	$effect(() => {
 		// eslint-disable-next-line svelte/no-unused-svelte-ignore
 		// svelte-ignore state_snapshot_uncloneable
@@ -265,7 +270,28 @@
 		};
 		window.addEventListener('message', processWindowMessage);
 
-		return () => window.removeEventListener('message', processWindowMessage);
+		const keydown = (e: KeyboardEvent) => {
+			if (e.key === 'Shift') isShiftKeyDown = true;
+		};
+
+		const keyup = (e: KeyboardEvent) => {
+			if (e.key === 'Shift') isShiftKeyDown = false;
+		};
+
+		const blur = () => {
+			isShiftKeyDown = false;
+		};
+
+		window.addEventListener('keydown', keydown);
+		window.addEventListener('keyup', keyup);
+		window.addEventListener('blur', blur);
+
+		return () => {
+			window.removeEventListener('message', processWindowMessage);
+			window.removeEventListener('keydown', keydown);
+			window.removeEventListener('keyup', keyup);
+			window.removeEventListener('blur', blur);
+		};
 	});
 
 	$effect(() => {
@@ -529,9 +555,18 @@
 		<button onclick={QuestionConsole.openSubWindow}>操作盤表示</button>
 		<button
 			disabled={Wasedashiki.serialPort != null}
-			onclick={() => Wasedashiki.initiateSerialConnection()}
+			onclick={() => {
+				if (isShiftKeyDown) {
+					showWasedashikiDebug = !showWasedashikiDebug;
+				} else {
+					Wasedashiki.initiateSerialConnection();
+				}
+			}}
 		>
 			早稲田式連携
+			{#if isShiftKeyDown}
+				（デバッグモード）
+			{/if}
 		</button>
 		<button onclick={() => transferAttendantsDialog.open()}>
 			プレイヤーリストを他のタブに写す
@@ -587,6 +622,10 @@
 			問題終了
 		{/if}
 	</div>
+{/if}
+
+{#if showWasedashikiDebug}
+	<WasedashikiDebug />
 {/if}
 
 <Pushers {Game} />
