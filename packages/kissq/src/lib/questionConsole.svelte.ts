@@ -118,7 +118,7 @@ export class QuestionConsoleClass {
 	}
 
 	syncState() {
-		if (this.subWindow && !this.subWindow.closed) {
+		if (this.subWindow) {
 			// Prevent circular object (only necessary for team, fyi)
 			const state = Object.fromEntries(
 				Object.entries(this.Game.currentState).flatMap(([k, v]) => (k === 'teams' ? [] : [[k, v]]))
