@@ -42,6 +42,7 @@ export class GameClass extends GameClassBase<'single'> {
 	enableRating = $state(false);
 	effect2Name = $state<string>();
 	effect3Name = $state<string>();
+	isConventionAssistActive = $state(false);
 	showBanner = (options: { type: 'effect2' | 'effect3'; attendantID: number }) => {
 		void options;
 	};

@@ -15,6 +15,7 @@
 	import { tooltip } from '$lib/tooltip.svelte';
 	import type { AttendantID } from '$lib/types';
 	import { collapseArray } from '$lib/utils';
+	import ConventionAssist from './conventionAssist.svelte';
 
 	const opener = (typeof window !== 'undefined' ? window.opener : {}) as Window;
 
@@ -48,11 +49,14 @@
 	let wasedashikiMode = $state<WasedashikiMode>();
 	let effect2Name = $state<string>();
 	let effect3Name = $state<string>();
+	let teams = $state<string[]>();
 	let order = $state<'added' | 'same' | 'reverse'>('added');
 
 	let enableCompanion = $state(false);
 	let companionSessionID = $state('');
 	let client = $state<APIClient>();
+
+	let showConventionAssist = $state(false);
 
 	let orderedAttendants = $derived.by(() => {
 		const array = (() => {
@@ -175,6 +179,7 @@
 				wasedashikiMode = event.data.wasedashikiMode;
 				effect2Name = event.data.effect2Name;
 				effect3Name = event.data.effect3Name;
+				teams = event.data.teams;
 
 				if (battleMode === 'team') {
 					order = 'added';
@@ -488,9 +493,9 @@
 							onchange={(event) => {
 								const newGroup = Number.parseInt((event.target as HTMLSelectElement).value);
 								postMessage({
-									command: 'updateAttendantGroup',
+									command: 'updateAttendant',
 									attendantID: ai,
-									group: newGroup
+									diff: { group: newGroup }
 								});
 							}}
 						>
@@ -687,6 +692,17 @@
 	<button onclick={() => postMessage({ command: 'toggleQuestionWindow' })}>
 		問題ウィンドウを表示・非表示
 	</button>
+	<button
+		{@attach tooltip(
+			'全体メンバーリストの中から選択した何人かだけでゲームを行うことができます。大会にべんり！！！'
+		)}
+		onclick={() => {
+			postMessage({ command: 'activateConventionAssist' });
+			showConventionAssist = !showConventionAssist;
+		}}
+	>
+		大会アシスト{#if showConventionAssist}を非表示に{/if}
+	</button>
 	{#if enableCompanion}
 		<button disabled={!companionSessionID} onclick={() => postMessage({ command: 'toggleQRCode' })}>
 			QRコードを表示・非表示
@@ -694,6 +710,18 @@
 		<button disabled={!companionSessionID} onclick={updateRemoteQuestions}> ↺ </button>
 	{/if}
 </footer>
+
+<ConventionAssist
+	bind:show={showConventionAssist}
+	{attendants}
+	{currentState}
+	{teams}
+	reset={() => postMessage({ command: 'clickReset' })}
+	setAttendantList={(attendants) => postMessage({ command: 'setAttendantList', attendants })}
+	setGameTitle={(title) => postMessage({ command: 'setGameTitle', title })}
+	updateAttendant={(attendantID, diff) =>
+		postMessage({ command: 'updateAttendant', attendantID, diff })}
+/>
 
 <dialog closedby="any" bind:this={inputDialog}>
 	<p style="font-size: 0.5em;">

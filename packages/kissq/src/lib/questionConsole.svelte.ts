@@ -85,6 +85,10 @@ export class QuestionConsoleClass {
 				}
 				break;
 
+			case 'setAttendantList':
+				this.Game.attendants = message.attendants;
+				break;
+
 			case 'updateRules':
 				this.Game.updateRules(
 					message.rules.map((r: RulePOJO) => Rule.from(r)),
@@ -94,14 +98,27 @@ export class QuestionConsoleClass {
 				);
 				break;
 
-			case 'updateAttendantGroup':
-				this.Game.attendants[message.attendantID].group = message.group;
+			case 'updateAttendant':
+				for (const key of ['group', 'name'] as const satisfies (keyof Attendant)[]) {
+					if (key in message.diff && message.diff[key] !== undefined) {
+						// eslint-disable-next-line @typescript-eslint/no-explicit-any
+						(this.Game.attendants[message.attendantID] as any)[key] = message.diff[key];
+					}
+				}
 				break;
 
 			case 'reorderAttendants': // single-only
 				this.Game.attendants[this.Game.orderedAttendants[message.attendantID]].manualOrder =
 					event.data.newOrder;
 				this.Game.orderedAttendants.forEach((a, i) => (this.Game.attendants[a].manualOrder = i));
+				break;
+
+			case 'setGameTitle':
+				this.Game.gameTitle = message.title;
+				break;
+
+			case 'activateConventionAssist':
+				this.Game.isConventionAssistActive = true;
 				break;
 
 			case 'toggleQRCode':
@@ -139,7 +156,8 @@ export class QuestionConsoleClass {
 						buttonMapping: this.Wasedashiki.buttonMapping,
 						wasedashikiMode: this.Game.wasedashikiMode,
 						effect2Name: this.Game.effect2Name,
-						effect3Name: this.Game.effect3Name
+						effect3Name: this.Game.effect3Name,
+						teams: this.Game.teams
 					} satisfies OutgoingMessage)
 				)
 			);
@@ -161,9 +179,12 @@ export type IncomingMessage =
 	| { command: 'clickUndo' }
 	| { command: 'clickReset' }
 	| { command: 'addAttendant'; name: string }
+	| { command: 'setAttendantList'; attendants: Attendant[] }
 	| { command: 'updateRules'; rules: RulePOJO[]; doClear: boolean; resetGroups: 'reset' | 'keep' }
-	| { command: 'updateAttendantGroup'; attendantID: number; group: number }
+	| { command: 'updateAttendant'; attendantID: number; diff: { group?: number; name?: string } }
 	| { command: 'reorderAttendants'; attendantID: number; newOrder: number }
+	| { command: 'setGameTitle'; title: string }
+	| { command: 'activateConventionAssist' }
 	| { command: 'toggleQRCode' }
 	| { command: 'ping' };
 
@@ -181,4 +202,5 @@ export interface OutgoingMessage {
 	wasedashikiMode: WasedashikiMode | undefined;
 	effect2Name: string | undefined;
 	effect3Name: string | undefined;
+	teams: string[];
 }

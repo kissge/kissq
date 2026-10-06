@@ -408,7 +408,8 @@ export class AttendantState {
 	toJSON() {
 		return {
 			...this,
-			team: undefined, // Avoid circular reference
+			// eslint-disable-next-line @typescript-eslint/no-unused-vars
+			team: this.team && (({ attendants, ...rest }) => rest)(this.team), // Avoid circular reference
 			yasuDisplay: this.yasuDisplay,
 			isLizhi: this.isLizhi,
 			isLoseLizhi: this.isLoseLizhi

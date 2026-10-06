@@ -111,10 +111,13 @@
 			bind:textContent={Game.gameTitle}
 			{@attach tooltip('クリックでゲームのタイトルを設定')}
 		></span>
-		{#if battleMode === 'single'}
+		{#if Game.isConventionAssistActive}
+			<span class="subtitle slightly-left">大会アシスト</span>
+		{:else if battleMode === 'single'}
 			<a
 				data-sveltekit-reload
 				href="./teams{search}#{hash}"
+				class="subtitle"
 				onclick={() => Game.clearHistory(Wasedashiki)}
 				{@attach tooltip('団体戦に切り替えます')}
 			>
@@ -124,6 +127,7 @@
 			<a
 				data-sveltekit-reload
 				href="./{search}#{hash}"
+				class="subtitle"
 				onclick={() => Game.clearHistory(Wasedashiki)}
 				{@attach tooltip('個人戦に切り替えます')}
 			>
@@ -216,14 +220,21 @@
 	}
 
 	h1 {
-		a {
+		.subtitle {
 			position: absolute;
 			position-anchor: --title;
 			top: calc(anchor(bottom) - 0.5em);
 			left: anchor(left);
 			z-index: 9999;
-			color: blue;
 			font-size: 0.6em;
+
+			&a {
+				color: blue;
+			}
+
+			&.slightly-left {
+				left: calc(anchor(left) - 1.5em);
+			}
 		}
 
 		a:not(:focus, :hover) {

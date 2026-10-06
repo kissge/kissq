@@ -30,6 +30,7 @@ export abstract class GameClassBase<BattleMode extends 'single' | 'team'> {
 	abstract enableRating: boolean;
 	abstract effect2Name: string | undefined;
 	abstract effect3Name: string | undefined;
+	abstract isConventionAssistActive: boolean;
 	abstract showBanner: (options: { type: 'effect2' | 'effect3'; attendantID: number }) => void;
 	abstract bulkAdjustmentScore: number | null;
 	abstract bulkAdjust(): void;
