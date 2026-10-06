@@ -163,11 +163,13 @@
 			<span class="symbol">✕</span>
 		</span><br />
 		<span class="total-rate" {@attach tooltip('通算正答率')}>
-			{(
-				((att.totalScore.maru + att.trueMaruCount) /
-					(att.totalScore.batsu + att.trueBatsuCount + att.totalScore.maru + att.trueMaruCount)) *
-				100
-			).toFixed(1)}%
+			{(() => {
+				const percentage =
+					((att.totalScore.maru + att.trueMaruCount) /
+						(att.totalScore.batsu + att.trueBatsuCount + att.totalScore.maru + att.trueMaruCount)) *
+					100;
+				return isNaN(percentage) ? '---' : percentage.toFixed(1);
+			})()}%
 		</span>
 	{:else if showRate}
 		<span {@attach tooltip('レート')} class="rate">
