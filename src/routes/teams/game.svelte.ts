@@ -38,6 +38,7 @@ export class GameClass extends GameClassBase<'team'> {
 	totalQuestionCount = $state(0);
 	playSounds = $state(true);
 	wasedashikiMode = $state<WasedashikiMode>();
+	isConventionAssistActive = $state(false);
 
 	// dummy
 	orderingMode = 'manual' as const;
