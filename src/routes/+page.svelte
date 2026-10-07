@@ -425,7 +425,13 @@
 				>を元に戻す
 			{/key}
 		</button>
-		<button onclick={() => Game.addAttendant()} style="max-width: 20dvw">＋ プレイヤー追加</button>
+		<button
+			onclick={() =>
+				QuestionConsole.postMessage({ command: 'attendantAdded', attendant: Game.addAttendant() })}
+			style="max-width: 20dvw"
+		>
+			＋ プレイヤー追加
+		</button>
 		<button
 			onclick={() => {
 				if (

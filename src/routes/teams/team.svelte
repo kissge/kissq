@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { fade } from 'svelte/transition';
 	import type { Attendant } from '$lib/attendant';
+	import { getQuestionConsoleContext } from '$lib/questionConsole.svelte';
 	import { tooltip } from '$lib/tooltip.svelte';
 	import { getDnDContext } from './dnd.svelte';
 	import { getGameContext } from './game.svelte';
@@ -16,6 +17,7 @@
 
 	let Game = getGameContext();
 	let DnD = getDnDContext();
+	let QuestionConsole = getQuestionConsoleContext();
 
 	let maxSeat = $derived(
 		seats.reduce(
@@ -110,7 +112,11 @@
 		</button>
 		<div class="spacer"></div>
 		<button
-			onclick={() => Game.addAttendant(ti)}
+			onclick={() =>
+				QuestionConsole.postMessage({
+					command: 'attendantAdded',
+					attendant: Game.addAttendant(ti)
+				})}
 			{@attach tooltip('このチームに新しいプレイヤーを追加します。')}
 		>
 			追加

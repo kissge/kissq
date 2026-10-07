@@ -72,6 +72,17 @@
 		)
 	);
 
+	export async function attendantAddedCallback(attendant: Attendant) {
+		// attendantsの更新より先に起きないようにちょっと待つ
+		await new Promise((resolve) => setTimeout(resolve, 500));
+
+		fullAttendants.push(attendant);
+
+		if (gameInProgress) {
+			gameInProgress.attendantIDs.push((fullAttendants.length - 1) as AttendantID);
+		}
+	}
+
 	function addAttendant(name: string = '') {
 		fullAttendants.push({
 			name,
@@ -401,6 +412,7 @@
 		position: absolute;
 		top: 1em;
 		right: 1em;
+		z-index: 10000;
 		border: 2px solid black;
 		border-radius: 3em;
 		font-weight: bold;
