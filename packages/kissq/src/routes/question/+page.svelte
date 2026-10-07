@@ -56,6 +56,7 @@
 	let companionSessionID = $state('');
 	let client = $state<APIClient>();
 
+	let conventionAssist: ReturnType<typeof ConventionAssist>;
 	let showConventionAssist = $state(false);
 
 	let orderedAttendants = $derived.by(() => {
@@ -186,6 +187,13 @@
 				}
 
 				break;
+
+			case 'attendantAdded':
+				conventionAssist.attendantAddedCallback(event.data.attendant);
+				break;
+
+			default:
+				event.data satisfies never;
 		}
 	}
 
@@ -712,6 +720,7 @@
 </footer>
 
 <ConventionAssist
+	bind:this={conventionAssist}
 	bind:show={showConventionAssist}
 	{attendants}
 	{currentState}

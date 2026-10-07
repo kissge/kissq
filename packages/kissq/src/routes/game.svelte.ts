@@ -119,8 +119,8 @@ export class GameClass extends GameClassBase<'single'> {
 		- クイズカウンター（得点表示機）のkissQ`
 	);
 
-	addAttendant(name: string = '') {
-		this.attendants.push({
+	addAttendant(name: string = ''): Attendant {
+		const attendant: Attendant = {
 			name: han2zen(name),
 			group: 0,
 			team: 0,
@@ -128,12 +128,15 @@ export class GameClass extends GameClassBase<'single'> {
 			trophyCount: 0,
 			totalScore: { maru: 0, batsu: 0 },
 			manualOrder: this.attendants.length
-		});
+		};
+		this.attendants.push(attendant);
+		return attendant;
 	}
 
-	handlePasteEvent(event: ClipboardEvent, ord: number) {
+	handlePasteEvent(event: ClipboardEvent, ord: number): Attendant[] {
 		const text = (event.clipboardData?.getData('text') || '').trim();
 		const lines = text.split(/[\r\n]+/);
+		const added: Attendant[] = [];
 		if (lines.length >= 2) {
 			event.preventDefault();
 			lines.forEach((line, i) => {
@@ -141,13 +144,15 @@ export class GameClass extends GameClassBase<'single'> {
 					this.attendants[this.orderedAttendants[ord + i]].name = line;
 					this.attendants[this.orderedAttendants[ord + i]].trophyCount = 0;
 				} else {
-					this.addAttendant(line);
+					added.push(this.addAttendant(line));
 				}
 			});
 		} else if (text.length > 0) {
 			event.preventDefault();
 			document.execCommand('insertText', false, han2zen(text));
 		}
+
+		return added;
 	}
 
 	async clickBatsu(attendantID: number, playSounds_: boolean = true) {

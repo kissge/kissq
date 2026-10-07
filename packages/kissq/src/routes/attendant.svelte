@@ -3,6 +3,7 @@
 	import { han2zen } from '$lib/attendant';
 	import { LoseHistoryEntry, RemoveHistoryEntry, WinHistoryEntry } from '$lib/historyEntry';
 	import { getLayoutContext } from '$lib/layout.svelte';
+	import { getQuestionConsoleContext } from '$lib/questionConsole.svelte';
 	import type { AttendantState } from '$lib/state';
 	import { tooltip } from '$lib/tooltip.svelte';
 	import type { AttendantID } from '$lib/types';
@@ -34,6 +35,7 @@
 	let Game = getGameContext();
 	let Wasedashiki = getWasedashikiContext();
 	let Layout = getLayoutContext();
+	let QuestionConsole = getQuestionConsoleContext();
 
 	let att = $derived(Game.currentState.attendants[ai]);
 	let barHeight: number = $derived(Layout.barHeightRatioArray[ai]?.current ?? 0);
@@ -116,7 +118,10 @@
 			setTimeout(() => (Game.attendants[ai].name = tmp), 1);
 		}
 	}}
-	onpaste={(e) => Game.handlePasteEvent(e, ord)}
+	onpaste={(e) =>
+		Game.handlePasteEvent(e, ord).forEach((attendant) =>
+			QuestionConsole.postMessage({ command: 'attendantAdded', attendant })
+		)}
 	contenteditable
 	placeholder="プレイヤー {ai + 1 < 10 ? String.fromCodePoint(65297 + ai) : ai + 1}"
 	spellcheck="false"

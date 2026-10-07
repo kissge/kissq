@@ -163,6 +163,12 @@ export class QuestionConsoleClass {
 			);
 		}
 	}
+
+	postMessage(message: OutgoingMessage) {
+		if (this.subWindow) {
+			this.subWindow.postMessage(message);
+		}
+	}
 }
 
 export const [getQuestionConsoleContext, setQuestionConsoleContext] =
@@ -188,19 +194,24 @@ export type IncomingMessage =
 	| { command: 'toggleQRCode' }
 	| { command: 'ping' };
 
-export interface OutgoingMessage {
-	command: 'syncState';
-	mode: 'single' | 'team';
-	attendants: Attendant[];
-	currentState: GameState;
-	history: HistoryEntry[];
-	rules: Rule[];
-	orderedAttendants: number[];
-	orderingMode: 'ranking' | 'manual';
-	answerers: ({ currentRank: 1 | 2 | 'late'; totalRank: number; delay: number } | null)[];
-	buttonMapping: Record<number, number>;
-	wasedashikiMode: WasedashikiMode | undefined;
-	effect2Name: string | undefined;
-	effect3Name: string | undefined;
-	teams: string[];
-}
+export type OutgoingMessage =
+	| {
+			command: 'syncState';
+			mode: 'single' | 'team';
+			attendants: Attendant[];
+			currentState: GameState;
+			history: HistoryEntry[];
+			rules: Rule[];
+			orderedAttendants: number[];
+			orderingMode: 'ranking' | 'manual';
+			answerers: ({ currentRank: 1 | 2 | 'late'; totalRank: number; delay: number } | null)[];
+			buttonMapping: Record<number, number>;
+			wasedashikiMode: WasedashikiMode | undefined;
+			effect2Name: string | undefined;
+			effect3Name: string | undefined;
+			teams: string[];
+	  }
+	| {
+			command: 'attendantAdded';
+			attendant: Attendant;
+	  };

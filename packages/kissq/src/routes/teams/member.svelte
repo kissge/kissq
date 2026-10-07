@@ -2,6 +2,7 @@
 	import { fade } from 'svelte/transition';
 	import Toastify from 'toastify-js';
 	import { RemoveHistoryEntry } from '$lib/historyEntry';
+	import { getQuestionConsoleContext } from '$lib/questionConsole.svelte';
 	import { tooltip, tooltipInteractive } from '$lib/tooltip.svelte';
 	import type { AttendantID } from '$lib/types';
 	import { getWasedashikiContext } from '$lib/wasedashiki.svelte';
@@ -27,6 +28,7 @@
 	let Game = getGameContext();
 	let Wasedashiki = getWasedashikiContext();
 	let DnD = getDnDContext();
+	let QuestionConsole = getQuestionConsoleContext();
 
 	let sAtt = $derived(Game.currentState.attendants[ai]);
 </script>
@@ -180,7 +182,10 @@
 			]}
 			bind:value={Game.attendants[ai as AttendantID].name}
 			placeholder={`プレイヤー${ai + 1}`}
-			onpaste={(e) => Game.handlePasteEvent(e, ai, ti)}
+			onpaste={(e) =>
+				Game.handlePasteEvent(e, ai, ti).forEach((attendant) =>
+					QuestionConsole.postMessage({ command: 'attendantAdded', attendant })
+				)}
 		/>
 		<div class="drag-handle">⠿</div>
 		<small class="yasu">
