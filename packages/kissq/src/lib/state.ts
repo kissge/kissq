@@ -730,13 +730,13 @@ export class GameState {
 
 		// チームランキング
 		const teamRanking = this.teams
-			.map((t, ti) => ({ ...t, ti }))
-			.toSorted((a, b) => b.teamScore - a.teamScore);
+			.map((t, ti) => ({ t, ti }))
+			.toSorted((a, b) => arrayCompare(b.t.sortScore(), a.t.sortScore()));
 
 		this.teamRanks = [];
 		teamRanking.forEach((team, rank) => {
 			const previous = teamRanking[rank - 1];
-			if (rank === 0 || team.teamScore !== previous.teamScore) {
+			if (rank === 0 || arrayCompare(team.t.sortScore(), previous.t.sortScore()) !== 0) {
 				this.teamRanks[team.ti] = rank + 1;
 			} else {
 				this.teamRanks[team.ti] = this.teamRanks[previous.ti];
