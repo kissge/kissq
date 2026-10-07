@@ -151,7 +151,8 @@
 			<div
 				class="assist-table"
 				in:fly={{ y: 100 }}
-				style:grid-template-rows={`auto repeat(${fullAttendants.length + 1}, 1fr)`}
+				style:grid-template-rows={`auto repeat(${fullAttendants.length}, auto) 1fr auto`}
+				style:grid-template-columns={`auto repeat(${games.length}, auto) 1fr auto`}
 			>
 				<!-- Header (left) -->
 				<div class="header-left header-top"></div>
@@ -197,7 +198,8 @@
 						/>
 					</div>
 				{/each}
-				<div class="header-left footer">
+				<div class="header-left filler"></div>
+				<div class="header-left footer-bottom">
 					<button onclick={() => addAttendant()}>プレイヤーを追加</button>
 				</div>
 
@@ -295,7 +297,8 @@
 					{/each}
 
 					<!-- Footer (bottom) -->
-					<div class="footer">
+					<div class="filler"></div>
+					<div class="footer-bottom">
 						{#if game.status === 'not-started'}
 							<button
 								disabled={game.attendantIDs.length === 0}
@@ -337,7 +340,14 @@
 				{/each}
 
 				<!-- Footer (right) -->
-				<div class="header-top">
+				<div class="header-top filler"></div>
+				{#each fullAttendants, ai (ai)}
+					<div class="filler"></div>
+				{/each}
+				<div class="filler"></div>
+				<div class="footer-bottom filler"></div>
+
+				<div class="header-top footer-right">
 					<button
 						onclick={() => {
 							games.push({
@@ -354,11 +364,12 @@
 					</button>
 				</div>
 				{#each fullAttendants, ai (ai)}
-					<div>
+					<div class="footer-right">
 						{stats[ai].competed}<i>戦</i>{stats[ai].won}<i>勝</i>{stats[ai].lost}<i>失格</i>
 					</div>
 				{/each}
-				<div class="footer"></div>
+				<div class="filler footer-right"></div>
+				<div class="footer-bottom footer-right"></div>
 			</div>
 		{/if}
 		<button class="close-btn" onclick={() => (show = false)}>×</button>
@@ -410,6 +421,8 @@
 		display: grid;
 		grid-auto-flow: column;
 		align-self: flex-start;
+		width: 100%;
+		height: 100%;
 		max-height: 100%;
 		overflow-y: auto;
 
@@ -438,10 +451,14 @@
 		}
 	}
 
+	.filler {
+		padding: 0;
+		min-width: 0 !important;
+	}
+
 	.header-top {
 		position: sticky;
 		top: 0;
-		grid-row-start: 1;
 		border-bottom: 2px solid #444;
 		background: white;
 		min-width: 6em;
@@ -461,10 +478,17 @@
 		}
 	}
 
-	.footer {
+	.footer-bottom {
 		position: sticky;
 		bottom: 0;
 		box-shadow: 0 -5px 5px rgba(0, 0, 0, 0.1);
+		background: white;
+	}
+
+	.footer-right {
+		position: sticky;
+		right: 0;
+		box-shadow: -5px 0 5px rgba(0, 0, 0, 0.1);
 		background: white;
 	}
 
@@ -494,7 +518,9 @@
 	}
 
 	.header-top.header-left,
-	.header-left.footer {
+	.header-left.footer-bottom,
+	.header-top.footer-right,
+	.footer-bottom.footer-right {
 		z-index: 1000;
 	}
 
