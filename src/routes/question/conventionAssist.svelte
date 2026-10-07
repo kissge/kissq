@@ -255,6 +255,8 @@
 							{:else if game.attendantIDs.includes(ai as AttendantID) && state}
 								{@const cai = game.attendantIDs.indexOf(ai as AttendantID)}
 								{@const att = state.attendants[cai]}
+								{@const ti = (game.status === 'in-progress' ? attendants : game.attendants)[cai]
+									.team}
 
 								{#if battleMode === 'single'}
 									{#if att.life === 'won'}
@@ -272,37 +274,18 @@
 									{/if}
 								{:else}
 									{#if att.team?.teamLife === 'won'}
-										<span class="life won">{state.ranks[cai]}位</span>
+										<span class="life won">{state.teamRanks[ti]}位</span>
 									{:else if att.team?.teamLife === 'lost'}
-										<span class="life lost">{state.ranks[cai]}位</span>
+										<span class="life lost">{state.teamRanks[ti]}位</span>
 									{:else if game.status === 'finished'}
-										<span class="life">{state.ranks[cai]}位</span>
+										<span class="life">{state.teamRanks[ti]}位</span>
 									{/if}
 
 									<span
 										class="team-name"
 										style:background={`hsl(${(360 / (_teams?.length ?? 0)) * atts[cai].team}, 90%, 40%)`}
 									>
-										{(() => {
-											const ti = (game.status === 'in-progress' ? attendants : game.attendants)[cai]
-												.team;
-
-											console.log(
-												'???',
-												gi,
-												game.attendantIDs,
-												attendants,
-												cai,
-												ai,
-												attendants[cai]
-											);
-
-											if (_teams) {
-												return _teams[ti] || `チーム${ti + 1}`;
-											} else {
-												return '???';
-											}
-										})()}
+										{_teams ? _teams[ti] || `チーム${ti + 1}` : '???'}
 									</span>
 
 									{att.team?.teamScore} pt{#if att.team?.teamScore !== 1}s{/if}
