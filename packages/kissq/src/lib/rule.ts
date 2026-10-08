@@ -23,7 +23,10 @@ export class Rule {
 		/** 通過席ルール */
 		public transit: boolean,
 		/** N問正解で得られる休みの数M */
-		public yasuPerMaru: { maru: number; yasu: number | 'maru' } | null,
+		public yasuPerMaru:
+			| { maru: number; yasu: number | 'maru' }
+			| { mode: 'custom'; dict: Record<number, number> }
+			| null,
 		/** 1問誤答で得られる休みの方式（定数またはその時点のマル数・バツ数） */
 		public yasuMode: 'constant' | 'maru' | 'batsu' | 'roulette',
 		/** 1問誤答で得られる休みの数 */
@@ -249,11 +252,15 @@ export class Rule {
 		}
 
 		if (this.yasuPerMaru) {
-			str += `、${this.yasuPerMaru.maru}〇ごとに`;
-			if (this.yasuPerMaru.yasu === 'maru') {
-				str += '（現在のマル数）休';
+			if ('mode' in this.yasuPerMaru) {
+				str += '、マル数に応じた休みあり';
 			} else {
-				str += `${this.yasuPerMaru.yasu}休`;
+				str += `、${this.yasuPerMaru.maru}〇ごとに`;
+				if (this.yasuPerMaru.yasu === 'maru') {
+					str += '（現在のマル数）休';
+				} else {
+					str += `${this.yasuPerMaru.yasu}休`;
+				}
 			}
 		}
 
@@ -419,8 +426,15 @@ export class Rule {
 		}
 
 		if (this.yasuPerMaru) {
-			if (this.yasuPerMaru.yasu === 'maru') {
-				arr.push(`${this.yasuPerMaru.maru}問正解ごとに（現在の正解数）休み`);
+			if ('mode' in this.yasuPerMaru) {
+				arr.push(
+					Object.entries(this.yasuPerMaru.dict)
+						.toSorted(([a], [b]) => Number(a) - Number(b))
+						.map(([maru, yasu]) => `${maru}問正解で${yasu}問休み`)
+						.join('、')
+				);
+			} else if (this.yasuPerMaru.yasu === 'maru') {
+				arr.push(`${this.yasuPerMaru.maru}問正解ごとに（現在の正解数）問休み`);
 			} else {
 				arr.push(`${this.yasuPerMaru.maru}問正解ごとに${this.yasuPerMaru.yasu}問休み`);
 			}
