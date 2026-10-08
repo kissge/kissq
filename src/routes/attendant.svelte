@@ -84,9 +84,20 @@
 	<button
 		class="group"
 		style:background-color={`hsl(${(360 / Game.rules.length) * Game.attendants[ai].group}, 70%, 40%)`}
-		onclick={() => {
+		onclick={(event) => {
+			// Click with Shift key pressed or not
+			const diff = event.shiftKey ? Game.rules.length - 1 : 1;
+
 			do {
-				Game.attendants[ai].group = (Game.attendants[ai].group + 1) % Game.rules.length;
+				Game.attendants[ai].group = (Game.attendants[ai].group + diff) % Game.rules.length;
+			} while (Game.rules[Game.attendants[ai].group].isRemoved);
+		}}
+		oncontextmenu={(event) => {
+			event.preventDefault();
+			// Click with right mouse button
+			do {
+				Game.attendants[ai].group =
+					(Game.attendants[ai].group + Game.rules.length - 1) % Game.rules.length;
 			} while (Game.rules[Game.attendants[ai].group].isRemoved);
 		}}
 		{@attach tooltip('このプレイヤーの所属グループを変更します。')}
