@@ -20,6 +20,7 @@ export abstract class GameClassBase<BattleMode extends 'single' | 'team'> {
 	abstract history: HistoryEntry[];
 	abstract gameTitle: string;
 	abstract totalQuestionCount: number;
+	abstract previousTrophyGetters: AttendantID[];
 	abstract currentState: GameState;
 	abstract playSounds: boolean;
 	abstract wasedashikiMode: WasedashikiMode | undefined;
@@ -44,7 +45,12 @@ export abstract class GameClassBase<BattleMode extends 'single' | 'team'> {
 	abstract clickBatsu(attendantID: number, playSounds_?: boolean): Promise<void>;
 
 	clearHistory(Wasedashiki: WasedashikiClass) {
+		this.previousTrophyGetters = [];
 		this.currentState.attendants.forEach((att, ai) => {
+			if (att.life === 'won') {
+				this.previousTrophyGetters.push(ai as AttendantID);
+			}
+
 			this.attendants[ai].trophyCount = att.trophyCount;
 			this.attendants[ai].totalScore = {
 				maru: att.totalScore.maru + att.trueMaruCount,
@@ -56,7 +62,7 @@ export abstract class GameClassBase<BattleMode extends 'single' | 'team'> {
 		this.Logger!.push();
 
 		const newAttendants = [...this.attendants];
-		const removedIndex = [];
+		const removedIndex: number[] = [];
 		for (let i = 0, j = 0; i < newAttendants.length; i++) {
 			if (this.currentState.attendants[i].life === 'removed') {
 				removedIndex.push(i);
@@ -73,6 +79,15 @@ export abstract class GameClassBase<BattleMode extends 'single' | 'team'> {
 			newAttendants.splice(i, 1);
 		});
 		this.attendants = newAttendants;
+
+		this.previousTrophyGetters = this.previousTrophyGetters.flatMap((ai) => {
+			if (removedIndex.includes(ai)) {
+				return [];
+			} else {
+				const newIndex = ai - removedIndex.filter((i) => i < ai).length;
+				return [newIndex as AttendantID];
+			}
+		});
 
 		this.history = [];
 	}

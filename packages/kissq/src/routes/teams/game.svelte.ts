@@ -8,6 +8,7 @@ import { Rule } from '$lib/rule';
 import type { WasedashikiMode } from '$lib/serial';
 import { playSound } from '$lib/sound';
 import { GameState } from '$lib/state';
+import type { AttendantID } from '$lib/types';
 
 export class GameClass extends GameClassBase<'team'> {
 	battleMode = 'team' as const;
@@ -36,6 +37,7 @@ export class GameClass extends GameClassBase<'team'> {
 	history = $state<HistoryEntry[]>([]);
 	gameTitle = $state('');
 	totalQuestionCount = $state(0);
+	previousTrophyGetters = $state<AttendantID[]>([]);
 	playSounds = $state(true);
 	wasedashikiMode = $state<WasedashikiMode>();
 	isConventionAssistActive = $state(false);

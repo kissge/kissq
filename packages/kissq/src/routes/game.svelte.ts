@@ -8,6 +8,7 @@ import { Rule, type Penalty } from '$lib/rule';
 import type { WasedashikiMode } from '$lib/serial';
 import { playSound } from '$lib/sound';
 import { GameState } from '$lib/state';
+import type { AttendantID } from '$lib/types';
 
 export class GameClass extends GameClassBase<'single'> {
 	battleMode = 'single' as const;
@@ -35,6 +36,7 @@ export class GameClass extends GameClassBase<'single'> {
 	history = $state<HistoryEntry[]>([]);
 	gameTitle = $state('');
 	totalQuestionCount = $state(0);
+	previousTrophyGetters = $state<AttendantID[]>([]);
 	playSounds = $state(true);
 	wasedashikiMode = $state<WasedashikiMode>();
 
