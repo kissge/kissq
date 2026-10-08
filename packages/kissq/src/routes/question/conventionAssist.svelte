@@ -44,8 +44,6 @@
 		fullAttendants.map((_, ai) =>
 			games.reduce(
 				(acc, game) => {
-					acc.competed += game.attendantIDs.includes(ai as AttendantID) ? 1 : 0;
-
 					if (game.status !== 'not-started' && game.attendantIDs.includes(ai as AttendantID)) {
 						const cai = game.attendantIDs.indexOf(ai as AttendantID);
 						const att =
@@ -56,6 +54,8 @@
 							att.rule.mode === 'aql' || att.rule.mode === 'product' || att.rule.mode === 'sum'
 								? 'team'
 								: 'single';
+
+						acc.competed++;
 
 						if (battleMode === 'team') {
 							acc.won += att.team!.teamLife === 'won' ? 1 : 0;
