@@ -274,7 +274,13 @@
 
 <div class="trophies" {@attach tooltip('勝ち抜けた累積回数')}>
 	{#each Array.from({ length: att.trophyCount }), i (i)}
-		<span in:fade></span>
+		{@const prev =
+			Game.previousTrophyGetters.includes(ai) && i === Game.attendants[ai].trophyCount - 1}
+		<span
+			class:previous-trophy-getter={prev}
+			in:fade
+			{@attach prev && tooltip('直前のゲームで勝ち抜けています')}
+		></span>
 	{/each}
 </div>
 
@@ -506,6 +512,9 @@
 
 		span {
 			transition: margin-top 0.3s ease;
+			transition:
+				box-shadow 0.3s ease,
+				background-color 0.3s ease;
 			box-shadow: 0 0 3px #888;
 			border-radius: 50%;
 			background-image: var(--trophy-image);
@@ -514,6 +523,13 @@
 			background-color: #ffffffaa;
 			width: 1.375em;
 			height: 1.375em;
+
+			&.previous-trophy-getter {
+				box-shadow:
+					0 0 3px #888,
+					0 0 10px #ff0;
+				background-color: #ff08;
+			}
 		}
 
 		&:has(:nth-child(8)) span:nth-child(n + 2) {
