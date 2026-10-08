@@ -77,7 +77,7 @@
 									（失格済）
 								{:else if Game.currentState.attendants[attendantID]?.life === 'removed'}
 									（削除済）
-								{:else if Game.currentState.attendants[attendantID]?.yasuCount !== 0}
+								{:else if typeof Game.currentState.attendants[attendantID]?.yasuCount === 'number' && Game.currentState.attendants[attendantID].yasuCount > 0}
 									（休み中）
 								{/if}
 							{/if}
@@ -93,18 +93,20 @@
 				</div>
 			{/each}
 		</div>
-		<button
-			class="escape-btn"
-			onclick={() => {
-				alert(
-					'早稲田式の親機のリセットも行ってください。\n（赤色のボタンと青色のボタンを同時に押す）'
-				);
-				Wasedashiki.reset();
-			}}
-			{@attach tooltip('出来れば押す前に画面のスクショを作者に共有してください＞＜')}
-		>
-			にっちもさっちもいかなくなったときに押すボタン
-		</button>
+		{#key JSON.stringify(Wasedashiki.answererRanking)}
+			<button
+				class="escape-btn"
+				onclick={() => {
+					alert(
+						'早稲田式の親機のリセットも行ってください。\n（赤色のボタンと青色のボタンを同時に押す）'
+					);
+					Wasedashiki.reset();
+				}}
+				{@attach tooltip('出来れば押す前に画面のスクショを作者に共有してください＞＜')}
+			>
+				にっちもさっちもいかなくなったときに押すボタン
+			</button>
+		{/key}
 	</div>
 {/if}
 
