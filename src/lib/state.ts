@@ -55,11 +55,19 @@ export class AttendantState {
 				if (maruCount >= this.rule.win) {
 					life = 'won';
 					trophyCount++;
-				} else if (this.rule.yasuPerMaru && maruCount % this.rule.yasuPerMaru.maru === 0) {
-					if (this.rule.yasuPerMaru.yasu === 'maru') {
-						yasuCount = maruCount;
+				} else if (this.rule.yasuPerMaru) {
+					if ('mode' in this.rule.yasuPerMaru) {
+						if (maruCount in this.rule.yasuPerMaru.dict) {
+							yasuCount = this.rule.yasuPerMaru.dict[maruCount];
+						}
 					} else {
-						yasuCount = this.rule.yasuPerMaru.yasu;
+						if (maruCount % this.rule.yasuPerMaru.maru === 0) {
+							if (this.rule.yasuPerMaru.yasu === 'maru') {
+								yasuCount = maruCount;
+							} else {
+								yasuCount = this.rule.yasuPerMaru.yasu;
+							}
+						}
 					}
 				}
 				return { maruCount, score, life, trophyCount, yasuCount, otherScoreDiff };
@@ -70,11 +78,19 @@ export class AttendantState {
 				if (score >= this.rule.win) {
 					life = 'won';
 					trophyCount++;
-				} else if (this.rule.yasuPerMaru && maruCount % this.rule.yasuPerMaru.maru === 0) {
-					if (this.rule.yasuPerMaru.yasu === 'maru') {
-						yasuCount = maruCount;
+				} else if (this.rule.yasuPerMaru) {
+					if ('mode' in this.rule.yasuPerMaru) {
+						if (maruCount in this.rule.yasuPerMaru.dict) {
+							yasuCount = this.rule.yasuPerMaru.dict[maruCount];
+						}
 					} else {
-						yasuCount = this.rule.yasuPerMaru.yasu;
+						if (maruCount % this.rule.yasuPerMaru.maru === 0) {
+							if (this.rule.yasuPerMaru.yasu === 'maru') {
+								yasuCount = maruCount;
+							} else {
+								yasuCount = this.rule.yasuPerMaru.yasu;
+							}
+						}
 					}
 				}
 
@@ -89,11 +105,19 @@ export class AttendantState {
 				if (score >= this.rule.win ** 2) {
 					life = 'won';
 					trophyCount++;
-				} else if (this.rule.yasuPerMaru && maruCount % this.rule.yasuPerMaru.maru === 0) {
-					if (this.rule.yasuPerMaru.yasu === 'maru') {
-						yasuCount = maruCount;
+				} else if (this.rule.yasuPerMaru) {
+					if ('mode' in this.rule.yasuPerMaru) {
+						if (maruCount in this.rule.yasuPerMaru.dict) {
+							yasuCount = this.rule.yasuPerMaru.dict[maruCount];
+						}
 					} else {
-						yasuCount = this.rule.yasuPerMaru.yasu;
+						if (maruCount % this.rule.yasuPerMaru.maru === 0) {
+							if (this.rule.yasuPerMaru.yasu === 'maru') {
+								yasuCount = maruCount;
+							} else {
+								yasuCount = this.rule.yasuPerMaru.yasu;
+							}
+						}
 					}
 				}
 				return { maruCount, score, life, trophyCount, yasuCount, otherScoreDiff };
@@ -101,11 +125,19 @@ export class AttendantState {
 			case 'survival':
 				maruCount++;
 				otherScoreDiff = -this.rule.maru * multiplier;
-				if (this.rule.yasuPerMaru && maruCount % this.rule.yasuPerMaru.maru === 0) {
-					if (this.rule.yasuPerMaru.yasu === 'maru') {
-						yasuCount = maruCount;
+				if (this.rule.yasuPerMaru) {
+					if ('mode' in this.rule.yasuPerMaru) {
+						if (maruCount in this.rule.yasuPerMaru.dict) {
+							yasuCount = this.rule.yasuPerMaru.dict[maruCount];
+						}
 					} else {
-						yasuCount = this.rule.yasuPerMaru.yasu;
+						if (maruCount % this.rule.yasuPerMaru.maru === 0) {
+							if (this.rule.yasuPerMaru.yasu === 'maru') {
+								yasuCount = maruCount;
+							} else {
+								yasuCount = this.rule.yasuPerMaru.yasu;
+							}
+						}
 					}
 				}
 				return { maruCount, score, life, trophyCount, yasuCount, otherScoreDiff };
@@ -116,11 +148,19 @@ export class AttendantState {
 				maruCount++;
 				score += this.rule.maru * multiplier;
 
-				if (this.rule.yasuPerMaru && maruCount % this.rule.yasuPerMaru.maru === 0) {
-					if (this.rule.yasuPerMaru.yasu === 'maru') {
-						yasuCount = maruCount;
+				if (this.rule.yasuPerMaru) {
+					if ('mode' in this.rule.yasuPerMaru) {
+						if (maruCount in this.rule.yasuPerMaru.dict) {
+							yasuCount = this.rule.yasuPerMaru.dict[maruCount];
+						}
 					} else {
-						yasuCount = this.rule.yasuPerMaru.yasu;
+						if (maruCount % this.rule.yasuPerMaru.maru === 0) {
+							if (this.rule.yasuPerMaru.yasu === 'maru') {
+								yasuCount = maruCount;
+							} else {
+								yasuCount = this.rule.yasuPerMaru.yasu;
+							}
+						}
 					}
 				}
 

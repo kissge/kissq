@@ -37,11 +37,26 @@
 					yasuPerMaruMode:
 						yasuPerMaru === null
 							? null
-							: typeof yasuPerMaru.yasu === 'number'
-								? 'number'
-								: yasuPerMaru.yasu,
-					yasuPerMaruMaru: yasuPerMaru?.maru ?? 5,
-					yasuPerMaruYasu: typeof yasuPerMaru?.yasu === 'number' ? yasuPerMaru.yasu : 5,
+							: 'mode' in yasuPerMaru
+								? yasuPerMaru.mode
+								: typeof yasuPerMaru.yasu === 'number'
+									? 'number'
+									: yasuPerMaru.yasu,
+					yasuPerMaruMaru: yasuPerMaru && 'maru' in yasuPerMaru ? yasuPerMaru.maru : 5,
+					yasuPerMaruYasu:
+						yasuPerMaru && 'yasu' in yasuPerMaru && typeof yasuPerMaru.yasu === 'number'
+							? yasuPerMaru.yasu
+							: 5,
+					yasuPerMaruDict:
+						yasuPerMaru && 'dict' in yasuPerMaru
+							? Object.entries(yasuPerMaru.dict)
+									.map(([maru, yasu]) => ({
+										maru: Number(maru),
+										yasu,
+										uid: Math.random()
+									}))
+									.toSorted((a, b) => a.maru - b.maru)
+							: [],
 					isBulkAdjustmentNull: bulkAdjustment === null,
 					bulkAdjustment: bulkAdjustment ?? [2, -2, 1],
 					rouletteName: roulette?.name ?? null
@@ -80,9 +95,10 @@
 		attendantLimit: NonNullable<Rule['attendantLimit']>;
 		batsuMode: (Rule['batsu'] & string) | 'number';
 		batsu: number;
-		yasuPerMaruMode: 'maru' | 'number' | null;
-		yasuPerMaruMaru: NonNullable<Rule['yasuPerMaru']>['maru'];
+		yasuPerMaruMode: 'maru' | 'number' | 'custom' | null;
+		yasuPerMaruMaru: number;
 		yasuPerMaruYasu: number;
+		yasuPerMaruDict: { maru: number; yasu: number; uid: number }[];
 		rouletteName: NonNullable<Rule['roulette']>['name'] | null;
 		isBulkAdjustmentNull: boolean;
 		bulkAdjustment: NonNullable<Rule['bulkAdjustment']>;
@@ -136,11 +152,20 @@
 					rule.transit,
 					rule.yasuPerMaruMode === null
 						? null
-						: {
-								maru: rule.yasuPerMaruMaru,
-								yasu:
-									rule.yasuPerMaruMode === 'number' ? rule.yasuPerMaruYasu : rule.yasuPerMaruMode
-							},
+						: rule.yasuPerMaruMode === 'custom'
+							? {
+									mode: 'custom',
+									dict: Object.fromEntries(
+										rule.yasuPerMaruDict
+											.map(({ maru, yasu }) => [maru, yasu])
+											.toSorted(([a], [b]) => a - b)
+									)
+								}
+							: {
+									maru: rule.yasuPerMaruMaru,
+									yasu:
+										rule.yasuPerMaruMode === 'number' ? rule.yasuPerMaruYasu : rule.yasuPerMaruMode
+								},
 					rule.yasuMode,
 					rule.yasuPerBatsu,
 					rule.rouletteName === null
@@ -167,6 +192,7 @@
 				yasuPerMaruMode,
 				yasuPerMaruMaru,
 				yasuPerMaruYasu,
+				yasuPerMaruDict,
 				yasuMode,
 				yasuPerBatsu,
 				isBulkAdjustmentNull,
@@ -179,11 +205,17 @@
 				(isAttendantLimitNull ? true : Number.isInteger(attendantLimit) && attendantLimit > 0) &&
 				(yasuPerMaruMode === null
 					? true
-					: Number.isInteger(yasuPerMaruMaru) &&
-						yasuPerMaruMaru > 0 &&
-						(yasuPerMaruMode === 'number'
-							? Number.isInteger(yasuPerMaruYasu) && yasuPerMaruYasu > 0
-							: true)) &&
+					: yasuPerMaruMode === 'custom'
+						? yasuPerMaruDict.length > 0 &&
+							yasuPerMaruDict.every(
+								({ maru, yasu }) =>
+									Number.isInteger(maru) && maru > 0 && Number.isInteger(yasu) && yasu > 0
+							)
+						: Number.isInteger(yasuPerMaruMaru) &&
+							yasuPerMaruMaru > 0 &&
+							(yasuPerMaruMode === 'number'
+								? Number.isInteger(yasuPerMaruYasu) && yasuPerMaruYasu > 0
+								: true)) &&
 				Number.isInteger(yasuPerBatsu) &&
 				(yasuMode === 'constant'
 					? yasuPerBatsu >= 0
@@ -220,18 +252,30 @@
 
 				(yasuPerMaruMode === null
 					? true
-					: Number.isInteger(yasuPerMaruMaru) &&
-						yasuPerMaruMaru > 0 &&
-						(yasuPerMaruMode === 'number'
-							? Number.isInteger(yasuPerMaruYasu) && yasuPerMaruYasu > 0
-							: true)
+					: yasuPerMaruMode === 'custom'
+						? yasuPerMaruDict.length > 0 &&
+							yasuPerMaruDict.every(
+								({ maru, yasu }) =>
+									Number.isInteger(maru) && maru > 0 && Number.isInteger(yasu) && yasu > 0
+							)
+						: Number.isInteger(yasuPerMaruMaru) &&
+							yasuPerMaruMaru > 0 &&
+							(yasuPerMaruMode === 'number'
+								? Number.isInteger(yasuPerMaruYasu) && yasuPerMaruYasu > 0
+								: true)
 					(${rule.yasuPerMaruMode} === null
 						? true
-						: ${Number.isInteger(rule.yasuPerMaruMaru)} &&
-						${rule.yasuPerMaruMaru} > 0 &&
-						(${rule.yasuPerMaruMode} === 'number'
-							? ${Number.isInteger(rule.yasuPerMaruYasu)} && ${rule.yasuPerMaruYasu} > 0
-							: true))
+						: ${rule.yasuPerMaruMode} === 'custom'
+							? ${rule.yasuPerMaruDict.length} > 0 &&
+								${rule.yasuPerMaruDict.every(
+									({ maru, yasu }) =>
+										Number.isInteger(maru) && maru > 0 && Number.isInteger(yasu) && yasu > 0
+								)}
+							: ${Number.isInteger(rule.yasuPerMaruMaru)} &&
+							${rule.yasuPerMaruMaru} > 0 &&
+							(${rule.yasuPerMaruMode} === 'number'
+								? ${Number.isInteger(rule.yasuPerMaruYasu)} && ${rule.yasuPerMaruYasu} > 0
+								: true))
 
 				Number.isInteger(yasuPerBatsu)
 					${Number.isInteger(rule.yasuPerBatsu)}
@@ -330,6 +374,7 @@
 							yasuPerMaruMode: null,
 							yasuPerMaruMaru: 5,
 							yasuPerMaruYasu: 5,
+							yasuPerMaruDict: [],
 							yasuMode: 'constant',
 							yasuPerBatsu: 0,
 							rouletteName: null,
@@ -361,6 +406,7 @@
 							yasuPerMaruMode: null,
 							yasuPerMaruMaru: 5,
 							yasuPerMaruYasu: 5,
+							yasuPerMaruDict: [],
 							yasuMode: 'constant',
 							yasuPerBatsu: 1,
 							rouletteName: null,
@@ -392,6 +438,7 @@
 							yasuPerMaruMode: 'number',
 							yasuPerMaruMaru: 5,
 							yasuPerMaruYasu: 5,
+							yasuPerMaruDict: [],
 							yasuMode: 'constant',
 							yasuPerBatsu: 1,
 							rouletteName: null,
@@ -423,6 +470,7 @@
 							yasuPerMaruMode: null,
 							yasuPerMaruMaru: 5,
 							yasuPerMaruYasu: 5,
+							yasuPerMaruDict: [],
 							yasuMode: 'constant',
 							yasuPerBatsu: 0,
 							rouletteName: null,
@@ -454,6 +502,7 @@
 							yasuPerMaruMode: null,
 							yasuPerMaruMaru: 5,
 							yasuPerMaruYasu: 5,
+							yasuPerMaruDict: [],
 							yasuMode: 'constant',
 							yasuPerBatsu: 0,
 							rouletteName: null,
@@ -485,6 +534,7 @@
 							yasuPerMaruMode: null,
 							yasuPerMaruMaru: 5,
 							yasuPerMaruYasu: 5,
+							yasuPerMaruDict: [],
 							yasuMode: 'constant',
 							yasuPerBatsu: 0,
 							rouletteName: null,
@@ -516,6 +566,7 @@
 							yasuPerMaruMode: null,
 							yasuPerMaruMaru: 5,
 							yasuPerMaruYasu: 5,
+							yasuPerMaruDict: [],
 							yasuMode: 'constant',
 							yasuPerBatsu: 0,
 							rouletteName: null,
@@ -547,6 +598,7 @@
 							yasuPerMaruMode: null,
 							yasuPerMaruMaru: 5,
 							yasuPerMaruYasu: 5,
+							yasuPerMaruDict: [],
 							yasuMode: 'batsu',
 							yasuPerBatsu: 1,
 							rouletteName: null,
@@ -578,6 +630,7 @@
 							yasuPerMaruMode: null,
 							yasuPerMaruMaru: 5,
 							yasuPerMaruYasu: 5,
+							yasuPerMaruDict: [],
 							yasuMode: 'maru',
 							yasuPerBatsu: 1,
 							rouletteName: null,
@@ -609,6 +662,7 @@
 							yasuPerMaruMode: null,
 							yasuPerMaruMaru: 5,
 							yasuPerMaruYasu: 5,
+							yasuPerMaruDict: [],
 							yasuMode: 'constant',
 							yasuPerBatsu: 0,
 							rouletteName: null,
@@ -640,6 +694,7 @@
 							yasuPerMaruMode: null,
 							yasuPerMaruMaru: 5,
 							yasuPerMaruYasu: 5,
+							yasuPerMaruDict: [],
 							yasuMode: 'constant',
 							yasuPerBatsu: 0,
 							rouletteName: null,
@@ -893,6 +948,55 @@
 					○ごとに（現在のマル数）問休み
 				</label>
 				<br />
+				<label>
+					<input type="radio" bind:group={activeRule.yasuPerMaruMode} value="custom" />
+					N○でM問休みを細かく設定する
+				</label>
+				{#if activeRule.yasuPerMaruMode === 'custom'}
+					<div class="yasu-per-maru-custom" transition:fade>
+						{#each activeRule.yasuPerMaruDict as item, i (item.uid)}
+							{@const maruInvalid =
+								item.maru <= 0 ||
+								activeRule.yasuPerMaruDict.some((_, j) => j !== i && _.maru === item.maru)}
+							<div transition:fade>
+								<input
+									type="number"
+									min="1"
+									class:invalid={maruInvalid}
+									bind:value={item.maru}
+								/>○で
+								<input type="number" min="1" bind:value={item.yasu} />問休み
+								{#if maruInvalid}
+									<span
+										{@attach tooltip('マル数は1以上の整数で、重複しないように設定してください')}
+									>
+										⚠️
+									</span>
+								{/if}
+								<button
+									class="remove-btn"
+									onclick={() => {
+										activeRule.yasuPerMaruDict.splice(i, 1);
+									}}
+								>
+									×
+								</button>
+							</div>
+						{/each}
+						<button
+							onclick={() =>
+								activeRule.yasuPerMaruDict.push({
+									maru: (activeRule.yasuPerMaruDict.at(-1)?.maru || 0) + 1,
+									yasu: activeRule.yasuPerMaruDict.at(-1)?.yasu || 1,
+									uid: Math.random()
+								})}
+						>
+							追加
+						</button>
+					</div>
+				{:else}
+					<br />
+				{/if}
 				<label>
 					<input type="radio" bind:group={activeRule.yasuPerMaruMode} value={null} />
 					なし
@@ -1162,5 +1266,34 @@
 		color: #f22;
 		font-weight: bold;
 		font-size: 0.8em;
+	}
+
+	.yasu-per-maru-custom {
+		display: flex;
+		flex-direction: column;
+		gap: 0.5em;
+		margin-top: 0.5em;
+		margin-left: 1em;
+		border: 1px solid #aaa;
+		border-radius: 0.5em;
+		background-color: #eee;
+		padding: 0.5em;
+		width: 18em;
+
+		input {
+			width: 4em;
+
+			&.invalid {
+				background-color: #fdd;
+			}
+		}
+
+		.remove-btn {
+			border: 1px solid #666;
+			border-radius: 5em;
+			background: transparent;
+			width: 1.5em;
+			height: 1.5em;
+		}
 	}
 </style>
