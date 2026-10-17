@@ -983,6 +983,9 @@
 								</button>
 							</div>
 						{/each}
+						{#if activeRule.yasuPerMaruDict.length > 0}
+							（以下ループ）
+						{/if}
 						<button
 							onclick={() =>
 								activeRule.yasuPerMaruDict.push({

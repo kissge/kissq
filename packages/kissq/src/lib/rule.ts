@@ -427,11 +427,21 @@ export class Rule {
 
 		if (this.yasuPerMaru) {
 			if ('mode' in this.yasuPerMaru) {
+				const sorted = Object.entries(this.yasuPerMaru.dict)
+					.toSorted(([a], [b]) => Number(a) - Number(b))
+					.map(([maru, yasu]) => [Number(maru), yasu]);
+				const loopLength = sorted.at(-1)![0];
+				const loop: [number, number][] = [];
+				for (let i = 0; i < 4; ++i) {
+					const offset = Math.floor(i / sorted.length) + 1;
+					const j = i % sorted.length;
+					loop.push([sorted[j][0] + offset * loopLength, sorted[j][1]]);
+				}
 				arr.push(
-					Object.entries(this.yasuPerMaru.dict)
-						.toSorted(([a], [b]) => Number(a) - Number(b))
-						.map(([maru, yasu]) => `${maru}問正解で${yasu}問休み`)
-						.join('、')
+					sorted.map(([maru, yasu]) => `${maru}問正解で${yasu}問休み`).join('、') +
+						'（' +
+						loop.map(([maru, yasu]) => `、${maru}問正解で${yasu}問休み`).join('') +
+						'、……、以下ループ）'
 				);
 			} else if (this.yasuPerMaru.yasu === 'maru') {
 				arr.push(`${this.yasuPerMaru.maru}問正解ごとに（現在の正解数）問休み`);
