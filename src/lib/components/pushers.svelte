@@ -14,7 +14,7 @@
 	let innerHeight = $state(0);
 	let pushersClientHeight = $state(0);
 
-	let buttonMappingTarget = $state(0);
+	let buttonMappingTarget = $state<number | null>(0);
 
 	let pushersTop = $derived.by(() => {
 		if (pushersClientHeight === 0) {
@@ -36,7 +36,7 @@
 			const firstUnknown = Game.attendants.findIndex(
 				(_, ai) => Wasedashiki.buttonMapping[ai as AttendantID] == null
 			);
-			buttonMappingTarget = firstUnknown === -1 ? 0 : firstUnknown;
+			buttonMappingTarget = firstUnknown === -1 ? null : firstUnknown;
 		}
 	});
 </script>
@@ -69,9 +69,17 @@
 										{#each Game.attendants as attendant, id (id)}
 											<option value={id}>{attendant.name || `プレイヤー${id + 1}`}</option>
 										{/each}
+										<option value={null}>（新しく追加）</option>
 									</select>
 									<button
-										onclick={() => Wasedashiki.setButtonMapping(buttonMappingTarget as AttendantID)}
+										onclick={() => {
+											if (buttonMappingTarget === null) {
+												Game.addAttendant();
+												Wasedashiki.setButtonMapping((Game.attendants.length - 1) as AttendantID);
+											} else {
+												Wasedashiki.setButtonMapping(buttonMappingTarget as AttendantID);
+											}
+										}}
 									>
 										に紐づける
 									</button>
