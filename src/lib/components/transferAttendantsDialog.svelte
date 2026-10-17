@@ -93,18 +93,20 @@
 							}
 
 							Game.history = [];
-							Game.attendants = importingParsed!.attendants.map((p, ai) => ({
-								name: p.name,
-								group: importTargets.includes('group') ? p.group : 0,
-								team: importTargets.includes('team') ? p.team : 0,
-								seat: importTargets.includes('team') ? p.seat : 0,
-								trophyCount: importTargets.includes('trophy') ? p.trophyCount : 0,
-								totalScore: importTargets.includes('totalScore')
-									? p.totalScore
-									: { maru: 0, batsu: 0 },
-								manualOrder: importTargets.includes('manualOrder') ? p.manualOrder : ai,
-								buttonID: importTargets.includes('button') ? p.buttonID : undefined
-							}));
+							Game.attendants = importingParsed!.attendants.map(
+								(p, ai) =>
+									({
+										name: p.name,
+										group: importTargets.includes('group') ? p.group : 0,
+										team: importTargets.includes('team') ? p.team : 0,
+										seat: importTargets.includes('team') ? p.seat : 0,
+										trophyCount: importTargets.includes('trophy') ? p.trophyCount : 0,
+										totalScore: importTargets.includes('totalScore')
+											? p.totalScore
+											: { maru: 0, batsu: 0 },
+										manualOrder: importTargets.includes('manualOrder') ? p.manualOrder : ai
+									}) satisfies Attendant
+							);
 							Wasedashiki.buttonMapping = importTargets.includes('button')
 								? importingParsed!.buttonMapping
 								: {};
@@ -164,7 +166,9 @@
 						<input type="checkbox" bind:group={importTargets} value="button" />
 						早稲田式早押しボタンとの紐づけ
 						{#if importingParsed}
-							<span class="sample">: {importingParsed.attendants[0]?.buttonID ?? '未設定'}、…</span>
+							<span class="sample">
+								: {importingParsed.buttonMapping[0 as AttendantID] ?? '未設定'}、…
+							</span>
 						{/if}
 					</label>
 				</li>
