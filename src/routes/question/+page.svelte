@@ -358,7 +358,12 @@
 
 <header class="console" class:show-keyboard={isKeyboardEnabled}>
 	<div>
-		<button class="labeled" data-label="Z" onclick={() => postMessage({ command: 'clickUndo' })}>
+		<button
+			class="labeled"
+			data-label="Z"
+			disabled={history.length === 0}
+			onclick={() => postMessage({ command: 'clickUndo' })}
+		>
 			元に戻す
 		</button>
 		<button
@@ -375,6 +380,7 @@
 		<button
 			class="labeled"
 			data-label="C"
+			disabled={history.length === 0}
 			onclick={() => {
 				if (confirm('リセットしてよろしいですか？')) {
 					postMessage({ command: 'clickReset' });
