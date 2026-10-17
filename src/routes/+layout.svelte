@@ -136,6 +136,10 @@
 					background-color: #f6f6f6;
 				}
 
+				input {
+					font-size: 1em;
+				}
+
 				input[type='number'],
 				button {
 					padding: 0 0.5rem;
@@ -146,6 +150,11 @@
 					width: 3em;
 					font-size: 2rem;
 					text-align: right;
+				}
+
+				input[type='radio'] {
+					width: 0.8em;
+					height: 0.8em;
 				}
 
 				.error {
