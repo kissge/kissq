@@ -9,7 +9,6 @@ export interface Attendant {
 	trophyCount: number;
 	totalScore: { maru: number; batsu: number };
 	manualOrder: number;
-	buttonID?: number;
 }
 
 export function loadFromHash(
