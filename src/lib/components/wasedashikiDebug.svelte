@@ -17,7 +17,9 @@
 	}
 
 	onMount(() => {
-		logs = JSON.parse(window.localStorage.getItem('wasedashikiDebugLogs') ?? '[]');
+		logs = (
+			JSON.parse(window.localStorage.getItem('wasedashikiDebugLogs') ?? '[]') as string[]
+		).filter((v, i, a) => a.indexOf(v) === i && v.trim());
 
 		Wasedashiki.readLoopSerialPort({} as SerialPort, async function* () {
 			while (true) {
