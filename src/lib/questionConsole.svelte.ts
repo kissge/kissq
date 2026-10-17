@@ -152,6 +152,7 @@ export class QuestionConsoleClass {
 						rules: this.Game.rules,
 						orderedAttendants: this.Game.orderedAttendants,
 						orderingMode: this.Game.orderingMode,
+						previousTrophyGetters: this.Game.previousTrophyGetters,
 						answerers: this.Wasedashiki.answerers,
 						buttonMapping: this.Wasedashiki.buttonMapping,
 						wasedashikiMode: this.Game.wasedashikiMode,
@@ -204,6 +205,7 @@ export type OutgoingMessage =
 			rules: Rule[];
 			orderedAttendants: number[];
 			orderingMode: 'ranking' | 'manual';
+			previousTrophyGetters: AttendantID[];
 			answerers: ({ currentRank: 1 | 2 | 'late'; totalRank: number; delay: number } | null)[];
 			buttonMapping: Record<number, number>;
 			wasedashikiMode: WasedashikiMode | undefined;

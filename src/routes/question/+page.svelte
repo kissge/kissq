@@ -41,6 +41,7 @@
 	let rules = $state<Rule[]>([]);
 	let mainScreenOrder = $state<number[]>();
 	let mainScreenOrderingMode = $state<'ranking' | 'manual'>();
+	let previousTrophyGetters = $state<AttendantID[]>();
 	let answerers = $state<
 		({ currentRank: 1 | 2 | 'late'; totalRank: number; delay: number } | null)[]
 	>([]);
@@ -175,6 +176,7 @@
 				rules = event.data.rules;
 				mainScreenOrder = event.data.orderedAttendants;
 				mainScreenOrderingMode = event.data.orderingMode;
+				previousTrophyGetters = event.data.previousTrophyGetters;
 				answerers = event.data.answerers;
 				buttonMapping = event.data.buttonMapping;
 				wasedashikiMode = event.data.wasedashikiMode;
@@ -511,6 +513,10 @@
 								<option value={i}>{String.fromCodePoint(65 + i)}</option>
 							{/each}
 						</select>
+					{/if}
+
+					{#if previousTrophyGetters?.includes(ai as AttendantID)}
+						<span transition:fade {@attach tooltip('直前のゲームで勝ち抜けています')}>🏆</span>
 					{/if}
 
 					{#if att.life !== 'removed'}
