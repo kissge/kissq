@@ -30,6 +30,15 @@
 			Layout.headerClientHeight * 1.5 + Math.max(0, (availableHeight - pushersClientHeight) / 2)
 		);
 	});
+
+	$effect(() => {
+		if (Wasedashiki.answererRanking.length > 0 && Wasedashiki.answererRanking[0][0] == undefined) {
+			const firstUnknown = Game.attendants.findIndex(
+				(_, ai) => Wasedashiki.buttonMapping[ai as AttendantID] == null
+			);
+			buttonMappingTarget = firstUnknown === -1 ? 0 : firstUnknown;
+		}
+	});
 </script>
 
 <svelte:window bind:innerHeight />
