@@ -57,8 +57,12 @@ export class AttendantState {
 					trophyCount++;
 				} else if (this.rule.yasuPerMaru) {
 					if ('mode' in this.rule.yasuPerMaru) {
-						if (maruCount in this.rule.yasuPerMaru.dict) {
-							yasuCount = this.rule.yasuPerMaru.dict[maruCount];
+						const loopLength = Math.max(
+							...Object.keys(this.rule.yasuPerMaru.dict).map((m) => Number(m))
+						);
+						const maruCountMod = maruCount % loopLength || loopLength;
+						if (maruCountMod in this.rule.yasuPerMaru.dict) {
+							yasuCount = this.rule.yasuPerMaru.dict[maruCountMod];
 						}
 					} else {
 						if (maruCount % this.rule.yasuPerMaru.maru === 0) {
@@ -80,8 +84,12 @@ export class AttendantState {
 					trophyCount++;
 				} else if (this.rule.yasuPerMaru) {
 					if ('mode' in this.rule.yasuPerMaru) {
-						if (maruCount in this.rule.yasuPerMaru.dict) {
-							yasuCount = this.rule.yasuPerMaru.dict[maruCount];
+						const loopLength = Math.max(
+							...Object.keys(this.rule.yasuPerMaru.dict).map((m) => Number(m))
+						);
+						const maruCountMod = maruCount % loopLength || loopLength;
+						if (maruCountMod in this.rule.yasuPerMaru.dict) {
+							yasuCount = this.rule.yasuPerMaru.dict[maruCountMod];
 						}
 					} else {
 						if (maruCount % this.rule.yasuPerMaru.maru === 0) {
@@ -107,8 +115,12 @@ export class AttendantState {
 					trophyCount++;
 				} else if (this.rule.yasuPerMaru) {
 					if ('mode' in this.rule.yasuPerMaru) {
-						if (maruCount in this.rule.yasuPerMaru.dict) {
-							yasuCount = this.rule.yasuPerMaru.dict[maruCount];
+						const loopLength = Math.max(
+							...Object.keys(this.rule.yasuPerMaru.dict).map((m) => Number(m))
+						);
+						const maruCountMod = maruCount % loopLength || loopLength;
+						if (maruCountMod in this.rule.yasuPerMaru.dict) {
+							yasuCount = this.rule.yasuPerMaru.dict[maruCountMod];
 						}
 					} else {
 						if (maruCount % this.rule.yasuPerMaru.maru === 0) {
@@ -127,8 +139,12 @@ export class AttendantState {
 				otherScoreDiff = -this.rule.maru * multiplier;
 				if (this.rule.yasuPerMaru) {
 					if ('mode' in this.rule.yasuPerMaru) {
-						if (maruCount in this.rule.yasuPerMaru.dict) {
-							yasuCount = this.rule.yasuPerMaru.dict[maruCount];
+						const loopLength = Math.max(
+							...Object.keys(this.rule.yasuPerMaru.dict).map((m) => Number(m))
+						);
+						const maruCountMod = maruCount % loopLength || loopLength;
+						if (maruCountMod in this.rule.yasuPerMaru.dict) {
+							yasuCount = this.rule.yasuPerMaru.dict[maruCountMod];
 						}
 					} else {
 						if (maruCount % this.rule.yasuPerMaru.maru === 0) {
@@ -150,8 +166,12 @@ export class AttendantState {
 
 				if (this.rule.yasuPerMaru) {
 					if ('mode' in this.rule.yasuPerMaru) {
-						if (maruCount in this.rule.yasuPerMaru.dict) {
-							yasuCount = this.rule.yasuPerMaru.dict[maruCount];
+						const loopLength = Math.max(
+							...Object.keys(this.rule.yasuPerMaru.dict).map((m) => Number(m))
+						);
+						const maruCountMod = maruCount % loopLength || loopLength;
+						if (maruCountMod in this.rule.yasuPerMaru.dict) {
+							yasuCount = this.rule.yasuPerMaru.dict[maruCountMod];
 						}
 					} else {
 						if (maruCount % this.rule.yasuPerMaru.maru === 0) {
