@@ -29,7 +29,7 @@ export class Rule {
 			| null,
 		/** 1問誤答で得られる休みの方式（定数またはその時点のマル数・バツ数） */
 		public yasuMode: 'constant' | 'maru' | 'batsu' | 'roulette',
-		/** 1問誤答で得られる休みの数 */
+		/** 1問誤答で得られる休みの数（または、マル数・バツ数にかける係数） */
 		public yasuPerBatsu: number,
 		/** ルーレット */
 		public roulette: { name: string; choices: Penalty[] } | null,
