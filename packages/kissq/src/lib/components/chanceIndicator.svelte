@@ -33,6 +33,6 @@
 	}
 
 	.endless {
-		background-color: #e78b00;
+		background-color: #cf810b;
 	}
 </style>
