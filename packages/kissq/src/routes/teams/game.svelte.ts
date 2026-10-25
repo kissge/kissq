@@ -9,6 +9,7 @@ import type { WasedashikiMode } from '$lib/serial';
 import { playSound } from '$lib/sound';
 import { GameState } from '$lib/state';
 import type { AttendantID } from '$lib/types';
+import { SvelteDate } from 'svelte/reactivity';
 
 export class GameClass extends GameClassBase<'team'> {
 	battleMode = 'team' as const;
@@ -41,6 +42,7 @@ export class GameClass extends GameClassBase<'team'> {
 	playSounds = $state(true);
 	wasedashikiMode = $state<WasedashikiMode>();
 	isConventionAssistActive = $state(false);
+	gameStartedAt = $state(new SvelteDate());
 
 	// dummy
 	orderingMode = 'manual' as const;
