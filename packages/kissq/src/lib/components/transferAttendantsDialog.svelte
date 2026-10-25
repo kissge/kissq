@@ -85,7 +85,7 @@
 					以下から取り込む情報を選択し
 					<button
 						onclick={() => {
-							const groups = Math.max(...importingParsed!.attendants.map(({ group }) => group));
+							const groups = Math.max(...importingParsed!.attendants.map(({ group }) => group)) + 1;
 							if (importTargets.includes('group') && groups > Game.rules.length) {
 								Game.rules.push(
 									...Array.from({ length: groups - Game.rules.length }, () => Game.rules[0])
