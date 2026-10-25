@@ -2,27 +2,17 @@
 	import { onMount } from 'svelte';
 	import { fly } from 'svelte/transition';
 	import type { GameClassBaseType } from '$lib/game';
+	import { getTimeElapsedString } from '$lib/time';
 
 	let { Game, show }: { Game: GameClassBaseType; show: boolean } = $props();
 
 	let timeElapsed = $state('');
 
-	function setTimeElapsed() {
-		let totalSeconds = Math.floor((new Date().getTime() - Game.gameStartedAt.getTime()) / 1000);
-		let hours = Math.floor(totalSeconds / 3600);
-		let minutes = Math.floor((totalSeconds % 3600) / 60);
-		let seconds = totalSeconds % 60;
-
-		if (hours > 0) {
-			timeElapsed = `${hours}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-		} else {
-			timeElapsed = `${minutes}:${seconds.toString().padStart(2, '0')}`;
-		}
-	}
-
 	onMount(() => {
-		setTimeElapsed();
-		const interval = setInterval(setTimeElapsed, 1000);
+		timeElapsed = getTimeElapsedString(Game.gameStartedAt);
+		const interval = setInterval(() => {
+			timeElapsed = getTimeElapsedString(Game.gameStartedAt);
+		}, 1000);
 
 		return () => clearInterval(interval);
 	});
