@@ -8,6 +8,7 @@
 	import { isUnlocked } from '$lib/unlock';
 	import { getWasedashikiContext } from '$lib/wasedashiki.svelte';
 	import ChanceIndicator from './chanceIndicator.svelte';
+	import CounterPopover from './counterPopover.svelte';
 	import RuleDetailsDialog from './ruleDetailsDialog.svelte';
 
 	let {
@@ -26,6 +27,8 @@
 	let Wasedashiki = getWasedashikiContext();
 
 	let unlocked = $state(false);
+
+	let showPopover = $state(false);
 
 	let helpDialog: { open: () => void };
 	let ruleDetailsDialog: { open: () => void };
@@ -92,7 +95,12 @@
 	{:else}
 		<div>
 			{#key Game.currentState.questionCount}
-				<div in:fly={unlocked ? { x: -100 } : { x: 100 }}>
+				<div
+					in:fly={unlocked ? { x: -100 } : { x: 100 }}
+					onmouseenter={() => (showPopover = true)}
+					onmouseleave={() => (showPopover = false)}
+					role="contentinfo"
+				>
 					Next: Q{hideQuestionCount ? '???' : Game.currentState.questionCount}
 					{#if Game.currentState.defaultRule.questionLimit !== null}
 						<small>
@@ -179,6 +187,8 @@
 	</div>
 </header>
 
+<CounterPopover {Game} show={showPopover} />
+
 <HelpDialog bind:this={helpDialog} />
 <RuleDetailsDialog bind:this={ruleDetailsDialog} {Game} />
 
@@ -193,6 +203,7 @@
 		width: 100dvw;
 		font-weight: bold;
 		font-size: 2rem;
+		anchor-name: --global-header;
 
 		h1 {
 			all: unset;

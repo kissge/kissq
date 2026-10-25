@@ -1,5 +1,6 @@
 import se1 from '$lib/assets/se1.mp3';
 import se3 from '$lib/assets/se3.mp3';
+import { SvelteDate } from 'svelte/reactivity';
 import type { Attendant } from './attendant';
 import { MaruHistoryEntry, ThroughHistoryEntry, type HistoryEntry } from './historyEntry';
 import { LoggerClass } from './logs';
@@ -36,6 +37,7 @@ export abstract class GameClassBase<BattleMode extends 'single' | 'team'> {
 	abstract bulkAdjustmentScore: number | null;
 	abstract bulkAdjust(): void;
 	abstract addBulkAdjustmentTarget(attendantID: number): void;
+	abstract gameStartedAt: SvelteDate;
 
 	abstract Logger?: LoggerClass<BattleMode>;
 
@@ -90,6 +92,7 @@ export abstract class GameClassBase<BattleMode extends 'single' | 'team'> {
 		});
 
 		this.history = [];
+		this.gameStartedAt = new SvelteDate();
 	}
 
 	updateRules(

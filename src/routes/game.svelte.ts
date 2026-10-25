@@ -9,6 +9,7 @@ import type { WasedashikiMode } from '$lib/serial';
 import { playSound } from '$lib/sound';
 import { GameState } from '$lib/state';
 import type { AttendantID } from '$lib/types';
+import { SvelteDate } from 'svelte/reactivity';
 
 export class GameClass extends GameClassBase<'single'> {
 	battleMode = 'single' as const;
@@ -50,6 +51,7 @@ export class GameClass extends GameClassBase<'single'> {
 	};
 	bulkAdjustmentScore = $state<number | null>(null);
 	bulkAdjustmentTarget = $state<boolean[]>([]);
+	gameStartedAt = $state(new SvelteDate());
 
 	Logger?: LoggerClass<'single'>;
 
