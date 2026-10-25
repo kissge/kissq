@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { flip } from 'svelte/animate';
+	import { SvelteDate } from 'svelte/reactivity';
 	import { fade, fly } from 'svelte/transition';
 	import { getAPIClient, type APIClient } from '$lib/api';
 	import type { Attendant } from '$lib/attendant';
@@ -12,6 +13,7 @@
 	import { Rule } from '$lib/rule';
 	import type { WasedashikiMode } from '$lib/serial';
 	import type { GameState } from '$lib/state';
+	import { getTimeElapsedString } from '$lib/time';
 	import { tooltip } from '$lib/tooltip.svelte';
 	import type { AttendantID } from '$lib/types';
 	import { collapseArray } from '$lib/utils';
@@ -52,6 +54,7 @@
 	let effect3Name = $state<string>();
 	let teams = $state<string[]>();
 	let order = $state<'added' | 'same' | 'reverse'>('added');
+	let gameStartedAt = new SvelteDate();
 
 	let enableCompanion = $state(false);
 	let companionSessionID = $state('');
@@ -59,6 +62,8 @@
 
 	let conventionAssist: ReturnType<typeof ConventionAssist>;
 	let showConventionAssist = $state(false);
+
+	let timeElapsed = $state('');
 
 	let orderedAttendants = $derived.by(() => {
 		const array = (() => {
@@ -183,6 +188,7 @@
 				effect2Name = event.data.effect2Name;
 				effect3Name = event.data.effect3Name;
 				teams = event.data.teams;
+				gameStartedAt = new SvelteDate(event.data.gameStartedAt);
 
 				if (battleMode === 'team') {
 					order = 'added';
@@ -312,6 +318,11 @@
 
 		fontSize = Number(window.localStorage.getItem('fontSize') ?? fontSize);
 
+		timeElapsed = getTimeElapsedString(gameStartedAt);
+		const updateTimeTimer = setInterval(() => {
+			timeElapsed = getTimeElapsedString(gameStartedAt);
+		}, 1000);
+
 		window.addEventListener('message', processWindowMessage);
 		window.addEventListener('keydown', processKeyboardInput);
 
@@ -324,6 +335,7 @@
 		return () => {
 			window.removeEventListener('message', processWindowMessage);
 			window.removeEventListener('keydown', processKeyboardInput);
+			clearInterval(updateTimeTimer);
 			clearInterval(timer);
 			clearInterval(syncCheckTimer);
 		};
@@ -615,6 +627,12 @@
 	{#if rules[0]?.questionLimit != null}
 		/ {rules[0].questionLimit}
 	{/if}
+	（{attendants.length}人
+	<small>
+		（勝抜 {currentState?.attendants.filter((a) => a.life === 'won').length ?? 0}人 / 失格 {currentState?.attendants.filter(
+			(a) => a.life === 'lost'
+		).length ?? 0}人） [{timeElapsed}]
+	</small>）
 	{#each historyDisplay as entry (entry.key)}
 		<div
 			class={['history-entry', entry.type]}

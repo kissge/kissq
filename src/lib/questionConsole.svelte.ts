@@ -158,7 +158,8 @@ export class QuestionConsoleClass {
 						wasedashikiMode: this.Game.wasedashikiMode,
 						effect2Name: this.Game.effect2Name,
 						effect3Name: this.Game.effect3Name,
-						teams: this.Game.teams
+						teams: this.Game.teams,
+						gameStartedAt: this.Game.gameStartedAt.getTime(),
 					} satisfies OutgoingMessage)
 				)
 			);
@@ -212,6 +213,7 @@ export type OutgoingMessage =
 			effect2Name: string | undefined;
 			effect3Name: string | undefined;
 			teams: string[];
+			gameStartedAt: number;
 	  }
 	| {
 			command: 'attendantAdded';
