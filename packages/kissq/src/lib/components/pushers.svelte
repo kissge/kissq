@@ -16,6 +16,12 @@
 
 	let buttonMappingTarget = $state<number | null>(0);
 
+	let sortedAttendants = $derived(
+		Array.from(Game.attendants, (attendant, ai) => ({ attendant, ai: ai as AttendantID })).toSorted(
+			(a, b) => (Wasedashiki.buttonMapping[a.ai] ?? 0) - (Wasedashiki.buttonMapping[b.ai] ?? 0)
+		)
+	);
+
 	let pushersTop = $derived.by(() => {
 		if (pushersClientHeight === 0) {
 			return Layout.headerClientHeight * 1.5;
@@ -66,8 +72,13 @@
 							{#if isNaN(attendantID)}
 								{#if answerer.currentRank === 1}
 									<select bind:value={buttonMappingTarget}>
-										{#each Game.attendants as attendant, id (id)}
-											<option value={id}>{attendant.name || `プレイヤー${id + 1}`}</option>
+										{#each sortedAttendants as { attendant, ai } (ai)}
+											<option value={ai}>
+												{#if Wasedashiki.buttonMapping[ai as AttendantID] != null}
+													☑️
+												{/if}
+												{attendant.name || `プレイヤー${ai + 1}`}
+											</option>
 										{/each}
 										<option value={null}>（新しく追加）</option>
 									</select>
