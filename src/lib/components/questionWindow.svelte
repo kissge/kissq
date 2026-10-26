@@ -23,6 +23,7 @@
 	let totalLikes = $state(-1);
 	let currentLikes = $state(0);
 	let firstConfetti = 0;
+	let popupWindow: Window | null = null;
 
 	$effect(() => {
 		if (totalLikes > 0 && firstConfetti >= 2) {
@@ -33,6 +34,15 @@
 		}
 
 		++firstConfetti;
+	});
+
+	$effect(() => {
+		void QuestionConsole.currentQuestion;
+		popupWindow?.postMessage({
+			command: 'updateQuestion',
+			question: QuestionConsole.currentQuestion.question,
+			answer: QuestionConsole.currentQuestion.answer
+		});
 	});
 
 	onMount(() => {
@@ -65,7 +75,7 @@
 
 {#if QuestionConsole.showQuestionWindow}
 	<div transition:fade>
-		<div class="question">
+		<div class="question textbook-font">
 			{#key QuestionConsole.currentQuestion.question}
 				<p in:fade>
 					{#each QuestionConsole.currentQuestion.question.split(/(（.+?）|\(.+?\)|【.+?】|［.+?］)/) as part, i (i)}
@@ -94,6 +104,18 @@
 					{/if}
 				{/each}
 			</div>
+			<button
+				class="popup-btn"
+				onclick={() => {
+					popupWindow = window.open(
+						'./question-popup',
+						'popupWindow',
+						'popup=yes, toolbar=no, scrollbars=no, menubar=no, status=no, directories=no, width=800, height=200'
+					);
+				}}
+			>
+				↗︎
+			</button>
 		</div>
 	</div>
 {/if}
@@ -114,20 +136,6 @@
 		background-color: #0008;
 		padding: 0.5em 1em;
 		height: 5em;
-		color: #fff;
-		font-weight: bold;
-		font-family:
-    /* macOS 向け */
-			'Yu Kyokasho',
-			'游教科書体',
-			'YuKyokasho',
-			/* Windows 10/11 向け */ 'UD Digi Kyokasho NP',
-			'UD Digi Kyokasho NP-R',
-			'UD デジタル 教科書体 NP',
-			'UD デジタル 教科書体 NP-R',
-			/* 古いWindowsやOffice搭載環境向け（予備） */ 'HGKyokashotai',
-			'HG教科書体',
-			/* どの教科書体も無い場合の最終フォールバック */ sans-serif;
 
 		p {
 			margin: 0;
@@ -175,6 +183,22 @@
 			translate: 0 60%;
 			transition-delay: 0s;
 		}
+	}
+
+	.popup-btn {
+		position: absolute;
+		top: 0.5em;
+		right: 0.5em;
+		opacity: 0;
+		transition: 0.3s opacity ease;
+		cursor: pointer;
+		border: none;
+		background: none;
+		color: #fff;
+		font-size: 0.8em;
+	}
+	.question:hover .popup-btn {
+		opacity: 1;
 	}
 
 	.qr-code {

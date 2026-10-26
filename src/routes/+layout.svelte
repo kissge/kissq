@@ -242,5 +242,22 @@
 		.toastify {
 			font-size: 2rem;
 		}
+
+		.textbook-font {
+			color: #fff;
+			font-weight: bold;
+			font-family:
+		    /* macOS 向け */
+				'Yu Kyokasho',
+				'游教科書体',
+				'YuKyokasho',
+				/* Windows 10/11 向け */ 'UD Digi Kyokasho NP',
+				'UD Digi Kyokasho NP-R',
+				'UD デジタル 教科書体 NP',
+				'UD デジタル 教科書体 NP-R',
+				/* 古いWindowsやOffice搭載環境向け（予備） */ 'HGKyokashotai',
+				'HG教科書体',
+				/* どの教科書体も無い場合の最終フォールバック */ sans-serif;
+		}
 	}
 </style>
