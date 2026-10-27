@@ -52,14 +52,22 @@
 
 		const timerID = setInterval(async () => {
 			if (client && sessionID && QuestionConsole.showQuestionWindow) {
-				const questions: { question_id: number; like_count: number }[] = await (
-					await client.api.likes[':session_id'].$get({ param: { session_id: sessionID } })
-				).json();
+				try {
+					const response = await client.api.likes[':session_id'].$get({
+						param: { session_id: sessionID }
+					});
+					if (!response.ok) {
+						throw new Error(`Failed to fetch likes: ${response.status}`);
+					}
 
-				totalLikes = questions.reduce((acc, { like_count }) => acc + like_count, 0);
-				currentLikes =
-					questions.find((q) => q.question_id === QuestionConsole.currentQuestion.id)?.like_count ??
-					0;
+					const questions = await response.json();
+					totalLikes = questions.reduce((acc, { like_count }) => acc + like_count, 0);
+					currentLikes =
+						questions.find((q) => q.question_id === QuestionConsole.currentQuestion.id)
+							?.like_count ?? 0;
+				} catch (error) {
+					console.error('Failed to fetch likes', error);
+				}
 			}
 		}, 1000);
 

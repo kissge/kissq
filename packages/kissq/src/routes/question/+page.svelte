@@ -280,15 +280,15 @@
 
 	async function updateRemoteQuestions() {
 		if (client && companionSessionID) {
-			questions = [
-				qZero,
-				...(await (
-					await client.api.questions[':session_id'].$get({
-						param: { session_id: companionSessionID },
-						query: { shown: 'all', orderBy: 'id' }
-					})
-				).json())
-			];
+			const response = await client.api.questions[':session_id'].$get({
+				param: { session_id: companionSessionID },
+				query: { shown: 'all', orderBy: 'id' }
+			});
+			if (!response.ok) {
+				throw new Error(`Failed to fetch questions: ${response.status}`);
+			}
+
+			questions = [qZero, ...(await response.json())];
 		}
 	}
 

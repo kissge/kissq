@@ -25,26 +25,28 @@
 
 	let likes = $derived(Object.fromEntries(questions?.map((q) => [q.id, q.likedBy.length]) || []));
 
-	function fetchQuestions() {
-		if (client && sessionID) {
-			return client.api.questions[':session_id']
-				.$get({
-					param: { session_id: sessionID },
-					query: { shown: 'true', orderBy: 'shownAt' }
-				})
-				.then((res) => {
-					res.json().then((data) => {
-						const doScroll = questions?.at(-1)?.id === currentSlide;
-						questions = data;
-						if (doScroll) {
-							setTimeout(() => {
-								document
-									.querySelector(`[data-question-id="${questions!.at(-1)?.id}"]`)
-									?.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
-							}, 200);
-						}
-					});
-				});
+	async function fetchQuestions() {
+		if (!client || !sessionID) {
+			return;
+		}
+
+		const response = await client.api.questions[':session_id'].$get({
+			param: { session_id: sessionID },
+			query: { shown: 'true', orderBy: 'shownAt' }
+		});
+		if (!response.ok) {
+			throw new Error(`Failed to fetch questions: ${response.status}`);
+		}
+
+		const data = await response.json();
+		const doScroll = questions?.at(-1)?.id === currentSlide;
+		questions = data;
+		if (doScroll) {
+			setTimeout(() => {
+				document
+					.querySelector(`[data-question-id="${questions!.at(-1)?.id}"]`)
+					?.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+			}, 200);
 		}
 	}
 
@@ -57,8 +59,10 @@
 			nameDialog.showModal();
 		}
 
-		fetchQuestions();
-		const timerID = setInterval(fetchQuestions, 3000);
+		void fetchQuestions().catch((error) => console.error('Failed to fetch questions', error));
+		const timerID = setInterval(() => {
+			void fetchQuestions().catch((error) => console.error('Failed to fetch questions', error));
+		}, 3000);
 		return () => clearInterval(timerID);
 	});
 </script>
@@ -78,9 +82,14 @@
 					document
 						.querySelector(`[data-question-id="${questions!.at(-1)?.id}"]`)
 						?.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
-					fetchQuestions()?.then(() => {
-						showSpinner = false;
-					});
+					fetchQuestions()
+						.then(() => {
+							showSpinner = false;
+						})
+						.catch((error) => {
+							console.error('Failed to fetch questions', error);
+							showSpinner = false;
+						});
 				} else {
 					currentSlide = Number.parseInt(target);
 				}
