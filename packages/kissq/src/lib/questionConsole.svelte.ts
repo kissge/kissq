@@ -159,7 +159,7 @@ export class QuestionConsoleClass {
 						effect2Name: this.Game.effect2Name,
 						effect3Name: this.Game.effect3Name,
 						teams: this.Game.teams,
-						gameStartedAt: this.Game.gameStartedAt.getTime(),
+						gameStartedAt: this.Game.gameStartedAt.getTime()
 					} satisfies OutgoingMessage)
 				)
 			);

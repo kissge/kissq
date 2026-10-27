@@ -1,4 +1,5 @@
 import { createContext } from 'svelte';
+import { SvelteDate } from 'svelte/reactivity';
 import se2 from '$lib/assets/se2.mp3';
 import { han2zen, type Attendant } from '$lib/attendant';
 import { GameClassBase } from '$lib/game';
@@ -9,7 +10,6 @@ import type { WasedashikiMode } from '$lib/serial';
 import { playSound } from '$lib/sound';
 import { GameState } from '$lib/state';
 import type { AttendantID } from '$lib/types';
-import { SvelteDate } from 'svelte/reactivity';
 
 export class GameClass extends GameClassBase<'team'> {
 	battleMode = 'team' as const;

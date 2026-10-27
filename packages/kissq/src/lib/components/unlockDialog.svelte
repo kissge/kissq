@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { isUnlocked, setPassword } from '$lib/unlock';
+	import { isUnlocked, setPassword } from 'kissunlocklib';
 
 	let dialog: HTMLDialogElement;
 	let resolve: (result: Awaited<ReturnType<typeof open>>) => void;
@@ -97,6 +97,7 @@
 
 	.password-wrapper {
 		display: flex;
+		flex-wrap: wrap;
 		gap: 0.5em;
 
 		input {

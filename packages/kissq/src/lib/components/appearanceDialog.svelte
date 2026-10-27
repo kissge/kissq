@@ -1,6 +1,6 @@
 <script lang="ts">
+	import { isUnlocked } from 'kissunlocklib';
 	import { tooltipInDialog as tooltip } from '$lib/tooltip.svelte';
-	import { isUnlocked } from '$lib/unlock';
 
 	let dialog: HTMLDialogElement;
 	let resolve: (result: Awaited<ReturnType<typeof open>>) => void;

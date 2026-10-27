@@ -1,6 +1,6 @@
+import { SvelteDate } from 'svelte/reactivity';
 import se1 from '$lib/assets/se1.mp3';
 import se3 from '$lib/assets/se3.mp3';
-import { SvelteDate } from 'svelte/reactivity';
 import type { Attendant } from './attendant';
 import { MaruHistoryEntry, ThroughHistoryEntry, type HistoryEntry } from './historyEntry';
 import { LoggerClass } from './logs';
