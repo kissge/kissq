@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { isUnlocked, setPassword } from 'kissunlocklib';
+	import { isUnlocked, setPassword, wishlistURL, authorURL } from 'kissunlocklib';
 
 	let dialog: HTMLDialogElement;
 	let resolve: (result: Awaited<ReturnType<typeof open>>) => void;
@@ -35,18 +35,17 @@
 			<li>スクリーンショット用表示機能</li>
 		</ul>
 	</details>
+
+	<p style:font-weight="bold">
+		一度アンロックすると、kissqとkissSaqの両方で追加機能が利用できるようになります。 👈 とてもすごい
+	</p>
+
 	<p>
-		パスワードを入手するには、<a
-			href="https://www.amazon.co.jp/hz/wishlist/ls/1E7FJD98L3TW6?sort=custom"
-			target="_blank"
-		>
-			こちら
-		</a>から何らかのアイテムを作者に送り付けたのち、<a
-			href="https://x.com/_kidochan"
-			target="_blank"
-		>
-			作者
-		</a>にXのDMで問い合わせてください。
+		パスワードを入手するには、
+		<a href={wishlistURL} target="_blank">こちら</a>
+		から何らかのアイテムを作者に送り付けたのち、
+		<a href={authorURL} target="_blank">作者</a>
+		にXのDMで問い合わせてください。
 	</p>
 
 	<div class="password-wrapper">

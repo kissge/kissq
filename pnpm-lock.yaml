@@ -19,7 +19,7 @@ importers:
         version: 5.5.11
       kissunlocklib:
         specifier: github:kissge/kissunlocklib
-        version: https://codeload.github.com/kissge/kissunlocklib/tar.gz/37958ac3d8e919eeb1752f4ffa16c3f35f6c1f64
+        version: https://codeload.github.com/kissge/kissunlocklib/tar.gz/fef87d485e14481d27aa9482033d170e61e9ae20
       toastify-js:
         specifier: ^1.12.0
         version: 1.12.0
@@ -2558,8 +2558,8 @@ packages:
   keyv@4.5.4:
     resolution: {integrity: sha512-oxVHkHR/EJf2CNXnWxRLW6mg7JyCCUcG0DtEGmL2ctUo1PNTin1PUil+r/+4r5MpVgC/fn1kjsx7mjSujKqIpw==}
 
-  kissunlocklib@https://codeload.github.com/kissge/kissunlocklib/tar.gz/37958ac3d8e919eeb1752f4ffa16c3f35f6c1f64:
-    resolution: {gitHosted: true, integrity: sha512-UNqieHDZleYgZQgfKg3vTP9XBMrN87oM8jIr8JYJbzoe51OisWOq0EGZ3mLQ2qScn/R0ktfWjXV7PcAzwK5Ipw==, tarball: https://codeload.github.com/kissge/kissunlocklib/tar.gz/37958ac3d8e919eeb1752f4ffa16c3f35f6c1f64}
+  kissunlocklib@https://codeload.github.com/kissge/kissunlocklib/tar.gz/fef87d485e14481d27aa9482033d170e61e9ae20:
+    resolution: {gitHosted: true, integrity: sha512-+iogNiiX3bF56LzrrWZKV5Tq6Z8qxTCHsutvSCgfKs/QtG7P3oR2lJg6nuHnVL+XAtXOLmAZyruZYsUlfINdRQ==, tarball: https://codeload.github.com/kissge/kissunlocklib/tar.gz/fef87d485e14481d27aa9482033d170e61e9ae20}
     version: 0.1.0
 
   kleur@4.1.5:
@@ -5774,7 +5774,7 @@ snapshots:
     dependencies:
       json-buffer: 3.0.1
 
-  kissunlocklib@https://codeload.github.com/kissge/kissunlocklib/tar.gz/37958ac3d8e919eeb1752f4ffa16c3f35f6c1f64: {}
+  kissunlocklib@https://codeload.github.com/kissge/kissunlocklib/tar.gz/fef87d485e14481d27aa9482033d170e61e9ae20: {}
 
   kleur@4.1.5: {}
 
