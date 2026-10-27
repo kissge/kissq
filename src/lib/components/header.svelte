@@ -1,11 +1,11 @@
 <script lang="ts">
+	import { isUnlocked } from 'kissunlocklib';
 	import { onMount } from 'svelte';
 	import { fly } from 'svelte/transition';
 	import HelpDialog from '$lib/components/helpDialog.svelte';
 	import type { GameClassBaseType } from '$lib/game';
 	import { getLayoutContext } from '$lib/layout.svelte';
 	import { tooltip } from '$lib/tooltip.svelte';
-	import { isUnlocked } from '$lib/unlock';
 	import { getWasedashikiContext } from '$lib/wasedashiki.svelte';
 	import ChanceIndicator from './chanceIndicator.svelte';
 	import CounterPopover from './counterPopover.svelte';

@@ -70,7 +70,10 @@ export class WasedashikiClass {
 		}
 	}
 
-	async readLoopSerialPort(serialPort: SerialPort | undefined, mockReader?: (port: SerialPort) => AsyncGenerator<string, void, unknown>) {
+	async readLoopSerialPort(
+		serialPort: SerialPort | undefined,
+		mockReader?: (port: SerialPort) => AsyncGenerator<string, void, unknown>
+	) {
 		if (!serialPort) {
 			return;
 		}
@@ -256,9 +259,9 @@ export class WasedashikiClass {
 	}
 
 	reset() {
-						this.answerers = [];
-						this.pushers = [];
-						this.cursor = 0;
+		this.answerers = [];
+		this.pushers = [];
+		this.cursor = 0;
 	}
 }
 

@@ -44,6 +44,7 @@
 		"canvas-confetti": "^1.9.4",
 		"hono": "^4.12.32",
 		"json-2-csv": "^5.5.11",
+		"kissunlocklib": "github:kissge/kissunlocklib",
 		"toastify-js": "^1.12.0"
 	}
 }

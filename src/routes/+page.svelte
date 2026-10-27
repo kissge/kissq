@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { isUnlocked } from 'kissunlocklib';
 	import { watch } from 'runed';
 	import { onMount } from 'svelte';
 	import { flip } from 'svelte/animate';
@@ -31,7 +32,6 @@
 	import { AttendantState, type AttendantStateValue, type GameEvent } from '$lib/state';
 	import { tooltip } from '$lib/tooltip.svelte';
 	import type { AttendantID } from '$lib/types';
-	import { isUnlocked } from '$lib/unlock';
 	import { setWasedashikiContext, WasedashikiClass } from '$lib/wasedashiki.svelte';
 	import { wave } from '$lib/waveEffect';
 	import Attendant from './attendant.svelte';

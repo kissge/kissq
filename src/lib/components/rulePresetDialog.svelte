@@ -1,9 +1,9 @@
 <script lang="ts">
+	import { isUnlocked } from 'kissunlocklib';
 	import { onMount } from 'svelte';
 	import { fade } from 'svelte/transition';
 	import { Rule, type RulePOJO } from '$lib/rule';
 	import { tooltipInDialog as tooltip } from '$lib/tooltip.svelte';
-	import { isUnlocked } from '$lib/unlock';
 
 	let {
 		apply,
