@@ -770,8 +770,7 @@
 	<textarea
 		bind:value={rawInput}
 		onpaste={() => setTimeout(loadFromCSV, 0)}
-		placeholder="ここにCSV/TSVデータを貼り付けてください"
-	></textarea>
+		placeholder="ここにCSV/TSVデータを貼り付けてください"></textarea>
 	<button onclick={loadFromCSV}>読み込み</button>
 </dialog>
 

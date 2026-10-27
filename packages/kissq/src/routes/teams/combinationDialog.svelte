@@ -159,8 +159,7 @@
 						rows="5"
 						bind:value={memberList}
 						placeholder="名前を順番に1行に1人ずつ入力してください"
-						oninput={update}
-					></textarea>
+						oninput={update}></textarea>
 				</div>
 			{/if}
 

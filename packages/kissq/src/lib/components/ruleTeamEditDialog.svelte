@@ -59,18 +59,17 @@
 	}
 
 	/** クローンを容易にするため、オブジェクトプロパティを使わない */
-	interface EditingRule
-		extends Omit<
-			Rule,
-			| 'lose'
-			| 'questionLimit'
-			| 'batsu'
-			| 'yasuPerMaru'
-			| 'roulette'
-			| 'max'
-			| 'toDetailsStrings'
-			| 'toSharedStrings'
-		> {
+	interface EditingRule extends Omit<
+		Rule,
+		| 'lose'
+		| 'questionLimit'
+		| 'batsu'
+		| 'yasuPerMaru'
+		| 'roulette'
+		| 'max'
+		| 'toDetailsStrings'
+		| 'toSharedStrings'
+	> {
 		isLoseNull: boolean;
 		lose: NonNullable<Rule['lose']>;
 		isQuestionLimitNull: boolean;

@@ -1,4 +1,4 @@
-/// <reference path="../worker-configuration.d.ts" />
+import '../worker-configuration.d.ts';
 
 import { zValidator } from '@hono/zod-validator';
 import { Hono } from 'hono';

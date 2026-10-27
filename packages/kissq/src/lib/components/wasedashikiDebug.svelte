@@ -40,8 +40,7 @@
 				if (e.key === 'Enter' && e.ctrlKey) {
 					sendText();
 				}
-			}}
-		></textarea>
+			}}></textarea>
 		<button onclick={sendText}>送信</button>
 	</div>
 	<select

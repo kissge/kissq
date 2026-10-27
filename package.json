@@ -1,0 +1,16 @@
+{
+	"name": "kissq-workspace",
+	"private": true,
+	"scripts": {
+		"format": "oxfmt --ignore-path .gitignore --ignore-path .oxfmtignore --write .",
+		"format:check": "oxfmt --ignore-path .gitignore --ignore-path .oxfmtignore --check .",
+		"lint": "oxlint .",
+		"build": "pnpm --filter kissq build",
+		"check": "pnpm --filter kissq check"
+	},
+	"devDependencies": {
+		"oxfmt": "^0.74.0",
+		"oxlint": "^1.27.0"
+	},
+	"packageManager": "pnpm@12.4.2"
+}
