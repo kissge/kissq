@@ -1,5 +1,4 @@
 packages:
-  - 'packages/kissq'
   - 'packages/*'
 
 allowBuilds:
