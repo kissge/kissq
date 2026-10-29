@@ -5,8 +5,9 @@
 		"format": "oxfmt --ignore-path .gitignore --ignore-path .oxfmtignore --write .",
 		"format:check": "oxfmt --ignore-path .gitignore --ignore-path .oxfmtignore --check .",
 		"lint": "oxlint .",
-		"build": "pnpm --filter kissq build",
-		"check": "pnpm --filter kissq check"
+		"web:dev": "pnpm --filter kissq run dev",
+		"web:build": "pnpm --filter kissq run build",
+		"web:check": "pnpm --filter kissq run check"
 	},
 	"devDependencies": {
 		"oxfmt": "^0.74.0",

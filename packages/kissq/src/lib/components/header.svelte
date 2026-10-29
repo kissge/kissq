@@ -239,7 +239,7 @@
 			z-index: 9999;
 			font-size: 0.6em;
 
-			&a {
+			&:is(a) {
 				color: blue;
 			}
 
