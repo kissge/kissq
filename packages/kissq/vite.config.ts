@@ -11,19 +11,14 @@ export default defineConfig({
 			manifest: {
 				name: 'kissQ',
 				short_name: 'kissQ',
-				description:
-					'クイズカウンター（得点表示機）のkissQ。各種早押しクイズルールに対応、休み数管理も',
+				description: 'クイズ得点板のkissQ。各種早押しクイズルールに対応、休み数管理も',
 				theme_color: '#0d2540',
 				icons: [
 					{
-						src: '/favicon.png',
-						sizes: '192x192',
-						type: 'image/png'
-					},
-					{
-						src: '/favicon.png',
-						sizes: '512x512',
-						type: 'image/png'
+						src: 'kissq-pwa.png',
+						sizes: 'any',
+						type: 'image/png',
+						purpose: 'any maskable'
 					}
 				]
 			}

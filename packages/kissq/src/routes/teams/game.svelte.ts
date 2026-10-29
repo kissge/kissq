@@ -88,7 +88,7 @@ export class GameClass extends GameClassBase<'team'> {
 		${this.currentState.attendants
 			.flatMap(({ name, life }) => (life !== 'removed' ? [name.slice(0, 3) || '👤'] : []))
 			.join('・')}
-		- クイズカウンター（得点表示機）のkissQ`
+		- クイズ得点板のkissQ`
 	);
 
 	addAttendant(teamID: number, name: string = ''): Attendant {
