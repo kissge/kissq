@@ -61,6 +61,7 @@
 	let enableCompanion = $state(false);
 	let companionSessionID = $state('');
 	let client = $state<APIClient>();
+	let correctAnswererInput = $state<AttendantID | 'through' | null>(null);
 
 	let conventionAssist: ReturnType<typeof ConventionAssist>;
 	let showConventionAssist = $state(false);
@@ -254,14 +255,14 @@
 		});
 	}
 
-	function showQuestion(index: number) {
+	function showQuestion(index: number, syncCloud: boolean = false) {
 		currentIndex = index;
 		postMessage({
 			command: 'updateQuestion',
 			...questions[currentIndex]
 		});
 
-		if (client && companionSessionID && index > 0) {
+		if (syncCloud && client && companionSessionID && index > 0) {
 			(async () => {
 				await client.api.question.show.$post({
 					json: {
@@ -270,6 +271,7 @@
 					}
 				});
 				await fetchRemoteQuestions();
+				correctAnswererInput = null;
 			})();
 		}
 
@@ -280,7 +282,7 @@
 		opener.postMessage($state.snapshot(message));
 	}
 
-	async function fetchRemoteQuestions(showToast: boolean = true) {
+	async function fetchRemoteQuestions() {
 		if (client && companionSessionID) {
 			const response = await client.api.questions[':session_id'].$get({
 				param: { session_id: companionSessionID },
@@ -291,9 +293,6 @@
 			}
 
 			questions = [qZero, ...(await response.json())];
-			if (showToast) {
-				Toastify({ text: '問題をクラウドから同期しました' }).showToast();
-			}
 		}
 	}
 
@@ -304,13 +303,28 @@
 		);
 	});
 
+	$effect(() => {
+		const h = historyDisplay.at(-1);
+		if (correctAnswererInput == null) {
+			correctAnswererInput = !h
+				? null
+				: h.type === 'maru'
+					? (h.attendantID as AttendantID)
+					: h.type === 'through'
+						? 'through'
+						: null;
+		}
+	});
+
 	onMount(() => {
 		enableCompanion = !!window.localStorage.getItem('enableCompanion');
 		if (enableCompanion) {
 			client = getAPIClient();
 			companionSessionID = new URLSearchParams(location.search).get('session') ?? '';
 			if (companionSessionID) {
-				fetchRemoteQuestions();
+				fetchRemoteQuestions().then(() =>
+					Toastify({ text: '問題をクラウドから同期しました' }).showToast()
+				);
 			}
 		}
 
@@ -362,8 +376,9 @@
 				).json()
 			);
 
-			Toastify({ text: '問題をクラウドに同期しました' }).showToast();
-			fetchRemoteQuestions(false);
+			fetchRemoteQuestions().then(() =>
+				Toastify({ text: '問題をクラウドに同期しました' }).showToast()
+			);
 		}
 
 		inputDialog.close();
@@ -659,11 +674,15 @@
 		<tbody>
 			{#each questions as { question, answer, comment, shown, likedBy }, index (question + index)}
 				<tr class:current={index === currentIndex}>
-					<td rowspan={comment ? 2 : 1}>
-						{#if shown}
-							<span style="color: green">✔</span>
-						{/if}
-						<button onclick={() => showQuestion(index)}>
+					<td
+						rowspan={1 +
+							(comment || (likedBy?.length ?? 0) > 0 ? 1 : 0) +
+							(enableCompanion && index > 0 ? 1 : 0)}
+					>
+						<button
+							{@attach enableCompanion && tooltip('ローカルのみ')}
+							onclick={() => showQuestion(index)}
+						>
 							{index}.
 						</button>
 					</td>
@@ -680,7 +699,8 @@
 						{answer}
 					</td>
 				</tr>
-				{#if comment}
+
+				{#if comment || (likedBy?.length ?? 0) > 0}
 					<tr>
 						<td colspan="2">
 							<small>
@@ -705,6 +725,37 @@
 						</td>
 					</tr>
 				{/if}
+
+				{#if enableCompanion && index > 0}
+					<tr class="companion">
+						<td colspan="2">
+							<div>
+								<div>スルー</div>
+								<div class="spacer"></div>
+								<select bind:value={correctAnswererInput}>
+									<option value={null}>正解者未設定</option>
+									<option value="through">スルー</option>
+									{#each orderedAttendants as { att, ai } (ai)}
+										<option value={ai} selected={likedBy?.includes(ai.toString())}>
+											{att.name || `プレイヤー${ai + 1}`}が正解
+										</option>
+									{/each}
+								</select>
+								<button
+									class:shown
+									{@attach tooltip('ローカル & クラウド')}
+									onclick={() => showQuestion(index, true)}
+								>
+									{#if shown}
+										✔︎ 表示済
+									{:else}
+										表示する
+									{/if}
+								</button>
+							</div>
+						</td>
+					</tr>
+				{/if}
 			{/each}
 		</tbody>
 	</table>
@@ -715,12 +766,15 @@
 		onclick={() => {
 			rawInput = '';
 			inputDialog.showModal();
-		}}>問題を読み込み</button
+		}}
 	>
+		問題を読み込み
+	</button>
 	<button
 		class="labeled"
 		data-label="N"
 		disabled={currentIndex === 0}
+		{@attach enableCompanion && tooltip('ローカルのみ')}
 		onclick={() => showQuestion(currentIndex - 1)}
 	>
 		← 前の問題へ
@@ -729,6 +783,7 @@
 		class="labeled"
 		data-label="M"
 		disabled={currentIndex === questions.length - 1}
+		{@attach enableCompanion && tooltip('ローカルのみ')}
 		onclick={() => showQuestion(currentIndex + 1)}
 	>
 		次の問題へ →
@@ -751,7 +806,9 @@
 		<button disabled={!companionSessionID} onclick={() => postMessage({ command: 'toggleQRCode' })}>
 			QRコードを表示・非表示
 		</button>
-		<button disabled={!companionSessionID} onclick={fetchRemoteQuestions}>クラウド同期</button>
+		<button disabled={!companionSessionID} onclick={(e) => fetchRemoteQuestions()}>
+			クラウドから同期
+		</button>
 	{/if}
 </footer>
 
@@ -785,6 +842,15 @@
 <RuleTeamEditDialog bind:this={ruleTeamEditDialog} {apply} />
 
 <style>
+	input,
+	select {
+		font-size: 1.2em;
+	}
+
+	button {
+		font-size: 1em;
+	}
+
 	header.console,
 	main.console,
 	footer.console {
@@ -865,6 +931,32 @@
 			font-weight: bold;
 		}
 
+		tr.companion {
+			td > div {
+				display: flex;
+				justify-content: flex-end;
+				gap: 0.5em;
+
+				div {
+					display: flex;
+					align-items: center;
+				}
+			}
+
+			button {
+				width: 7em;
+			}
+
+			.shown {
+				color: #dd2222;
+				font-weight: bold;
+			}
+
+			&:not(:hover):has(.shown) select {
+				opacity: 0.2;
+			}
+		}
+
 		td {
 			vertical-align: top;
 			border: 1px solid #ccc;
@@ -922,11 +1014,6 @@
 	}
 
 	header {
-		input,
-		select {
-			font-size: 1em;
-		}
-
 		input[type='checkbox'] {
 			width: 1em;
 			height: 1em;

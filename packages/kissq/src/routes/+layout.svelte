@@ -58,6 +58,10 @@
 			}
 		}
 
+		.spacer {
+			flex: 1 0 0;
+		}
+
 		label:has([disabled]) {
 			color: #aaa;
 		}
@@ -96,10 +100,6 @@
 				justify-content: end;
 				gap: 0.5em;
 				margin-top: 0.5em;
-
-				.spacer {
-					flex: 1 0 0;
-				}
 
 				.primary:not([disabled]) {
 					background-color: #06f;
