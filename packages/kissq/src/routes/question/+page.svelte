@@ -3,6 +3,8 @@
 	import { flip } from 'svelte/animate';
 	import { SvelteDate } from 'svelte/reactivity';
 	import { fade, fly } from 'svelte/transition';
+	import Toastify from 'toastify-js';
+	import 'toastify-js/src/toastify.css';
 	import { getAPIClient, type APIClient } from '$lib/api';
 	import type { Attendant } from '$lib/attendant';
 	import RuleEditDialog from '$lib/components/ruleEditDialog.svelte';
@@ -267,7 +269,7 @@
 						questionID: index
 					}
 				});
-				await updateRemoteQuestions();
+				await fetchRemoteQuestions();
 			})();
 		}
 
@@ -278,7 +280,7 @@
 		opener.postMessage($state.snapshot(message));
 	}
 
-	async function updateRemoteQuestions() {
+	async function fetchRemoteQuestions(showToast: boolean = true) {
 		if (client && companionSessionID) {
 			const response = await client.api.questions[':session_id'].$get({
 				param: { session_id: companionSessionID },
@@ -289,6 +291,9 @@
 			}
 
 			questions = [qZero, ...(await response.json())];
+			if (showToast) {
+				Toastify({ text: '問題をクラウドから同期しました' }).showToast();
+			}
 		}
 	}
 
@@ -305,7 +310,7 @@
 			client = getAPIClient();
 			companionSessionID = new URLSearchParams(location.search).get('session') ?? '';
 			if (companionSessionID) {
-				updateRemoteQuestions();
+				fetchRemoteQuestions();
 			}
 		}
 
@@ -357,7 +362,8 @@
 				).json()
 			);
 
-			updateRemoteQuestions();
+			Toastify({ text: '問題をクラウドに同期しました' }).showToast();
+			fetchRemoteQuestions(false);
 		}
 
 		inputDialog.close();
@@ -745,7 +751,7 @@
 		<button disabled={!companionSessionID} onclick={() => postMessage({ command: 'toggleQRCode' })}>
 			QRコードを表示・非表示
 		</button>
-		<button disabled={!companionSessionID} onclick={updateRemoteQuestions}> ↺ </button>
+		<button disabled={!companionSessionID} onclick={fetchRemoteQuestions}>クラウド同期</button>
 	{/if}
 </footer>
 
@@ -763,8 +769,9 @@
 />
 
 <dialog closedby="any" bind:this={inputDialog}>
-	<p style="font-size: 0.5em;">
-		ヒント：スプレッドシート上で質問と回答の列を選択してコピーするとTSV形式になります。ただし、改行が含まれるとぶっ壊れます。
+	<p style="font-size: 0.5em">
+		ヒント：スプレッドシート上で質問と回答の列を選択してコピーするとTSV形式になります。ただし、Google
+		Sheetsの場合、改行が含まれるとぶっ壊れます。
 	</p>
 
 	<textarea
@@ -909,6 +916,7 @@
 		user-select: none;
 
 		textarea {
+			font-size: 0.5em;
 			width: 90%;
 		}
 	}
@@ -1025,5 +1033,9 @@
 		to {
 			opacity: 0.3;
 		}
+	}
+
+	:global(.toastify) {
+		font-size: 1em;
 	}
 </style>
