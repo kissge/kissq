@@ -31,7 +31,7 @@
 			comment: string;
 			shown?: 0 | 1;
 			correctAnswerer?: string | null;
-			slashOffset?: number;
+			slashOffset: number | undefined;
 			likedBy?: string[];
 		}[]
 	>([qZero]);

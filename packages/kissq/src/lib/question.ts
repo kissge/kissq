@@ -4,12 +4,19 @@ export const qZero = {
 	id: 0,
 	question: 'ここに問題が表示されます',
 	answer: 'ここに答えが表示されます',
-	comment: 'ここにコメントが表示されます'
+	comment: 'ここにコメントが表示されます',
+	slashOffset: undefined as number | undefined
 };
 
 export function parseCSV(
 	rawInput: string
-): { id: number; question: string; answer: string; comment: string }[] {
+): {
+	id: number;
+	question: string;
+	answer: string;
+	comment: string;
+	slashOffset: number | undefined;
+}[] {
 	const tabCount = rawInput.match(/\t/g)?.length ?? 0;
 	const commaCount = rawInput.match(/,/g)?.length ?? 0;
 	const delimiter = tabCount > commaCount ? '\t' : ',';
@@ -50,7 +57,8 @@ export function parseCSV(
 			id: id + 1,
 			question: String(question),
 			answer: String(answer),
-			comment: String(comment ?? '')
+			comment: String(comment ?? ''),
+			slashOffset: undefined
 		}))
 	];
 }

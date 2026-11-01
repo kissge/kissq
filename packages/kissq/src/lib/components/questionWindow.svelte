@@ -7,6 +7,7 @@
 	import seLike from '$lib/assets/like.ogg';
 	import { getQuestionConsoleContext } from '$lib/questionConsole.svelte';
 	import { playSound } from '$lib/sound';
+	import { splitQuestion } from '$lib/utils';
 
 	let QuestionConsole = getQuestionConsoleContext();
 
@@ -86,12 +87,16 @@
 		<div class="question textbook-font">
 			{#key QuestionConsole.currentQuestion.question}
 				<p in:fade>
-					{#each QuestionConsole.currentQuestion.question.split(/(（.+?）|\(.+?\)|【.+?】|［.+?］)/) as part, i (i)}
-						{#if i % 2}
-							<small>{part}</small>
-						{:else}
-							{part}
-						{/if}
+					{#each splitQuestion(QuestionConsole.currentQuestion.question) as { c, dimmed }, i (i)}
+						<!-- svelte-ignore a11y_no_static_element_interactions, a11y_click_events_have_key_events -->
+						<span
+							class="char"
+							class:dimmed
+							class:slash={typeof QuestionConsole.currentQuestion.slashOffset === 'number' &&
+								i === QuestionConsole.currentQuestion.slashOffset}
+						>
+							{c}
+						</span>
 					{/each}
 				</p>
 			{/key}
@@ -155,6 +160,19 @@
 			opacity: 0.6;
 			font-weight: lighter;
 			font-size: smaller;
+		}
+
+		.char {
+			&.dimmed {
+				font-size: 0.9em;
+				opacity: 0.6;
+				font-weight: lighter;
+			}
+			&.slash::after {
+				content: '/';
+				color: yellow;
+				margin: 0 0.2em;
+			}
 		}
 	}
 

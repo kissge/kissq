@@ -32,7 +32,7 @@ const app = new Hono<{ Bindings: CloudflareBindings }>()
 					question: string;
 					answer: string;
 					comment: string;
-					shown: boolean;
+					shown: 0 | 1;
 					shown_at: string;
 					correct_answerer: string | null;
 					slash_offset: number | null;
@@ -45,10 +45,10 @@ const app = new Hono<{ Bindings: CloudflareBindings }>()
 					question: string;
 					answer: string;
 					comment: string;
-					shown: boolean;
+					shown: 0 | 1;
 					shownAt: string;
 					correctAnswerer: string | null;
-					slashOffset: number | null;
+					slashOffset: number | undefined;
 					likedBy: string[];
 				}[]
 			>(
@@ -79,7 +79,7 @@ const app = new Hono<{ Bindings: CloudflareBindings }>()
 							shown,
 							shownAt: shown_at,
 							correctAnswerer: correct_answerer,
-							slashOffset: slash_offset,
+							slashOffset: slash_offset ?? undefined,
 							likedBy: user_name != null ? [user_name] : []
 						});
 					}
