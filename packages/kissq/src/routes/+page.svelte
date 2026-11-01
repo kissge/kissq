@@ -305,10 +305,6 @@
 	<title>{Game.windowTitle}</title>
 </svelte:head>
 
-<audio src={se1} preload="auto"></audio>
-<audio src={se2} preload="auto"></audio>
-<audio src={se3} preload="auto"></audio>
-
 <main
 	style:grid-template-rows={QuestionConsole.showQuestionWindow
 		? 'auto auto 1fr auto'
