@@ -3,6 +3,7 @@ import '../worker-configuration.d.ts';
 import { zValidator } from '@hono/zod-validator';
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
+import { HTTPException } from 'hono/http-exception';
 import * as z from 'zod';
 import { parseError } from './lib/error';
 
@@ -148,7 +149,7 @@ const app = new Hono<{ Bindings: CloudflareBindings }>()
 
 				return c.json({ success: true, totalChanges });
 			} catch (error) {
-				return c.json({ success: false, error: parseError(error) }, 400);
+				throw new HTTPException(400, { message: parseError(error) });
 			}
 		}
 	)
@@ -177,7 +178,7 @@ const app = new Hono<{ Bindings: CloudflareBindings }>()
 
 				return c.json({ success: true });
 			} catch (error) {
-				return c.json({ success: false, error: parseError(error) }, 400);
+				throw new HTTPException(400, { message: parseError(error) });
 			}
 		}
 	)
@@ -214,7 +215,7 @@ const app = new Hono<{ Bindings: CloudflareBindings }>()
 
 				return c.json({ success: true });
 			} catch (error) {
-				return c.json({ success: false, error: parseError(error) }, 400);
+				throw new HTTPException(400, { message: parseError(error) });
 			}
 		}
 	);

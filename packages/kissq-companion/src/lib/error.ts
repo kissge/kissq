@@ -1,7 +1,7 @@
-export function parseError(error: unknown): string | object {
+export function parseError(error: unknown): string {
 	try {
-		return JSON.parse((error as { message: string }).message);
+		return String(JSON.parse((error as { message: string }).message));
 	} catch {
-		return (error as { message: string }).message ?? String(error);
+		return String((error as { message: string }).message ?? error);
 	}
 }

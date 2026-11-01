@@ -17,12 +17,9 @@
 	import type { GameState } from '$lib/state';
 	import { getTimeElapsedString } from '$lib/time';
 	import { tooltip } from '$lib/tooltip.svelte';
-	import type { AttendantID } from '$lib/types';
+	import { THROUGH, type AttendantID } from '$lib/types';
 	import { collapseArray, splitQuestion } from '$lib/utils';
 	import ConventionAssist from './conventionAssist.svelte';
-
-	const THROUGH = '[[through]]';
-	type THROUGH = typeof THROUGH;
 
 	const opener = (typeof window !== 'undefined' ? window.opener : {}) as Window;
 

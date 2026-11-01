@@ -1,6 +1,9 @@
 <script lang="ts">
+	import type { InferResponseType } from 'hono/client';
 	import { onMount } from 'svelte';
 	import { getAPIClient, type APIClient } from '$lib/api';
+	import { THROUGH } from '$lib/types';
+	import { splitQuestion } from '$lib/utils';
 
 	let client: APIClient | undefined;
 	let sessionID: string | undefined;
@@ -10,16 +13,8 @@
 
 	let nameDialog: HTMLDialogElement;
 
-	let questions = $state<
-		{
-			id: number;
-			question: string;
-			answer: string;
-			comment: string;
-			shown: boolean;
-			likedBy: string[];
-		}[]
-	>();
+	let questions =
+		$state<InferResponseType<APIClient['api']['questions'][':session_id']['$get'], 200>>();
 
 	let showSpinner = $state(false);
 
@@ -99,12 +94,17 @@
 		{#each questions ?? [] as question (question.id)}
 			<div class="slide" data-question-id={question.id}>
 				<p class="question">
-					{#each question.question.split(/(（.+?）|\(.+?\)|【.+?】|［.+?］)/) as part, i (i)}
-						{#if i % 2}
-							<small>{part}</small>
-						{:else}
-							{part}
-						{/if}
+					{#each splitQuestion(question.question) as { c, next, dimmed }, i (i)}
+						<!-- svelte-ignore a11y_no_static_element_interactions, a11y_click_events_have_key_events -->
+						<span
+							class="char"
+							class:dimmed
+							class:after-slash={typeof question.slashOffset === 'number' &&
+								i > question.slashOffset}
+							class:slash={typeof question.slashOffset === 'number' && i === question.slashOffset}
+						>
+							{c}
+						</span>
 					{/each}
 				</p>
 				<p class="answer">
@@ -116,6 +116,11 @@
 						{/if}
 					{/each}
 				</p>
+				{#if question.correctAnswerer}
+					<p class="answerer">
+						{question.correctAnswerer === THROUGH ? 'スルー' : `⭕️ ${question.correctAnswerer}`}
+					</p>
+				{/if}
 				<p>
 					{question.comment}
 				</p>
@@ -313,6 +318,23 @@
 		text-align: justify;
 	}
 
+	.char {
+		&.dimmed {
+			font-size: 0.9em;
+			opacity: 0.6;
+			font-weight: lighter;
+		}
+		&.after-slash {
+			opacity: 0.6;
+			font-weight: lighter;
+		}
+		&.slash::after {
+			content: '/';
+			color: yellow;
+			margin: 0 0.2em;
+		}
+	}
+
 	.answer {
 		font-weight: bold;
 		text-align: right;
@@ -325,6 +347,11 @@
 	small {
 		opacity: 0.6;
 		font-weight: lighter;
+	}
+
+	.answerer {
+		font-weight: bold;
+		text-align: right;
 	}
 
 	.spacer {
