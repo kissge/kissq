@@ -808,8 +808,4 @@
 			font-size: 1em;
 		}
 	}
-
-	audio {
-		display: none;
-	}
 </style>

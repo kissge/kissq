@@ -764,7 +764,7 @@
 								<select bind:value={correctAnswererInput}>
 									<option value={null}>正解者未設定</option>
 									<option value={THROUGH}>スルー</option>
-									{#each orderedAttendants as { att, ai } (ai)}
+									{#each orderedAttendants ?? [] as { att, ai } (ai)}
 										<option value={ai} selected={likedBy?.includes(ai.toString())}>
 											{att.name || `プレイヤー${ai + 1}`}が正解
 										</option>
