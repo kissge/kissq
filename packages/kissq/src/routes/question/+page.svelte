@@ -21,6 +21,9 @@
 	import { collapseArray } from '$lib/utils';
 	import ConventionAssist from './conventionAssist.svelte';
 
+	const THROUGH = '[[through]]';
+	type THROUGH = typeof THROUGH;
+
 	const opener = (typeof window !== 'undefined' ? window.opener : {}) as Window;
 
 	let questions = $state<
@@ -30,6 +33,7 @@
 			answer: string;
 			comment: string;
 			shown?: 0 | 1;
+			correctAnswerer?: string | null;
 			likedBy?: string[];
 		}[]
 	>([qZero]);
@@ -61,7 +65,7 @@
 	let enableCompanion = $state(false);
 	let companionSessionID = $state('');
 	let client = $state<APIClient>();
-	let correctAnswererInput = $state<AttendantID | 'through' | null>(null);
+	let correctAnswererInput = $state<AttendantID | THROUGH | null>(null);
 
 	let conventionAssist: ReturnType<typeof ConventionAssist>;
 	let showConventionAssist = $state(false);
@@ -267,7 +271,12 @@
 				await client.api.question.show.$post({
 					json: {
 						sessionID: companionSessionID,
-						questionID: index
+						questionID: index,
+						correctAnswerer:
+							typeof correctAnswererInput === 'number'
+								? currentState?.attendants[correctAnswererInput]?.name ||
+									`プレイヤー${correctAnswererInput + 1}`
+								: correctAnswererInput
 					}
 				});
 				await fetchRemoteQuestions();
@@ -311,7 +320,7 @@
 				: h.type === 'maru'
 					? (h.attendantID as AttendantID)
 					: h.type === 'through'
-						? 'through'
+						? THROUGH
 						: null;
 		}
 	});
@@ -672,7 +681,7 @@
 <main class="console">
 	<table>
 		<tbody>
-			{#each questions as { question, answer, comment, shown, likedBy }, index (question + index)}
+			{#each questions as { question, answer, comment, shown, correctAnswerer, likedBy }, index (question + index)}
 				<tr class:current={index === currentIndex}>
 					<td
 						rowspan={1 +
@@ -730,11 +739,11 @@
 					<tr class="companion">
 						<td colspan="2">
 							<div>
-								<div>スルー</div>
+								<div>{correctAnswerer === THROUGH ? 'スルー' : correctAnswerer}</div>
 								<div class="spacer"></div>
 								<select bind:value={correctAnswererInput}>
 									<option value={null}>正解者未設定</option>
-									<option value="through">スルー</option>
+									<option value={THROUGH}>スルー</option>
 									{#each orderedAttendants as { att, ai } (ai)}
 										<option value={ai} selected={likedBy?.includes(ai.toString())}>
 											{att.name || `プレイヤー${ai + 1}`}が正解

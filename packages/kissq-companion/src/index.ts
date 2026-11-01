@@ -33,6 +33,7 @@ const app = new Hono<{ Bindings: CloudflareBindings }>()
 					comment: string;
 					shown: boolean;
 					shown_at: string;
+					correct_answerer: string | null;
 					user_name: string | null;
 				}>();
 
@@ -44,9 +45,10 @@ const app = new Hono<{ Bindings: CloudflareBindings }>()
 					comment: string;
 					shown: boolean;
 					shownAt: string;
+					correctAnswerer: string | null;
 					likedBy: string[];
 				}[]
-			>((acc, { id, question, answer, comment, shown, shown_at, user_name }) => {
+			>((acc, { id, question, answer, comment, shown, shown_at, correct_answerer, user_name }) => {
 				const q = acc.find((q) => q.id === id);
 
 				if (q) {
@@ -59,6 +61,7 @@ const app = new Hono<{ Bindings: CloudflareBindings }>()
 						comment,
 						shown,
 						shownAt: shown_at,
+						correctAnswerer: correct_answerer,
 						likedBy: user_name != null ? [user_name] : []
 					});
 				}
@@ -132,16 +135,23 @@ const app = new Hono<{ Bindings: CloudflareBindings }>()
 	)
 	.post(
 		'/api/question/show',
-		zValidator('json', z.object({ sessionID: z.string(), questionID: z.number() })),
+		zValidator(
+			'json',
+			z.object({
+				sessionID: z.string(),
+				questionID: z.number(),
+				correctAnswerer: z.string().nullable()
+			})
+		),
 		async (c) => {
 			try {
-				const { sessionID, questionID } = c.req.valid('json');
+				const { sessionID, questionID, correctAnswerer } = c.req.valid('json');
 				await c.env.Database.prepare(
 					`UPDATE questions
-					 SET shown = TRUE, shown_at = CURRENT_TIMESTAMP
+					 SET shown = TRUE, shown_at = CURRENT_TIMESTAMP, correct_answerer = ?
 					 WHERE id = ? AND session_id = ?`
 				)
-					.bind(questionID, sessionID)
+					.bind(correctAnswerer, questionID, sessionID)
 					.run();
 
 				return c.json({ success: true });
