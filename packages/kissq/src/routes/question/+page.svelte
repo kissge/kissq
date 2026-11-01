@@ -18,7 +18,7 @@
 	import { getTimeElapsedString } from '$lib/time';
 	import { tooltip } from '$lib/tooltip.svelte';
 	import type { AttendantID } from '$lib/types';
-	import { collapseArray } from '$lib/utils';
+	import { collapseArray, splitQuestion } from '$lib/utils';
 	import ConventionAssist from './conventionAssist.svelte';
 
 	const THROUGH = '[[through]]';
@@ -34,6 +34,7 @@
 			comment: string;
 			shown?: 0 | 1;
 			correctAnswerer?: string | null;
+			slashOffset?: number;
 			likedBy?: string[];
 		}[]
 	>([qZero]);
@@ -218,7 +219,11 @@
 			if (
 				tag === 'input' ||
 				tag === 'textarea' ||
-				(event.target as HTMLElement | null)?.isContentEditable
+				(event.target as HTMLElement | null)?.isContentEditable ||
+				event.ctrlKey ||
+				event.altKey ||
+				event.metaKey ||
+				event.shiftKey
 			) {
 				return;
 			}
@@ -276,7 +281,8 @@
 							typeof correctAnswererInput === 'number'
 								? currentState?.attendants[correctAnswererInput]?.name ||
 									`プレイヤー${correctAnswererInput + 1}`
-								: correctAnswererInput
+								: correctAnswererInput,
+						slashOffset: questions[currentIndex].slashOffset ?? null
 					}
 				});
 				await fetchRemoteQuestions();
@@ -303,6 +309,16 @@
 
 			questions = [qZero, ...(await response.json())];
 		}
+	}
+
+	function charPopup(char: string | undefined, nextChar: string) {
+		function _(c: string | undefined) {
+			return c === ' ' || c === '\t' ? '␣' : c === '\n' ? '⏎' : !c ? '🔚' : c;
+		}
+
+		return tooltip(`<span class="char-popup">${_(char)} | ${_(nextChar)}</span>`, {
+			allowHTML: true
+		});
 	}
 
 	$effect(() => {
@@ -681,7 +697,7 @@
 <main class="console">
 	<table>
 		<tbody>
-			{#each questions as { question, answer, comment, shown, correctAnswerer, likedBy }, index (question + index)}
+			{#each questions as { question, answer, comment, shown, correctAnswerer, slashOffset, likedBy }, index (question + index)}
 				<tr class:current={index === currentIndex}>
 					<td
 						rowspan={1 +
@@ -696,12 +712,19 @@
 						</button>
 					</td>
 					<td class:error={!question?.trim?.()}>
-						{#each question.split(/(（.+?）|\(.+?\)|【.+?】|［.+?］)/) as part, i (i)}
-							{#if i % 2}
-								<em>{part}</em>
-							{:else}
-								{part}
-							{/if}
+						{#each splitQuestion(question) as { c, next, dimmed }, i (i)}
+							<!-- svelte-ignore a11y_no_static_element_interactions, a11y_click_events_have_key_events -->
+							<span
+								class="char"
+								class:dimmed
+								class:slash={typeof slashOffset === 'number' && i <= slashOffset}
+								{@attach charPopup(c, next)}
+								onclick={() => {
+									questions[index].slashOffset = i;
+								}}
+							>
+								{c}
+							</span>
 						{/each}
 					</td>
 					<td class:error={!answer?.trim?.()}>
@@ -978,10 +1001,16 @@
 			&.error {
 				animation: errorFlash 0.5s ease-in-out infinite;
 			}
+		}
 
-			em {
+		.char {
+			&.dimmed {
 				color: #888;
 				font-style: normal;
+			}
+			&.slash,
+			&:hover {
+				background-color: #ffcccc;
 			}
 		}
 	}
@@ -1133,5 +1162,9 @@
 
 	:global(.toastify) {
 		font-size: 1em;
+	}
+
+	:global(.char-popup) {
+		font-size: 5em;
 	}
 </style>

@@ -34,6 +34,7 @@ const app = new Hono<{ Bindings: CloudflareBindings }>()
 					shown: boolean;
 					shown_at: string;
 					correct_answerer: string | null;
+					slash_offset: number | null;
 					user_name: string | null;
 				}>();
 
@@ -46,28 +47,46 @@ const app = new Hono<{ Bindings: CloudflareBindings }>()
 					shown: boolean;
 					shownAt: string;
 					correctAnswerer: string | null;
+					slashOffset: number | null;
 					likedBy: string[];
 				}[]
-			>((acc, { id, question, answer, comment, shown, shown_at, correct_answerer, user_name }) => {
-				const q = acc.find((q) => q.id === id);
-
-				if (q) {
-					q.likedBy.push(user_name!);
-				} else {
-					acc.push({
+			>(
+				(
+					acc,
+					{
 						id,
 						question,
 						answer,
 						comment,
 						shown,
-						shownAt: shown_at,
-						correctAnswerer: correct_answerer,
-						likedBy: user_name != null ? [user_name] : []
-					});
-				}
+						shown_at,
+						correct_answerer,
+						slash_offset,
+						user_name
+					}
+				) => {
+					const q = acc.find((q) => q.id === id);
 
-				return acc;
-			}, []);
+					if (q) {
+						q.likedBy.push(user_name!);
+					} else {
+						acc.push({
+							id,
+							question,
+							answer,
+							comment,
+							shown,
+							shownAt: shown_at,
+							correctAnswerer: correct_answerer,
+							slashOffset: slash_offset,
+							likedBy: user_name != null ? [user_name] : []
+						});
+					}
+
+					return acc;
+				},
+				[]
+			);
 
 			if (orderBy === 'id') {
 				grouped.sort((a, b) => a.id - b.id);
@@ -140,18 +159,20 @@ const app = new Hono<{ Bindings: CloudflareBindings }>()
 			z.object({
 				sessionID: z.string(),
 				questionID: z.number(),
-				correctAnswerer: z.string().nullable()
+				correctAnswerer: z.string().nullable(),
+				slashOffset: z.number().nullable()
 			})
 		),
 		async (c) => {
 			try {
-				const { sessionID, questionID, correctAnswerer } = c.req.valid('json');
+				const { sessionID, questionID, correctAnswerer, slashOffset } = c.req.valid('json');
 				await c.env.Database.prepare(
 					`UPDATE questions
-					 SET shown = TRUE, shown_at = CURRENT_TIMESTAMP, correct_answerer = ?
+					 SET shown = TRUE, shown_at = CURRENT_TIMESTAMP,
+					     correct_answerer = ?, slash_offset = ?
 					 WHERE id = ? AND session_id = ?`
 				)
-					.bind(correctAnswerer, questionID, sessionID)
+					.bind(correctAnswerer, slashOffset, questionID, sessionID)
 					.run();
 
 				return c.json({ success: true });

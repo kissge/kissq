@@ -23,3 +23,20 @@ export function collapseArray<T extends string | number>(array: T[]): Record<T, 
 
 	return result;
 }
+
+const segmenter = new Intl.Segmenter(undefined, { granularity: 'grapheme' });
+
+export function splitQuestion(
+	question: string
+): { c: string | undefined; next: string; dimmed: boolean }[] {
+	const full = [...segmenter.segment(question)].map(({ segment }) => segment);
+	let offset = 0;
+
+	return question.split(/(（.+?）|\(.+?\)|【.+?】|［.+?］)/).flatMap((part, i) =>
+		[...segmenter.segment(part)].map(({ segment: c }) => ({
+			c,
+			next: full[++offset],
+			dimmed: i % 2 === 1
+		}))
+	);
+}
