@@ -22,6 +22,7 @@
 				yasuPerMaru,
 				roulette,
 				bulkAdjustment,
+				attendantLimitOverall,
 				...rule
 			}) => {
 				return {
@@ -59,6 +60,8 @@
 							: [],
 					isBulkAdjustmentNull: bulkAdjustment === null,
 					bulkAdjustment: bulkAdjustment ?? [2, -2, 1],
+					isAttendantLimitOverallNull: attendantLimitOverall === null,
+					attendantLimitOverall: attendantLimitOverall ?? 1,
 					rouletteName: roulette?.name ?? null
 				};
 			}
@@ -82,6 +85,8 @@
 		| 'batsu'
 		| 'yasuPerMaru'
 		| 'roulette'
+		| 'bulkAdjustment'
+		| 'attendantLimitOverall'
 		| 'max'
 		| 'toDetailsStrings'
 		| 'toSharedStrings'
@@ -101,6 +106,8 @@
 		rouletteName: NonNullable<Rule['roulette']>['name'] | null;
 		isBulkAdjustmentNull: boolean;
 		bulkAdjustment: NonNullable<Rule['bulkAdjustment']>;
+		isAttendantLimitOverallNull: boolean;
+		attendantLimitOverall: NonNullable<Rule['attendantLimitOverall']>;
 	}
 
 	const roulettePresets: Record<string, Penalty[]> = {
@@ -144,7 +151,7 @@
 					rules[0].chance,
 					rule.win,
 					rule.isLoseNull ? null : rule.lose,
-					rule.isQuestionLimitNull ? null : rule.questionLimit,
+					rules[0].isQuestionLimitNull ? null : rules[0].questionLimit,
 					rule.isAttendantLimitNull ? null : rule.attendantLimit,
 					rule.maru,
 					rule.batsuMode === 'number' ? rule.batsu : rule.batsuMode,
@@ -172,7 +179,7 @@
 						: { name: rule.rouletteName, choices: roulettePresets[rule.rouletteName] },
 					rule.isBulkAdjustmentNull ? null : rule.bulkAdjustment,
 					rule.multiplyMinimum,
-					rule.attendantLimitOverall,
+					rules[0].isAttendantLimitOverallNull ? null : rules[0].attendantLimitOverall,
 					rule.isRemoved
 				)
 		)
@@ -396,6 +403,24 @@
 						無制限
 					</label>
 				</div>
+
+				<div>勝ち抜け人数<br />（全体）</div>
+				<div>
+					<label>
+						<input type="radio" bind:group={rules[0].isAttendantLimitOverallNull} value={false} />
+						<input
+							type="number"
+							min="1"
+							bind:value={rules[0].attendantLimitOverall}
+							onfocus={() => (rules[0].isAttendantLimitOverallNull = false)}
+						/>
+						人
+					</label>
+					<label>
+						<input type="radio" bind:group={rules[0].isAttendantLimitOverallNull} value={true} />
+						無制限
+					</label>
+				</div>
 			</div>
 		{:else}
 			<div class="table">
@@ -427,7 +452,8 @@
 								isBulkAdjustmentNull: true,
 								bulkAdjustment: [2, -2, 1],
 								multiplyMinimum: 0,
-								attendantLimitOverall: null,
+								isAttendantLimitOverallNull: true,
+								attendantLimitOverall: 1,
 								isRemoved: false
 							};
 						}}
@@ -460,7 +486,8 @@
 								isBulkAdjustmentNull: true,
 								bulkAdjustment: [2, -2, 1],
 								multiplyMinimum: 0,
-								attendantLimitOverall: null,
+								isAttendantLimitOverallNull: true,
+								attendantLimitOverall: 1,
 								isRemoved: false
 							};
 						}}
@@ -493,7 +520,8 @@
 								isBulkAdjustmentNull: true,
 								bulkAdjustment: [2, -2, 1],
 								multiplyMinimum: 0,
-								attendantLimitOverall: null,
+								isAttendantLimitOverallNull: true,
+								attendantLimitOverall: 1,
 								isRemoved: false
 							};
 						}}
@@ -526,7 +554,8 @@
 								isBulkAdjustmentNull: true,
 								bulkAdjustment: [2, -2, 1],
 								multiplyMinimum: 0,
-								attendantLimitOverall: null,
+								isAttendantLimitOverallNull: true,
+								attendantLimitOverall: 1,
 								isRemoved: false
 							};
 						}}
@@ -559,7 +588,8 @@
 								isBulkAdjustmentNull: true,
 								bulkAdjustment: [2, -2, 1],
 								multiplyMinimum: 0,
-								attendantLimitOverall: null,
+								isAttendantLimitOverallNull: true,
+								attendantLimitOverall: 1,
 								isRemoved: false
 							};
 						}}
@@ -592,7 +622,8 @@
 								isBulkAdjustmentNull: true,
 								bulkAdjustment: [2, -2, 1],
 								multiplyMinimum: 0,
-								attendantLimitOverall: null,
+								isAttendantLimitOverallNull: true,
+								attendantLimitOverall: 1,
 								isRemoved: false
 							};
 						}}
@@ -625,7 +656,8 @@
 								isBulkAdjustmentNull: true,
 								bulkAdjustment: [2, -2, 1],
 								multiplyMinimum: 0,
-								attendantLimitOverall: null,
+								isAttendantLimitOverallNull: true,
+								attendantLimitOverall: 1,
 								isRemoved: false
 							};
 						}}
@@ -658,7 +690,8 @@
 								isBulkAdjustmentNull: true,
 								bulkAdjustment: [2, -2, 1],
 								multiplyMinimum: 0,
-								attendantLimitOverall: null,
+								isAttendantLimitOverallNull: true,
+								attendantLimitOverall: 1,
 								isRemoved: false
 							};
 						}}
@@ -691,7 +724,8 @@
 								isBulkAdjustmentNull: true,
 								bulkAdjustment: [2, -2, 1],
 								multiplyMinimum: 0,
-								attendantLimitOverall: null,
+								isAttendantLimitOverallNull: true,
+								attendantLimitOverall: 1,
 								isRemoved: false
 							};
 						}}
@@ -724,7 +758,8 @@
 								isBulkAdjustmentNull: true,
 								bulkAdjustment: [2, -2, 1],
 								multiplyMinimum: 0,
-								attendantLimitOverall: null,
+								isAttendantLimitOverallNull: true,
+								attendantLimitOverall: 1,
 								isRemoved: false
 							};
 						}}
@@ -757,7 +792,8 @@
 								isBulkAdjustmentNull: true,
 								bulkAdjustment: [2, -2, 1],
 								multiplyMinimum: 0,
-								attendantLimitOverall: null,
+								isAttendantLimitOverallNull: true,
+								attendantLimitOverall: 1,
 								isRemoved: false
 							};
 						}}

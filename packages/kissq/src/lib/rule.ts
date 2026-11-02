@@ -486,6 +486,10 @@ export class Rule {
 			arr.push(`問題数は最大で${this.questionLimit}問`);
 		}
 
+		if (this.attendantLimitOverall !== null) {
+			arr.push(`全体での勝ち抜け人数は最大${this.attendantLimitOverall}人`);
+		}
+
 		return arr;
 	}
 
