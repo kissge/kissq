@@ -83,6 +83,19 @@ export class MaruHistoryEntry implements HistoryEntry {
 			}
 		}
 
+		if (att.rule.attendantLimitOverall != null) {
+			if (
+				state.attendants.filter((a) => a.life === 'won').length >= att.rule.attendantLimitOverall
+			) {
+				state.attendants.forEach((a) => {
+					if (a.life === 'alive') {
+						a.life = 'lost';
+						a.lifeChangedAt = -state.questionCount;
+					}
+				});
+			}
+		}
+
 		if (att.rule.attendantLimit != null) {
 			if (
 				state.attendants.filter((a) => a.group === att.group && a.life === 'won').length >=
@@ -285,6 +298,19 @@ export class WinHistoryEntry implements HistoryEntry {
 		att.life = 'won';
 		att.trophyCount++;
 
+		if (att.rule.attendantLimitOverall != null) {
+			if (
+				state.attendants.filter((a) => a.life === 'won').length >= att.rule.attendantLimitOverall
+			) {
+				state.attendants.forEach((a) => {
+					if (a.life === 'alive') {
+						a.life = 'lost';
+						a.lifeChangedAt = -state.questionCount;
+					}
+				});
+			}
+		}
+
 		if (att.rule.attendantLimit != null) {
 			if (
 				state.attendants.filter((a) => a.group === att.group && a.life === 'won').length >=
@@ -351,6 +377,19 @@ export class EditHistoryEntry implements HistoryEntry {
 		att.batsuCount = this.newState.batsuCount;
 		att.yasuCount = this.newState.yasuCount;
 		att.score = this.newState.score;
+
+		if (att.rule.attendantLimitOverall != null) {
+			if (
+				state.attendants.filter((a) => a.life === 'won').length >= att.rule.attendantLimitOverall
+			) {
+				state.attendants.forEach((a) => {
+					if (a.life === 'alive') {
+						a.life = 'lost';
+						a.lifeChangedAt = -state.questionCount;
+					}
+				});
+			}
+		}
 
 		if (att.rule.attendantLimit != null) {
 			if (
