@@ -198,14 +198,23 @@
 		}
 	}
 
+	main {
+		box-sizing: border-box;
+		height: 100svh;
+		overflow: hidden;
+	}
+
 	.carousel {
 		display: flex;
 		justify-self: center;
 		gap: 2em;
+		box-sizing: border-box;
 		padding-top: 2em;
 		width: 100%;
 		height: 100%;
+		min-height: 0;
 		overflow-x: auto;
+		overflow-y: hidden;
 		scroll-snap-stop: always;
 		scroll-snap-type: x mandatory;
 		scroll-marker-group: after;
@@ -276,6 +285,7 @@
 		border-radius: 10px;
 		padding: 1em;
 		height: calc(100svh - 75px);
+		min-height: 0;
 		scroll-snap-align: center;
 		color: #fff;
 		font-size: min(4svw, 3svh);
