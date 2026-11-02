@@ -287,6 +287,11 @@
 		:global(&:not(.truncated) .rule-inner:last-child) {
 			display: none;
 		}
+
+		&:hover .rule-inner {
+			color: blue;
+			text-decoration: underline;
+		}
 	}
 
 	.rule-inner {
@@ -294,11 +299,6 @@
 		margin-left: 1em;
 		color: inherit;
 		text-decoration: none;
-
-		&:hover {
-			color: blue;
-			text-decoration: underline;
-		}
 	}
 
 	.attendant-limit {
