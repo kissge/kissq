@@ -1,3 +1,5 @@
+import type { OptionalKeys } from './utils';
+
 export type Penalty = { type: 'yasu'; count: number } | { type: 'zero' };
 
 export type RuleType = 'score' | 'marubatsu' | 'MbyN' | 'survival' | 'aql' | 'product' | 'sum';
@@ -37,6 +39,8 @@ export class Rule {
 		public bulkAdjustment: number[] | null,
 		/** 掛け算ルールでの点数の下限 */
 		public multiplyMinimum: 0 | 1,
+		/** 勝ち抜け人数（全体） */
+		public attendantLimitOverall: number | null,
 		/** 削除済みかどうか */
 		public isRemoved: boolean = false
 	) {}
@@ -519,6 +523,7 @@ export class Rule {
 			rule.roulette,
 			rule.bulkAdjustment ?? null,
 			rule.multiplyMinimum ?? 0,
+			rule.attendantLimitOverall ?? null,
 			rule.isRemoved
 		);
 	}
@@ -600,4 +605,8 @@ export class Rule {
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const _ = { ...({} as Rule) };
-export type RulePOJO = Omit<typeof _, 'max'>;
+/** List up possibly non-existent properties due to backward compatibility */
+export type RulePOJO = OptionalKeys<
+	Omit<typeof _, 'max'>,
+	'bulkAdjustment' | 'multiplyMinimum' | 'attendantLimitOverall'
+>;

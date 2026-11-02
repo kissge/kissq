@@ -172,6 +172,7 @@
 						: { name: rule.rouletteName, choices: roulettePresets[rule.rouletteName] },
 					rule.isBulkAdjustmentNull ? null : rule.bulkAdjustment,
 					rule.multiplyMinimum,
+					rule.attendantLimitOverall,
 					rule.isRemoved
 				)
 		)
@@ -426,6 +427,7 @@
 								isBulkAdjustmentNull: true,
 								bulkAdjustment: [2, -2, 1],
 								multiplyMinimum: 0,
+								attendantLimitOverall: null,
 								isRemoved: false
 							};
 						}}
@@ -458,6 +460,7 @@
 								isBulkAdjustmentNull: true,
 								bulkAdjustment: [2, -2, 1],
 								multiplyMinimum: 0,
+								attendantLimitOverall: null,
 								isRemoved: false
 							};
 						}}
@@ -490,6 +493,7 @@
 								isBulkAdjustmentNull: true,
 								bulkAdjustment: [2, -2, 1],
 								multiplyMinimum: 0,
+								attendantLimitOverall: null,
 								isRemoved: false
 							};
 						}}
@@ -522,6 +526,7 @@
 								isBulkAdjustmentNull: true,
 								bulkAdjustment: [2, -2, 1],
 								multiplyMinimum: 0,
+								attendantLimitOverall: null,
 								isRemoved: false
 							};
 						}}
@@ -554,6 +559,7 @@
 								isBulkAdjustmentNull: true,
 								bulkAdjustment: [2, -2, 1],
 								multiplyMinimum: 0,
+								attendantLimitOverall: null,
 								isRemoved: false
 							};
 						}}
@@ -586,6 +592,7 @@
 								isBulkAdjustmentNull: true,
 								bulkAdjustment: [2, -2, 1],
 								multiplyMinimum: 0,
+								attendantLimitOverall: null,
 								isRemoved: false
 							};
 						}}
@@ -618,6 +625,7 @@
 								isBulkAdjustmentNull: true,
 								bulkAdjustment: [2, -2, 1],
 								multiplyMinimum: 0,
+								attendantLimitOverall: null,
 								isRemoved: false
 							};
 						}}
@@ -650,6 +658,7 @@
 								isBulkAdjustmentNull: true,
 								bulkAdjustment: [2, -2, 1],
 								multiplyMinimum: 0,
+								attendantLimitOverall: null,
 								isRemoved: false
 							};
 						}}
@@ -682,6 +691,7 @@
 								isBulkAdjustmentNull: true,
 								bulkAdjustment: [2, -2, 1],
 								multiplyMinimum: 0,
+								attendantLimitOverall: null,
 								isRemoved: false
 							};
 						}}
@@ -714,6 +724,7 @@
 								isBulkAdjustmentNull: true,
 								bulkAdjustment: [2, -2, 1],
 								multiplyMinimum: 0,
+								attendantLimitOverall: null,
 								isRemoved: false
 							};
 						}}
@@ -746,6 +757,7 @@
 								isBulkAdjustmentNull: true,
 								bulkAdjustment: [2, -2, 1],
 								multiplyMinimum: 0,
+								attendantLimitOverall: null,
 								isRemoved: false
 							};
 						}}

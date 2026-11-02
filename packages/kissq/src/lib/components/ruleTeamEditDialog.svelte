@@ -152,6 +152,7 @@
 						: { name: rule.rouletteName, choices: roulettePresets[rule.rouletteName] },
 					null,
 					rule.multiplyMinimum,
+					rule.attendantLimitOverall,
 					rule.isRemoved
 				)
 		)
@@ -300,6 +301,7 @@
 								rouletteName: null,
 								bulkAdjustment: null,
 								multiplyMinimum: 0,
+								attendantLimitOverall: null,
 								isRemoved: false
 							};
 							copyRule();
@@ -331,6 +333,7 @@
 								rouletteName: null,
 								bulkAdjustment: null,
 								multiplyMinimum: 0,
+								attendantLimitOverall: null,
 								isRemoved: false
 							};
 							copyRule();
@@ -362,6 +365,7 @@
 								rouletteName: null,
 								bulkAdjustment: null,
 								multiplyMinimum: 0,
+								attendantLimitOverall: null,
 								isRemoved: false
 							};
 							copyRule();
@@ -393,6 +397,7 @@
 								rouletteName: null,
 								bulkAdjustment: null,
 								multiplyMinimum: 0,
+								attendantLimitOverall: null,
 								isRemoved: false
 							};
 							copyRule();
@@ -424,6 +429,7 @@
 								rouletteName: null,
 								bulkAdjustment: null,
 								multiplyMinimum: 0,
+								attendantLimitOverall: null,
 								isRemoved: false
 							};
 							copyRule();

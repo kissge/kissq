@@ -50,6 +50,7 @@
 						roulette: null,
 						bulkAdjustment: null,
 						multiplyMinimum: 0,
+						attendantLimitOverall: null,
 						isRemoved: false
 					},
 					{
@@ -68,6 +69,7 @@
 						roulette: null,
 						bulkAdjustment: null,
 						multiplyMinimum: 0,
+						attendantLimitOverall: null,
 						isRemoved: false
 					},
 					{
@@ -86,6 +88,7 @@
 						roulette: null,
 						bulkAdjustment: null,
 						multiplyMinimum: 0,
+						attendantLimitOverall: null,
 						isRemoved: false
 					},
 					{
@@ -104,6 +107,7 @@
 						roulette: null,
 						bulkAdjustment: null,
 						multiplyMinimum: 0,
+						attendantLimitOverall: null,
 						isRemoved: false
 					}
 				],
@@ -128,6 +132,7 @@
 						roulette: null,
 						bulkAdjustment: null,
 						multiplyMinimum: 0,
+						attendantLimitOverall: null,
 						isRemoved: false
 					},
 					{
@@ -146,6 +151,7 @@
 						roulette: null,
 						bulkAdjustment: null,
 						multiplyMinimum: 0,
+						attendantLimitOverall: null,
 						isRemoved: false
 					},
 					{
@@ -164,6 +170,7 @@
 						roulette: null,
 						bulkAdjustment: null,
 						multiplyMinimum: 0,
+						attendantLimitOverall: null,
 						isRemoved: false
 					}
 				],
@@ -192,6 +199,7 @@
 						roulette: null,
 						bulkAdjustment: null,
 						multiplyMinimum: 0,
+						attendantLimitOverall: null,
 						isRemoved: false
 					},
 					{
@@ -210,6 +218,7 @@
 						roulette: null,
 						bulkAdjustment: null,
 						multiplyMinimum: 0,
+						attendantLimitOverall: null,
 						isRemoved: false
 					}
 				],
