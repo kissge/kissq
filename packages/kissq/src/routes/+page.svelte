@@ -35,17 +35,17 @@
 	import { setWasedashikiContext, WasedashikiClass } from '$lib/wasedashiki.svelte';
 	import { wave } from '$lib/waveEffect';
 	import Attendant from './attendant.svelte';
-	import { GameClass, setGameContext } from './game.svelte';
+	import { SingleGameClass, setSingleGameContext } from './game.svelte';
 
-	let Game = new GameClass();
-	setGameContext(Game);
-	let Wasedashiki = new WasedashikiClass(Game);
+	let Game = new SingleGameClass();
+	setSingleGameContext(Game);
+	let Wasedashiki = new WasedashikiClass();
 	setWasedashikiContext(Wasedashiki);
-	let QuestionConsole = new QuestionConsoleClass(Game);
+	let QuestionConsole = new QuestionConsoleClass();
 	setQuestionConsoleContext(QuestionConsole);
-	let Layout = new LayoutClass(Game);
+	let Layout = new LayoutClass();
 	setLayoutContext(Layout);
-	let Logger = new LoggerClass('single', Game);
+	let Logger = new LoggerClass('single');
 	setLoggerContext(Logger);
 	Game.Logger = Logger;
 
@@ -311,7 +311,7 @@
 		: 'auto 1fr auto'}
 	class="main"
 >
-	<Header {Game} battleMode="single" {showTotalOverride} {editRule} />
+	<Header battleMode="single" {showTotalOverride} {editRule} />
 
 	<QuestionWindow />
 
@@ -391,7 +391,7 @@
 		{/if}
 	</div>
 
-	<Footer {Game}>
+	<Footer>
 		{#if Game.rules[0].bulkAdjustment}
 			<button popovertarget="bulk-menu">まとめて加減点</button>
 		{/if}
@@ -423,7 +423,10 @@
 		</button>
 		<button
 			onclick={() =>
-				QuestionConsole.postMessage({ command: 'attendantAdded', attendant: Game.addAttendant() })}
+				QuestionConsole.postMessage({
+					command: 'attendantAdded',
+					attendant: Game.addAttendant({})
+				})}
 			style="max-width: 20dvw"
 		>
 			＋ プレイヤー追加
@@ -640,16 +643,16 @@
 	<WasedashikiDebug />
 {/if}
 
-<Pushers {Game} />
+<Pushers />
 
 <RuleEditDialog bind:this={ruleEditDialog} apply={updateRules} />
 <LogDialog bind:this={logDialog} />
-<EffectEditDialog bind:this={effectEditDialog} {Game} />
+<EffectEditDialog bind:this={effectEditDialog} />
 <AppearanceDialog bind:this={appearanceDialog} />
 <StateEditDialog bind:this={stateEditDialog} />
 <PenaltyRoulette bind:this={penaltyRoulette} />
 <UnlockDialog bind:this={unlockDialog} />
-<TransferAttendantsDialog bind:this={transferAttendantsDialog} {Game} />
+<TransferAttendantsDialog bind:this={transferAttendantsDialog} />
 
 <style>
 	:global(html) {

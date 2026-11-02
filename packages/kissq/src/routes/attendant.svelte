@@ -8,7 +8,7 @@
 	import { tooltip } from '$lib/tooltip.svelte';
 	import type { AttendantID } from '$lib/types';
 	import { getWasedashikiContext } from '$lib/wasedashiki.svelte';
-	import { getGameContext } from './game.svelte';
+	import { getSingleGameContext } from './game.svelte';
 
 	let {
 		ai,
@@ -32,7 +32,7 @@
 		attendantFLIPDelay: number;
 	} = $props();
 
-	let Game = getGameContext();
+	let Game = getSingleGameContext();
 	let Wasedashiki = getWasedashikiContext();
 	let Layout = getLayoutContext();
 	let QuestionConsole = getQuestionConsoleContext();

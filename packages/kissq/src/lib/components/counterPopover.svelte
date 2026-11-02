@@ -1,10 +1,11 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { fly } from 'svelte/transition';
-	import type { GameClassBaseType } from '$lib/game';
+	import { getGameContext } from '$lib/gameContext';
 	import { getTimeElapsedString } from '$lib/time';
 
-	let { Game, show }: { Game: GameClassBaseType; show: boolean } = $props();
+	let { show }: { show: boolean } = $props();
+	let Game = getGameContext();
 
 	let timeElapsed = $state('');
 

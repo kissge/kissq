@@ -3,7 +3,7 @@ import { SvelteURLSearchParams } from 'svelte/reactivity';
 import { qZero } from '$lib/question';
 import { getWasedashikiContext } from '$lib/wasedashiki.svelte';
 import type { Attendant } from './attendant';
-import type { GameClassBaseType } from './game';
+import { getGameContext } from './gameContext';
 import type { HistoryEntry } from './historyEntry';
 import { Rule, type RulePOJO } from './rule';
 import type { WasedashikiMode } from './serial';
@@ -13,14 +13,13 @@ import type { AttendantID } from './types';
 const urlParams = new URLSearchParams(typeof location !== 'undefined' ? location.search : '');
 
 export class QuestionConsoleClass {
+	Game = getGameContext();
 	Wasedashiki = getWasedashikiContext();
 
 	subWindow = $state<Window>();
 	showQuestionWindow = $state(urlParams.has('qw'));
 	showQRCode = $state(false);
 	currentQuestion = $state(qZero);
-
-	constructor(public Game: GameClassBaseType) {}
 
 	openSubWindow() {
 		const search = '?' + new SvelteURLSearchParams(location.search).toString();
@@ -77,10 +76,13 @@ export class QuestionConsoleClass {
 
 			case 'addAttendant':
 				if (this.Game.battleMode === 'single') {
-					this.Game.addAttendant(message.name);
+					this.Game.addAttendant({ name: message.name });
 				} else {
 					if (this.Game.attendantsPerTeam.length > 0) {
-						this.Game.addAttendant(this.Game.attendantsPerTeam.length - 1, message.name);
+						this.Game.addAttendant({
+							teamID: this.Game.attendantsPerTeam.length - 1,
+							name: message.name
+						});
 					}
 				}
 				break;

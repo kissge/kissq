@@ -3,7 +3,7 @@
 	import { onMount } from 'svelte';
 	import { fly } from 'svelte/transition';
 	import HelpDialog from '$lib/components/helpDialog.svelte';
-	import type { GameClassBaseType } from '$lib/game';
+	import { getGameContext } from '$lib/gameContext';
 	import { getLayoutContext } from '$lib/layout.svelte';
 	import { tooltip } from '$lib/tooltip.svelte';
 	import { getWasedashikiContext } from '$lib/wasedashiki.svelte';
@@ -12,17 +12,16 @@
 	import RuleDetailsDialog from './ruleDetailsDialog.svelte';
 
 	let {
-		Game,
 		battleMode,
 		showTotalOverride,
 		editRule
 	}: {
-		Game: GameClassBaseType;
 		battleMode: 'single' | 'team';
 		showTotalOverride: boolean;
 		editRule: () => void;
 	} = $props();
 
+	let Game = getGameContext();
 	let Layout = getLayoutContext();
 	let Wasedashiki = getWasedashikiContext();
 
@@ -187,10 +186,10 @@
 	</div>
 </header>
 
-<CounterPopover {Game} show={showPopover} />
+<CounterPopover show={showPopover} />
 
 <HelpDialog bind:this={helpDialog} />
-<RuleDetailsDialog bind:this={ruleDetailsDialog} {Game} />
+<RuleDetailsDialog bind:this={ruleDetailsDialog} />
 
 <style>
 	header {

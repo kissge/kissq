@@ -11,7 +11,7 @@ import { playSound } from '$lib/sound';
 import { GameState } from '$lib/state';
 import type { AttendantID } from '$lib/types';
 
-export class GameClass extends GameClassBase<'team'> {
+export class TeamGameClass extends GameClassBase<'team'> {
 	battleMode = 'team' as const;
 
 	attendants = $state<Attendant[]>([]);
@@ -57,7 +57,7 @@ export class GameClass extends GameClassBase<'team'> {
 	bulkAdjust = () => {};
 	addBulkAdjustmentTarget = () => {};
 
-	Logger?: LoggerClass<'team'>;
+	Logger?: LoggerClass;
 
 	currentState = $derived(
 		this.history.reduce(
@@ -93,9 +93,13 @@ export class GameClass extends GameClassBase<'team'> {
 		- クイズ得点板のkissQ`
 	);
 
-	addAttendant(teamID: number, name: string = ''): Attendant {
+	addAttendant({ name, teamID }: { name?: string; teamID?: number }): Attendant {
+		if (teamID === undefined) {
+			throw new Error('teamID is required');
+		}
+
 		const attendant: Attendant = {
-			name: han2zen(name),
+			name: han2zen(name ?? ''),
 			group: 0,
 			team: teamID,
 			seat: Math.max(0, this.attendantsPerTeam[teamID].length - 1),
@@ -120,7 +124,7 @@ export class GameClass extends GameClassBase<'team'> {
 					atts[offset + i].att.name = line;
 					atts[offset + i].att.trophyCount = 0;
 				} else {
-					added.push(this.addAttendant(teamID, line));
+					added.push(this.addAttendant({ teamID, name: line }));
 				}
 			});
 		}
@@ -140,4 +144,4 @@ export class GameClass extends GameClassBase<'team'> {
 	}
 }
 
-export const [getGameContext, setGameContext] = createContext<GameClass>();
+export const [getTeamGameContext, setTeamGameContext] = createContext<TeamGameClass>();

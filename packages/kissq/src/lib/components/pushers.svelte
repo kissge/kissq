@@ -1,13 +1,12 @@
 <script lang="ts">
 	import { fade, fly } from 'svelte/transition';
-	import type { GameClassBaseType } from '$lib/game';
+	import { getGameContext } from '$lib/gameContext';
 	import { getLayoutContext } from '$lib/layout.svelte';
+	import { getWasedashikiContext } from '$lib/wasedashiki.svelte';
 	import { tooltip } from '$lib/tooltip.svelte';
 	import type { AttendantID } from '$lib/types';
-	import { getWasedashikiContext } from '$lib/wasedashiki.svelte';
 
-	let { Game }: { Game: GameClassBaseType } = $props();
-
+	let Game = getGameContext();
 	let Wasedashiki = getWasedashikiContext();
 	let Layout = getLayoutContext();
 
@@ -85,7 +84,7 @@
 									<button
 										onclick={() => {
 											if (buttonMappingTarget === null) {
-												Game.addAttendant();
+												Game.addAttendant({});
 												Wasedashiki.setButtonMapping((Game.attendants.length - 1) as AttendantID);
 											} else {
 												Wasedashiki.setButtonMapping(buttonMappingTarget as AttendantID);

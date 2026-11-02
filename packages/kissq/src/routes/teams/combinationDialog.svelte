@@ -1,9 +1,9 @@
 <script lang="ts">
 	import { fly } from 'svelte/transition';
-	import type { GameClassBaseType } from '$lib/game';
+	import { getGameContext } from '$lib/gameContext';
 	import { getWasedashikiContext } from '$lib/wasedashiki.svelte';
 
-	let Game = $state<GameClassBaseType>();
+	let Game = getGameContext();
 	let Wasedashiki = getWasedashikiContext();
 
 	let mode = $state<'snake' | 'random' | 'new'>('snake');
@@ -17,9 +17,7 @@
 
 	let teamCount = $derived(Math.floor((Game?.attendants.length ?? 0) / teamSize));
 
-	export async function open(game: GameClassBaseType): Promise<void> {
-		Game = game;
-
+	export async function open(): Promise<void> {
 		memberList = '';
 		mode = 'snake';
 		seatMode = 'all-same';

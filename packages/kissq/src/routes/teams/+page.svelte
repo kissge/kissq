@@ -14,7 +14,6 @@
 	import RuleTeamEditDialog from '$lib/components/ruleTeamEditDialog.svelte';
 	import Stars from '$lib/components/stars.svelte';
 	import UnlockDialog from '$lib/components/unlockDialog.svelte';
-	import type { GameClassBaseType } from '$lib/game';
 	import { LayoutClass, setLayoutContext } from '$lib/layout.svelte';
 	import { LoggerClass, setLoggerContext } from '$lib/logs';
 	import { QuestionConsoleClass, setQuestionConsoleContext } from '$lib/questionConsole.svelte';
@@ -26,18 +25,18 @@
 	import { wave } from '$lib/waveEffect';
 	import CombinationDialog from './combinationDialog.svelte';
 	import { DnDClass, setDnDContext } from './dnd.svelte';
-	import { GameClass, setGameContext } from './game.svelte';
+	import { TeamGameClass, setTeamGameContext } from './game.svelte';
 	import Team from './team.svelte';
 
-	let Game = new GameClass();
-	setGameContext(Game);
-	let Wasedashiki = new WasedashikiClass(Game);
+	let Game = new TeamGameClass();
+	setTeamGameContext(Game);
+	let Wasedashiki = new WasedashikiClass();
 	setWasedashikiContext(Wasedashiki);
-	let QuestionConsole = new QuestionConsoleClass(Game);
+	let QuestionConsole = new QuestionConsoleClass();
 	setQuestionConsoleContext(QuestionConsole);
-	let Layout = new LayoutClass(Game);
+	let Layout = new LayoutClass();
 	setLayoutContext(Layout);
-	let Logger = new LoggerClass('team', Game);
+	let Logger = new LoggerClass('team');
 	setLoggerContext(Logger);
 	Game.Logger = Logger;
 	let DnD = new DnDClass();
@@ -55,7 +54,7 @@
 		) => Promise<[string | null, string | null] | null>;
 	};
 	let unlockDialog: { open: () => Promise<void> };
-	let combinationDialog: { open: (game: GameClassBaseType) => Promise<void> };
+	let combinationDialog: { open: () => Promise<void> };
 
 	async function editRule() {
 		const result = await ruleTeamEditDialog.open(Game.rules);
@@ -190,7 +189,7 @@
 </svelte:head>
 
 <main class="main">
-	<Header {Game} battleMode="team" showTotalOverride={false} {editRule} />
+	<Header battleMode="team" showTotalOverride={false} {editRule} />
 
 	<QuestionWindow />
 
@@ -231,7 +230,7 @@
 		</div>
 	{/if}
 
-	<Footer {Game}>
+	<Footer>
 		<button
 			onclick={Game.clickThrough}
 			class={{
@@ -339,7 +338,7 @@
 			デザイン設定🔒
 		</button>
 		<button
-			onclick={() => combinationDialog.open(Game)}
+			onclick={() => combinationDialog.open()}
 			{@attach tooltip('チーム分けを編集補助します')}
 		>
 			チーム分け
@@ -392,7 +391,7 @@
 	</button>
 </template>
 
-<Pushers {Game} />
+<Pushers />
 
 <RuleTeamEditDialog bind:this={ruleTeamEditDialog} apply={updateRules} />
 <LogDialog bind:this={logDialog} />

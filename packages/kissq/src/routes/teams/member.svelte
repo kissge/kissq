@@ -7,7 +7,7 @@
 	import type { AttendantID } from '$lib/types';
 	import { getWasedashikiContext } from '$lib/wasedashiki.svelte';
 	import { getDnDContext } from './dnd.svelte';
-	import { getGameContext } from './game.svelte';
+	import { getTeamGameContext } from './game.svelte';
 
 	let {
 		ti,
@@ -25,7 +25,7 @@
 		batsuCount: number;
 	} = $props();
 
-	let Game = getGameContext();
+	let Game = getTeamGameContext();
 	let Wasedashiki = getWasedashikiContext();
 	let DnD = getDnDContext();
 	let QuestionConsole = getQuestionConsoleContext();

@@ -11,7 +11,7 @@ import { playSound } from '$lib/sound';
 import { GameState } from '$lib/state';
 import type { AttendantID } from '$lib/types';
 
-export class GameClass extends GameClassBase<'single'> {
+export class SingleGameClass extends GameClassBase<'single'> {
 	battleMode = 'single' as const;
 
 	attendants = $state<Attendant[]>([]);
@@ -54,11 +54,11 @@ export class GameClass extends GameClassBase<'single'> {
 	bulkAdjustmentTarget = $state<boolean[]>([]);
 	gameStartedAt = $state(new SvelteDate());
 
-	Logger?: LoggerClass<'single'>;
+	Logger?: LoggerClass;
 
 	// dummy
-	teams = [];
-	attendantsPerTeam = [];
+	teams: string[] = [];
+	attendantsPerTeam: ({ att: Attendant; ai: number }[] | undefined)[][] = [];
 
 	penaltyRoulette?: { run: (choices: Penalty[]) => Promise<number> };
 
@@ -124,9 +124,9 @@ export class GameClass extends GameClassBase<'single'> {
 		- クイズ得点板のkissQ`
 	);
 
-	addAttendant(name: string = ''): Attendant {
+	addAttendant({ name }: { name?: string }): Attendant {
 		const attendant: Attendant = {
-			name: han2zen(name),
+			name: han2zen(name ?? ''),
 			group: 0,
 			team: 0,
 			seat: 0,
@@ -149,7 +149,7 @@ export class GameClass extends GameClassBase<'single'> {
 					this.attendants[this.orderedAttendants[ord + i]].name = line;
 					this.attendants[this.orderedAttendants[ord + i]].trophyCount = 0;
 				} else {
-					added.push(this.addAttendant(line));
+					added.push(this.addAttendant({ name: line }));
 				}
 			});
 		} else if (text.length > 0) {
@@ -200,4 +200,4 @@ export class GameClass extends GameClassBase<'single'> {
 	}
 }
 
-export const [getGameContext, setGameContext] = createContext<GameClass>();
+export const [getSingleGameContext, setSingleGameContext] = createContext<SingleGameClass>();

@@ -1,11 +1,11 @@
 <script lang="ts">
 	import { fade } from 'svelte/transition';
 	import type { Attendant } from '$lib/attendant';
-	import type { GameClassBaseType } from '$lib/game';
 	import type { AttendantID, ButtonID } from '$lib/types';
+	import { getGameContext } from '$lib/gameContext';
 	import { getWasedashikiContext } from '$lib/wasedashiki.svelte';
 
-	let { Game }: { Game: GameClassBaseType } = $props();
+	let Game = getGameContext();
 	let Wasedashiki = getWasedashikiContext();
 
 	let dialog: HTMLDialogElement;

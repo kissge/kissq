@@ -1,8 +1,8 @@
 <script lang="ts">
-	import type { GameClassBaseType } from '$lib/game';
+	import { getGameContext } from '$lib/gameContext';
 	import { Rule } from '$lib/rule';
 
-	let { Game }: { Game: GameClassBaseType } = $props();
+	let Game = getGameContext();
 
 	let dialog: HTMLDialogElement;
 	export function open(): void {

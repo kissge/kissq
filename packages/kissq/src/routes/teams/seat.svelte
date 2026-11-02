@@ -3,7 +3,7 @@
 	import type { Attendant } from '$lib/attendant';
 	import { tooltip } from '$lib/tooltip.svelte';
 	import { getDnDContext } from './dnd.svelte';
-	import { getGameContext } from './game.svelte';
+	import { getTeamGameContext } from './game.svelte';
 	import Member from './member.svelte';
 
 	let {
@@ -18,7 +18,7 @@
 		si: number;
 	} = $props();
 
-	let Game = getGameContext();
+	let Game = getTeamGameContext();
 	let DnD = getDnDContext();
 
 	let rowStart = $derived(

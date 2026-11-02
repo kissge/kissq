@@ -39,11 +39,9 @@ export abstract class GameClassBase<BattleMode extends 'single' | 'team'> {
 	abstract addBulkAdjustmentTarget(attendantID: number): void;
 	abstract gameStartedAt: SvelteDate;
 
-	abstract Logger?: LoggerClass<BattleMode>;
+	abstract Logger?: LoggerClass;
 
-	abstract addAttendant(
-		...args: BattleMode extends 'single' ? [string | undefined] : [number, string | undefined]
-	): void;
+	abstract addAttendant(options: { name?: string; teamID?: number }): void;
 	abstract clickBatsu(attendantID: number, playSounds_?: boolean): Promise<void>;
 
 	clearHistory(Wasedashiki: WasedashikiClass) {
@@ -194,5 +192,3 @@ export abstract class GameClassBase<BattleMode extends 'single' | 'team'> {
 		return tScore;
 	}
 }
-
-export type GameClassBaseType = GameClassBase<'single'> | GameClassBase<'team'>;

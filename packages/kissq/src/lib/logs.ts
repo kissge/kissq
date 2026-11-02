@@ -1,5 +1,5 @@
 import { createContext } from 'svelte';
-import type { GameClassBase } from './game';
+import { getGameContext } from './gameContext';
 import type { WasedashikiMode } from './serial';
 import type { Life } from './state';
 
@@ -53,13 +53,12 @@ export interface LogFilters {
 	column: ('team' | 'seat' | 'name' | 'score' | 'seatScore' | 'status')[];
 }
 
-export class LoggerClass<T extends 'single' | 'team' = 'single' | 'team'> {
+export class LoggerClass {
+	Game = getGameContext();
+
 	startAt: string | null = null;
 
-	constructor(
-		public battleMode: T,
-		public Game: GameClassBase<T>
-	) {}
+	constructor(public battleMode: 'single' | 'team') {}
 
 	push(): void {
 		const logs = this.load();

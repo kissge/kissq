@@ -4,7 +4,7 @@
 	import { getQuestionConsoleContext } from '$lib/questionConsole.svelte';
 	import { tooltip } from '$lib/tooltip.svelte';
 	import { getDnDContext } from './dnd.svelte';
-	import { getGameContext } from './game.svelte';
+	import { getTeamGameContext } from './game.svelte';
 	import Seat from './seat.svelte';
 
 	let {
@@ -15,7 +15,7 @@
 		ti: number;
 	} = $props();
 
-	let Game = getGameContext();
+	let Game = getTeamGameContext();
 	let DnD = getDnDContext();
 	let QuestionConsole = getQuestionConsoleContext();
 
@@ -115,7 +115,7 @@
 			onclick={() =>
 				QuestionConsole.postMessage({
 					command: 'attendantAdded',
-					attendant: Game.addAttendant(ti)
+					attendant: Game.addAttendant({ teamID: ti })
 				})}
 			{@attach tooltip('このチームに新しいプレイヤーを追加します。')}
 		>
