@@ -5,9 +5,6 @@
 	import { flip } from 'svelte/animate';
 	import { fade, slide } from 'svelte/transition';
 	import Toastify from 'toastify-js';
-	import se1 from '$lib/assets/se1.mp3';
-	import se2 from '$lib/assets/se2.mp3';
-	import se3 from '$lib/assets/se3.mp3';
 	import { loadFromHash, saveToHash } from '$lib/attendant';
 	import AppearanceDialog from '$lib/components/appearanceDialog.svelte';
 	import EffectEditDialog from '$lib/components/effectEditDialog.svelte';
@@ -83,6 +80,8 @@
 	let showMarubatsuOverride = $state(false);
 	let showTotalOverride = $state(false);
 	let showScore = $state(true);
+
+	let showWinner = $state(false);
 
 	let wallpaper = $state<string | null>(null);
 	let trophy = $state<string | null>(null);
@@ -588,6 +587,7 @@
 			プレイヤーリストを他のタブに写す
 		</button>
 		<button onclick={() => unlockDialog.open()}>機能アンロック</button>
+		<button onclick={() => (showWinner = !showWinner)}>表彰画面</button>
 	</div>
 {/if}
 
@@ -640,7 +640,12 @@
 	</div>
 {/if}
 
-<Winner />
+{#if showWinner}
+	<!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_static_element_interactions -->
+	<div onclick={() => (showWinner = false)} style:cursor="pointer" transition:fade>
+		<Winner />
+	</div>
+{/if}
 
 {#if showWasedashikiDebug}
 	<WasedashikiDebug />

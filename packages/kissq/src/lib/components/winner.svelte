@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { isUnlocked } from 'kissunlocklib';
-	import { fade } from 'svelte/transition';
 	import { getGameContext } from '$lib/gameContext';
 	import type { AttendantID } from '$lib/types';
 
@@ -11,6 +10,13 @@
 	let trophy = $state<string>();
 
 	let name1stWrapper: HTMLDivElement;
+	const confetti = Array.from({ length: 28 }, (_, index) => ({
+		x: (index * 37) % 100,
+		delay: (index % 9) * 0.18,
+		duration: 3.8 + (index % 5) * 0.45,
+		rotate: (index * 53) % 360,
+		color: ['#ffe082', '#ffca28', '#ff8a65', '#80deea', '#ce93d8'][index % 5]
+	}));
 
 	let ranking: ({ rank: number; attendantIDs: AttendantID[] } | undefined)[] = $derived(
 		Object.entries(
@@ -25,7 +31,6 @@
 
 	onMount(() => {
 		isUnlocked().then((unlocked) => {
-			console.log('unlocked', unlocked);
 			if (unlocked) {
 				const _wallpaper = window.localStorage.getItem('wallpaper');
 				wallpaper = _wallpaper ? `url(${_wallpaper})` : undefined;
@@ -37,39 +42,73 @@
 	});
 
 	$effect(() => {
-		// 優勝者名が画面幅に収まるように縮小する（もともと収まるならしない）
 		void getAttendantNames(0);
-		name1stWrapper.style.transform = '';
-		const name1stWrapperWidth = name1stWrapper.getBoundingClientRect().width;
-		name1stWrapper.style.transform = `scale(calc((100vw - 2em) / max(100vw - 2em, ${name1stWrapperWidth}px)), 1)`;
+		shrink1stNames();
 	});
+
+	function shrink1stNames() {
+		// 優勝者名が画面幅に収まるように縮小する（もともと収まるならしない）
+		name1stWrapper.style.transform = '';
+		const name1stWrapperWidth = name1stWrapper.scrollWidth;
+		const outerWidth = name1stWrapper.parentElement?.getBoundingClientRect().width ?? 0;
+
+		if (name1stWrapperWidth > outerWidth) {
+			// Why ^1.3 ? I don't know
+			name1stWrapper.style.transform = `scale(${(outerWidth / name1stWrapperWidth) ** 1.3}, 1)`;
+		}
+	}
 
 	function getAttendantNames(logicalRank: number): string[] | undefined {
 		return ranking[logicalRank]?.attendantIDs.map((id) => Game.attendants[id].name);
 	}
 </script>
 
-<div class="bg" style:background-image={wallpaper} transition:fade>
+<div class="bg" style:background-image={wallpaper}>
+	<div class="glow"></div>
+	<div class="confetti" aria-hidden="true">
+		{#each confetti as piece}
+			<span
+				style={`--x: ${piece.x}%; --delay: ${piece.delay}s; --duration: ${piece.duration}s; --rotate: ${piece.rotate}deg; --color: ${piece.color}`}
+			></span>
+		{/each}
+	</div>
 	<div class="wrapper">
+		<div class="eyebrow">
+			{new Date().toLocaleDateString('ja-JP', {
+				year: 'numeric',
+				month: '2-digit',
+				day: '2-digit'
+			})}
+		</div>
 		<div class="title-1st">
 			<div class="trophy" style:background-image={trophy}></div>
-			優勝
+			<span>優勝</span>
 			<div class="trophy" style:background-image={trophy}></div>
 		</div>
-		<div class="name-1st-wrapper" bind:this={name1stWrapper}>
-			{#each getAttendantNames(0)! as name}
-				<div>{name}</div>
-			{/each}
+		<div class="winner-card">
+			<div class="winner-card-shine"></div>
+			<div class="name-1st-wrapper" bind:this={name1stWrapper}>
+				{#each getAttendantNames(0)! as name}
+					<div>{name}</div>
+				{/each}
+			</div>
 		</div>
 
 		<div class="name-others-wrapper">
 			{#each [1, 2] as logicalRank (logicalRank)}
 				{#if ranking[logicalRank]}
-					<div>{ranking[logicalRank].rank}位</div>
-					<div>{getAttendantNames(logicalRank)?.join(', ')}</div>
+					<div class:second={logicalRank === 1} class:third={logicalRank === 2} class="rank">
+						{ranking[logicalRank].rank}位
+					</div>
+					<div class="other-name">
+						{#each getAttendantNames(logicalRank)! as name, index (index)}
+							<span>{name}</span>
+						{/each}
+					</div>
 				{/if}
 			{/each}
 		</div>
+		<div class="congratulations">WARITO MEDETAI</div>
 	</div>
 </div>
 
@@ -85,10 +124,49 @@
 		background-image: url('$lib/assets/wallpaper.jpg');
 		background-position: center center;
 		background-size: cover;
-		background-color: rgb(15 18 33);
-		opacity: 0.9;
-		pointer-events: none;
+		background-color: rgb(15 18 33 / 90%);
 		color: white;
+		overflow: hidden;
+		isolation: isolate;
+	}
+
+	.bg::before {
+		position: absolute;
+		inset: 0;
+		z-index: -1;
+		background: linear-gradient(135deg, rgb(8 10 28 / 72%), rgb(50 17 64 / 68%));
+		content: '';
+	}
+
+	.glow {
+		position: absolute;
+		z-index: -1;
+		width: min(80vw, 700px);
+		height: min(80vw, 700px);
+		border-radius: 50%;
+		background: rgb(255 193 7 / 22%);
+		filter: blur(80px);
+		animation: pulse 3s ease-in-out infinite;
+	}
+
+	.confetti {
+		position: absolute;
+		inset: 0;
+		z-index: -1;
+		overflow: hidden;
+	}
+
+	.confetti span {
+		position: absolute;
+		top: -8vh;
+		left: var(--x);
+		width: 0.65rem;
+		height: 1.15rem;
+		background: var(--color);
+		box-shadow: 0 0 8px rgb(255 255 255 / 35%);
+		opacity: 0;
+		transform: rotate(var(--rotate));
+		animation: fall var(--duration) linear var(--delay) infinite;
 	}
 
 	.wrapper {
@@ -97,24 +175,82 @@
 		justify-content: center;
 		align-items: center;
 		max-width: min(90vw, 900px);
+		width: min(90vw, 720px);
+		text-align: center;
+		animation: arrive 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+	}
+
+	.eyebrow {
+		color: #ffe082;
+		font-size: clamp(0.7rem, 2vw, 1rem);
+		font-weight: 800;
+		letter-spacing: 0.35em;
+		text-shadow: 0 0 15px rgb(255 193 7 / 70%);
+		transform: translateY(1em);
 	}
 
 	.title-1st {
 		display: flex;
 		align-items: center;
-		font-size: 3rem;
-		font-weight: bold;
-		gap: 0.25em;
-		margin-bottom: 1rem;
+		font-size: clamp(2.6rem, 8vw, 4.5rem);
+		font-weight: 900;
+		gap: 0.2em;
+		margin-bottom: 1.2rem;
+		color: #fff8e1;
+		text-shadow:
+			0 3px 0 #b87800,
+			0 0 24px rgb(255 193 7 / 75%);
+	}
+
+	.title-1st span {
+		animation: title-shine 2.8s ease-in-out infinite;
+	}
+
+	.winner-card {
+		position: relative;
+		width: 100%;
+		padding: clamp(1.5rem, 5vw, 3rem) 1.5rem;
+		border: 2px solid rgb(255 224 130 / 85%);
+		border-radius: 1.5rem;
+		background: linear-gradient(135deg, rgb(255 255 255 / 20%), rgb(255 193 7 / 14%));
+		box-shadow:
+			0 20px 70px rgb(0 0 0 / 40%),
+			inset 0 1px rgb(255 255 255 / 40%),
+			0 0 35px rgb(255 193 7 / 25%);
+		overflow: hidden;
+		animation: card-pop 0.9s 0.15s cubic-bezier(0.2, 1.4, 0.4, 1) both;
+	}
+
+	.winner-card-shine {
+		position: absolute;
+		inset: 0;
+		background: linear-gradient(
+			110deg,
+			transparent 25%,
+			rgb(255 255 255 / 18%) 48%,
+			transparent 65%
+		);
+		transform: translateX(-100%);
+		animation: shine 4s 1.2s ease-in-out infinite;
+	}
+
+	.title-1st {
+		position: relative;
 	}
 
 	.name-1st-wrapper {
+		position: relative;
+		width: auto;
 		display: flex;
 		align-items: center;
-		font-weight: bold;
-		gap: 3em;
-		margin-bottom: 1rem;
+		justify-content: center;
+		color: #ffffff;
+		font-size: clamp(2rem, 7vw, 4rem);
+		font-weight: 900;
+		gap: 1em;
 		white-space: nowrap;
+		text-shadow: 0 3px 12px rgb(0 0 0 / 60%);
+		transform-origin: center center;
 	}
 
 	.trophy {
@@ -129,6 +265,132 @@
 	.name-others-wrapper {
 		display: grid;
 		grid-template-columns: auto 1fr;
-		gap: 1em;
+		align-items: center;
+		width: min(100%, 560px);
+		margin-top: 1.5rem;
+		padding: 0.8rem 1rem;
+		border: 1px solid rgb(255 255 255 / 18%);
+		border-radius: 1rem;
+		background: rgb(0 0 0 / 24%);
+		gap: 0.4rem 1rem;
+		text-align: left;
+		animation: arrive 0.8s 0.4s both;
+
+		&:empty {
+			display: none;
+		}
+	}
+
+	.rank {
+		min-width: 3.5rem;
+		color: #e0e0e0;
+		font-size: 1.1rem;
+		font-weight: 800;
+	}
+
+	.rank.second {
+		color: #c5c5c5;
+	}
+
+	.rank.third {
+		color: #d99a6c;
+	}
+
+	.other-name {
+		color: rgb(255 255 255 / 85%);
+
+		span {
+			display: inline-block;
+			&:not(:last-child)::after {
+				content: '・';
+				opacity: 0.4;
+			}
+		}
+	}
+
+	.congratulations {
+		margin-top: 1.5rem;
+		color: rgb(255 224 130 / 85%);
+		font-size: clamp(0.75rem, 2vw, 1rem);
+		font-weight: 800;
+		letter-spacing: 0.25em;
+		animation: pulse 2s ease-in-out infinite;
+	}
+
+	@keyframes arrive {
+		from {
+			opacity: 0;
+			transform: translateY(18px);
+		}
+		to {
+			opacity: 1;
+			transform: translateY(0);
+		}
+	}
+
+	@keyframes card-pop {
+		from {
+			opacity: 0;
+			transform: scale(0.82);
+		}
+		to {
+			opacity: 1;
+			transform: scale(1);
+		}
+	}
+
+	@keyframes title-shine {
+		0%,
+		100% {
+			filter: brightness(1);
+		}
+		50% {
+			filter: brightness(1.35);
+		}
+	}
+
+	@keyframes shine {
+		0%,
+		30% {
+			transform: translateX(-100%);
+		}
+		65%,
+		100% {
+			transform: translateX(100%);
+		}
+	}
+
+	@keyframes pulse {
+		0%,
+		100% {
+			opacity: 0.8;
+			transform: scale(1);
+		}
+		50% {
+			opacity: 1;
+			transform: scale(1.04);
+		}
+	}
+
+	@keyframes fall {
+		0% {
+			opacity: 0;
+			transform: translate3d(0, -8vh, 0) rotate(var(--rotate));
+		}
+		10%,
+		90% {
+			opacity: 0.9;
+		}
+		100% {
+			opacity: 0;
+			transform: translate3d(8vw, 110vh, 0) rotate(calc(var(--rotate) + 540deg));
+		}
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		* {
+			animation-duration: 0.01ms !important;
+			animation-iteration-count: 1 !important;
+		}
 	}
 </style>
