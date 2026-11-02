@@ -36,6 +36,7 @@
 	import { wave } from '$lib/waveEffect';
 	import Attendant from './attendant.svelte';
 	import { SingleGameClass, setSingleGameContext } from './game.svelte';
+	import Winner from '$lib/components/winner.svelte';
 
 	let Game = new SingleGameClass();
 	setSingleGameContext(Game);
@@ -638,6 +639,8 @@
 		{/if}
 	</div>
 {/if}
+
+<Winner />
 
 {#if showWasedashikiDebug}
 	<WasedashikiDebug />
