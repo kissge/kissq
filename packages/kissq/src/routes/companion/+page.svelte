@@ -186,8 +186,10 @@
 	:global {
 		html,
 		body {
-			height: 100svh;
-			overflow-y: hidden;
+			width: 100%;
+			height: 100%;
+			min-height: 0;
+			overflow: hidden;
 		}
 
 		body {
@@ -199,9 +201,15 @@
 	}
 
 	main {
+		position: fixed;
+		inset: 0;
 		box-sizing: border-box;
-		height: 100svh;
+		width: 100%;
+		height: 100dvh;
+		max-height: 100dvh;
+		min-height: 0;
 		overflow: hidden;
+		overscroll-behavior: none;
 	}
 
 	.carousel {
@@ -211,7 +219,7 @@
 		box-sizing: border-box;
 		padding-top: 2em;
 		width: 100%;
-		height: 100%;
+		height: 100dvh;
 		min-height: 0;
 		overflow-x: auto;
 		overflow-y: hidden;
