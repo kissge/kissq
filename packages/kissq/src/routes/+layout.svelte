@@ -122,6 +122,7 @@
 					justify-content: end;
 					align-items: center;
 					border-right: 1px solid #ccc;
+					padding-left: 0.6em;
 					padding-right: 0.6em;
 					font-weight: bold;
 					font-size: 1rem;

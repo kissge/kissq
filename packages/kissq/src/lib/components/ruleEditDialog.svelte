@@ -306,6 +306,14 @@
 	{#if rules.length > 0}
 		<div class="tabbar">
 			<div class="tab button" inert></div>
+			<button
+				class={['tab', { active: -1 === activeTab }]}
+				disabled={-1 === activeTab}
+				onclick={() => (activeTab = -1)}
+				{@attach tooltip('全員に適用される基本的なルールを設定します。')}
+			>
+				基本
+			</button>
 			{#each activeRules as { i } (i)}
 				<button
 					class={['tab', { active: i === activeTab }]}
@@ -317,7 +325,7 @@
 							: `${String.fromCodePoint(65 + i)}グループのプレイヤーに適用されるルールを編集します。`
 					)}
 				>
-					{activeRules.length === 1 ? '全員' : i === 0 ? 'A / 全員' : String.fromCodePoint(65 + i)}
+					{activeRules.length === 1 ? '全員' : String.fromCodePoint(65 + i)}
 				</button>
 			{/each}
 			<button
@@ -332,7 +340,7 @@
 			</button>
 		</div>
 
-		{#if activeRules.length > 1}
+		{#if activeRules.length > 1 && activeTab !== -1}
 			<div>
 				<button
 					class="remove"
@@ -351,368 +359,12 @@
 			</div>
 		{/if}
 
-		<div class="table">
-			<div style="margin: 2rem 0">定番</div>
-			<div style="margin: 2rem 0" class="presets">
-				<button
-					onclick={() => {
-						rules[activeTab] = {
-							mode: 'marubatsu',
-							chance: 'single',
-							win: 7,
-							isLoseNull: false,
-							lose: 3,
-							isQuestionLimitNull: true,
-							questionLimit: 30,
-							isAttendantLimitNull: true,
-							attendantLimit: 1,
-							maru: 1,
-							batsu: 1,
-							batsuMode: 'number',
-							transit: false,
-							yasuPerMaruMode: null,
-							yasuPerMaruMaru: 5,
-							yasuPerMaruYasu: 5,
-							yasuPerMaruDict: [],
-							yasuMode: 'constant',
-							yasuPerBatsu: 0,
-							rouletteName: null,
-							isBulkAdjustmentNull: true,
-							bulkAdjustment: [2, -2, 1],
-							multiplyMinimum: 0,
-							isRemoved: false
-						};
-					}}
-				>
-					7〇3✕<small>（シングルチャンス）</small>
-				</button>
-				<button
-					onclick={() => {
-						rules[activeTab] = {
-							mode: 'marubatsu',
-							chance: 'endless',
-							win: 5,
-							isLoseNull: true,
-							lose: 3,
-							isQuestionLimitNull: true,
-							questionLimit: 30,
-							isAttendantLimitNull: true,
-							attendantLimit: 1,
-							maru: 1,
-							batsu: 1,
-							batsuMode: 'number',
-							transit: false,
-							yasuPerMaruMode: null,
-							yasuPerMaruMaru: 5,
-							yasuPerMaruYasu: 5,
-							yasuPerMaruDict: [],
-							yasuMode: 'constant',
-							yasuPerBatsu: 1,
-							rouletteName: null,
-							isBulkAdjustmentNull: true,
-							bulkAdjustment: [2, -2, 1],
-							multiplyMinimum: 0,
-							isRemoved: false
-						};
-					}}
-				>
-					5〇1休
-				</button>
-				<button
-					onclick={() => {
-						rules[activeTab] = {
-							mode: 'marubatsu',
-							chance: 'endless',
-							win: 15,
-							isLoseNull: true,
-							lose: 3,
-							isQuestionLimitNull: true,
-							questionLimit: 30,
-							isAttendantLimitNull: true,
-							attendantLimit: 1,
-							maru: 1,
-							batsu: 1,
-							batsuMode: 'number',
-							transit: false,
-							yasuPerMaruMode: 'number',
-							yasuPerMaruMaru: 5,
-							yasuPerMaruYasu: 5,
-							yasuPerMaruDict: [],
-							yasuMode: 'constant',
-							yasuPerBatsu: 1,
-							rouletteName: null,
-							isBulkAdjustmentNull: true,
-							bulkAdjustment: [2, -2, 1],
-							multiplyMinimum: 0,
-							isRemoved: false
-						};
-					}}
-				>
-					15〇1休、5〇ごとに5休
-				</button>
-				<button
-					onclick={() => {
-						rules[activeTab] = {
-							mode: 'score',
-							chance: 'endless',
-							win: 5,
-							isLoseNull: false,
-							lose: -5,
-							isQuestionLimitNull: true,
-							questionLimit: 30,
-							isAttendantLimitNull: true,
-							attendantLimit: 1,
-							maru: 1,
-							batsu: -1,
-							batsuMode: 'number',
-							transit: false,
-							yasuPerMaruMode: null,
-							yasuPerMaruMaru: 5,
-							yasuPerMaruYasu: 5,
-							yasuPerMaruDict: [],
-							yasuMode: 'constant',
-							yasuPerBatsu: 0,
-							rouletteName: null,
-							isBulkAdjustmentNull: true,
-							bulkAdjustment: [2, -2, 1],
-							multiplyMinimum: 0,
-							isRemoved: false
-						};
-					}}
-				>
-					+5/-5 NY
-				</button>
-				<button
-					onclick={() => {
-						rules[activeTab] = {
-							mode: 'MbyN',
-							chance: 'endless',
-							win: 10,
-							isLoseNull: true,
-							lose: 5,
-							isQuestionLimitNull: true,
-							questionLimit: 30,
-							isAttendantLimitNull: true,
-							attendantLimit: 1,
-							maru: 1,
-							batsu: 1,
-							batsuMode: 'number',
-							transit: false,
-							yasuPerMaruMode: null,
-							yasuPerMaruMaru: 5,
-							yasuPerMaruYasu: 5,
-							yasuPerMaruDict: [],
-							yasuMode: 'constant',
-							yasuPerBatsu: 0,
-							rouletteName: null,
-							isBulkAdjustmentNull: true,
-							bulkAdjustment: [2, -2, 1],
-							multiplyMinimum: 0,
-							isRemoved: false
-						};
-					}}
-				>
-					10 by 10
-				</button>
-				<button
-					onclick={() => {
-						rules[activeTab] = {
-							mode: 'score',
-							chance: 'endless',
-							win: 10,
-							isLoseNull: false,
-							lose: -10,
-							isQuestionLimitNull: true,
-							questionLimit: 30,
-							isAttendantLimitNull: true,
-							attendantLimit: 1,
-							maru: 1,
-							batsu: -1,
-							batsuMode: 'batsu',
-							transit: false,
-							yasuPerMaruMode: null,
-							yasuPerMaruMaru: 5,
-							yasuPerMaruYasu: 5,
-							yasuPerMaruDict: [],
-							yasuMode: 'constant',
-							yasuPerBatsu: 0,
-							rouletteName: null,
-							isBulkAdjustmentNull: true,
-							bulkAdjustment: [2, -2, 1],
-							multiplyMinimum: 0,
-							isRemoved: false
-						};
-					}}
-				>
-					10 Backstream
-				</button>
-				<button
-					onclick={() => {
-						rules[activeTab] = {
-							mode: 'survival',
-							chance: 'endless',
-							win: 0,
-							isLoseNull: false,
-							lose: 30,
-							isQuestionLimitNull: true,
-							questionLimit: 30,
-							isAttendantLimitNull: true,
-							attendantLimit: 1,
-							maru: 1,
-							batsu: -2,
-							batsuMode: 'number',
-							transit: false,
-							yasuPerMaruMode: null,
-							yasuPerMaruMaru: 5,
-							yasuPerMaruYasu: 5,
-							yasuPerMaruDict: [],
-							yasuMode: 'constant',
-							yasuPerBatsu: 0,
-							rouletteName: null,
-							isBulkAdjustmentNull: true,
-							bulkAdjustment: [2, -2, 1],
-							multiplyMinimum: 0,
-							isRemoved: false
-						};
-					}}
-				>
-					30アタサバ
-				</button>
-				<button
-					onclick={() => {
-						rules[activeTab] = {
-							mode: 'marubatsu',
-							chance: 'endless',
-							win: 4,
-							isLoseNull: true,
-							lose: 3,
-							isQuestionLimitNull: true,
-							questionLimit: 30,
-							isAttendantLimitNull: true,
-							attendantLimit: 1,
-							maru: 1,
-							batsu: 1,
-							batsuMode: 'number',
-							transit: false,
-							yasuPerMaruMode: null,
-							yasuPerMaruMaru: 5,
-							yasuPerMaruYasu: 5,
-							yasuPerMaruDict: [],
-							yasuMode: 'batsu',
-							yasuPerBatsu: 1,
-							rouletteName: null,
-							isBulkAdjustmentNull: true,
-							bulkAdjustment: [2, -2, 1],
-							multiplyMinimum: 0,
-							isRemoved: false
-						};
-					}}
-				>
-					Freeze 4
-				</button>
-				<button
-					onclick={() => {
-						rules[activeTab] = {
-							mode: 'marubatsu',
-							chance: 'endless',
-							win: 7,
-							isLoseNull: true,
-							lose: 3,
-							isQuestionLimitNull: true,
-							questionLimit: 30,
-							isAttendantLimitNull: true,
-							attendantLimit: 1,
-							maru: 1,
-							batsu: 1,
-							batsuMode: 'number',
-							transit: false,
-							yasuPerMaruMode: null,
-							yasuPerMaruMaru: 5,
-							yasuPerMaruYasu: 5,
-							yasuPerMaruDict: [],
-							yasuMode: 'maru',
-							yasuPerBatsu: 1,
-							rouletteName: null,
-							isBulkAdjustmentNull: true,
-							bulkAdjustment: [2, -2, 1],
-							multiplyMinimum: 0,
-							isRemoved: false
-						};
-					}}
-				>
-					Crescendo 7
-				</button>
-				<button
-					onclick={() => {
-						rules[activeTab] = {
-							mode: 'marubatsu',
-							chance: 'endless',
-							win: 7,
-							isLoseNull: false,
-							lose: 2,
-							isQuestionLimitNull: true,
-							questionLimit: 30,
-							isAttendantLimitNull: true,
-							attendantLimit: 1,
-							maru: 1,
-							batsu: 1,
-							batsuMode: 'updown',
-							transit: false,
-							yasuPerMaruMode: null,
-							yasuPerMaruMaru: 5,
-							yasuPerMaruYasu: 5,
-							yasuPerMaruDict: [],
-							yasuMode: 'constant',
-							yasuPerBatsu: 0,
-							rouletteName: null,
-							isBulkAdjustmentNull: true,
-							bulkAdjustment: [2, -2, 1],
-							multiplyMinimum: 0,
-							isRemoved: false
-						};
-					}}
-				>
-					7-Updown
-				</button>
-				<button
-					onclick={() => {
-						rules[activeTab] = {
-							mode: 'score',
-							chance: 'endless',
-							win: 4,
-							isLoseNull: true,
-							lose: 3,
-							isQuestionLimitNull: true,
-							questionLimit: 30,
-							isAttendantLimitNull: true,
-							attendantLimit: 1,
-							maru: 1,
-							batsu: -1,
-							batsuMode: 'number',
-							transit: true,
-							yasuPerMaruMode: null,
-							yasuPerMaruMaru: 5,
-							yasuPerMaruYasu: 5,
-							yasuPerMaruDict: [],
-							yasuMode: 'constant',
-							yasuPerBatsu: 0,
-							rouletteName: null,
-							isBulkAdjustmentNull: true,
-							bulkAdjustment: [2, -2, 1],
-							multiplyMinimum: 0,
-							isRemoved: false
-						};
-					}}
-				>
-					通過席
-				</button>
-			</div>
-
-			{#if activeTab === 0}
-				<div transition:fly={{ y: 100 }}>押せる人数</div>
-				<div transition:fly={{ y: 100 }}>
+		{#if activeTab === -1}
+			<div class="table">
+				<div>押せる人数</div>
+				<div>
 					<label {@attach tooltip('〇、スルーのほか✕を押しても問題カウントが直ちに進みます。')}>
-						<input type="radio" bind:group={activeRule.chance} value="single" />
+						<input type="radio" bind:group={rules[0].chance} value="single" />
 						シングルチャンス
 					</label>
 					<label
@@ -720,445 +372,806 @@
 							'〇、スルーを押したときは問題カウントが進みますが、✕を押しても問題カウントが進みません。'
 						)}
 					>
-						<input type="radio" bind:group={activeRule.chance} value="endless" />
+						<input type="radio" bind:group={rules[0].chance} value="endless" />
 						エンドレスチャンス
 					</label>
 					<div class="hint">※ 早稲田式連携中は、早稲田式早押しボタンの設定の方が優先されます。</div>
 				</div>
 
-				<div transition:fly={{ y: 100 }} {@attach tooltip('この問題数終わったら終了となります。')}>
-					限定問題数
-				</div>
-				<div transition:fly={{ y: 100 }}>
+				<div {@attach tooltip('この問題数終わったら終了となります。')}>限定問題数</div>
+				<div>
 					<label>
-						<input type="radio" bind:group={activeRule.isQuestionLimitNull} value={false} />
+						<input type="radio" bind:group={rules[0].isQuestionLimitNull} value={false} />
 						<input
 							type="number"
 							min="1"
-							bind:value={activeRule.questionLimit}
-							onfocus={() => (activeRule.isQuestionLimitNull = false)}
+							bind:value={rules[0].questionLimit}
+							onfocus={() => (rules[0].isQuestionLimitNull = false)}
 						/>
 						問
 					</label>
 					<label>
-						<input type="radio" bind:group={activeRule.isQuestionLimitNull} value={true} />
+						<input type="radio" bind:group={rules[0].isQuestionLimitNull} value={true} />
 						無制限
 					</label>
 				</div>
-			{/if}
-
-			<div>勝ち抜け人数</div>
-			<div>
-				<label>
-					<input type="radio" bind:group={activeRule.isAttendantLimitNull} value={false} />
-					<input
-						type="number"
-						min="1"
-						bind:value={activeRule.attendantLimit}
-						onfocus={() => (activeRule.isAttendantLimitNull = false)}
-					/>
-					人
-				</label>
-				<label>
-					<input type="radio" bind:group={activeRule.isAttendantLimitNull} value={true} />
-					無制限
-				</label>
 			</div>
-
-			<div>モード</div>
-			<div>
-				<label>
-					<input
-						type="radio"
-						bind:group={activeRule.mode}
-						value="score"
-						onchange={() => {
-							if (activeRule.lose > 0) {
-								activeRule.lose = -5;
-							}
-
-							if (activeRule.batsu > 0) {
-								activeRule.batsu = -1;
-							}
-
-							if (activeRule.yasuMode !== 'constant') {
-								activeRule.yasuMode = 'constant';
-							}
-
-							if (activeRule.batsuMode === 'updown') {
-								activeRule.batsuMode = 'number';
-							}
+		{:else}
+			<div class="table">
+				<div style="margin: 2rem 0">定番</div>
+				<div style="margin: 2rem 0" class="presets">
+					<button
+						onclick={() => {
+							rules[activeTab] = {
+								mode: 'marubatsu',
+								chance: 'single',
+								win: 7,
+								isLoseNull: false,
+								lose: 3,
+								isQuestionLimitNull: true,
+								questionLimit: 30,
+								isAttendantLimitNull: true,
+								attendantLimit: 1,
+								maru: 1,
+								batsu: 1,
+								batsuMode: 'number',
+								transit: false,
+								yasuPerMaruMode: null,
+								yasuPerMaruMaru: 5,
+								yasuPerMaruYasu: 5,
+								yasuPerMaruDict: [],
+								yasuMode: 'constant',
+								yasuPerBatsu: 0,
+								rouletteName: null,
+								isBulkAdjustmentNull: true,
+								bulkAdjustment: [2, -2, 1],
+								multiplyMinimum: 0,
+								isRemoved: false
+							};
 						}}
-					/>
-					スコア
-				</label>
-				<label>
-					<input
-						type="radio"
-						bind:group={activeRule.mode}
-						value="marubatsu"
-						onchange={() => {
-							if (activeRule.lose <= 0) {
-								activeRule.lose = 3;
-							}
-
-							if (activeRule.batsu < 0) {
-								activeRule.batsu = 1;
-							}
-
-							if (activeRule.batsuMode === 'updown') {
-								activeRule.batsuMode = 'number';
-							}
-
-							if (activeRule.transit) {
-								activeRule.transit = false;
-							}
+					>
+						7〇3✕<small>（シングルチャンス）</small>
+					</button>
+					<button
+						onclick={() => {
+							rules[activeTab] = {
+								mode: 'marubatsu',
+								chance: 'endless',
+								win: 5,
+								isLoseNull: true,
+								lose: 3,
+								isQuestionLimitNull: true,
+								questionLimit: 30,
+								isAttendantLimitNull: true,
+								attendantLimit: 1,
+								maru: 1,
+								batsu: 1,
+								batsuMode: 'number',
+								transit: false,
+								yasuPerMaruMode: null,
+								yasuPerMaruMaru: 5,
+								yasuPerMaruYasu: 5,
+								yasuPerMaruDict: [],
+								yasuMode: 'constant',
+								yasuPerBatsu: 1,
+								rouletteName: null,
+								isBulkAdjustmentNull: true,
+								bulkAdjustment: [2, -2, 1],
+								multiplyMinimum: 0,
+								isRemoved: false
+							};
 						}}
-					/>
-					マルバツ
-				</label>
-				<label>
-					<input
-						type="radio"
-						bind:group={activeRule.mode}
-						value="MbyN"
-						onchange={() => {
-							if (activeRule.batsu < 0) {
-								activeRule.batsu = 1;
-							}
-
-							if (activeRule.batsuMode !== 'number') {
-								activeRule.batsuMode = 'number';
-							}
-
-							if (activeRule.transit) {
-								activeRule.transit = false;
-							}
+					>
+						5〇1休
+					</button>
+					<button
+						onclick={() => {
+							rules[activeTab] = {
+								mode: 'marubatsu',
+								chance: 'endless',
+								win: 15,
+								isLoseNull: true,
+								lose: 3,
+								isQuestionLimitNull: true,
+								questionLimit: 30,
+								isAttendantLimitNull: true,
+								attendantLimit: 1,
+								maru: 1,
+								batsu: 1,
+								batsuMode: 'number',
+								transit: false,
+								yasuPerMaruMode: 'number',
+								yasuPerMaruMaru: 5,
+								yasuPerMaruYasu: 5,
+								yasuPerMaruDict: [],
+								yasuMode: 'constant',
+								yasuPerBatsu: 1,
+								rouletteName: null,
+								isBulkAdjustmentNull: true,
+								bulkAdjustment: [2, -2, 1],
+								multiplyMinimum: 0,
+								isRemoved: false
+							};
 						}}
-					/>
-					M by N
-				</label>
-				<label>
-					<input
-						type="radio"
-						bind:group={activeRule.mode}
-						value="survival"
-						onchange={() => {
-							if (activeRule.isLoseNull) {
-								activeRule.isLoseNull = false;
-								activeRule.lose = 30;
-							}
-
-							if (activeRule.lose < 0) {
-								activeRule.lose = 30;
-							}
-
-							if (activeRule.batsu > 0) {
-								activeRule.batsu = -1;
-							}
-
-							if (activeRule.batsuMode === 'updown') {
-								activeRule.batsuMode = 'number';
-							}
-
-							if (activeRule.transit) {
-								activeRule.transit = false;
-							}
+					>
+						15〇1休、5〇ごとに5休
+					</button>
+					<button
+						onclick={() => {
+							rules[activeTab] = {
+								mode: 'score',
+								chance: 'endless',
+								win: 5,
+								isLoseNull: false,
+								lose: -5,
+								isQuestionLimitNull: true,
+								questionLimit: 30,
+								isAttendantLimitNull: true,
+								attendantLimit: 1,
+								maru: 1,
+								batsu: -1,
+								batsuMode: 'number',
+								transit: false,
+								yasuPerMaruMode: null,
+								yasuPerMaruMaru: 5,
+								yasuPerMaruYasu: 5,
+								yasuPerMaruDict: [],
+								yasuMode: 'constant',
+								yasuPerBatsu: 0,
+								rouletteName: null,
+								isBulkAdjustmentNull: true,
+								bulkAdjustment: [2, -2, 1],
+								multiplyMinimum: 0,
+								isRemoved: false
+							};
 						}}
-					/>
-					アタックサバイバル
-				</label>
-			</div>
-
-			{#if activeRule.mode === 'survival'}
-				<div>初期スコア</div>
-				<div>
-					<input type="number" bind:value={activeRule.lose} min="1" /> pts
+					>
+						+5/-5 NY
+					</button>
+					<button
+						onclick={() => {
+							rules[activeTab] = {
+								mode: 'MbyN',
+								chance: 'endless',
+								win: 10,
+								isLoseNull: true,
+								lose: 5,
+								isQuestionLimitNull: true,
+								questionLimit: 30,
+								isAttendantLimitNull: true,
+								attendantLimit: 1,
+								maru: 1,
+								batsu: 1,
+								batsuMode: 'number',
+								transit: false,
+								yasuPerMaruMode: null,
+								yasuPerMaruMaru: 5,
+								yasuPerMaruYasu: 5,
+								yasuPerMaruDict: [],
+								yasuMode: 'constant',
+								yasuPerBatsu: 0,
+								rouletteName: null,
+								isBulkAdjustmentNull: true,
+								bulkAdjustment: [2, -2, 1],
+								multiplyMinimum: 0,
+								isRemoved: false
+							};
+						}}
+					>
+						10 by 10
+					</button>
+					<button
+						onclick={() => {
+							rules[activeTab] = {
+								mode: 'score',
+								chance: 'endless',
+								win: 10,
+								isLoseNull: false,
+								lose: -10,
+								isQuestionLimitNull: true,
+								questionLimit: 30,
+								isAttendantLimitNull: true,
+								attendantLimit: 1,
+								maru: 1,
+								batsu: -1,
+								batsuMode: 'batsu',
+								transit: false,
+								yasuPerMaruMode: null,
+								yasuPerMaruMaru: 5,
+								yasuPerMaruYasu: 5,
+								yasuPerMaruDict: [],
+								yasuMode: 'constant',
+								yasuPerBatsu: 0,
+								rouletteName: null,
+								isBulkAdjustmentNull: true,
+								bulkAdjustment: [2, -2, 1],
+								multiplyMinimum: 0,
+								isRemoved: false
+							};
+						}}
+					>
+						10 Backstream
+					</button>
+					<button
+						onclick={() => {
+							rules[activeTab] = {
+								mode: 'survival',
+								chance: 'endless',
+								win: 0,
+								isLoseNull: false,
+								lose: 30,
+								isQuestionLimitNull: true,
+								questionLimit: 30,
+								isAttendantLimitNull: true,
+								attendantLimit: 1,
+								maru: 1,
+								batsu: -2,
+								batsuMode: 'number',
+								transit: false,
+								yasuPerMaruMode: null,
+								yasuPerMaruMaru: 5,
+								yasuPerMaruYasu: 5,
+								yasuPerMaruDict: [],
+								yasuMode: 'constant',
+								yasuPerBatsu: 0,
+								rouletteName: null,
+								isBulkAdjustmentNull: true,
+								bulkAdjustment: [2, -2, 1],
+								multiplyMinimum: 0,
+								isRemoved: false
+							};
+						}}
+					>
+						30アタサバ
+					</button>
+					<button
+						onclick={() => {
+							rules[activeTab] = {
+								mode: 'marubatsu',
+								chance: 'endless',
+								win: 4,
+								isLoseNull: true,
+								lose: 3,
+								isQuestionLimitNull: true,
+								questionLimit: 30,
+								isAttendantLimitNull: true,
+								attendantLimit: 1,
+								maru: 1,
+								batsu: 1,
+								batsuMode: 'number',
+								transit: false,
+								yasuPerMaruMode: null,
+								yasuPerMaruMaru: 5,
+								yasuPerMaruYasu: 5,
+								yasuPerMaruDict: [],
+								yasuMode: 'batsu',
+								yasuPerBatsu: 1,
+								rouletteName: null,
+								isBulkAdjustmentNull: true,
+								bulkAdjustment: [2, -2, 1],
+								multiplyMinimum: 0,
+								isRemoved: false
+							};
+						}}
+					>
+						Freeze 4
+					</button>
+					<button
+						onclick={() => {
+							rules[activeTab] = {
+								mode: 'marubatsu',
+								chance: 'endless',
+								win: 7,
+								isLoseNull: true,
+								lose: 3,
+								isQuestionLimitNull: true,
+								questionLimit: 30,
+								isAttendantLimitNull: true,
+								attendantLimit: 1,
+								maru: 1,
+								batsu: 1,
+								batsuMode: 'number',
+								transit: false,
+								yasuPerMaruMode: null,
+								yasuPerMaruMaru: 5,
+								yasuPerMaruYasu: 5,
+								yasuPerMaruDict: [],
+								yasuMode: 'maru',
+								yasuPerBatsu: 1,
+								rouletteName: null,
+								isBulkAdjustmentNull: true,
+								bulkAdjustment: [2, -2, 1],
+								multiplyMinimum: 0,
+								isRemoved: false
+							};
+						}}
+					>
+						Crescendo 7
+					</button>
+					<button
+						onclick={() => {
+							rules[activeTab] = {
+								mode: 'marubatsu',
+								chance: 'endless',
+								win: 7,
+								isLoseNull: false,
+								lose: 2,
+								isQuestionLimitNull: true,
+								questionLimit: 30,
+								isAttendantLimitNull: true,
+								attendantLimit: 1,
+								maru: 1,
+								batsu: 1,
+								batsuMode: 'updown',
+								transit: false,
+								yasuPerMaruMode: null,
+								yasuPerMaruMaru: 5,
+								yasuPerMaruYasu: 5,
+								yasuPerMaruDict: [],
+								yasuMode: 'constant',
+								yasuPerBatsu: 0,
+								rouletteName: null,
+								isBulkAdjustmentNull: true,
+								bulkAdjustment: [2, -2, 1],
+								multiplyMinimum: 0,
+								isRemoved: false
+							};
+						}}
+					>
+						7-Updown
+					</button>
+					<button
+						onclick={() => {
+							rules[activeTab] = {
+								mode: 'score',
+								chance: 'endless',
+								win: 4,
+								isLoseNull: true,
+								lose: 3,
+								isQuestionLimitNull: true,
+								questionLimit: 30,
+								isAttendantLimitNull: true,
+								attendantLimit: 1,
+								maru: 1,
+								batsu: -1,
+								batsuMode: 'number',
+								transit: true,
+								yasuPerMaruMode: null,
+								yasuPerMaruMaru: 5,
+								yasuPerMaruYasu: 5,
+								yasuPerMaruDict: [],
+								yasuMode: 'constant',
+								yasuPerBatsu: 0,
+								rouletteName: null,
+								isBulkAdjustmentNull: true,
+								bulkAdjustment: [2, -2, 1],
+								multiplyMinimum: 0,
+								isRemoved: false
+							};
+						}}
+					>
+						通過席
+					</button>
 				</div>
-			{:else}
-				<div>勝利条件</div>
+
+				{#if activeRules.length > 1}
+					<div transition:fly={{ y: 100 }}>勝ち抜け人数<br />（グループ内）</div>
+					<div transition:fly={{ y: 100 }}>
+						<label>
+							<input type="radio" bind:group={activeRule.isAttendantLimitNull} value={false} />
+							<input
+								type="number"
+								min="1"
+								bind:value={activeRule.attendantLimit}
+								onfocus={() => (activeRule.isAttendantLimitNull = false)}
+							/>
+							人
+						</label>
+						<label>
+							<input type="radio" bind:group={activeRule.isAttendantLimitNull} value={true} />
+							無制限
+						</label>
+					</div>
+				{/if}
+
+				<div>モード</div>
 				<div>
-					<input type="number" bind:value={activeRule.win} min="1" />
-					{activeRule.mode === 'MbyN' ? '²' : ''}
-					{activeRule.mode !== 'marubatsu' ? 'pts' : '○'} 以上
+					<label>
+						<input
+							type="radio"
+							bind:group={activeRule.mode}
+							value="score"
+							onchange={() => {
+								if (activeRule.lose > 0) {
+									activeRule.lose = -5;
+								}
+
+								if (activeRule.batsu > 0) {
+									activeRule.batsu = -1;
+								}
+
+								if (activeRule.yasuMode !== 'constant') {
+									activeRule.yasuMode = 'constant';
+								}
+
+								if (activeRule.batsuMode === 'updown') {
+									activeRule.batsuMode = 'number';
+								}
+							}}
+						/>
+						スコア
+					</label>
+					<label>
+						<input
+							type="radio"
+							bind:group={activeRule.mode}
+							value="marubatsu"
+							onchange={() => {
+								if (activeRule.lose <= 0) {
+									activeRule.lose = 3;
+								}
+
+								if (activeRule.batsu < 0) {
+									activeRule.batsu = 1;
+								}
+
+								if (activeRule.batsuMode === 'updown') {
+									activeRule.batsuMode = 'number';
+								}
+
+								if (activeRule.transit) {
+									activeRule.transit = false;
+								}
+							}}
+						/>
+						マルバツ
+					</label>
+					<label>
+						<input
+							type="radio"
+							bind:group={activeRule.mode}
+							value="MbyN"
+							onchange={() => {
+								if (activeRule.batsu < 0) {
+									activeRule.batsu = 1;
+								}
+
+								if (activeRule.batsuMode !== 'number') {
+									activeRule.batsuMode = 'number';
+								}
+
+								if (activeRule.transit) {
+									activeRule.transit = false;
+								}
+							}}
+						/>
+						M by N
+					</label>
+					<label>
+						<input
+							type="radio"
+							bind:group={activeRule.mode}
+							value="survival"
+							onchange={() => {
+								if (activeRule.isLoseNull) {
+									activeRule.isLoseNull = false;
+									activeRule.lose = 30;
+								}
+
+								if (activeRule.lose < 0) {
+									activeRule.lose = 30;
+								}
+
+								if (activeRule.batsu > 0) {
+									activeRule.batsu = -1;
+								}
+
+								if (activeRule.batsuMode === 'updown') {
+									activeRule.batsuMode = 'number';
+								}
+
+								if (activeRule.transit) {
+									activeRule.transit = false;
+								}
+							}}
+						/>
+						アタックサバイバル
+					</label>
 				</div>
 
-				<div>失格条件</div>
+				{#if activeRule.mode === 'survival'}
+					<div>初期スコア</div>
+					<div>
+						<input type="number" bind:value={activeRule.lose} min="1" /> pts
+					</div>
+				{:else}
+					<div>勝利条件</div>
+					<div>
+						<input type="number" bind:value={activeRule.win} min="1" />
+						{activeRule.mode === 'MbyN' ? '²' : ''}
+						{activeRule.mode !== 'marubatsu' ? 'pts' : '○'} 以上
+					</div>
+
+					<div>失格条件</div>
+					<div>
+						<label
+							{@attach tooltip(
+								activeRule.mode === 'marubatsu' || activeRule.mode === 'MbyN'
+									? '失格バツ数を正の数で入力'
+									: '失格スコアを負の数で入力'
+							)}
+						>
+							<input type="radio" bind:group={activeRule.isLoseNull} value={false} />
+							<input
+								type="number"
+								bind:value={activeRule.lose}
+								onfocus={() => (activeRule.isLoseNull = false)}
+							/>
+							{activeRule.mode === 'score' ? 'pts 以下' : '× 以上'}
+						</label>
+						<label>
+							<input type="radio" bind:group={activeRule.isLoseNull} value={true} />失格なし
+						</label>
+					</div>
+				{/if}
+
+				<div>1問正解で</div>
+				<div>
+					{#if activeRule.mode === 'survival'}
+						自分以外全員のスコアから
+						<input type="number" bind:value={activeRule.maru} min="1" />
+						pts 減らす
+					{:else}
+						<input type="number" bind:value={activeRule.maru} />
+						{activeRule.mode === 'score' ? 'pts' : '○'} 獲得できる
+					{/if}
+
+					<hr />
+
+					<label>
+						<input type="radio" bind:group={activeRule.yasuPerMaruMode} value="number" />
+						<input
+							type="number"
+							bind:value={activeRule.yasuPerMaruMaru}
+							onfocus={() => (activeRule.yasuPerMaruMode = 'number')}
+							min="1"
+						/>
+						○ごとに
+						<input
+							type="number"
+							bind:value={activeRule.yasuPerMaruYasu}
+							onfocus={() => (activeRule.yasuPerMaruMode = 'number')}
+							min="1"
+						/> 問休み
+					</label>
+					<br />
+					<label>
+						<input type="radio" bind:group={activeRule.yasuPerMaruMode} value="maru" />
+						<input
+							type="number"
+							bind:value={activeRule.yasuPerMaruMaru}
+							onfocus={() => (activeRule.yasuPerMaruMode = 'maru')}
+							min="1"
+						/>
+						○ごとに（現在のマル数）問休み
+					</label>
+					<br />
+					<label>
+						<input type="radio" bind:group={activeRule.yasuPerMaruMode} value="custom" />
+						N○でM問休みを細かく設定する
+					</label>
+					{#if activeRule.yasuPerMaruMode === 'custom'}
+						<div class="yasu-per-maru-custom" transition:fade>
+							{#each activeRule.yasuPerMaruDict as item, i (item.uid)}
+								{@const maruInvalid =
+									item.maru <= 0 ||
+									activeRule.yasuPerMaruDict.some((_, j) => j !== i && _.maru === item.maru)}
+								<div transition:fade>
+									<input
+										type="number"
+										min="1"
+										class:invalid={maruInvalid}
+										bind:value={item.maru}
+									/>○で
+									<input type="number" min="1" bind:value={item.yasu} />問休み
+									{#if maruInvalid}
+										<span
+											{@attach tooltip('マル数は1以上の整数で、重複しないように設定してください')}
+										>
+											⚠️
+										</span>
+									{/if}
+									<button
+										class="remove-btn"
+										onclick={() => {
+											activeRule.yasuPerMaruDict.splice(i, 1);
+										}}
+									>
+										×
+									</button>
+								</div>
+							{/each}
+							{#if activeRule.yasuPerMaruDict.length > 0}
+								（以下ループ）
+							{/if}
+							<button
+								onclick={() =>
+									activeRule.yasuPerMaruDict.push({
+										maru: (activeRule.yasuPerMaruDict.at(-1)?.maru || 0) + 1,
+										yasu: activeRule.yasuPerMaruDict.at(-1)?.yasu || 1,
+										uid: Math.random()
+									})}
+							>
+								追加
+							</button>
+						</div>
+					{:else}
+						<br />
+					{/if}
+					<label>
+						<input type="radio" bind:group={activeRule.yasuPerMaruMode} value={null} />
+						なし
+					</label>
+
+					<hr />
+
+					<label
+						{@attach tooltip(
+							'通過クイズ（通過席状態になってから誤答・他者が正解でスコアリセット）'
+						)}
+					>
+						<input
+							type="radio"
+							bind:group={activeRule.transit}
+							value={true}
+							disabled={activeRule.mode !== 'score'}
+						/>
+						{activeRule.win - 1}
+						ptsで通過席
+					</label>
+					<label>
+						<input type="radio" bind:group={activeRule.transit} value={false} />
+						なし
+					</label>
+				</div>
+
+				<div>1問誤答で</div>
 				<div>
 					<label
 						{@attach tooltip(
-							activeRule.mode === 'marubatsu' || activeRule.mode === 'MbyN'
-								? '失格バツ数を正の数で入力'
-								: '失格スコアを負の数で入力'
+							activeRule.mode === 'score' || activeRule.mode === 'survival'
+								? '失ってしまうスコアを負の数で入力'
+								: '獲得してしまうバツ数を正の数で入力'
 						)}
 					>
-						<input type="radio" bind:group={activeRule.isLoseNull} value={false} />
+						<input type="radio" bind:group={activeRule.batsuMode} value="number" />
 						<input
 							type="number"
-							bind:value={activeRule.lose}
-							onfocus={() => (activeRule.isLoseNull = false)}
+							bind:value={activeRule.batsu}
+							onfocus={() => (activeRule.batsuMode = 'number')}
 						/>
-						{activeRule.mode === 'score' ? 'pts 以下' : '× 以上'}
+						{activeRule.mode === 'score' || activeRule.mode === 'survival' ? 'pts' : '×'} 獲得してしまう
 					</label>
-					<label>
-						<input type="radio" bind:group={activeRule.isLoseNull} value={true} />失格なし
-					</label>
-				</div>
-			{/if}
-
-			<div>1問正解で</div>
-			<div>
-				{#if activeRule.mode === 'survival'}
-					自分以外全員のスコアから
-					<input type="number" bind:value={activeRule.maru} min="1" />
-					pts 減らす
-				{:else}
-					<input type="number" bind:value={activeRule.maru} />
-					{activeRule.mode === 'score' ? 'pts' : '○'} 獲得できる
-				{/if}
-
-				<hr />
-
-				<label>
-					<input type="radio" bind:group={activeRule.yasuPerMaruMode} value="number" />
-					<input
-						type="number"
-						bind:value={activeRule.yasuPerMaruMaru}
-						onfocus={() => (activeRule.yasuPerMaruMode = 'number')}
-						min="1"
-					/>
-					○ごとに
-					<input
-						type="number"
-						bind:value={activeRule.yasuPerMaruYasu}
-						onfocus={() => (activeRule.yasuPerMaruMode = 'number')}
-						min="1"
-					/> 問休み
-				</label>
-				<br />
-				<label>
-					<input type="radio" bind:group={activeRule.yasuPerMaruMode} value="maru" />
-					<input
-						type="number"
-						bind:value={activeRule.yasuPerMaruMaru}
-						onfocus={() => (activeRule.yasuPerMaruMode = 'maru')}
-						min="1"
-					/>
-					○ごとに（現在のマル数）問休み
-				</label>
-				<br />
-				<label>
-					<input type="radio" bind:group={activeRule.yasuPerMaruMode} value="custom" />
-					N○でM問休みを細かく設定する
-				</label>
-				{#if activeRule.yasuPerMaruMode === 'custom'}
-					<div class="yasu-per-maru-custom" transition:fade>
-						{#each activeRule.yasuPerMaruDict as item, i (item.uid)}
-							{@const maruInvalid =
-								item.maru <= 0 ||
-								activeRule.yasuPerMaruDict.some((_, j) => j !== i && _.maru === item.maru)}
-							<div transition:fade>
-								<input
-									type="number"
-									min="1"
-									class:invalid={maruInvalid}
-									bind:value={item.maru}
-								/>○で
-								<input type="number" min="1" bind:value={item.yasu} />問休み
-								{#if maruInvalid}
-									<span
-										{@attach tooltip('マル数は1以上の整数で、重複しないように設定してください')}
-									>
-										⚠️
-									</span>
-								{/if}
-								<button
-									class="remove-btn"
-									onclick={() => {
-										activeRule.yasuPerMaruDict.splice(i, 1);
-									}}
-								>
-									×
-								</button>
-							</div>
-						{/each}
-						{#if activeRule.yasuPerMaruDict.length > 0}
-							（以下ループ）
-						{/if}
-						<button
-							onclick={() =>
-								activeRule.yasuPerMaruDict.push({
-									maru: (activeRule.yasuPerMaruDict.at(-1)?.maru || 0) + 1,
-									yasu: activeRule.yasuPerMaruDict.at(-1)?.yasu || 1,
-									uid: Math.random()
-								})}
-						>
-							追加
-						</button>
-					</div>
-				{:else}
 					<br />
-				{/if}
-				<label>
-					<input type="radio" bind:group={activeRule.yasuPerMaruMode} value={null} />
-					なし
-				</label>
+					<label>
+						<input
+							type="radio"
+							bind:group={activeRule.batsuMode}
+							value="batsu"
+							disabled={!(activeRule.mode === 'score' || activeRule.mode === 'survival')}
+						/>
+						N回目の誤答で -N pts 獲得してしまう
+					</label>
+					<br />
+					<label>
+						<input
+							type="radio"
+							bind:group={activeRule.batsuMode}
+							value="updown"
+							disabled={activeRule.mode !== 'marubatsu'}
+						/>
+						マル数がゼロにリセットされてしまう
+					</label>
 
-				<hr />
+					<hr />
 
-				<label
-					{@attach tooltip('通過クイズ（通過席状態になってから誤答・他者が正解でスコアリセット）')}
-				>
-					<input
-						type="radio"
-						bind:group={activeRule.transit}
-						value={true}
-						disabled={activeRule.mode !== 'score'}
-					/>
-					{activeRule.win - 1}
-					ptsで通過席
-				</label>
-				<label>
-					<input type="radio" bind:group={activeRule.transit} value={false} />
-					なし
-				</label>
-			</div>
-
-			<div>1問誤答で</div>
-			<div>
-				<label
-					{@attach tooltip(
-						activeRule.mode === 'score' || activeRule.mode === 'survival'
-							? '失ってしまうスコアを負の数で入力'
-							: '獲得してしまうバツ数を正の数で入力'
-					)}
-				>
-					<input type="radio" bind:group={activeRule.batsuMode} value="number" />
-					<input
-						type="number"
-						bind:value={activeRule.batsu}
-						onfocus={() => (activeRule.batsuMode = 'number')}
-					/>
-					{activeRule.mode === 'score' || activeRule.mode === 'survival' ? 'pts' : '×'} 獲得してしまう
-				</label>
-				<br />
-				<label>
-					<input
-						type="radio"
-						bind:group={activeRule.batsuMode}
-						value="batsu"
-						disabled={!(activeRule.mode === 'score' || activeRule.mode === 'survival')}
-					/>
-					N回目の誤答で -N pts 獲得してしまう
-				</label>
-				<br />
-				<label>
-					<input
-						type="radio"
-						bind:group={activeRule.batsuMode}
-						value="updown"
-						disabled={activeRule.mode !== 'marubatsu'}
-					/>
-					マル数がゼロにリセットされてしまう
-				</label>
-
-				<hr />
-
-				<label>
-					<input type="radio" bind:group={activeRule.yasuMode} value="constant" />
-					<input
-						type="number"
-						bind:value={activeRule.yasuPerBatsu}
-						onfocus={() => (activeRule.yasuMode = 'constant')}
-						min="0"
-					/>
-					問休み<small>（0で休みなし）</small>
-				</label>
-				<br />
-				<label>
-					<input
-						type="radio"
-						bind:group={activeRule.yasuMode}
-						value="maru"
-						disabled={activeRule.mode === 'score'}
-					/>
-					（現在のマル数）×
-					<input
-						type="number"
-						bind:value={activeRule.yasuPerBatsu}
-						onfocus={() => (activeRule.yasuMode = 'maru')}
-						min="1"
-					/>問休み<small>（0マルなら1休）</small>
-				</label>
-				<br />
-				<label>
-					<input
-						type="radio"
-						bind:group={activeRule.yasuMode}
-						value="batsu"
-						disabled={activeRule.mode === 'score'}
-					/>
-					N回目の誤答で
-					<input
-						type="number"
-						bind:value={activeRule.yasuPerBatsu}
-						onfocus={() => (activeRule.yasuMode = 'batsu')}
-						min="1"
-					/>N問休み
-				</label>
-				<br />
-				<label>
-					<input type="radio" bind:group={activeRule.yasuMode} value="roulette" />
-					ルーレット
-				</label>
-				{#if activeRule.yasuMode === 'constant'}
-					{#if !Number.isInteger(activeRule.yasuPerBatsu) || activeRule.yasuPerBatsu < 0}
-						<span class="error">休みは0以上の整数で設定してください</span>
+					<label>
+						<input type="radio" bind:group={activeRule.yasuMode} value="constant" />
+						<input
+							type="number"
+							bind:value={activeRule.yasuPerBatsu}
+							onfocus={() => (activeRule.yasuMode = 'constant')}
+							min="0"
+						/>
+						問休み<small>（0で休みなし）</small>
+					</label>
+					<br />
+					<label>
+						<input
+							type="radio"
+							bind:group={activeRule.yasuMode}
+							value="maru"
+							disabled={activeRule.mode === 'score'}
+						/>
+						（現在のマル数）×
+						<input
+							type="number"
+							bind:value={activeRule.yasuPerBatsu}
+							onfocus={() => (activeRule.yasuMode = 'maru')}
+							min="1"
+						/>問休み<small>（0マルなら1休）</small>
+					</label>
+					<br />
+					<label>
+						<input
+							type="radio"
+							bind:group={activeRule.yasuMode}
+							value="batsu"
+							disabled={activeRule.mode === 'score'}
+						/>
+						N回目の誤答で
+						<input
+							type="number"
+							bind:value={activeRule.yasuPerBatsu}
+							onfocus={() => (activeRule.yasuMode = 'batsu')}
+							min="1"
+						/>N問休み
+					</label>
+					<br />
+					<label>
+						<input type="radio" bind:group={activeRule.yasuMode} value="roulette" />
+						ルーレット
+					</label>
+					{#if activeRule.yasuMode === 'constant'}
+						{#if !Number.isInteger(activeRule.yasuPerBatsu) || activeRule.yasuPerBatsu < 0}
+							<span class="error">休みは0以上の整数で設定してください</span>
+						{/if}
+					{:else if activeRule.yasuMode !== 'roulette'}
+						{#if !Number.isInteger(activeRule.yasuPerBatsu) || activeRule.yasuPerBatsu < 1}
+							<span class="error">休みの倍数は1以上の整数で設定してください</span>
+						{/if}
 					{/if}
-				{:else if activeRule.yasuMode !== 'roulette'}
-					{#if !Number.isInteger(activeRule.yasuPerBatsu) || activeRule.yasuPerBatsu < 1}
-						<span class="error">休みの倍数は1以上の整数で設定してください</span>
-					{/if}
-				{/if}
-			</div>
-
-			{#if activeRule.yasuMode === 'roulette'}
-				<div transition:fade>ルーレット</div>
-				<div transition:fade>
-					{#each Object.keys(roulettePresets) as name (name)}
-						<label>
-							<input type="radio" bind:group={activeRule.rouletteName} value={name} />
-							{name}
-						</label>
-					{/each}
 				</div>
-			{/if}
 
-			{#if activeTab === 0 && activeRule.mode === 'score'}
-				<div transition:fly>まとめて加減点</div>
-				<div transition:fly>
-					<label>
-						<input type="radio" bind:group={activeRule.isBulkAdjustmentNull} value={true} />
-						使わない
-					</label>
-
-					<label>
-						<input type="radio" bind:group={activeRule.isBulkAdjustmentNull} value={false} />
-						使う
-					</label>
-
-					{#if !activeRule.isBulkAdjustmentNull}
-						<br />
-						{#each activeRule.bulkAdjustment, i (i)}
-							<input type="number" bind:value={activeRule.bulkAdjustment[i]} />
-							<button onclick={() => activeRule.bulkAdjustment.splice(i, 1)}>削除</button>
-							<br />
+				{#if activeRule.yasuMode === 'roulette'}
+					<div transition:fade>ルーレット</div>
+					<div transition:fade>
+						{#each Object.keys(roulettePresets) as name (name)}
+							<label>
+								<input type="radio" bind:group={activeRule.rouletteName} value={name} />
+								{name}
+							</label>
 						{/each}
-						<button onclick={() => activeRule.bulkAdjustment.push(0)}>追加</button>
-					{/if}
-				</div>
-			{/if}
-		</div>
+					</div>
+				{/if}
+
+				{#if activeTab === 0 && activeRule.mode === 'score'}
+					<div transition:fly>まとめて加減点</div>
+					<div transition:fly>
+						<label>
+							<input type="radio" bind:group={activeRule.isBulkAdjustmentNull} value={true} />
+							使わない
+						</label>
+
+						<label>
+							<input type="radio" bind:group={activeRule.isBulkAdjustmentNull} value={false} />
+							使う
+						</label>
+
+						{#if !activeRule.isBulkAdjustmentNull}
+							<br />
+							{#each activeRule.bulkAdjustment, i (i)}
+								<input type="number" bind:value={activeRule.bulkAdjustment[i]} />
+								<button onclick={() => activeRule.bulkAdjustment.splice(i, 1)}>削除</button>
+								<br />
+							{/each}
+							<button onclick={() => activeRule.bulkAdjustment.push(0)}>追加</button>
+						{/if}
+					</div>
+				{/if}
+			</div>
+		{/if}
+
 		<div class="buttons">
 			<RulePresetDialog
 				{apply}
