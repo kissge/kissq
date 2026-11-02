@@ -15,7 +15,9 @@
 
 <style>
 	span {
+		box-sizing: border-box;
 		display: inline-block;
+		height: 1.8em;
 		translate: 0 -0.1em;
 		border-radius: 0.2em;
 		padding: 0.1em 0.3em;

@@ -467,7 +467,7 @@ export class Rule {
 		}
 
 		if (this.attendantLimit !== null) {
-			arr.push(`このグループでの勝ち抜け人数は最大${this.attendantLimit}人`);
+			arr.push(`このグループで勝ち抜けが${this.attendantLimit}人出たらグループ内の解答権は終了`);
 		}
 
 		return arr;
@@ -487,7 +487,7 @@ export class Rule {
 		}
 
 		if (this.attendantLimitOverall !== null) {
-			arr.push(`全体での勝ち抜け人数は最大${this.attendantLimitOverall}人`);
+			arr.push(`全体で勝ち抜けが${this.attendantLimitOverall}人出たら終了`);
 		}
 
 		return arr;
