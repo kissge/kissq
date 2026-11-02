@@ -203,14 +203,15 @@
 	}
 
 	function copyRule() {
+		const currentRule = activeTab === -1 ? rules[0] : activeRule;
 		rules.forEach((rule) => {
-			rule.mode = activeRule.mode;
-			rule.win = activeRule.win;
+			rule.mode = currentRule.mode;
+			rule.win = currentRule.win;
 
-			if (activeRule.mode === 'aql') {
-				rule.isLoseNull = activeRule.isLoseNull;
-				rule.batsuMode = activeRule.batsuMode;
-			} else if (activeRule.mode === 'product') {
+			if (currentRule.mode === 'aql') {
+				rule.isLoseNull = currentRule.isLoseNull;
+				rule.batsuMode = currentRule.batsuMode;
+			} else if (currentRule.mode === 'product') {
 				rule.isLoseNull = true;
 			}
 		});
