@@ -1,4 +1,4 @@
-import type { OptionalKeys } from './utils';
+import type { OptionalKeys, PartialBy } from './utils';
 
 export type Penalty = { type: 'yasu'; count: number } | { type: 'zero' };
 
@@ -611,6 +611,6 @@ export class Rule {
 const _ = { ...({} as Rule) };
 /** List up possibly non-existent properties due to backward compatibility */
 export type RulePOJO = OptionalKeys<
-	Omit<typeof _, 'max'>,
+	PartialBy<Omit<typeof _, 'max'>, 'isRemoved'>,
 	'bulkAdjustment' | 'multiplyMinimum' | 'attendantLimitOverall'
 >;

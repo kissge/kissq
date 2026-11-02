@@ -16,24 +16,24 @@ export class GameClass extends GameClassBase<'single'> {
 
 	attendants = $state<Attendant[]>([]);
 	rules = $state([
-		new Rule(
-			'marubatsu',
-			'endless',
-			7,
-			3,
-			null,
-			null,
-			1,
-			1,
-			false,
-			null,
-			'constant',
-			0,
-			null,
-			null,
-			0,
-			null
-		)
+		Rule.from({
+			mode: 'marubatsu',
+			chance: 'endless',
+			win: 7,
+			lose: 3,
+			questionLimit: null,
+			attendantLimit: null,
+			maru: 1,
+			batsu: 1,
+			transit: false,
+			yasuPerMaru: null,
+			yasuMode: 'constant',
+			yasuPerBatsu: 0,
+			roulette: null,
+			bulkAdjustment: null,
+			multiplyMinimum: 0,
+			attendantLimitOverall: null
+		})
 	]);
 	history = $state<HistoryEntry[]>([]);
 	gameTitle = $state('');

@@ -17,24 +17,25 @@ export class GameClass extends GameClassBase<'team'> {
 	attendants = $state<Attendant[]>([]);
 	teams = $state<string[]>([]);
 	rules = $state([
-		new Rule(
-			'aql',
-			'endless',
-			200,
-			null,
-			null,
-			null,
-			1,
-			'updown',
-			false,
-			null,
-			'constant',
-			0,
-			null,
-			null,
-			0,
-			null
-		)
+		Rule.from({
+			mode: 'aql',
+			chance: 'endless',
+			win: 200,
+			lose: null,
+			questionLimit: null,
+			attendantLimit: null,
+			maru: 1,
+			batsu: 'updown',
+			transit: false,
+			yasuPerMaru: null,
+			yasuMode: 'constant',
+			yasuPerBatsu: 0,
+			roulette: null,
+			bulkAdjustment: null,
+			multiplyMinimum: 0,
+			attendantLimitOverall: null,
+			isRemoved: false
+		})
 	]);
 	history = $state<HistoryEntry[]>([]);
 	gameTitle = $state('');

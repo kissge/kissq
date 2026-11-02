@@ -144,18 +144,18 @@
 	let activeRules = $derived(rules.flatMap((rule, i) => (rule.isRemoved ? [] : { rule, i })));
 
 	let rulesObject = $derived(
-		rules.map(
-			(rule) =>
-				new Rule(
-					rule.mode,
-					rules[0].chance,
-					rule.win,
-					rule.isLoseNull ? null : rule.lose,
-					rules[0].isQuestionLimitNull ? null : rules[0].questionLimit,
-					rule.isAttendantLimitNull ? null : rule.attendantLimit,
-					rule.maru,
-					rule.batsuMode === 'number' ? rule.batsu : rule.batsuMode,
-					rule.transit,
+		rules.map((rule) =>
+			Rule.from({
+				mode: rule.mode,
+				chance: rules[0].chance,
+				win: rule.win,
+				lose: rule.isLoseNull ? null : rule.lose,
+				questionLimit: rules[0].isQuestionLimitNull ? null : rules[0].questionLimit,
+				attendantLimit: rule.isAttendantLimitNull ? null : rule.attendantLimit,
+				maru: rule.maru,
+				batsu: rule.batsuMode === 'number' ? rule.batsu : rule.batsuMode,
+				transit: rule.transit,
+				yasuPerMaru:
 					rule.yasuPerMaruMode === null
 						? null
 						: rule.yasuPerMaruMode === 'custom'
@@ -172,16 +172,19 @@
 									yasu:
 										rule.yasuPerMaruMode === 'number' ? rule.yasuPerMaruYasu : rule.yasuPerMaruMode
 								},
-					rule.yasuMode,
-					rule.yasuPerBatsu,
+				yasuMode: rule.yasuMode,
+				yasuPerBatsu: rule.yasuPerBatsu,
+				roulette:
 					rule.rouletteName === null
 						? null
 						: { name: rule.rouletteName, choices: roulettePresets[rule.rouletteName] },
-					rule.isBulkAdjustmentNull ? null : rule.bulkAdjustment,
-					rule.multiplyMinimum,
-					rules[0].isAttendantLimitOverallNull ? null : rules[0].attendantLimitOverall,
-					rule.isRemoved
-				)
+				bulkAdjustment: rule.isBulkAdjustmentNull ? null : rule.bulkAdjustment,
+				multiplyMinimum: rule.multiplyMinimum,
+				attendantLimitOverall: rules[0].isAttendantLimitOverallNull
+					? null
+					: rules[0].attendantLimitOverall,
+				isRemoved: rule.isRemoved
+			})
 		)
 	);
 
