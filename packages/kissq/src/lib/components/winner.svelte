@@ -59,7 +59,9 @@
 	}
 
 	function getAttendantNames(logicalRank: number): string[] | undefined {
-		return ranking[logicalRank]?.attendantIDs.map((id) => Game.attendants[id].name);
+		return ranking[logicalRank]?.attendantIDs.map(
+			(id) => Game.attendants[id].name || `プレイヤー${id + 1}`
+		);
 	}
 </script>
 
