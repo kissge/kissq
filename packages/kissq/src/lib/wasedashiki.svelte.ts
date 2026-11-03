@@ -33,7 +33,7 @@ export class WasedashikiClass {
 	answererRanking = $derived(
 		Object.entries(this.answerers)
 			.filter(([, v]) => v != null)
-			.toSorted((a, b) => a[1]!.delay - b[1]!.delay)
+			.toSorted((a, b) => a[1]!.totalRank - b[1]!.totalRank)
 			.map(([k, v]) => [this.buttonReverseMapping[(Number(k) + 1) as ButtonID], v!] as const)
 	);
 
