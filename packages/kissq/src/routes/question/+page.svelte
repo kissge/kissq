@@ -10,7 +10,7 @@
 	import RuleEditDialog from '$lib/components/ruleEditDialog.svelte';
 	import RuleTeamEditDialog from '$lib/components/ruleTeamEditDialog.svelte';
 	import type { HistoryEntry } from '$lib/historyEntry';
-	import { parseCSV, qZero } from '$lib/question';
+	import { parseComment, parseCSV, qZero } from '$lib/question';
 	import type { IncomingMessage, OutgoingMessage } from '$lib/questionConsole.svelte';
 	import { Rule } from '$lib/rule';
 	import type { WasedashikiMode } from '$lib/serial';
@@ -23,18 +23,23 @@
 
 	const opener = (typeof window !== 'undefined' ? window.opener : {}) as Window;
 
-	let questions = $state<
-		{
-			id: number;
-			question: string;
-			answer: string;
-			comment: string;
-			shown?: 0 | 1;
-			correctAnswerer?: string | null;
-			slashOffset: number | undefined;
-			likedBy?: string[];
-		}[]
-	>([qZero]);
+	interface RawQuestion {
+		id: number;
+		question: string;
+		answer: string;
+		comment: string;
+		shown?: 0 | 1;
+		correctAnswerer?: string | null;
+		slashOffset: number | undefined;
+		likedBy?: string[];
+	}
+
+	interface ParsedQuestion extends RawQuestion {
+		imageURL: string | undefined;
+	}
+
+	let rawQuestions = $state<RawQuestion[]>([qZero]);
+	let questions = $derived(rawQuestions.map(parseComment));
 	let rawInput = $state('');
 	let currentIndex = $state(0);
 
@@ -306,7 +311,7 @@
 				throw new Error(`Failed to fetch questions: ${response.status}`);
 			}
 
-			questions = [qZero, ...(await response.json())];
+			rawQuestions = [qZero, ...(await response.json())];
 		}
 	}
 
@@ -349,13 +354,15 @@
 				fetchRemoteQuestions().then(() =>
 					Toastify({ text: '問題をクラウドから同期しました' }).showToast()
 				);
+			} else {
+				enableCompanion = false;
 			}
 		}
 
 		if (!enableCompanion || !companionSessionID) {
 			const stored = window.localStorage.getItem('questions');
 			if (stored) {
-				questions = JSON.parse(stored);
+				rawQuestions = JSON.parse(stored);
 			}
 		}
 
@@ -385,8 +392,8 @@
 	});
 
 	async function loadFromCSV() {
-		questions = parseCSV(rawInput, googleSheetsMode);
-		window.localStorage.setItem('questions', JSON.stringify(questions));
+		rawQuestions = parseCSV(rawInput, googleSheetsMode);
+		window.localStorage.setItem('questions', JSON.stringify(rawQuestions));
 
 		if (enableCompanion && companionSessionID && client) {
 			console.log(
@@ -394,7 +401,7 @@
 					await client.api.questions.$put({
 						json: {
 							sessionID: companionSessionID,
-							questions: questions.map((q, id) => ({ ...q, id })).slice(1)
+							questions: rawQuestions.map((q, id) => ({ ...q, id })).slice(1)
 						}
 					})
 				).json()
@@ -696,11 +703,11 @@
 <main class="console">
 	<table>
 		<tbody>
-			{#each questions as { question, answer, comment, shown, correctAnswerer, slashOffset, likedBy }, index (question + index)}
+			{#each questions as { question, answer, comment, imageURL, shown, correctAnswerer, slashOffset, likedBy }, index (question + index)}
 				<tr class:current={index === currentIndex}>
 					<td
 						rowspan={1 +
-							(comment || (likedBy?.length ?? 0) > 0 ? 1 : 0) +
+							(comment || imageURL || (likedBy?.length ?? 0) > 0 ? 1 : 0) +
 							(enableCompanion && index > 0 ? 1 : 0)}
 					>
 						<button
@@ -719,7 +726,7 @@
 								class:slash={typeof slashOffset === 'number' && i <= slashOffset}
 								{@attach charPopup(c, next)}
 								onclick={() => {
-									questions[index].slashOffset = i;
+									rawQuestions[index].slashOffset = i;
 								}}
 							>
 								{c}
@@ -731,11 +738,14 @@
 					</td>
 				</tr>
 
-				{#if comment || (likedBy?.length ?? 0) > 0}
+				{#if comment || imageURL || (likedBy?.length ?? 0) > 0}
 					<tr>
 						<td colspan="2" class="comment">
 							<small>
 								{comment}
+								{#if imageURL}
+									🖼️
+								{/if}
 
 								{#if likedBy && likedBy.length > 0}
 									<br />

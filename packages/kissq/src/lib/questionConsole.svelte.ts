@@ -187,6 +187,7 @@ export type IncomingMessage =
 			answer: string;
 			comment: string;
 			slashOffset: number | undefined;
+			imageURL: string | undefined;
 	  }
 	| { command: 'clickMaru'; attendantID: number }
 	| { command: 'clickEffect2'; attendantID: AttendantID }

@@ -1,9 +1,9 @@
 <script lang="ts">
-	import type { InferResponseType } from 'hono/client';
 	import { onMount } from 'svelte';
 	import { getAPIClient, type APIClient } from '$lib/api';
 	import { THROUGH } from '$lib/types';
 	import { splitQuestion } from '$lib/utils';
+	import { parseComment, type CompanionParsedQuestion } from '$lib/question';
 
 	let client: APIClient | undefined;
 	let sessionID: string | undefined;
@@ -13,8 +13,7 @@
 
 	let nameDialog: HTMLDialogElement;
 
-	let questions =
-		$state<InferResponseType<APIClient['api']['questions'][':session_id']['$get'], 200>>();
+	let questions = $state<CompanionParsedQuestion[]>();
 
 	let showSpinner = $state(false);
 
@@ -35,7 +34,7 @@
 
 		const data = await response.json();
 		const doScroll = questions?.at(-1)?.id === currentSlide;
-		questions = data;
+		questions = data.map(parseComment);
 		if (doScroll) {
 			setTimeout(() => {
 				document

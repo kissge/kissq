@@ -1,6 +1,8 @@
+import type { InferResponseType } from 'hono/client';
 import { csv2json } from 'json-2-csv';
+import type { APIClient } from './api';
 
-export const qZero = {
+export const qZero: CSVQuestion = {
 	id: 0,
 	question: 'ここに問題が表示されます',
 	answer: 'ここに答えが表示されます',
@@ -8,16 +10,15 @@ export const qZero = {
 	slashOffset: undefined as number | undefined
 };
 
-export function parseCSV(
-	rawInput: string,
-	googleSheetsMode: boolean
-): {
+interface CSVQuestion {
 	id: number;
 	question: string;
 	answer: string;
 	comment: string;
 	slashOffset: number | undefined;
-}[] {
+}
+
+export function parseCSV(rawInput: string, googleSheetsMode: boolean): CSVQuestion[] {
 	if (googleSheetsMode) {
 		return parseGoogleSheetsText(rawInput);
 	}
@@ -49,13 +50,7 @@ export function parseCSV(
 	];
 }
 
-function parseGoogleSheetsText(rawInput: string): {
-	id: number;
-	question: string;
-	answer: string;
-	comment: string;
-	slashOffset: number | undefined;
-}[] {
+function parseGoogleSheetsText(rawInput: string): CSVQuestion[] {
 	const results = [];
 
 	while (rawInput) {
@@ -124,11 +119,28 @@ function parseGoogleSheetsText(rawInput: string): {
 		}
 	}
 
-	return results.map(([question, answer, comment], id) => ({
-		id: id + 1,
-		question: String(question),
-		answer: String(answer),
-		comment: String(comment ?? ''),
-		slashOffset: undefined
-	}));
+	return [
+		qZero,
+		...results.map(([question, answer, comment], id) => ({
+			id: id + 1,
+			question: String(question),
+			answer: String(answer),
+			comment: String(comment ?? ''),
+			slashOffset: undefined
+		}))
+	];
 }
+
+export function parseComment<Q extends { comment: string }>(
+	q: Q
+): Q & { imageURL: string | undefined } {
+	const split = String(q.comment).split(/(?:\n|^)--\n+/);
+	return { ...q, comment: split[0].trim(), imageURL: split[1]?.replace(/^img:/, '').trim() };
+}
+
+export type CompanionParsedQuestion = InferResponseType<
+	APIClient['api']['questions'][':session_id']['$get'],
+	200
+>[number] & {
+	imageURL: string | undefined;
+};
