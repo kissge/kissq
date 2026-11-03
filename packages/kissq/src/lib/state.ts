@@ -9,7 +9,7 @@ export class AttendantState {
 
 	constructor(
 		public name: string,
-		public attendantID: number,
+		public attendantID: AttendantID,
 		public manualOrder: number,
 		public group: number,
 		public rule: Rule,
@@ -714,7 +714,7 @@ export class GameState {
 			({ name, group, trophyCount, totalScore, manualOrder }, attendantID) =>
 				new AttendantState(
 					name,
-					attendantID,
+					attendantID as AttendantID,
 					manualOrder,
 					group,
 					rules[group],
