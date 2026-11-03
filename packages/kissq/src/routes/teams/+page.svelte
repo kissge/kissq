@@ -286,7 +286,15 @@
 		>
 			全員リセット
 		</button>
-		<button popovertarget="other-menu"> その他 ▼ </button>
+
+		<button
+			popovertarget="other-menu"
+			class="other-menu-button"
+			onclick={() => setTimeout(() => (document.getElementById('other-menu')!.scrollTop = 0), 100)}
+			{@attach tooltip('その他の操作を表示します。')}
+		>
+			⋮
+		</button>
 	</Footer>
 
 	<!-- svelte-ignore a11y_click_events_have_key_events -->
@@ -295,7 +303,7 @@
 		id="other-menu"
 		onclick={(e) => {
 			const t = e.currentTarget;
-			setTimeout(() => t.hidePopover(), 1000);
+			setTimeout(() => t.hidePopover(), 300);
 		}}
 		role="menu"
 		tabindex="-1"
@@ -325,32 +333,65 @@
 					Wasedashiki.lastButtonID = undefined;
 				}
 			}}
-			{@attach tooltip('全員の名前・チーム・枠・スコアをリセットします。')}>全削除</button
+			{@attach tooltip('全員の名前・チーム・枠・スコアをリセットします。', {
+				placement: 'left'
+			})}
 		>
-		<button onclick={() => logDialog.open()}>履歴確認</button>
+			全削除
+		</button>
+		<button
+			onclick={() => logDialog.open()}
+			{@attach tooltip('歴代のゲームの戦績を表示します。', { placement: 'left' })}
+		>
+			履歴確認
+		</button>
 		<button
 			onclick={() => (Game.playSounds = !Game.playSounds)}
-			{@attach tooltip('効果音のオンオフを切り替えます')}
+			{@attach tooltip(Game.playSounds ? '効果音をOFFにします。' : '効果音をONにします。', {
+				placement: 'left'
+			})}
 		>
-			{#if Game.playSounds}🔊 ON{:else}🔇 OFF{/if}
+			{#if Game.playSounds}🔊 ON（をOFFにする）{:else}🔇 OFF（をONにする）{/if}
 		</button>
-		<button onclick={editAppearance} {@attach tooltip('外観の設定を編集します')}>
+		<button
+			onclick={editAppearance}
+			{@attach tooltip('外観の設定を編集します（※この機能はアンロックが必要です）。', {
+				placement: 'left'
+			})}
+		>
 			デザイン設定🔒
 		</button>
 		<button
 			onclick={() => combinationDialog.open()}
-			{@attach tooltip('チーム分けを編集補助します')}
+			{@attach tooltip('レート順・ランダム・一括入力を使ってチーム分けを補助します。', {
+				placement: 'left'
+			})}
 		>
 			チーム分け
 		</button>
-		<button onclick={() => QuestionConsole.openSubWindow()}>操作盤表示</button>
+		<button
+			onclick={QuestionConsole.openSubWindow}
+			{@attach tooltip('遠隔操作・問題表示などができるサブウィンドウを開きます。', {
+				placement: 'left'
+			})}
+		>
+			操作盤を表示する
+		</button>
 		<button
 			disabled={Wasedashiki.serialPort != null}
 			onclick={() => Wasedashiki.initiateSerialConnection()}
+			{@attach tooltip('早稲田式早押しボタンとの連携機能を使い、接続を開始します。', {
+				placement: 'left'
+			})}
 		>
-			早稲田式連携
+			早稲田式連携の接続を開始する
 		</button>
-		<button onclick={() => unlockDialog.open()}>機能アンロック</button>
+		<button
+			onclick={() => unlockDialog.open()}
+			{@attach tooltip('追加の機能を解禁します。', { placement: 'left' })}
+		>
+			機能をアンロックする
+		</button>
 	</div>
 </main>
 
@@ -481,12 +522,15 @@
 		}
 	}
 
-	#other-menu {
+	#other-menu:popover-open {
 		position: absolute;
 		position-area: top;
 		margin-bottom: 0.25em;
 		box-shadow: 0 0 5px #0008;
 		border: 0;
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.2em;
 	}
 
 	:global(.tippy-box:has(button)) {
@@ -497,19 +541,6 @@
 			min-width: 4em;
 			height: 2em;
 			font-size: 1em;
-		}
-	}
-
-	[popover] {
-		animation: fadeIn 0.2s ease-in;
-	}
-
-	@keyframes fadeIn {
-		from {
-			opacity: 0;
-		}
-		to {
-			opacity: 1;
 		}
 	}
 

@@ -260,5 +260,59 @@
 				'HG教科書体',
 				/* どの教科書体も無い場合の最終フォールバック */ sans-serif;
 		}
+
+		.other-menu-button {
+			flex: 0 0 2em;
+			height: 2em;
+			margin-right: -0.8em;
+			padding: 0;
+			border: 0;
+			border-radius: 5em;
+			font-weight: bold;
+
+			&:focus {
+				box-shadow: none !important;
+			}
+		}
+
+		#other-menu:popover-open {
+			position: absolute;
+			position-area: top;
+			margin-bottom: 0.25em;
+			padding: 0.25em;
+			box-shadow: 0 0 5px #0008;
+			border: 0;
+			font-size: max(1.5dvw * 0.8, 24px * 0.8);
+			display: flex;
+			flex-direction: column;
+			gap: 0.2em;
+			max-height: 80dvh;
+
+			button {
+				border: 0;
+				background: none;
+				text-align: left;
+
+				&:not([disabled]):hover {
+					background-color: #0002;
+					box-shadow: none;
+				}
+			}
+		}
+
+		[popover] {
+			animation: fadeIn 0.2s ease-in-out;
+		}
+
+		@keyframes fadeIn {
+			from {
+				opacity: 0;
+				translate: 0 0.5em;
+			}
+			to {
+				opacity: 1;
+				translate: 0 0;
+			}
+		}
 	}
 </style>

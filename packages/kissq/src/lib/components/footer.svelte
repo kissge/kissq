@@ -57,6 +57,7 @@
 		.left {
 			display: flex;
 			flex-grow: 1;
+			align-items: center;
 			gap: 1em;
 			font-size: 0.8em;
 
