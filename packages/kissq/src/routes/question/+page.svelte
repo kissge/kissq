@@ -10,7 +10,7 @@
 	import RuleEditDialog from '$lib/components/ruleEditDialog.svelte';
 	import RuleTeamEditDialog from '$lib/components/ruleTeamEditDialog.svelte';
 	import type { HistoryEntry } from '$lib/historyEntry';
-	import { parseComment, parseCSV, qZero } from '$lib/question';
+	import { parseComment, parseCSV, qZero, type CSVQuestion } from '$lib/question';
 	import type { IncomingMessage, OutgoingMessage } from '$lib/questionConsole.svelte';
 	import { Rule } from '$lib/rule';
 	import type { WasedashikiMode } from '$lib/serial';
@@ -23,19 +23,10 @@
 
 	const opener = (typeof window !== 'undefined' ? window.opener : {}) as Window;
 
-	interface RawQuestion {
-		id: number;
-		question: string;
-		answer: string;
-		comment: string;
+	interface RawQuestion extends CSVQuestion {
 		shown?: 0 | 1;
 		correctAnswerer?: string | null;
-		slashOffset: number | undefined;
 		likedBy?: string[];
-	}
-
-	interface ParsedQuestion extends RawQuestion {
-		imageURL: string | undefined;
 	}
 
 	let rawQuestions = $state<RawQuestion[]>([qZero]);

@@ -10,7 +10,7 @@ export const qZero: CSVQuestion = {
 	slashOffset: undefined as number | undefined
 };
 
-interface CSVQuestion {
+export interface CSVQuestion {
 	id: number;
 	question: string;
 	answer: string;
