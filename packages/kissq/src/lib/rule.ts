@@ -307,7 +307,9 @@ export class Rule {
 				}
 
 				if (this.transit) {
-					arr.push(`${this.win - 1}点で通過席`);
+					arr.push(
+						`${this.win - 1}点で通過席（通過席状態で正解すると勝利。誤答するか他のプレイヤーが正解すると0点に戻る）`
+					);
 				}
 				break;
 
