@@ -68,11 +68,11 @@ export class TeamGameClass extends GameClassBase<'team'> {
 	);
 
 	attendantsPerTeam = $derived.by(() => {
-		const atts = this.attendants.reduce<({ att: Attendant; ai: number }[] | undefined)[][]>(
+		const atts = this.attendants.reduce<({ att: Attendant; ai: AttendantID }[] | undefined)[][]>(
 			(acc, att, ai) => {
 				acc[att.team] ??= [];
 				acc[att.team][att.seat] ??= [];
-				acc[att.team][att.seat]!.push({ att, ai });
+				acc[att.team][att.seat]!.push({ att, ai: ai as AttendantID });
 				return acc;
 			},
 			this.teams.map(() => [])
@@ -111,7 +111,7 @@ export class TeamGameClass extends GameClassBase<'team'> {
 		return attendant;
 	}
 
-	handlePasteEvent(event: ClipboardEvent, attendantID: number, teamID: number): Attendant[] {
+	handlePasteEvent(event: ClipboardEvent, attendantID: AttendantID, teamID: number): Attendant[] {
 		const text = (event.clipboardData?.getData('text') || '').trim();
 		const lines = text.split(/[\r\n]+/);
 		const added: Attendant[] = [];
@@ -132,7 +132,7 @@ export class TeamGameClass extends GameClassBase<'team'> {
 		return added;
 	}
 
-	async clickBatsu(attendantID: number, playSounds_: boolean = true) {
+	async clickBatsu(attendantID: AttendantID, playSounds_: boolean = true) {
 		const single =
 			this.currentState.attendants[attendantID].rule.chance === 'single' ||
 			this.wasedashikiMode === 'single' ||

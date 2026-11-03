@@ -181,7 +181,7 @@
 		}
 	}
 
-	async function editState(attendantID: number, att: AttendantState) {
+	async function editState(attendantID: AttendantID, att: AttendantState) {
 		const result = await stateEditDialog.open(att);
 		if (result) {
 			Game.history.push(new EditHistoryEntry(attendantID, result));

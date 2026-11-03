@@ -22,7 +22,7 @@
 		reset: () => void;
 		setAttendantList: (attendants: Attendant[]) => void;
 		setGameTitle: (title: string) => void;
-		updateAttendant: (attendantID: number, diff: { group?: number; name?: string }) => void;
+		updateAttendant: (attendantID: AttendantID, diff: { group?: number; name?: string }) => void;
 	} = $props();
 
 	let fullAttendants = $state<Attendant[]>([]);
@@ -178,7 +178,8 @@
 							placeholder="プレイヤー{ai + 1}"
 							onchange={() => {
 								if (gameInProgress) {
-									const cai = gameInProgress.attendantIDs.indexOf(ai as AttendantID);
+									const cai = gameInProgress.attendantIDs.indexOf(ai as AttendantID) as
+										AttendantID | -1;
 									if (cai !== -1) {
 										updateAttendant(cai, { name: attendant.name });
 									}

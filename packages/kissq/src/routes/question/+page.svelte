@@ -149,8 +149,8 @@
 	let ruleTeamEditDialog: { open: (rules: Rule[]) => Promise<Rule[] | null> };
 
 	let attendantElements: HTMLElement[] = $state([]);
-	let isDragging = $state<number | null>(null);
-	let dropTarget = $state<number | null>(null);
+	let isDragging = $state<AttendantID | null>(null);
+	let dropTarget = $state<AttendantID | null>(null);
 	let isDragAvailable = $derived(
 		mainScreenOrderingMode === 'manual' && (order === 'same' || order === 'reverse')
 	);
@@ -238,7 +238,10 @@
 		if (orderedAttendants && isDragging != null && dropTarget != null) {
 			postMessage({
 				command: 'reorderAttendants',
-				attendantID: order === 'same' ? isDragging : orderedAttendants.length - isDragging - 1,
+				attendantID:
+					order === 'same'
+						? isDragging
+						: ((orderedAttendants.length - isDragging - 1) as AttendantID),
 				newOrder: order === 'same' ? dropTarget - 0.5 : orderedAttendants.length - dropTarget - 0.5
 			});
 			isDragging = null;
@@ -537,13 +540,13 @@
 					role="listitem"
 					ondragstart={() => {
 						if (isDragAvailable) {
-							isDragging = ord;
+							isDragging = ord as AttendantID;
 						}
 					}}
 					ondragover={(event) => {
 						if (isDragAvailable) {
 							event.preventDefault();
-							dropTarget = ord;
+							dropTarget = ord as AttendantID;
 						}
 					}}
 					ondragend={() => {
@@ -565,7 +568,7 @@
 								const newGroup = Number.parseInt((event.target as HTMLSelectElement).value);
 								postMessage({
 									command: 'updateAttendant',
-									attendantID: ai,
+									attendantID: ai as AttendantID,
 									diff: { group: newGroup }
 								});
 							}}
@@ -614,7 +617,8 @@
 							<button
 								class="labeled"
 								data-label={Keys[ord2]?.[0] || ''}
-								onclick={() => postMessage({ command: 'clickMaru', attendantID: ai })}
+								onclick={() =>
+									postMessage({ command: 'clickMaru', attendantID: ai as AttendantID })}
 							>
 								O
 							</button>
@@ -639,7 +643,8 @@
 							<button
 								class="labeled"
 								data-label={Keys[ord2]?.[1] || ''}
-								onclick={() => postMessage({ command: 'clickBatsu', attendantID: ai })}
+								onclick={() =>
+									postMessage({ command: 'clickBatsu', attendantID: ai as AttendantID })}
 							>
 								X
 							</button>
@@ -658,7 +663,7 @@
 					role="listitem"
 					ondragover={(event) => {
 						event.preventDefault();
-						dropTarget = orderedAttendants.length;
+						dropTarget = orderedAttendants.length as AttendantID;
 					}}
 					ondragend={onDragEnd}
 				></div>

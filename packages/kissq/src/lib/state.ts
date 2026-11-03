@@ -487,7 +487,7 @@ export class TeamState {
 	teamLife: Life = 'alive';
 
 	constructor(
-		public attendantIDsPerSeat: (number[] | undefined)[],
+		public attendantIDsPerSeat: (AttendantID[] | undefined)[],
 		public attendants: AttendantState[],
 		public lifeChangedAt: number | null = null
 	) {
@@ -499,7 +499,7 @@ export class TeamState {
 	}
 
 	processMaru(
-		attendantID: number,
+		attendantID: AttendantID,
 		multiplier: number = 1
 	): {
 		maruCount: number;
@@ -563,7 +563,7 @@ export class TeamState {
 	}
 
 	processBatsu(
-		attendantID: number,
+		attendantID: AttendantID,
 		penalty: Penalty | null = null
 	): {
 		maruCount: number;
@@ -634,14 +634,14 @@ export class TeamState {
 									: id === attendantID
 										? score!
 										: this.attendants[id].score),
-							this.attendants[0].rule.multiplyMinimum
+							this.attendants[0].rule.multiplyMinimum as number
 						),
 					1
 				);
 
 			case 'sum':
 				return this.attendantIDsPerSeat
-					.filter((seat): seat is number[] => seat != undefined)
+					.filter((seat): seat is AttendantID[] => seat != undefined)
 					.flat()
 					.reduce(
 						(sum, id) =>
@@ -689,7 +689,7 @@ export type GameEvent =
 	  }
 	| {
 			type: GameEventType;
-			attendantID: number;
+			attendantID: AttendantID;
 	  }
 	| {
 			type: GameEventType;
@@ -724,11 +724,11 @@ export class GameState {
 				)
 		);
 		this.teams = attendants
-			.reduce<number[][][]>(
+			.reduce<AttendantID[][][]>(
 				(acc, att, ai) => {
 					acc[att.team] ??= [];
 					acc[att.team][att.seat] ??= [];
-					acc[att.team][att.seat].push(ai);
+					acc[att.team][att.seat].push(ai as AttendantID);
 					return acc;
 				},
 				teams.map(() => [])
@@ -809,7 +809,7 @@ export class GameState {
 
 	checkIfLastSurvivor(): GameState {
 		if (this.defaultRule.mode === 'survival') {
-			let survivor = null;
+			let survivor: AttendantID | null = null;
 
 			for (const [id, att] of this.attendants.entries()) {
 				if (att.life === 'alive') {
@@ -818,7 +818,7 @@ export class GameState {
 						return this;
 					}
 
-					survivor = id;
+					survivor = id as AttendantID;
 				}
 			}
 
@@ -840,7 +840,7 @@ export class GameState {
 		return this;
 	}
 
-	getTeamByAttendantID(attendantID: number) {
+	getTeamByAttendantID(attendantID: AttendantID) {
 		const ti = this.teams.findIndex((team) =>
 			team.attendantIDsPerSeat.some((ids) => ids?.includes(attendantID))
 		);

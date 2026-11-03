@@ -143,10 +143,10 @@ export class WasedashikiClass {
 						)?.[0];
 						if (answererAttendantID !== undefined) {
 							if (line === '51') {
-								this.Game.clickMaru(Number.parseInt(answererAttendantID), false);
+								this.Game.clickMaru(Number.parseInt(answererAttendantID) as AttendantID, false);
 								this.answerers = [];
 							} else {
-								this.Game.clickBatsu(Number.parseInt(answererAttendantID), false);
+								this.Game.clickBatsu(Number.parseInt(answererAttendantID) as AttendantID, false);
 							}
 						} else {
 							Toastify({
@@ -211,7 +211,9 @@ export class WasedashikiClass {
 							([, id]) => id === parts[0] - 100
 						)?.[0];
 						if (answererAttendantID !== undefined) {
-							this.Game.addBulkAdjustmentTarget(Number.parseInt(answererAttendantID));
+							this.Game.addBulkAdjustmentTarget(
+								Number.parseInt(answererAttendantID) as AttendantID
+							);
 						}
 					} else {
 						let rank: 1 | 2 | 'late' = 'late';

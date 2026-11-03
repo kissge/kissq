@@ -183,7 +183,7 @@
 			bind:value={Game.attendants[ai as AttendantID].name}
 			placeholder={`プレイヤー${ai + 1}`}
 			onpaste={(e) =>
-				Game.handlePasteEvent(e, ai, ti).forEach((attendant) =>
+				Game.handlePasteEvent(e, ai as AttendantID, ti).forEach((attendant) =>
 					QuestionConsole.postMessage({ command: 'attendantAdded', attendant })
 				)}
 		/>
@@ -212,7 +212,7 @@
 						.flat()
 						.filter((a) => a != null && Game.currentState.attendants[a].life !== 'removed')
 						.length <= 1}
-					onclick={() => Game.history.push(new RemoveHistoryEntry(ai))}
+					onclick={() => Game.history.push(new RemoveHistoryEntry(ai as AttendantID))}
 					{@attach tooltip('このプレイヤーをリストから削除します。')}
 					tabindex={-1}
 				>
@@ -221,7 +221,7 @@
 			</div>
 			<button
 				class="maru-btn"
-				onclick={() => Game.clickMaru(ai)}
+				onclick={() => Game.clickMaru(ai as AttendantID)}
 				{@attach tooltip(
 					`${Game.attendants[ai].name || 'このプレイヤー'}に1○をつけて、問題カウントを1進めます（休みの人がいれば1休減ります）`
 				)}
@@ -230,7 +230,7 @@
 			</button>
 			<button
 				class="batsu-btn"
-				onclick={() => Game.clickBatsu(ai)}
+				onclick={() => Game.clickBatsu(ai as AttendantID)}
 				{@attach tooltip(
 					Game.currentState.defaultRule.chance === 'single'
 						? `${Game.attendants[ai].name || 'このプレイヤー'}に1×をつけて問題カウントを1進めます（休みの人がいれば1休減ります）`

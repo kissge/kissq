@@ -47,7 +47,7 @@ export class SingleGameClass extends GameClassBase<'single'> {
 	effect2Name = $state<string>();
 	effect3Name = $state<string>();
 	isConventionAssistActive = $state(false);
-	showBanner = (options: { type: 'effect2' | 'effect3'; attendantID: number }) => {
+	showBanner = (options: { type: 'effect2' | 'effect3'; attendantID: AttendantID }) => {
 		void options;
 	};
 	bulkAdjustmentScore = $state<number | null>(null);
@@ -58,7 +58,7 @@ export class SingleGameClass extends GameClassBase<'single'> {
 
 	// dummy
 	teams: string[] = [];
-	attendantsPerTeam: ({ att: Attendant; ai: number }[] | undefined)[][] = [];
+	attendantsPerTeam: ({ att: Attendant; ai: AttendantID }[] | undefined)[][] = [];
 
 	penaltyRoulette?: { run: (choices: Penalty[]) => Promise<number> };
 
@@ -74,14 +74,14 @@ export class SingleGameClass extends GameClassBase<'single'> {
 		)
 	);
 
-	consecutive = $derived.by<{ attendantID: number; count: number } | null>(() => {
+	consecutive = $derived.by<{ attendantID: AttendantID; count: number } | null>(() => {
 		const i = this.history.findLastIndex((entry) => entry.type === 'maru');
 
 		if (i === -1) {
 			return null;
 		}
 
-		const attendantID = (this.history[i] as { attendantID: number }).attendantID;
+		const attendantID = (this.history[i] as { attendantID: AttendantID }).attendantID;
 		const j = this.history.findLastIndex(
 			(entry) =>
 				(entry.type === 'batsu' && entry.attendantID === attendantID) ||
@@ -162,7 +162,7 @@ export class SingleGameClass extends GameClassBase<'single'> {
 		return added;
 	}
 
-	async clickBatsu(attendantID: number, playSounds_: boolean = true) {
+	async clickBatsu(attendantID: AttendantID, playSounds_: boolean = true) {
 		if (this.playSounds && playSounds_) {
 			playSound(se2);
 		}
@@ -197,7 +197,7 @@ export class SingleGameClass extends GameClassBase<'single'> {
 		}
 	}
 
-	addBulkAdjustmentTarget(attendantID: number) {
+	addBulkAdjustmentTarget(attendantID: AttendantID) {
 		this.bulkAdjustmentTarget[attendantID] = true;
 	}
 }

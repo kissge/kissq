@@ -27,22 +27,22 @@ export abstract class GameClassBase<BattleMode extends 'single' | 'team'> {
 	abstract wasedashikiMode: WasedashikiMode | undefined;
 	abstract activeRulesText: string;
 	abstract orderingMode: 'ranking' | 'manual';
-	abstract orderedAttendants: number[];
-	abstract attendantsPerTeam: ({ att: Attendant; ai: number }[] | undefined)[][];
+	abstract orderedAttendants: AttendantID[];
+	abstract attendantsPerTeam: ({ att: Attendant; ai: AttendantID }[] | undefined)[][];
 	abstract enableRating: boolean;
 	abstract effect2Name: string | undefined;
 	abstract effect3Name: string | undefined;
 	abstract isConventionAssistActive: boolean;
-	abstract showBanner: (options: { type: 'effect2' | 'effect3'; attendantID: number }) => void;
+	abstract showBanner: (options: { type: 'effect2' | 'effect3'; attendantID: AttendantID }) => void;
 	abstract bulkAdjustmentScore: number | null;
 	abstract bulkAdjust(): void;
-	abstract addBulkAdjustmentTarget(attendantID: number): void;
+	abstract addBulkAdjustmentTarget(attendantID: AttendantID): void;
 	abstract gameStartedAt: SvelteDate;
 
 	abstract Logger?: LoggerClass;
 
 	abstract addAttendant(options: { name?: string; teamID?: number }): void;
-	abstract clickBatsu(attendantID: number, playSounds_?: boolean): Promise<void>;
+	abstract clickBatsu(attendantID: AttendantID, playSounds_?: boolean): Promise<void>;
 
 	clearHistory(Wasedashiki: WasedashikiClass) {
 		this.previousTrophyGetters = [];
@@ -115,7 +115,7 @@ export abstract class GameClassBase<BattleMode extends 'single' | 'team'> {
 		}
 	}
 
-	clickMaru(attendantID: number, playSounds_: boolean = true) {
+	clickMaru(attendantID: AttendantID, playSounds_: boolean = true) {
 		this.history.push(new MaruHistoryEntry(attendantID));
 		if (this.playSounds && playSounds_) {
 			playSound(se1);

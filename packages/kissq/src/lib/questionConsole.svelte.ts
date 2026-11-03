@@ -189,18 +189,22 @@ export type IncomingMessage =
 			slashOffset: number | undefined;
 			imageURL: string | undefined;
 	  }
-	| { command: 'clickMaru'; attendantID: number }
+	| { command: 'clickMaru'; attendantID: AttendantID }
 	| { command: 'clickEffect2'; attendantID: AttendantID }
 	| { command: 'clickEffect3'; attendantID: AttendantID }
-	| { command: 'clickBatsu'; attendantID: number }
+	| { command: 'clickBatsu'; attendantID: AttendantID }
 	| { command: 'clickThrough' }
 	| { command: 'clickUndo' }
 	| { command: 'clickReset' }
 	| { command: 'addAttendant'; name: string }
 	| { command: 'setAttendantList'; attendants: Attendant[] }
 	| { command: 'updateRules'; rules: RulePOJO[]; doClear: boolean; resetGroups: 'reset' | 'keep' }
-	| { command: 'updateAttendant'; attendantID: number; diff: { group?: number; name?: string } }
-	| { command: 'reorderAttendants'; attendantID: number; newOrder: number }
+	| {
+			command: 'updateAttendant';
+			attendantID: AttendantID;
+			diff: { group?: number; name?: string };
+	  }
+	| { command: 'reorderAttendants'; attendantID: AttendantID; newOrder: number }
 	| { command: 'setGameTitle'; title: string }
 	| { command: 'activateConventionAssist' }
 	| { command: 'toggleQRCode' }

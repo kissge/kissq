@@ -28,7 +28,7 @@
 		showScore: boolean;
 		showMarubatsuOverride: boolean;
 		showTotalOverride: boolean;
-		editState: (attendantID: number, att: AttendantState) => Promise<void>;
+		editState: (attendantID: AttendantID, att: AttendantState) => Promise<void>;
 		attendantFLIPDelay: number;
 	} = $props();
 

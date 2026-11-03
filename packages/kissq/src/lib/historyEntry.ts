@@ -1,5 +1,6 @@
 import type { Penalty } from './rule';
 import { GameState, type AttendantStateValue } from './state';
+import type { AttendantID } from './types';
 
 abstract class HistoryEntry {
 	abstract type: string;
@@ -24,7 +25,7 @@ export class MaruHistoryEntry implements HistoryEntry {
 	type = 'maru' as const;
 
 	constructor(
-		public attendantID: number,
+		public attendantID: AttendantID,
 		public multiplier: number = 1
 	) {}
 
@@ -158,7 +159,7 @@ export class BatsuHistoryEntry implements HistoryEntry {
 	type = 'batsu' as const;
 
 	constructor(
-		public attendantID: number,
+		public attendantID: AttendantID,
 		public increaseQuestionCount: boolean,
 		public penalty: Penalty | null = null
 	) {}
@@ -263,7 +264,7 @@ export class ThroughHistoryEntry implements HistoryEntry {
 export class RemoveHistoryEntry implements HistoryEntry {
 	type = 'remove' as const;
 
-	constructor(public attendantID: number) {}
+	constructor(public attendantID: AttendantID) {}
 
 	toString(state: GameState): string {
 		return `${state.attendants[this.attendantID].name || 'プレイヤー ' + (this.attendantID + 1)} 削除`;
@@ -287,7 +288,7 @@ export class RemoveHistoryEntry implements HistoryEntry {
 export class WinHistoryEntry implements HistoryEntry {
 	type = 'win' as const;
 
-	constructor(public attendantID: number) {}
+	constructor(public attendantID: AttendantID) {}
 
 	toString(state: GameState): string {
 		return `${state.attendants[this.attendantID].name || 'プレイヤー ' + (this.attendantID + 1)} 勝利`;
@@ -338,7 +339,7 @@ export class WinHistoryEntry implements HistoryEntry {
 export class LoseHistoryEntry implements HistoryEntry {
 	type = 'lose' as const;
 
-	constructor(public attendantID: number) {}
+	constructor(public attendantID: AttendantID) {}
 
 	toString(state: GameState): string {
 		return `${state.attendants[this.attendantID].name || 'プレイヤー ' + (this.attendantID + 1)} 失格`;
@@ -360,7 +361,7 @@ export class EditHistoryEntry implements HistoryEntry {
 	type = 'edit' as const;
 
 	constructor(
-		public attendantID: number,
+		public attendantID: AttendantID,
 		public newState: AttendantStateValue
 	) {}
 
