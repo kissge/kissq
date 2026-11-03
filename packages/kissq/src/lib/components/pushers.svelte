@@ -59,16 +59,19 @@
 					</div>
 					<div
 						class="name"
-						class:answerer-1st={answerer.currentRank === 1 && !isNaN(attendantID)}
-						class:answerer-1st-uncertain={answerer.currentRank === 1 && isNaN(attendantID)}
+						class:answerer-1st={answerer.currentRank === 1 && attendantID != undefined}
+						class:answerer-1st-uncertain={answerer.currentRank === 1 && attendantID == undefined}
 						class:answerer-2nd={answerer.currentRank === 2 &&
 							Game.wasedashikiMode !== 'single' &&
 							Game.wasedashikiMode !== 'handicap'}
 					>
 						<div
-							style:scale={(Game.attendants[attendantID]?.name.length ?? 0) > 9 ? '0.8 1' : '1 1'}
+							style:scale={attendantID != undefined &&
+							(Game.attendants[attendantID]?.name.length ?? 0) > 9
+								? '0.8 1'
+								: '1 1'}
 						>
-							{#if isNaN(attendantID)}
+							{#if attendantID == undefined}
 								{#if answerer.currentRank === 1}
 									<select bind:value={buttonMappingTarget}>
 										{#each sortedAttendants as { attendant, ai } (ai)}
@@ -97,14 +100,15 @@
 									？？？
 								{/if}
 							{:else}
-								{Game.attendants[attendantID]?.name || `プレイヤー${attendantID + 1}`}
-								{#if Game.currentState.attendants[attendantID]?.life === 'won'}
+								{@const ai = attendantID as AttendantID}
+								{Game.attendants[ai]?.name || `プレイヤー${ai + 1}`}
+								{#if Game.currentState.attendants[ai]?.life === 'won'}
 									（勝ち抜け済）
-								{:else if Game.currentState.attendants[attendantID]?.life === 'lost'}
+								{:else if Game.currentState.attendants[ai]?.life === 'lost'}
 									（失格済）
-								{:else if Game.currentState.attendants[attendantID]?.life === 'removed'}
+								{:else if Game.currentState.attendants[ai]?.life === 'removed'}
 									（削除済）
-								{:else if typeof Game.currentState.attendants[attendantID]?.yasuCount === 'number' && Game.currentState.attendants[attendantID].yasuCount > 0}
+								{:else if typeof Game.currentState.attendants[ai]?.yasuCount === 'number' && Game.currentState.attendants[ai].yasuCount > 0}
 									（休み中）
 								{/if}
 							{/if}

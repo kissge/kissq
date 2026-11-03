@@ -22,7 +22,7 @@ export class WasedashikiClass {
 	lastBatsuButtonTime = -Infinity;
 
 	/** button ID -> attendant ID */
-	buttonReverseMapping = $derived.by(() => {
+	buttonReverseMapping: Record<ButtonID, AttendantID | undefined> = $derived.by(() => {
 		const reverse: Record<ButtonID, AttendantID> = {};
 		for (const [attendantID, buttonID] of Object.entries(this.buttonMapping)) {
 			reverse[buttonID as ButtonID] = Number(attendantID) as AttendantID;
