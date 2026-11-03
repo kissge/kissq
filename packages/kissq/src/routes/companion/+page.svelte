@@ -123,6 +123,9 @@
 				<p>
 					{question.comment}
 				</p>
+				{#if question.imageURL}
+					<img src={question.imageURL} class="comment-img" alt="関連画像" />
+				{/if}
 				<div class="spacer"></div>
 				<div class="likes">
 					いいね！
@@ -297,6 +300,7 @@
 		color: #fff;
 		font-size: min(4svw, 3svh);
 		text-wrap: pretty;
+		overflow-y: auto;
 
 		&:first-child {
 			margin-left: 15%;
@@ -369,6 +373,12 @@
 	.answerer {
 		font-weight: bold;
 		text-align: right;
+	}
+
+	.comment-img {
+		max-width: 100%;
+		max-height: 50%;
+		object-fit: contain;
 	}
 
 	.spacer {
