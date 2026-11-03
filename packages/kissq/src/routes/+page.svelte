@@ -685,8 +685,10 @@
 		onclick={() => {
 			Game.bulkAdjustmentScore = null;
 			document.getElementById('bulk-menu')?.hidePopover();
-		}}>キャンセル</button
+		}}
 	>
+		キャンセル
+	</button>
 </div>
 
 {#if isBannerVisible}
@@ -871,7 +873,7 @@
 		}
 	}
 
-	#bulk-menu {
+	#bulk-menu:popover-open {
 		position: absolute;
 		position-area: top;
 		display: flex;
