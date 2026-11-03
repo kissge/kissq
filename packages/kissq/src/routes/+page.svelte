@@ -11,6 +11,7 @@
 	import Footer from '$lib/components/footer.svelte';
 	import Header from '$lib/components/header.svelte';
 	import LogDialog from '$lib/components/logDialog.svelte';
+	import AnswerHistoryDialog from '$lib/components/answerHistoryDialog.svelte';
 	import PenaltyRoulette from '$lib/components/penaltyRoulette.svelte';
 	import Pushers from '$lib/components/pushers.svelte';
 	import QuestionWindow from '$lib/components/questionWindow.svelte';
@@ -117,6 +118,7 @@
 
 	let ruleEditDialog: { open: (rules: Rule[]) => Promise<Rule[] | null> };
 	let logDialog: { open: () => void };
+	let answerHistoryDialog: { open: () => void };
 	let effectEditDialog: { open: () => void };
 	let appearanceDialog: {
 		open: (
@@ -508,7 +510,15 @@
 		>
 			📸モード{#if screenshotModeTimer != null}をOFFに{/if}🔒
 		</button>
-		<button onclick={() => logDialog.open()}>履歴確認</button>
+		<button
+			onclick={() => answerHistoryDialog.open()}
+			{@attach tooltip('このゲームでの正解・誤答・スルーの履歴を表示します。')}
+		>
+			正誤履歴確認
+		</button>
+		<button onclick={() => logDialog.open()} {@attach tooltip('歴代のゲームの戦績を表示します。')}>
+			ゲーム履歴確認
+		</button>
 		<button
 			onclick={() => (showMarubatsuOverride = !showMarubatsuOverride)}
 			disabled={Game.currentState.defaultRule.mode === 'marubatsu'}
@@ -655,6 +665,7 @@
 
 <RuleEditDialog bind:this={ruleEditDialog} apply={updateRules} />
 <LogDialog bind:this={logDialog} />
+<AnswerHistoryDialog bind:this={answerHistoryDialog} />
 <EffectEditDialog bind:this={effectEditDialog} />
 <AppearanceDialog bind:this={appearanceDialog} />
 <StateEditDialog bind:this={stateEditDialog} />
