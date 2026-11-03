@@ -7,6 +7,7 @@
 	import { getLayoutContext } from '$lib/layout.svelte';
 	import { tooltip } from '$lib/tooltip.svelte';
 	import { getWasedashikiContext } from '$lib/wasedashiki.svelte';
+	import LimitIndicator from './limitIndicator.svelte';
 	import ChanceIndicator from './chanceIndicator.svelte';
 	import CounterPopover from './counterPopover.svelte';
 	import RuleDetailsDialog from './ruleDetailsDialog.svelte';
@@ -177,10 +178,11 @@
 		</span>
 
 		{#if Game.currentState.defaultRule.attendantLimitOverall !== null}
-			<div class="attendant-limit" {@attach tooltip('全体での残り勝ち抜け人数')}>
-				残{Game.currentState.defaultRule.attendantLimitOverall -
+			<LimitIndicator
+				limit={Game.currentState.defaultRule.attendantLimitOverall -
 					Game.currentState.attendants.filter(({ life }) => life === 'won').length}
-			</div>
+				style="rest"
+			/>
 		{/if}
 
 		<ChanceIndicator {chance} />
@@ -299,18 +301,6 @@
 		margin-left: 1em;
 		color: inherit;
 		text-decoration: none;
-	}
-
-	.attendant-limit {
-		box-sizing: border-box;
-		display: inline-block;
-		height: 1.8em;
-		translate: 0 -0.1em;
-		border: 1px solid black;
-		border-radius: 0.2em;
-		padding: 0.1em 0.3em;
-		font-weight: bold;
-		font-size: 0.8em;
 	}
 
 	:global(.scroller.truncated) {

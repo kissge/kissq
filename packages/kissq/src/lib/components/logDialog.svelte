@@ -6,6 +6,7 @@
 		type LogFilters,
 		type LogStateTeamEntry
 	} from '$lib/logs';
+	import LimitIndicator from './limitIndicator.svelte';
 	import ChanceIndicator from './chanceIndicator.svelte';
 	import LogFilterDialog from './logFilterDialog.svelte';
 
@@ -82,6 +83,7 @@
 					<tr>
 						<td colspan="7">
 							{log.rules}
+							<LimitIndicator limit={log.attendantLimitOverall} style="total" />
 							<ChanceIndicator chance={log.chance} />
 						</td>
 					</tr>

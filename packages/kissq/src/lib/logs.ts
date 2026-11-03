@@ -41,6 +41,7 @@ export interface LogEntry {
 	startAt: string;
 	mode?: 'single' | 'team';
 	questionLimit?: number;
+	attendantLimitOverall?: number;
 	chance?: WasedashikiMode;
 	gameTitle: string;
 	questionCount: number;
@@ -74,6 +75,7 @@ export class LoggerClass {
 			startAt: this.startAt,
 			mode: this.battleMode,
 			questionLimit: this.Game.rules[0].questionLimit ?? undefined,
+			attendantLimitOverall: this.Game.rules[0].attendantLimitOverall ?? undefined,
 			chance: this.Game.rules[0].chance,
 			gameTitle: this.Game.gameTitle,
 			questionCount: this.Game.currentState.questionCount - 1,
@@ -163,6 +165,7 @@ export class LoggerClass {
 		logs[index] = {
 			...logs[index],
 			questionLimit: this.Game.rules[0].questionLimit ?? undefined,
+			attendantLimitOverall: this.Game.rules[0].attendantLimitOverall ?? undefined,
 			chance: this.Game.rules[0].chance,
 			gameTitle: this.Game.gameTitle,
 			questionCount: this.Game.currentState.questionCount - 1,
