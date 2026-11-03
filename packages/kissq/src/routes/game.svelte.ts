@@ -100,13 +100,15 @@ export class SingleGameClass extends GameClassBase<'single'> {
 		};
 	});
 
-	orderedAttendants = $derived.by<number[]>(() => {
+	orderedAttendants = $derived.by<AttendantID[]>(() => {
 		switch (this.orderingMode) {
 			case 'ranking':
 				return this.currentState.ranking;
 			case 'manual':
 				return this.currentState.attendants
-					.flatMap(({ life, manualOrder }, i) => (life === 'removed' ? [] : [[manualOrder, i]]))
+					.flatMap(({ life, manualOrder }, i) =>
+						life === 'removed' ? [] : [[manualOrder, i as AttendantID] as const]
+					)
 					.toSorted(([a], [b]) => a - b)
 					.map(([, i]) => i);
 		}

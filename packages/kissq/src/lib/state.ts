@@ -1,5 +1,6 @@
 import type { Attendant } from './attendant';
 import { Rule, type Penalty, type RuleType } from './rule';
+import type { AttendantID } from './types';
 import { arrayCompare } from './utils';
 
 export type Life = 'alive' | 'won' | 'lost' | 'removed';
@@ -701,7 +702,7 @@ export class GameState {
 	questionCount: number = 1;
 	defaultRule: Rule;
 	/** attendant IDの配列（個人ランキング） */
-	ranking: number[] = [];
+	ranking: AttendantID[] = [];
 	/** 順位 (1-indexed) の配列（個人ランキング） */
 	ranks: number[] = [];
 	/** 順位 (1-indexed) の配列（チームランキング） */
@@ -741,7 +742,7 @@ export class GameState {
 		}
 
 		this.defaultRule = rules[0];
-		this.ranking = this.attendants.map((_, i) => i);
+		this.ranking = this.attendants.map((_, i) => i as AttendantID);
 	}
 
 	increaseQuestionCount(): void {

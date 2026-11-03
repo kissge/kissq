@@ -2,6 +2,7 @@ import { createContext } from 'svelte';
 import { getGameContext } from './gameContext';
 import type { WasedashikiMode } from './serial';
 import type { Life } from './state';
+import type { AttendantID } from './types';
 
 export type LogStateEntry = LogStateSingleEntry | LogStateTeamEntry;
 
@@ -13,7 +14,7 @@ export type LogStateSingleEntry =
 			maruCount: number;
 			batsuCount: number;
 			life: Life;
-			i: number;
+			i: AttendantID;
 	  }
 	| {
 			mode: 'score' | 'MbyN' | 'survival';
@@ -21,7 +22,7 @@ export type LogStateSingleEntry =
 			group: number;
 			score: number;
 			life: Life;
-			i: number;
+			i: AttendantID;
 	  };
 export type LogStateTeamEntry = {
 	mode: 'aql' | 'product' | 'sum';
@@ -33,7 +34,7 @@ export type LogStateTeamEntry = {
 	life: Life;
 	teamScore: number;
 	teamLife: Life;
-	i: number;
+	i: AttendantID;
 };
 
 export interface LogEntry {
@@ -99,7 +100,7 @@ export class LoggerClass {
 						maruCount: att.maruCount,
 						batsuCount: att.batsuCount,
 						life: att.life,
-						i: ai
+						i: ai as AttendantID
 					};
 				case 'score':
 				case 'MbyN':
@@ -110,7 +111,7 @@ export class LoggerClass {
 						group: this.Game.attendants[ai].group,
 						score: att.score,
 						life: att.life,
-						i: ai
+						i: ai as AttendantID
 					};
 				case 'aql':
 				case 'product':
@@ -125,7 +126,7 @@ export class LoggerClass {
 						seat: att.rule.mode === 'sum' ? null : this.Game.attendants[ai].seat,
 						teamScore: this.Game.currentState.teams[this.Game.attendants[ai].team].teamScore,
 						teamLife: this.Game.currentState.teams[this.Game.attendants[ai].team].teamLife,
-						i: ai
+						i: ai as AttendantID
 					};
 			}
 		});
