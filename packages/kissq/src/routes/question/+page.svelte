@@ -70,6 +70,8 @@
 
 	let timeElapsed = $state('');
 
+	let googleSheetsMode = $state(true);
+
 	let orderedAttendants = $derived.by(() => {
 		const array = (() => {
 			switch (order) {
@@ -383,7 +385,7 @@
 	});
 
 	async function loadFromCSV() {
-		questions = parseCSV(rawInput);
+		questions = parseCSV(rawInput, googleSheetsMode);
 		window.localStorage.setItem('questions', JSON.stringify(questions));
 
 		if (enableCompanion && companionSessionID && client) {
@@ -731,7 +733,7 @@
 
 				{#if comment || (likedBy?.length ?? 0) > 0}
 					<tr>
-						<td colspan="2">
+						<td colspan="2" class="comment">
 							<small>
 								{comment}
 
@@ -856,14 +858,17 @@
 
 <dialog closedby="any" bind:this={inputDialog}>
 	<p style="font-size: 0.5em">
-		ヒント：スプレッドシート上で質問と回答の列を選択してコピーするとTSV形式になります。ただし、Google
-		Sheetsの場合、改行が含まれるとぶっ壊れます。
+		ヒント：スプレッドシート上で質問と回答の列を選択してコピーするとTSV形式になります。
 	</p>
 
 	<textarea
 		bind:value={rawInput}
 		onpaste={() => setTimeout(loadFromCSV, 0)}
 		placeholder="ここにCSV/TSVデータを貼り付けてください"></textarea>
+	<label>
+		<input type="checkbox" bind:checked={googleSheetsMode} />
+		Google Sheetsからコピペした、ぶっ壊れているかもしれないデータをなるべくいい感じにする
+	</label>
 	<button onclick={loadFromCSV}>読み込み</button>
 </dialog>
 
@@ -874,6 +879,11 @@
 	input,
 	select {
 		font-size: 1.2em;
+	}
+
+	input[type='checkbox'] {
+		width: 0.8em;
+		height: 0.8em;
 	}
 
 	button {
@@ -1000,6 +1010,10 @@
 			}
 		}
 
+		.comment small {
+			white-space: pre-wrap;
+		}
+
 		.char {
 			&.dimmed {
 				color: #888;
@@ -1046,12 +1060,12 @@
 			font-size: 0.5em;
 			width: 90%;
 		}
-	}
 
-	header {
-		input[type='checkbox'] {
-			width: 1em;
-			height: 1em;
+		button,
+		label {
+			display: block;
+			margin-top: 1em;
+			font-size: 0.5em;
 		}
 	}
 
