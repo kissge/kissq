@@ -4,7 +4,7 @@
 	import { getLayoutContext } from '$lib/layout.svelte';
 	import { getWasedashikiContext } from '$lib/wasedashiki.svelte';
 	import { tooltip } from '$lib/tooltip.svelte';
-	import type { AttendantID } from '$lib/types';
+	import { AttendantID } from '$lib/types';
 
 	let Game = getGameContext();
 	let Wasedashiki = getWasedashikiContext();
@@ -16,7 +16,7 @@
 	let buttonMappingTarget = $state<number | null>(0);
 
 	let sortedAttendants = $derived(
-		Array.from(Game.attendants, (attendant, ai) => ({ attendant, ai: ai as AttendantID })).toSorted(
+		Array.from(Game.attendants, (attendant, ai) => ({ attendant, ai: AttendantID(ai) })).toSorted(
 			(a, b) => (Wasedashiki.buttonMapping[a.ai] ?? 0) - (Wasedashiki.buttonMapping[b.ai] ?? 0)
 		)
 	);
@@ -39,7 +39,7 @@
 	$effect(() => {
 		if (Wasedashiki.answererRanking.length > 0 && Wasedashiki.answererRanking[0][0] == undefined) {
 			const firstUnknown = Game.attendants.findIndex(
-				(_, ai) => Wasedashiki.buttonMapping[ai as AttendantID] == null
+				(_, ai) => Wasedashiki.buttonMapping[AttendantID(ai)] == null
 			);
 			buttonMappingTarget = firstUnknown === -1 ? null : firstUnknown;
 		}
@@ -76,7 +76,7 @@
 									<select bind:value={buttonMappingTarget}>
 										{#each sortedAttendants as { attendant, ai } (ai)}
 											<option value={ai}>
-												{#if Wasedashiki.buttonMapping[ai as AttendantID] != null}
+												{#if Wasedashiki.buttonMapping[AttendantID(ai)] != null}
 													☑️
 												{/if}
 												{attendant.name || `プレイヤー${ai + 1}`}
@@ -88,9 +88,9 @@
 										onclick={() => {
 											if (buttonMappingTarget === null) {
 												Game.addAttendant({});
-												Wasedashiki.setButtonMapping((Game.attendants.length - 1) as AttendantID);
+												Wasedashiki.setButtonMapping(AttendantID(Game.attendants.length - 1));
 											} else {
-												Wasedashiki.setButtonMapping(buttonMappingTarget as AttendantID);
+												Wasedashiki.setButtonMapping(AttendantID(buttonMappingTarget));
 											}
 										}}
 									>
@@ -100,7 +100,7 @@
 									？？？
 								{/if}
 							{:else}
-								{@const ai = attendantID as AttendantID}
+								{@const ai = AttendantID(attendantID)}
 								{Game.attendants[ai]?.name || `プレイヤー${ai + 1}`}
 								{#if Game.currentState.attendants[ai]?.life === 'won'}
 									（勝ち抜け済）

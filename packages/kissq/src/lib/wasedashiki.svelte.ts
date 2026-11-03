@@ -2,7 +2,7 @@ import { createContext } from 'svelte';
 import Toastify from 'toastify-js';
 import { connectToSerialPort, readFromSerialPort } from '$lib/serial';
 import { getGameContext } from './gameContext';
-import type { AttendantID, ButtonID } from './types';
+import { AttendantID, type ButtonID } from './types';
 
 export class WasedashikiClass {
 	Game = getGameContext();
@@ -25,7 +25,7 @@ export class WasedashikiClass {
 	buttonReverseMapping: Record<ButtonID, AttendantID | undefined> = $derived.by(() => {
 		const reverse: Record<ButtonID, AttendantID> = {};
 		for (const [attendantID, buttonID] of Object.entries(this.buttonMapping)) {
-			reverse[buttonID as ButtonID] = Number(attendantID) as AttendantID;
+			reverse[buttonID as ButtonID] = AttendantID(Number(attendantID));
 		}
 		return reverse;
 	});
@@ -143,10 +143,10 @@ export class WasedashikiClass {
 						)?.[0];
 						if (answererAttendantID !== undefined) {
 							if (line === '51') {
-								this.Game.clickMaru(Number.parseInt(answererAttendantID) as AttendantID, false);
+								this.Game.clickMaru(AttendantID(Number.parseInt(answererAttendantID)), false);
 								this.answerers = [];
 							} else {
-								this.Game.clickBatsu(Number.parseInt(answererAttendantID) as AttendantID, false);
+								this.Game.clickBatsu(AttendantID(Number.parseInt(answererAttendantID)), false);
 							}
 						} else {
 							Toastify({
@@ -211,9 +211,7 @@ export class WasedashikiClass {
 							([, id]) => id === parts[0] - 100
 						)?.[0];
 						if (answererAttendantID !== undefined) {
-							this.Game.addBulkAdjustmentTarget(
-								Number.parseInt(answererAttendantID) as AttendantID
-							);
+							this.Game.addBulkAdjustmentTarget(AttendantID(Number.parseInt(answererAttendantID)));
 						}
 					} else {
 						let rank: 1 | 2 | 'late' = 'late';

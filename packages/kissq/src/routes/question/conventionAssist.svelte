@@ -3,7 +3,7 @@
 	import type { Attendant } from '$lib/attendant';
 	import type { GameState } from '$lib/state';
 	import { tooltip } from '$lib/tooltip.svelte';
-	import type { AttendantID } from '$lib/types';
+	import { AttendantID } from '$lib/types';
 
 	let {
 		show = $bindable(),
@@ -44,8 +44,8 @@
 		fullAttendants.map((_, ai) =>
 			games.reduce(
 				(acc, game) => {
-					if (game.status !== 'not-started' && game.attendantIDs.includes(ai as AttendantID)) {
-						const cai = game.attendantIDs.indexOf(ai as AttendantID);
+					if (game.status !== 'not-started' && game.attendantIDs.includes(AttendantID(ai))) {
+						const cai = game.attendantIDs.indexOf(AttendantID(ai));
 						const att =
 							game.status === 'in-progress'
 								? currentState!.attendants[cai]
@@ -79,7 +79,7 @@
 		fullAttendants.push(attendant);
 
 		if (gameInProgress) {
-			gameInProgress.attendantIDs.push((fullAttendants.length - 1) as AttendantID);
+			gameInProgress.attendantIDs.push(AttendantID(fullAttendants.length - 1));
 		}
 	}
 
@@ -178,7 +178,7 @@
 							placeholder="プレイヤー{ai + 1}"
 							onchange={() => {
 								if (gameInProgress) {
-									const cai = gameInProgress.attendantIDs.indexOf(ai as AttendantID) as
+									const cai = gameInProgress.attendantIDs.indexOf(AttendantID(ai)) as
 										AttendantID | -1;
 									if (cai !== -1) {
 										updateAttendant(cai, { name: attendant.name });
@@ -241,7 +241,7 @@
 									if (game.attendantIDs.length === fullAttendants.length) {
 										game.attendantIDs = [];
 									} else {
-										game.attendantIDs = fullAttendants.map((_, i) => i as AttendantID);
+										game.attendantIDs = fullAttendants.map((_, i) => AttendantID(i));
 									}
 								}}
 								{@attach tooltip('全選択・全選択解除')}
@@ -266,8 +266,8 @@
 								<label>
 									<input type="checkbox" bind:group={game.attendantIDs} value={ai} /> 参加
 								</label>
-							{:else if game.attendantIDs.includes(ai as AttendantID) && state}
-								{@const cai = game.attendantIDs.indexOf(ai as AttendantID)}
+							{:else if game.attendantIDs.includes(AttendantID(ai)) && state}
+								{@const cai = game.attendantIDs.indexOf(AttendantID(ai))}
 								{@const att = state.attendants[cai]}
 								{@const ti = (game.status === 'in-progress' ? attendants : game.attendants)[cai]
 									.team}

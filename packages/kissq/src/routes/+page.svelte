@@ -29,7 +29,7 @@
 	import { reconnect } from '$lib/serial';
 	import { AttendantState, type AttendantStateValue, type GameEvent } from '$lib/state';
 	import { tooltip } from '$lib/tooltip.svelte';
-	import type { AttendantID } from '$lib/types';
+	import { AttendantID } from '$lib/types';
 	import { setWasedashikiContext, WasedashikiClass } from '$lib/wasedashiki.svelte';
 	import { wave } from '$lib/waveEffect';
 	import Attendant from './attendant.svelte';
@@ -338,7 +338,7 @@
 							Game.currentState.attendants[ai].life === 'alive' &&
 							Game.currentState.attendants[ai].yasuDisplay > 0,
 						'answerer-1st':
-							Wasedashiki.answerers[(Wasedashiki.buttonMapping[ai as AttendantID] ?? 0) - 1]
+							Wasedashiki.answerers[(Wasedashiki.buttonMapping[AttendantID(ai)] ?? 0) - 1]
 								?.currentRank === 1,
 						'drop-target': dropTarget === ord
 					}
@@ -365,7 +365,7 @@
 				draggable={Game.orderingMode === 'manual'}
 			>
 				<Attendant
-					ai={ai as AttendantID}
+					ai={AttendantID(ai)}
 					{ord}
 					{screenshotModeTimer}
 					{screenshotOffset}

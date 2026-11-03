@@ -21,7 +21,7 @@
 	let ranking: ({ rank: number; attendantIDs: AttendantID[] } | undefined)[] = $derived(
 		Object.entries(
 			Game.totalScoreRanks.reduce<Record<number, AttendantID[]>>((acc, rank, attendantID) => {
-				(acc[rank] ??= []).push(attendantID as AttendantID);
+				(acc[rank] ??= []).push(AttendantID(attendantID));
 				return acc;
 			}, {})
 		)

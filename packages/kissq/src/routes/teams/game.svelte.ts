@@ -9,7 +9,7 @@ import { Rule } from '$lib/rule';
 import type { WasedashikiMode } from '$lib/serial';
 import { playSound } from '$lib/sound';
 import { GameState } from '$lib/state';
-import type { AttendantID } from '$lib/types';
+import { AttendantID } from '$lib/types';
 
 export class TeamGameClass extends GameClassBase<'team'> {
 	battleMode = 'team' as const;
@@ -72,7 +72,7 @@ export class TeamGameClass extends GameClassBase<'team'> {
 			(acc, att, ai) => {
 				acc[att.team] ??= [];
 				acc[att.team][att.seat] ??= [];
-				acc[att.team][att.seat]!.push({ att, ai: ai as AttendantID });
+				acc[att.team][att.seat]!.push({ att, ai: AttendantID(ai) });
 				return acc;
 			},
 			this.teams.map(() => [])

@@ -1,6 +1,6 @@
 import type { Attendant } from './attendant';
 import { Rule, type Penalty, type RuleType } from './rule';
-import type { AttendantID } from './types';
+import { AttendantID } from './types';
 import { arrayCompare } from './utils';
 
 export type Life = 'alive' | 'won' | 'lost' | 'removed';
@@ -714,7 +714,7 @@ export class GameState {
 			({ name, group, trophyCount, totalScore, manualOrder }, attendantID) =>
 				new AttendantState(
 					name,
-					attendantID as AttendantID,
+					AttendantID(attendantID),
 					manualOrder,
 					group,
 					rules[group],
@@ -728,7 +728,7 @@ export class GameState {
 				(acc, att, ai) => {
 					acc[att.team] ??= [];
 					acc[att.team][att.seat] ??= [];
-					acc[att.team][att.seat].push(ai as AttendantID);
+					acc[att.team][att.seat].push(AttendantID(ai));
 					return acc;
 				},
 				teams.map(() => [])
@@ -742,7 +742,7 @@ export class GameState {
 		}
 
 		this.defaultRule = rules[0];
-		this.ranking = this.attendants.map((_, i) => i as AttendantID);
+		this.ranking = this.attendants.map((_, i) => AttendantID(i));
 	}
 
 	increaseQuestionCount(): void {
@@ -818,7 +818,7 @@ export class GameState {
 						return this;
 					}
 
-					survivor = id as AttendantID;
+					survivor = AttendantID(id);
 				}
 			}
 

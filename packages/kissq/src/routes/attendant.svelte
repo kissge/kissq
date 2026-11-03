@@ -6,7 +6,7 @@
 	import { getQuestionConsoleContext } from '$lib/questionConsole.svelte';
 	import type { AttendantState } from '$lib/state';
 	import { tooltip } from '$lib/tooltip.svelte';
-	import type { AttendantID } from '$lib/types';
+	import { AttendantID } from '$lib/types';
 	import { getWasedashikiContext } from '$lib/wasedashiki.svelte';
 	import { getSingleGameContext } from './game.svelte';
 
@@ -76,7 +76,7 @@
 	{@attach tooltip(
 		`このプレイヤーが持っているボタンは${Wasedashiki.buttonMapping[ai] == null ? '???' : Wasedashiki.buttonMapping[ai]}番です。クリックで紐づけ`
 	)}
-	onclick={() => Wasedashiki.setButtonMapping(ai as AttendantID)}
+	onclick={() => Wasedashiki.setButtonMapping(AttendantID(ai))}
 >
 	{Wasedashiki.buttonMapping[ai] ?? '?'}
 </button>

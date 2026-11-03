@@ -8,7 +8,7 @@ import type { Rule } from './rule';
 import type { WasedashikiMode } from './serial';
 import { playSound } from './sound';
 import type { GameState } from './state';
-import type { AttendantID } from './types';
+import { AttendantID } from './types';
 import { arrayCompare } from './utils';
 import type { WasedashikiClass } from './wasedashiki.svelte';
 
@@ -48,7 +48,7 @@ export abstract class GameClassBase<BattleMode extends 'single' | 'team'> {
 		this.previousTrophyGetters = [];
 		this.currentState.attendants.forEach((att, ai) => {
 			if (att.life === 'won') {
-				this.previousTrophyGetters.push(ai as AttendantID);
+				this.previousTrophyGetters.push(AttendantID(ai));
 			}
 
 			this.attendants[ai].trophyCount = att.trophyCount;
@@ -69,9 +69,8 @@ export abstract class GameClassBase<BattleMode extends 'single' | 'team'> {
 				j--;
 			} else {
 				if (j < 0) {
-					Wasedashiki.buttonMapping[(i + j) as AttendantID] =
-						Wasedashiki.buttonMapping[i as AttendantID];
-					delete Wasedashiki.buttonMapping[i as AttendantID];
+					Wasedashiki.buttonMapping[AttendantID(i + j)] = Wasedashiki.buttonMapping[AttendantID(i)];
+					delete Wasedashiki.buttonMapping[AttendantID(i)];
 				}
 			}
 		}
@@ -85,7 +84,7 @@ export abstract class GameClassBase<BattleMode extends 'single' | 'team'> {
 				return [];
 			} else {
 				const newIndex = ai - removedIndex.filter((i) => i < ai).length;
-				return [newIndex as AttendantID];
+				return [AttendantID(newIndex)];
 			}
 		});
 

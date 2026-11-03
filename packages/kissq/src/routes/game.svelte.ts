@@ -9,7 +9,7 @@ import { Rule, type Penalty } from '$lib/rule';
 import type { WasedashikiMode } from '$lib/serial';
 import { playSound } from '$lib/sound';
 import { GameState } from '$lib/state';
-import type { AttendantID } from '$lib/types';
+import { AttendantID } from '$lib/types';
 
 export class SingleGameClass extends GameClassBase<'single'> {
 	battleMode = 'single' as const;
@@ -107,7 +107,7 @@ export class SingleGameClass extends GameClassBase<'single'> {
 			case 'manual':
 				return this.currentState.attendants
 					.flatMap(({ life, manualOrder }, i) =>
-						life === 'removed' ? [] : [[manualOrder, i as AttendantID] as const]
+						life === 'removed' ? [] : [[manualOrder, AttendantID(i)] as const]
 					)
 					.toSorted(([a], [b]) => a - b)
 					.map(([, i]) => i);

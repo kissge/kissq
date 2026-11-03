@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { fade } from 'svelte/transition';
 	import type { Attendant } from '$lib/attendant';
-	import type { AttendantID, ButtonID } from '$lib/types';
+	import { AttendantID, type ButtonID } from '$lib/types';
 	import { getGameContext } from '$lib/gameContext';
 	import { getWasedashikiContext } from '$lib/wasedashiki.svelte';
 
@@ -167,7 +167,7 @@
 						早稲田式早押しボタンとの紐づけ
 						{#if importingParsed}
 							<span class="sample">
-								: {importingParsed.buttonMapping[0 as AttendantID] ?? '未設定'}、…
+								: {importingParsed.buttonMapping[AttendantID(0)] ?? '未設定'}、…
 							</span>
 						{/if}
 					</label>

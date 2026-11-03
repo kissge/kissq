@@ -2,7 +2,7 @@ import { createContext } from 'svelte';
 import { getGameContext } from './gameContext';
 import type { WasedashikiMode } from './serial';
 import type { Life } from './state';
-import type { AttendantID } from './types';
+import { AttendantID } from './types';
 
 export type LogStateEntry = LogStateSingleEntry | LogStateTeamEntry;
 
@@ -100,7 +100,7 @@ export class LoggerClass {
 						maruCount: att.maruCount,
 						batsuCount: att.batsuCount,
 						life: att.life,
-						i: ai as AttendantID
+						i: AttendantID(ai)
 					};
 				case 'score':
 				case 'MbyN':
@@ -111,7 +111,7 @@ export class LoggerClass {
 						group: this.Game.attendants[ai].group,
 						score: att.score,
 						life: att.life,
-						i: ai as AttendantID
+						i: AttendantID(ai)
 					};
 				case 'aql':
 				case 'product':
@@ -126,7 +126,7 @@ export class LoggerClass {
 						seat: att.rule.mode === 'sum' ? null : this.Game.attendants[ai].seat,
 						teamScore: this.Game.currentState.teams[this.Game.attendants[ai].team].teamScore,
 						teamLife: this.Game.currentState.teams[this.Game.attendants[ai].team].teamLife,
-						i: ai as AttendantID
+						i: AttendantID(ai)
 					};
 			}
 		});

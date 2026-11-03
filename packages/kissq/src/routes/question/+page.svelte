@@ -17,7 +17,7 @@
 	import type { GameState } from '$lib/state';
 	import { getTimeElapsedString } from '$lib/time';
 	import { tooltip } from '$lib/tooltip.svelte';
-	import { THROUGH, type AttendantID } from '$lib/types';
+	import { THROUGH, AttendantID } from '$lib/types';
 	import { collapseArray, splitQuestion } from '$lib/utils';
 	import ConventionAssist from './conventionAssist.svelte';
 
@@ -239,9 +239,7 @@
 			postMessage({
 				command: 'reorderAttendants',
 				attendantID:
-					order === 'same'
-						? isDragging
-						: ((orderedAttendants.length - isDragging - 1) as AttendantID),
+					order === 'same' ? isDragging : AttendantID(orderedAttendants.length - isDragging - 1),
 				newOrder: order === 'same' ? dropTarget - 0.5 : orderedAttendants.length - dropTarget - 0.5
 			});
 			isDragging = null;
@@ -332,7 +330,7 @@
 			correctAnswererInput = !h
 				? null
 				: h.type === 'maru'
-					? (h.attendantID as AttendantID)
+					? AttendantID(h.attendantID)
 					: h.type === 'through'
 						? THROUGH
 						: null;
@@ -540,13 +538,13 @@
 					role="listitem"
 					ondragstart={() => {
 						if (isDragAvailable) {
-							isDragging = ord as AttendantID;
+							isDragging = AttendantID(ord);
 						}
 					}}
 					ondragover={(event) => {
 						if (isDragAvailable) {
 							event.preventDefault();
-							dropTarget = ord as AttendantID;
+							dropTarget = AttendantID(ord);
 						}
 					}}
 					ondragend={() => {
@@ -568,7 +566,7 @@
 								const newGroup = Number.parseInt((event.target as HTMLSelectElement).value);
 								postMessage({
 									command: 'updateAttendant',
-									attendantID: ai as AttendantID,
+									attendantID: AttendantID(ai),
 									diff: { group: newGroup }
 								});
 							}}
@@ -579,7 +577,7 @@
 						</select>
 					{/if}
 
-					{#if previousTrophyGetters?.includes(ai as AttendantID)}
+					{#if previousTrophyGetters?.includes(AttendantID(ai))}
 						<span transition:fade {@attach tooltip('直前のゲームで勝ち抜けています')}>🏆</span>
 					{/if}
 
@@ -617,8 +615,7 @@
 							<button
 								class="labeled"
 								data-label={Keys[ord2]?.[0] || ''}
-								onclick={() =>
-									postMessage({ command: 'clickMaru', attendantID: ai as AttendantID })}
+								onclick={() => postMessage({ command: 'clickMaru', attendantID: AttendantID(ai) })}
 							>
 								O
 							</button>
@@ -626,7 +623,7 @@
 							{#if effect2Name}
 								<button
 									onclick={() =>
-										postMessage({ command: 'clickEffect2', attendantID: ai as AttendantID })}
+										postMessage({ command: 'clickEffect2', attendantID: AttendantID(ai) })}
 								>
 									2O
 								</button>
@@ -634,7 +631,7 @@
 							{#if effect3Name}
 								<button
 									onclick={() =>
-										postMessage({ command: 'clickEffect3', attendantID: ai as AttendantID })}
+										postMessage({ command: 'clickEffect3', attendantID: AttendantID(ai) })}
 								>
 									3O
 								</button>
@@ -643,8 +640,7 @@
 							<button
 								class="labeled"
 								data-label={Keys[ord2]?.[1] || ''}
-								onclick={() =>
-									postMessage({ command: 'clickBatsu', attendantID: ai as AttendantID })}
+								onclick={() => postMessage({ command: 'clickBatsu', attendantID: AttendantID(ai) })}
 							>
 								X
 							</button>
@@ -663,7 +659,7 @@
 					role="listitem"
 					ondragover={(event) => {
 						event.preventDefault();
-						dropTarget = orderedAttendants.length as AttendantID;
+						dropTarget = AttendantID(orderedAttendants.length);
 					}}
 					ondragend={onDragEnd}
 				></div>
