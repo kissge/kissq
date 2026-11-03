@@ -477,9 +477,9 @@ export class Rule {
 		const arr: string[] = [];
 
 		if (this.chance === 'single') {
-			arr.push('解答権は先着1人まで（シングルチャンス）');
+			arr.push('解答権は先着1人まで\n（シングルチャンス）');
 		} else if (this.chance === 'endless') {
-			arr.push('誤答すると次に早くボタンを押した人に解答権が順番に移る（エンドレスチャンス）');
+			arr.push('誤答すると次に早くボタンを押した人に解答権が順番に移る\n（エンドレスチャンス）');
 		}
 
 		if (this.questionLimit !== null) {
