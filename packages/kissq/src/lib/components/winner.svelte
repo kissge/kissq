@@ -2,7 +2,7 @@
 	import { onMount } from 'svelte';
 	import { isUnlocked } from 'kissunlocklib';
 	import { getGameContext } from '$lib/gameContext';
-	import type { AttendantID } from '$lib/types';
+	import { AttendantID } from '$lib/types';
 
 	let Game = getGameContext();
 
