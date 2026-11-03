@@ -2,7 +2,7 @@ import { createContext } from 'svelte';
 import Toastify from 'toastify-js';
 import { connectToSerialPort, readFromSerialPort } from '$lib/serial';
 import { getGameContext } from './gameContext';
-import { AttendantID, type ButtonID } from './types';
+import { AttendantID, ButtonID } from './types';
 
 export class WasedashikiClass {
 	Game = getGameContext();
@@ -25,7 +25,7 @@ export class WasedashikiClass {
 	buttonReverseMapping: Record<ButtonID, AttendantID | undefined> = $derived.by(() => {
 		const reverse: Record<ButtonID, AttendantID> = {};
 		for (const [attendantID, buttonID] of Object.entries(this.buttonMapping)) {
-			reverse[buttonID as ButtonID] = AttendantID(Number(attendantID));
+			reverse[ButtonID(buttonID)] = AttendantID(Number(attendantID));
 		}
 		return reverse;
 	});
@@ -250,7 +250,7 @@ export class WasedashikiClass {
 				...Object.fromEntries(
 					Object.entries(this.buttonMapping).filter(([, v]) => v !== this.lastButtonID)
 				),
-				[attendantID]: this.lastButtonID!
+				[attendantID]: this.lastButtonID
 			};
 			Toastify({
 				text: `ボタン${this.lastButtonID}は${this.Game.attendants[attendantID].name || `プレイヤー${attendantID + 1}`}が持っています`
