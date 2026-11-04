@@ -84,14 +84,7 @@ export class TeamGameClass extends GameClassBase<'team'> {
 	activeRules = $derived(this.rules.flatMap((rule, i) => (rule.isRemoved ? [] : { rule, i })));
 	activeRulesText = $derived(Rule.getActiveRulesText(this.activeRules, 'team'));
 
-	windowTitle = $derived(
-		`kissQ -
-		${this.gameTitle ? this.gameTitle + ' - ' : ''}
-		${this.currentState.attendants
-			.flatMap(({ name, life }) => (life !== 'removed' ? [name.slice(0, 3) || '👤'] : []))
-			.join('・')}
-		- クイズ得点板のkissQ`
-	);
+	windowTitle = $derived.by(() => this._windowTitle);
 
 	addAttendant({ name, teamID }: { name?: string; teamID?: number }): Attendant {
 		if (teamID === undefined) {

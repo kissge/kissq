@@ -118,14 +118,7 @@ export class SingleGameClass extends GameClassBase<'single'> {
 	activeRules = $derived(this.rules.flatMap((rule, i) => (rule.isRemoved ? [] : { rule, i })));
 	activeRulesText = $derived(Rule.getActiveRulesText(this.activeRules, 'single'));
 
-	windowTitle = $derived(
-		`kissQ -
-		${this.gameTitle ? this.gameTitle + ' - ' : ''}
-		${this.currentState.attendants
-			.flatMap(({ name, life }) => (life !== 'removed' ? [name.slice(0, 3) || '👤'] : []))
-			.join('・')}
-		- クイズ得点板のkissQ`
-	);
+	windowTitle = $derived.by(() => this._windowTitle);
 
 	/**
 	 * 現在のスコアでの個人ランキング（同率を考慮）

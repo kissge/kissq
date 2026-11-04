@@ -43,6 +43,15 @@ export abstract class GameClassBase<BattleMode extends 'single' | 'team'> {
 	abstract addAttendant(options: { name?: string; teamID?: number }): void;
 	abstract clickBatsu(attendantID: AttendantID, playSounds_?: boolean): Promise<void>;
 
+	get _windowTitle() {
+		return `kissQ -
+		${this.gameTitle ? this.gameTitle + ' - ' : ''}
+		${this.currentState.attendants
+			.flatMap(({ name, life }) => (life !== 'removed' ? [name.slice(0, 3) || '👤'] : []))
+			.join('・')}
+		- クイズ得点板のkissQ`;
+	}
+
 	clearHistory(Wasedashiki: WasedashikiClass) {
 		this.previousTrophyGetters = [];
 		this.currentState.attendants.forEach((att, ai) => {
