@@ -12,6 +12,7 @@
 	import Pushers from '$lib/components/pushers.svelte';
 	import QuestionWindow from '$lib/components/questionWindow.svelte';
 	import RuleTeamEditDialog from '$lib/components/ruleTeamEditDialog.svelte';
+	import TransferAttendantsDialog from '$lib/components/transferAttendantsDialog.svelte';
 	import Stars from '$lib/components/stars.svelte';
 	import UnlockDialog from '$lib/components/unlockDialog.svelte';
 	import { LayoutClass, setLayoutContext } from '$lib/layout.svelte';
@@ -55,6 +56,7 @@
 	};
 	let unlockDialog: { open: () => Promise<void> };
 	let combinationDialog: { open: () => Promise<void> };
+	let transferAttendantsDialog: { open: () => void };
 
 	async function editRule() {
 		const result = await ruleTeamEditDialog.open(Game.rules);
@@ -380,6 +382,15 @@
 	>
 		プレイヤーリストを全削除する
 	</button>
+	<button
+		onclick={() => transferAttendantsDialog.open()}
+		{@attach tooltip(
+			'他サービスと連携した別のタブのkissQなどに、このタブでのプレイヤーリストをコピー・ペーストできます。',
+			{ placement: 'left' }
+		)}
+	>
+		プレイヤーリストを他のタブに写す
+	</button>
 
 	<h3>とてもべんりな機能</h3>
 	<button
@@ -450,6 +461,7 @@
 <AppearanceDialog bind:this={appearanceDialog} />
 <UnlockDialog bind:this={unlockDialog} />
 <CombinationDialog bind:this={combinationDialog} />
+<TransferAttendantsDialog bind:this={transferAttendantsDialog} />
 
 <style>
 	.attendants-wrapper {
