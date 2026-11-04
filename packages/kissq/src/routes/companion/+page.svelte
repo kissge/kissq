@@ -119,8 +119,19 @@
 				<p>
 					{question.comment}
 				</p>
-				{#if question.imageURL}
-					<img src={question.imageURL} class="comment-img" alt="関連画像" />
+				{#if question.media}
+					{#if question.media.type === 'img'}
+						<img src={question.media.url} class="comment-img" alt="関連画像" />
+					{:else if question.media.type === 'youtube'}
+						<iframe
+							src="https://youtube.com/embed/{question.media.videoID}"
+							title="YouTube video player"
+							style="width: 100%; aspect-ratio: 16/9; border: none;"
+							allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+							allowfullscreen
+						>
+						</iframe>
+					{/if}
 				{/if}
 				<div class="spacer"></div>
 				<div class="likes">

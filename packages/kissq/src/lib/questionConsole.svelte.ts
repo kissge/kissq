@@ -1,6 +1,6 @@
 import { createContext } from 'svelte';
 import { SvelteURLSearchParams } from 'svelte/reactivity';
-import { qZero } from '$lib/question';
+import { qZero, type Media } from '$lib/question';
 import { getWasedashikiContext } from '$lib/wasedashiki.svelte';
 import type { Attendant } from './attendant';
 import { getGameContext } from './gameContext';
@@ -187,7 +187,7 @@ export type IncomingMessage =
 			answer: string;
 			comment: string;
 			slashOffset: number | undefined;
-			imageURL: string | undefined;
+			media: Media | undefined;
 	  }
 	| { command: 'clickMaru'; attendantID: AttendantID }
 	| { command: 'clickEffect2'; attendantID: AttendantID }

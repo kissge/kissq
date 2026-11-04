@@ -133,14 +133,42 @@ function parseGoogleSheetsText(rawInput: string): CSVQuestion[] {
 
 export function parseComment<Q extends { comment: string }>(
 	q: Q
-): Q & { imageURL: string | undefined } {
-	const split = String(q.comment).split(/(?:\n|^)--\n+/);
-	return { ...q, comment: split[0].trim(), imageURL: split[1]?.replace(/^img:/, '').trim() };
+): Q & { media: Media | undefined } {
+	const [comment, footer] = String(q.comment).split(/(?:\n|^)--\n+/);
+	const media = (() => {
+		if (!footer || !footer.match(/.+?:.+/)) {
+			return undefined;
+		}
+
+		const [type, locator] = footer.match(/(.+?):(.+)/)!.slice(1) as [Media['type'], string];
+
+		return type === 'img' ? { type, url: locator } : { type, videoID: parseYouTubeURL(locator) };
+	})();
+
+	return { ...q, comment: comment.trim(), media };
 }
 
-export type CompanionParsedQuestion = InferResponseType<
+function parseYouTubeURL(url: string): string {
+	const match = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]+)/);
+	if (!match) {
+		throw new Error(`Invalid YouTube URL: ${url}`);
+	}
+	return match[1];
+}
+
+export type Media =
+	| {
+			type: 'img';
+			url: string;
+	  }
+	| {
+			type: 'youtube';
+			videoID: string;
+	  };
+type APIQuestion = InferResponseType<
 	APIClient['api']['questions'][':session_id']['$get'],
 	200
->[number] & {
-	imageURL: string | undefined;
-};
+>[number];
+export interface CompanionParsedQuestion extends APIQuestion {
+	media: Media | undefined;
+}

@@ -695,11 +695,11 @@
 <main class="console">
 	<table>
 		<tbody>
-			{#each questions as { question, answer, comment, imageURL, shown, correctAnswerer, slashOffset, likedBy }, index (question + index)}
+			{#each questions as { question, answer, comment, media, shown, correctAnswerer, slashOffset, likedBy }, index (question + index)}
 				<tr class:current={index === currentIndex}>
 					<td
 						rowspan={1 +
-							(comment || imageURL || (likedBy?.length ?? 0) > 0 ? 1 : 0) +
+							(comment || media || (likedBy?.length ?? 0) > 0 ? 1 : 0) +
 							(enableCompanion && index > 0 ? 1 : 0)}
 					>
 						<button
@@ -730,13 +730,13 @@
 					</td>
 				</tr>
 
-				{#if comment || imageURL || (likedBy?.length ?? 0) > 0}
+				{#if comment || media || (likedBy?.length ?? 0) > 0}
 					<tr>
 						<td colspan="2" class="comment">
 							<small>
 								{comment}
-								{#if imageURL}
-									🖼️
+								{#if media}
+									<span class="media-indicator">{media.type}</span>
 								{/if}
 
 								{#if likedBy && likedBy.length > 0}
@@ -1025,6 +1025,14 @@
 			&:hover {
 				background-color: #ffcccc;
 			}
+		}
+
+		.media-indicator {
+			background-color: #966;
+			padding: 0.1em 0.5em;
+			border-radius: 0.5em;
+			color: white;
+			font-weight: bold;
 		}
 	}
 
