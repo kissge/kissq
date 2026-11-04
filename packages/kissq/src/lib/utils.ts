@@ -41,5 +41,9 @@ export function splitQuestion(
 	);
 }
 
+export function getGroupSymbol(groupID: number): string {
+	return String.fromCodePoint(groupID + 65);
+}
+
 export type OptionalKeys<T, K extends keyof T> = Omit<T, K> & { [P in K]: T[P] | undefined };
 export type PartialBy<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;

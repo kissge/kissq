@@ -2,11 +2,12 @@
 	import { fade, fly } from 'svelte/transition';
 	import { han2zen } from '$lib/attendant';
 	import { LoseHistoryEntry, RemoveHistoryEntry, WinHistoryEntry } from '$lib/historyEntry';
+	import type { AttendantState } from '$lib/state';
+	import { AttendantID } from '$lib/types';
+	import { getGroupSymbol } from '$lib/utils';
 	import { getLayoutContext } from '$lib/layout.svelte';
 	import { getQuestionConsoleContext } from '$lib/questionConsole.svelte';
-	import type { AttendantState } from '$lib/state';
 	import { tooltip } from '$lib/tooltip.svelte';
-	import { AttendantID } from '$lib/types';
 	import { getWasedashikiContext } from '$lib/wasedashiki.svelte';
 	import { getSingleGameContext } from './game.svelte';
 
@@ -104,7 +105,7 @@
 	>
 		{#key Game.attendants[ai].group}
 			<span class="crossfade" in:fade={{ delay: 500 }} out:fade>
-				{String.fromCodePoint(65 + Game.attendants[ai].group)}
+				{getGroupSymbol(Game.attendants[ai].group)}
 			</span>
 		{/key}
 	</button>

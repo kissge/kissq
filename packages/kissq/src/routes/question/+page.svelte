@@ -18,7 +18,7 @@
 	import { getTimeElapsedString } from '$lib/time';
 	import { tooltip } from '$lib/tooltip.svelte';
 	import { THROUGH, AttendantID } from '$lib/types';
-	import { collapseArray, splitQuestion } from '$lib/utils';
+	import { collapseArray, getGroupSymbol, splitQuestion } from '$lib/utils';
 	import ConventionAssist from './conventionAssist.svelte';
 
 	const opener = (typeof window !== 'undefined' ? window.opener : {}) as Window;
@@ -572,7 +572,7 @@
 							}}
 						>
 							{#each activeRules as { i } (i)}
-								<option value={i}>{String.fromCodePoint(65 + i)}</option>
+								<option value={i}>{getGroupSymbol(i)}</option>
 							{/each}
 						</select>
 					{/if}

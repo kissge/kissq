@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { fade, fly } from 'svelte/transition';
 	import { Rule, type Penalty } from '$lib/rule';
+	import { getGroupSymbol } from '$lib/utils';
 	import { tooltipInDialog as tooltip } from '$lib/tooltip.svelte';
 	import RulePresetDialog from './rulePresetDialog.svelte';
 
@@ -238,10 +239,10 @@
 					{@attach tooltip(
 						activeRules.length === 1
 							? '全員に適用されるルールを編集します。'
-							: `${String.fromCodePoint(65 + i)}グループのプレイヤーに適用されるルールを編集します。`
+							: `${getGroupSymbol(i)}グループのプレイヤーに適用されるルールを編集します。`
 					)}
 				>
-					{activeRules.length === 1 ? '全員' : String.fromCodePoint(65 + i)}
+					{activeRules.length === 1 ? '全員' : getGroupSymbol(i)}
 				</button>
 			{/each}
 			<button
@@ -270,7 +271,7 @@
 					}}
 					{@attach tooltip('削除したグループにいたプレイヤーは自動で別のグループに移動します。')}
 				>
-					{String.fromCodePoint(65 + activeTab)}グループを削除
+					{getGroupSymbol(activeTab)}グループを削除
 				</button>
 			</div>
 		{/if}

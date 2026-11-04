@@ -6,6 +6,7 @@
 		type LogFilters,
 		type LogStateTeamEntry
 	} from '$lib/logs';
+	import { getGroupSymbol } from '$lib/utils';
 	import LimitIndicator from './limitIndicator.svelte';
 	import ChanceIndicator from './chanceIndicator.svelte';
 	import LogFilterDialog from './logFilterDialog.svelte';
@@ -120,7 +121,7 @@
 								>
 									{att.name || `プレイヤー${att.i + 1}`}
 									{#if showGroup}
-										({String.fromCodePoint(65 + att.group)})
+										({getGroupSymbol(att.group)})
 									{/if}
 								</span>
 							</td>

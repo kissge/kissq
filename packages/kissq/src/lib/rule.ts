@@ -1,4 +1,4 @@
-import type { OptionalKeys, PartialBy } from './utils';
+import { getGroupSymbol, type OptionalKeys, type PartialBy } from './utils';
 
 export type Penalty = { type: 'yasu'; count: number } | { type: 'zero' };
 
@@ -589,8 +589,8 @@ export class Rule {
 					}
 
 					return start === end
-						? String.fromCodePoint(65 + start) + ': ' + text
-						: String.fromCodePoint(65 + start) + '–' + String.fromCodePoint(65 + end) + ': ' + text;
+						? getGroupSymbol(start) + ': ' + text
+						: getGroupSymbol(start) + '–' + getGroupSymbol(end) + ': ' + text;
 				})
 				.join(' / ');
 		} else {
@@ -599,8 +599,8 @@ export class Rule {
 				groups: groupedBy.map(({ start, end, text, rule }) => ({
 					teams:
 						start === end
-							? String.fromCodePoint(65 + start)
-							: String.fromCodePoint(65 + start) + '–' + String.fromCodePoint(65 + end),
+							? getGroupSymbol(start)
+							: getGroupSymbol(start) + '–' + getGroupSymbol(end),
 					text: text as string[],
 					shortText: rule.toString(true)
 				}))

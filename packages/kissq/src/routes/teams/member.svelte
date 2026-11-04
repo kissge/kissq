@@ -2,9 +2,10 @@
 	import { fade } from 'svelte/transition';
 	import Toastify from 'toastify-js';
 	import { RemoveHistoryEntry } from '$lib/historyEntry';
+	import { AttendantID } from '$lib/types';
+	import { getGroupSymbol } from '$lib/utils';
 	import { getQuestionConsoleContext } from '$lib/questionConsole.svelte';
 	import { tooltip, tooltipInteractive } from '$lib/tooltip.svelte';
-	import { AttendantID } from '$lib/types';
 	import { getWasedashikiContext } from '$lib/wasedashiki.svelte';
 	import { getDnDContext } from './dnd.svelte';
 	import { getTeamGameContext } from './game.svelte';
@@ -119,7 +120,7 @@
 			>
 				{#key Game.attendants[ai].group}
 					<span class="crossfade" in:fade={{ delay: 500 }} out:fade>
-						{String.fromCodePoint(65 + Game.attendants[ai].group)}
+						{getGroupSymbol(Game.attendants[ai].group)}
 					</span>
 				{/key}
 			</button>
