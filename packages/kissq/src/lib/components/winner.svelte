@@ -2,7 +2,7 @@
 	import { onMount } from 'svelte';
 	import { isUnlocked } from 'kissunlocklib';
 	import { getGameContext } from '$lib/gameContext';
-	import { AttendantID } from '$lib/types';
+	import { AttendantID, TeamID } from '$lib/types';
 	import { maybeUndefined } from '$lib/utils';
 
 	let Game = getGameContext();
@@ -21,21 +21,42 @@
 		color: ['#ffe082', '#ffca28', '#ff8a65', '#80deea', '#ce93d8'][index % 5]
 	}));
 
-	let singleRanking = $derived(
+	let ranking = $derived(
 		Game.battleMode === 'single'
-			? Object.entries(
-					(scoreMode === 'game' ? Game.scoreRanks : Game.totalScoreRanks).reduce<
-						Record<number, AttendantID[]>
-					>((acc, rank, attendantID) => {
-						(acc[rank] ??= []).push(AttendantID(attendantID));
-						return acc;
-					}, {})
-				)
-					.map(([rank, attendantIDs]) =>
-						maybeUndefined({ rank: Number.parseInt(rank), attendantIDs })
+			? {
+					mode: 'single' as const,
+					ranks: Object.entries(
+						(scoreMode === 'game' ? Game.scoreRanks : Game.totalScoreRanks).reduce<
+							Record<number, AttendantID[]>
+						>((acc, rank, attendantID) => {
+							(acc[rank] ??= []).push(AttendantID(attendantID));
+							return acc;
+						}, {})
 					)
-					.toSorted((a, b) => a!.rank - b!.rank)
-			: null
+						.map(([rank, attendantIDs]) =>
+							maybeUndefined({
+								rank: Number.parseInt(rank),
+								names: attendantIDs.map((ai) => Game.attendants[ai].name || `プレイヤー${ai + 1}`)
+							})
+						)
+						.toSorted((a, b) => a!.rank - b!.rank)
+				}
+			: {
+					mode: 'team' as const,
+					ranks: Object.entries(
+						Game.scoreRanks.reduce<Record<number, TeamID[]>>((acc, rank, attendantID) => {
+							(acc[rank] ??= []).push(TeamID(attendantID));
+							return acc;
+						}, {})
+					)
+						.map(([rank, teamIDs]) =>
+							maybeUndefined({
+								rank: Number.parseInt(rank),
+								teams: teamIDs.map((ti) => ({ name: Game.teams[ti] || `チーム${ti + 1}` }))
+							})
+						)
+						.toSorted((a, b) => a!.rank - b!.rank)
+				}
 	);
 
 	onMount(() => {
@@ -52,25 +73,19 @@
 
 	$effect(() => {
 		// テキストを縦に拡大する
-		void getAttendantNames(0);
+		void ranking.ranks[0];
 
 		name1stWrapper.style.scale = '';
-		name1stWrapper.style.height = '';
+		name1stWrapper.style.minHeight = '';
 		name1stWrapper.style.paddingTop = '';
 
 		const actualHeight = name1stWrapper.offsetHeight;
 		const instinctFontSize = parseFloat(getComputedStyle(name1stWrapper).fontSize);
 
 		name1stWrapper.style.scale = `1 ${Math.max(1, instinctFontSize / actualHeight)}`;
-		name1stWrapper.style.height = `${instinctFontSize}px`;
+		name1stWrapper.style.minHeight = `${instinctFontSize}px`;
 		name1stWrapper.style.paddingTop = `${(instinctFontSize - actualHeight) / 2}px`;
 	});
-
-	function getAttendantNames(logicalRank: number): string[] | undefined {
-		return singleRanking?.[logicalRank]?.attendantIDs.map(
-			(id) => Game.attendants[id].name || `プレイヤー${id + 1}`
-		);
-	}
 </script>
 
 <div class="bg" style:background-image={wallpaper}>
@@ -78,7 +93,11 @@
 	<div class="confetti" aria-hidden="true">
 		{#each confetti as piece}
 			<span
-				style={`--x: ${piece.x}%; --delay: ${piece.delay}s; --duration: ${piece.duration}s; --rotate: ${piece.rotate}deg; --color: ${piece.color}`}
+				style={`--x: ${piece.x}%;
+				        --delay: ${piece.delay}s;
+				        --duration: ${piece.duration}s;
+				        --rotate: ${piece.rotate}deg;
+				        --color: ${piece.color}`}
 			></span>
 		{/each}
 	</div>
@@ -98,26 +117,36 @@
 		<div class="winner-card">
 			<div class="winner-card-shine"></div>
 			<div class="name-1st-wrapper" bind:this={name1stWrapper}>
-				{getAttendantNames(0)!.join('　')}
+				{#if ranking.mode === 'single'}
+					{ranking.ranks[0]?.names.join('　')}
+				{:else}
+					{ranking.ranks[0]?.teams.map(({ name }) => name).join('　')}
+				{/if}
 			</div>
 		</div>
 
 		<div class="name-others-wrapper">
 			{#each [1, 2] as logicalRank (logicalRank)}
-				{#if singleRanking?.[logicalRank]}
+				{#if ranking.ranks[logicalRank]}
 					<div class:second={logicalRank === 1} class:third={logicalRank === 2} class="rank">
-						{singleRanking[logicalRank].rank}位
+						{ranking.ranks[logicalRank].rank}位
 					</div>
 					<div class="other-name">
-						{#each getAttendantNames(logicalRank)! as name, index (index)}
-							<span>{name}</span>
-						{/each}
+						{#if ranking.mode === 'single'}
+							{#each ranking.ranks[logicalRank]?.names ?? [] as name, index (index)}
+								<span>{name}</span>
+							{/each}
+						{:else}
+							{#each ranking.ranks[logicalRank]?.teams ?? [] as { name }, index (index)}
+								<span>{name}</span>
+							{/each}
+						{/if}
 					</div>
 				{/if}
 			{/each}
 		</div>
 		<div class="congratulations">
-			{#if (singleRanking?.[0]?.attendantIDs.length ?? 0) >= 3}
+			{#if (ranking.mode === 'single' ? ranking.ranks[0]?.names : ranking.ranks[0]?.teams)?.length ?? 0 >= 3}
 				DAIBU HIRATAI
 			{:else}
 				WARITO MEDETAI
@@ -126,14 +155,16 @@
 	</div>
 
 	<div class="configs">
-		<button
-			onclick={(event) => {
-				event.stopPropagation();
-				scoreMode = scoreMode === 'game' ? 'total' : 'game';
-			}}
-		>
-			{scoreMode === 'game' ? 'このゲーム' : '累積'}
-		</button>
+		{#if Game.battleMode === 'single'}
+			<button
+				onclick={(event) => {
+					event.stopPropagation();
+					scoreMode = scoreMode === 'game' ? 'total' : 'game';
+				}}
+			>
+				{scoreMode === 'game' ? 'このゲーム' : '累積'}
+			</button>
+		{/if}
 	</div>
 </div>
 

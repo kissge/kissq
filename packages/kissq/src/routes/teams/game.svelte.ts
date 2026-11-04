@@ -10,6 +10,7 @@ import type { WasedashikiMode } from '$lib/serial';
 import { playSound } from '$lib/sound';
 import { GameState } from '$lib/state';
 import { AttendantID, TeamID } from '$lib/types';
+import { getRankingOf } from '$lib/utils';
 
 export class TeamGameClass extends GameClassBase<'team'> {
 	battleMode = 'team' as const;
@@ -85,6 +86,14 @@ export class TeamGameClass extends GameClassBase<'team'> {
 	activeRulesText = $derived(Rule.getActiveRulesText(this.activeRules, 'team'));
 
 	windowTitle = $derived.by(() => this._windowTitle);
+
+	/**
+	 * 現在のスコアでのチームランキング（同率を考慮）
+	 * 添字はteamID、値は順位（1位が1、2位が2、同率の場合は同じ順位）
+	 */
+	get scoreRanks(): number[] {
+		return getRankingOf(this.currentState.teams, (t) => t.sortScore());
+	}
 
 	addAttendant({ name, teamID }: { name?: string; teamID?: TeamID }): Attendant {
 		if (teamID === undefined) {

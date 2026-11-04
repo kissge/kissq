@@ -10,7 +10,7 @@ import type { WasedashikiMode } from '$lib/serial';
 import { playSound } from '$lib/sound';
 import { GameState } from '$lib/state';
 import { AttendantID } from '$lib/types';
-import { arrayCompare } from '$lib/utils';
+import { arrayCompare, getRankingOf } from '$lib/utils';
 
 export class SingleGameClass extends GameClassBase<'single'> {
 	battleMode = 'single' as const;
@@ -129,7 +129,7 @@ export class SingleGameClass extends GameClassBase<'single'> {
 			(a, _, all) => a.rule.mode !== all[0].rule.mode
 		);
 
-		return this.currentState.getRankingBy((a) =>
+		return getRankingOf(this.currentState.attendants, (a) =>
 			a.sortScore(this.enableRating, mixed ? 'mixed' : a.rule.mode)
 		);
 	}
@@ -139,7 +139,7 @@ export class SingleGameClass extends GameClassBase<'single'> {
 	 * 添字はattendantID、値は順位（1位が1、2位が2、同率の場合は同じ順位）
 	 */
 	get totalScoreRanks(): number[] {
-		return this.currentState.getRankingBy((a) => a.sortTotalScore(this.enableRating));
+		return getRankingOf(this.currentState.attendants, (a) => a.sortTotalScore(this.enableRating));
 	}
 
 	addAttendant({ name }: { name?: string }): Attendant {

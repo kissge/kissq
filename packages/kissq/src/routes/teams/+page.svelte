@@ -28,6 +28,7 @@
 	import { DnDClass, setDnDContext } from './dnd.svelte';
 	import { TeamGameClass, setTeamGameContext } from './game.svelte';
 	import Team from './team.svelte';
+	import Winner from '$lib/components/winner.svelte';
 
 	let Game = new TeamGameClass();
 	setTeamGameContext(Game);
@@ -45,6 +46,8 @@
 
 	let wallpaper = $state<string | null>(null);
 	let trophy = $state<string | null>(null);
+
+	let showWinner = $state(true); // TODO: DEBUGGING
 
 	let logDialog: { open: () => void };
 	let ruleTeamEditDialog: { open: (rules: Rule[]) => Promise<Rule[] | null> };
@@ -399,6 +402,12 @@
 	>
 		歴代のゲームの戦績履歴
 	</button>
+	<button
+		onclick={() => (showWinner = !showWinner)}
+		{@attach tooltip('優勝者等を表彰するいい感じの画面を表示します。', { placement: 'left' })}
+	>
+		表彰画面
+	</button>
 
 	<h3>設定</h3>
 	<button
@@ -443,6 +452,13 @@
 		{:else if isBannerVisible.type === 'finished'}
 			問題終了
 		{/if}
+	</div>
+{/if}
+
+{#if showWinner}
+	<!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_static_element_interactions -->
+	<div onclick={() => (showWinner = false)} style:cursor="pointer" transition:fade>
+		<Winner />
 	</div>
 {/if}
 

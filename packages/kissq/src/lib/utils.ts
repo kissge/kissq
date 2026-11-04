@@ -50,5 +50,25 @@ export function maybeUndefined<T>(value: T): T | undefined {
 	return value;
 }
 
+/** 任意のスコアづけでのランキング（AttendantIDなど -> 順位（同率あり）） */
+export function getRankingOf<T>(array: T[], scorer: (item: T) => number[]): number[] {
+	const ranking = array
+		.map((_, i) => i)
+		.sort((ai, bi) => arrayCompare(scorer(array[bi]), scorer(array[ai])));
+
+	const ranks: number[] = [];
+	ranking.forEach((ai, rank) => {
+		const me = array[ai];
+		const previous = array[ranking[rank - 1]];
+		if (rank === 0 || arrayCompare(scorer(me), scorer(previous)) !== 0) {
+			ranks[ai] = rank + 1;
+		} else {
+			ranks[ai] = ranks[ranking[rank - 1]];
+		}
+	});
+
+	return ranks;
+}
+
 export type OptionalKeys<T, K extends keyof T> = Omit<T, K> & { [P in K]: T[P] | undefined };
 export type PartialBy<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;

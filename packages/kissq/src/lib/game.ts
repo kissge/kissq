@@ -43,6 +43,8 @@ export abstract class GameClassBase<BattleMode extends 'single' | 'team'> {
 	abstract addAttendant(options: { name?: string; teamID?: number }): void;
 	abstract clickBatsu(attendantID: AttendantID, playSounds_?: boolean): Promise<void>;
 
+	abstract get scoreRanks(): number[];
+
 	get _windowTitle() {
 		return `kissQ -
 		${this.gameTitle ? this.gameTitle + ' - ' : ''}
