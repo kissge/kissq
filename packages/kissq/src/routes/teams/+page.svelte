@@ -296,104 +296,115 @@
 			⋮
 		</button>
 	</Footer>
-
-	<!-- svelte-ignore a11y_click_events_have_key_events -->
-	<div
-		popover
-		id="other-menu"
-		onclick={(e) => {
-			const t = e.currentTarget;
-			setTimeout(() => t.hidePopover(), 300);
-		}}
-		role="menu"
-		tabindex="-1"
-	>
-		<button
-			onclick={() => {
-				if (
-					confirm(
-						'プレイヤーリストを空にした上で、初期状態にリセットしますか？\nこの操作は元に戻せません。'
-					)
-				) {
-					Game.history = [];
-					Game.attendants = [
-						{
-							name: '',
-							group: 0,
-							team: 0,
-							seat: 0,
-							trophyCount: 0,
-							totalScore: { maru: 0, batsu: 0 },
-							manualOrder: 0
-						}
-					];
-					Game.teams = [''];
-					Wasedashiki.buttonMapping = {};
-					Wasedashiki.answerers = [];
-					Wasedashiki.lastButtonID = undefined;
-				}
-			}}
-			{@attach tooltip('全員の名前・チーム・枠・スコアをリセットします。', {
-				placement: 'left'
-			})}
-		>
-			全削除
-		</button>
-		<button
-			onclick={() => logDialog.open()}
-			{@attach tooltip('歴代のゲームの戦績を表示します。', { placement: 'left' })}
-		>
-			履歴確認
-		</button>
-		<button
-			onclick={() => (Game.playSounds = !Game.playSounds)}
-			{@attach tooltip(Game.playSounds ? '効果音をOFFにします。' : '効果音をONにします。', {
-				placement: 'left'
-			})}
-		>
-			{#if Game.playSounds}🔊 ON（をOFFにする）{:else}🔇 OFF（をONにする）{/if}
-		</button>
-		<button
-			onclick={editAppearance}
-			{@attach tooltip('外観の設定を編集します（※この機能はアンロックが必要です）。', {
-				placement: 'left'
-			})}
-		>
-			デザイン設定🔒
-		</button>
-		<button
-			onclick={() => combinationDialog.open()}
-			{@attach tooltip('レート順・ランダム・一括入力を使ってチーム分けを補助します。', {
-				placement: 'left'
-			})}
-		>
-			チーム分け
-		</button>
-		<button
-			onclick={QuestionConsole.openSubWindow}
-			{@attach tooltip('遠隔操作・問題表示などができるサブウィンドウを開きます。', {
-				placement: 'left'
-			})}
-		>
-			操作盤を表示する
-		</button>
-		<button
-			disabled={Wasedashiki.serialPort != null}
-			onclick={() => Wasedashiki.initiateSerialConnection()}
-			{@attach tooltip('早稲田式早押しボタンとの連携機能を使い、接続を開始します。', {
-				placement: 'left'
-			})}
-		>
-			早稲田式連携の接続を開始する
-		</button>
-		<button
-			onclick={() => unlockDialog.open()}
-			{@attach tooltip('追加の機能を解禁します。', { placement: 'left' })}
-		>
-			機能をアンロックする
-		</button>
-	</div>
 </main>
+
+<!-- svelte-ignore a11y_click_events_have_key_events -->
+<div
+	popover
+	id="other-menu"
+	onclick={(e) => {
+		const t = e.currentTarget;
+		setTimeout(() => t.hidePopover(), 300);
+	}}
+	role="menu"
+	tabindex="-1"
+>
+	<h3>よく使う</h3>
+	<button
+		onclick={() => (Game.playSounds = !Game.playSounds)}
+		{@attach tooltip(Game.playSounds ? '効果音をOFFにします。' : '効果音をONにします。', {
+			placement: 'left'
+		})}
+	>
+		{#if Game.playSounds}
+			🔊 操作効果音 ON<small>（をOFFにする）</small>
+		{:else}
+			🔇 操作効果音 OFF<small>（をONにする）</small>
+		{/if}
+	</button>
+	<button
+		onclick={() => combinationDialog.open()}
+		{@attach tooltip('レート順・ランダム・一括入力を使ってチーム分けを補助します。', {
+			placement: 'left'
+		})}
+	>
+		チーム分け
+	</button>
+	<button
+		onclick={QuestionConsole.openSubWindow}
+		{@attach tooltip('遠隔操作・問題表示などができるサブウィンドウを開きます。', {
+			placement: 'left'
+		})}
+	>
+		操作盤を表示する
+	</button>
+	<button
+		disabled={Wasedashiki.serialPort != null}
+		onclick={() => Wasedashiki.initiateSerialConnection()}
+		{@attach tooltip('早稲田式早押しボタンとの連携機能を使い、接続を開始します。', {
+			placement: 'left'
+		})}
+	>
+		早稲田式連携の接続を開始する
+	</button>
+
+	<h3>プレイヤー情報の操作</h3>
+	<button
+		onclick={() => {
+			if (
+				confirm(
+					'プレイヤーリストを空にした上で、初期状態にリセットしますか？\nこの操作は元に戻せません。'
+				)
+			) {
+				Game.history = [];
+				Game.attendants = [
+					{
+						name: '',
+						group: 0,
+						team: 0,
+						seat: 0,
+						trophyCount: 0,
+						totalScore: { maru: 0, batsu: 0 },
+						manualOrder: 0
+					}
+				];
+				Game.teams = [''];
+				Wasedashiki.buttonMapping = {};
+				Wasedashiki.answerers = [];
+				Wasedashiki.lastButtonID = undefined;
+			}
+		}}
+		{@attach tooltip('全員の名前・チーム・枠・スコアをリセットします。', {
+			placement: 'left'
+		})}
+	>
+		プレイヤーリストを全削除する
+	</button>
+
+	<h3>とてもべんりな機能</h3>
+	<button
+		onclick={() => logDialog.open()}
+		{@attach tooltip('歴代のゲームの戦績を表示します。', { placement: 'left' })}
+	>
+		歴代のゲームの戦績履歴
+	</button>
+
+	<h3>設定</h3>
+	<button
+		onclick={editAppearance}
+		{@attach tooltip('外観の設定を編集します（※この機能はアンロックが必要です）。', {
+			placement: 'left'
+		})}
+	>
+		デザイン設定🔒
+	</button>
+	<button
+		onclick={() => unlockDialog.open()}
+		{@attach tooltip('追加の機能を解禁します。', { placement: 'left' })}
+	>
+		追加機能をアンロックする
+	</button>
+</div>
 
 {#if isBannerVisible}
 	<div class="banner-bg" transition:fade>

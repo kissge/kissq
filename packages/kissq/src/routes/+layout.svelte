@@ -282,13 +282,28 @@
 			padding: 0.25em;
 			box-shadow: 0 0 5px #0008;
 			border: 0;
-			font-size: max(1.5dvw * 0.8, 24px * 0.8);
+			font-size: max(1.5dvw * 1.1, 24px * 1.1);
 			display: flex;
 			flex-direction: column;
 			gap: 0.2em;
 			max-height: 80dvh;
 
+			h3 {
+				margin: 0;
+				padding: 0.2em 0.5em;
+				color: #888;
+				font-size: 0.8em;
+				font-weight: inherit;
+				cursor: default;
+
+				&:not(:first-child) {
+					padding-top: 0.5em;
+					border-top: 1px solid #ddd;
+				}
+			}
+
 			button {
+				margin-left: 0.5em;
 				border: 0;
 				background: none;
 				text-align: left;

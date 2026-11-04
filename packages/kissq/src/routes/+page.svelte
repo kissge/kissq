@@ -471,6 +471,138 @@
 	role="menu"
 	tabindex="-1"
 >
+	<h3>よく使う</h3>
+	<button
+		onclick={() => (Game.orderingMode = Game.orderingMode === 'ranking' ? 'manual' : 'ranking')}
+		{@attach tooltip('プレイヤーの並び順を切り替えます。', { placement: 'left' })}
+	>
+		並び順：{#if Game.orderingMode === 'ranking'}
+			ランキング<small>（を手動にする）</small>
+		{:else}
+			手動<small>（をランキングにする）</small>
+		{/if}
+	</button>
+	<button
+		onclick={() => {
+			Game.orderingMode = 'manual';
+			Game.orderedAttendants
+				.toSorted((a, b) => Game.attendants[a].group - Game.attendants[b].group)
+				.forEach((a, i) => (Game.attendants[a].manualOrder = i));
+		}}
+		{@attach tooltip('並び順を手動にした上で、プレイヤーをグループ順に並べ替えます。', {
+			placement: 'left'
+		})}
+	>
+		プレイヤーをグループ順に整列する
+	</button>
+	<button
+		onclick={() => (Game.playSounds = !Game.playSounds)}
+		{@attach tooltip(Game.playSounds ? '効果音をOFFにします。' : '効果音をONにします。', {
+			placement: 'left'
+		})}
+	>
+		{#if Game.playSounds}
+			🔊 操作効果音 ON<small>（をOFFにする）</small>
+		{:else}
+			🔇 操作効果音 OFF<small>（をONにする）</small>
+		{/if}
+	</button>
+	<button
+		onclick={QuestionConsole.openSubWindow}
+		{@attach tooltip('遠隔操作・問題表示などができるサブウィンドウを開きます。', {
+			placement: 'left'
+		})}
+	>
+		操作盤を表示する
+	</button>
+	<button
+		disabled={Wasedashiki.serialPort != null}
+		onclick={() => {
+			if (isShiftKeyDown) {
+				showWasedashikiDebug = !showWasedashikiDebug;
+			} else {
+				Wasedashiki.initiateSerialConnection();
+			}
+		}}
+		{@attach tooltip('早稲田式早押しボタンとの連携機能を使い、接続を開始します。', {
+			placement: 'left'
+		})}
+	>
+		早稲田式連携の接続を開始する
+		{#if isShiftKeyDown}
+			<small>（デバッグモード）</small>
+		{/if}
+	</button>
+
+	<h3>スコア表示の一時切り替え</h3>
+	<button
+		onclick={() => (showMarubatsuOverride = !showMarubatsuOverride)}
+		disabled={Game.currentState.defaultRule.mode === 'marubatsu'}
+		{@attach tooltip('スコア表示を強制的に○×表示に切り替えます。', { placement: 'left' })}
+	>
+		マルバツ表示
+		{#if showMarubatsuOverride}
+			ON<small>（をOFFにする）</small>
+		{:else}
+			OFF<small>（をONにする）</small>
+		{/if}
+	</button>
+	<button
+		onclick={toggleTotalOverride}
+		{@attach tooltip(
+			'今日の通算成績表示に切り替えます（団体戦の内容も合算されています）（※この機能はアンロックが必要です）。',
+			{ placement: 'left' }
+		)}
+	>
+		通算成績表示
+		{#if showTotalOverride}
+			ON<small>（をOFFにする）</small>
+		{:else}
+			OFF<small>（をONにする）</small>
+		{/if}
+		🔒
+	</button>
+	<button
+		onclick={() => (Game.enableRating = !Game.enableRating)}
+		{@attach tooltip(
+			Game.enableRating
+				? 'レーティング表示をOFFにします。'
+				: 'これまでの戦績から計算したレーティング表示をONにします。',
+			{ placement: 'left' }
+		)}
+	>
+		通算レート表示
+		{#if Game.enableRating}
+			ON<small>（をOFFにする）</small>
+		{:else}
+			OFF<small>（をONにする）</small>
+		{/if}
+	</button>
+	<button
+		onclick={() => (showScore = !showScore)}
+		{@attach tooltip(showScore ? 'スコアを非表示にします。' : 'スコアを表示します。', {
+			placement: 'left'
+		})}
+	>
+		スコアを{#if showScore}隠す{:else}表示する{/if}
+	</button>
+	<button
+		onclick={toggleScreenshotMode}
+		{@attach tooltip(
+			'画面写真を撮りやすいようにプレイヤー名をぼかします（※この機能はアンロックが必要です）。',
+			{ placement: 'left' }
+		)}
+	>
+		スクショモード
+		{#if screenshotModeTimer != null}
+			ON<small>（をOFFにする）</small>
+		{:else}
+			OFF<small>（をONにする）</small>
+		{/if}
+		🔒
+	</button>
+
+	<h3>プレイヤー情報の操作</h3>
 	<button
 		onclick={() => {
 			if (
@@ -490,7 +622,7 @@
 			placement: 'left'
 		})}
 	>
-		プレイヤーを全削除する
+		プレイヤーリストを全削除する
 	</button>
 	<button
 		onclick={() => {
@@ -517,132 +649,7 @@
 			placement: 'left'
 		})}
 	>
-		プレイヤーの一部情報をクリア
-	</button>
-	<button
-		onclick={toggleScreenshotMode}
-		{@attach tooltip(
-			'画面写真を撮りやすいようにプレイヤー名をぼかします（※この機能はアンロックが必要です）。',
-			{ placement: 'left' }
-		)}
-	>
-		スクショモード{#if screenshotModeTimer != null}をOFFに{/if}🔒
-	</button>
-	<button
-		onclick={() => answerHistoryDialog.open()}
-		{@attach tooltip('このゲームでの正解・誤答・スルーの履歴を表示します。', { placement: 'left' })}
-	>
-		現在のゲームの正誤履歴を表示
-	</button>
-	<button
-		onclick={() => logDialog.open()}
-		{@attach tooltip('歴代のゲームの戦績を表示します。', { placement: 'left' })}
-	>
-		歴代のゲームの戦績履歴を表示
-	</button>
-	<button
-		onclick={() => (showMarubatsuOverride = !showMarubatsuOverride)}
-		disabled={Game.currentState.defaultRule.mode === 'marubatsu'}
-		{@attach tooltip('スコア表示を強制的に○×表示に切り替えます。', { placement: 'left' })}
-	>
-		マルバツ表示{#if showMarubatsuOverride}をOFFに{/if}
-	</button>
-	<button
-		onclick={toggleTotalOverride}
-		{@attach tooltip(
-			'今日の通算成績表示に切り替えます（団体戦の内容も合算されています）（※この機能はアンロックが必要です）。',
-			{ placement: 'left' }
-		)}
-	>
-		通算成績表示{#if showTotalOverride}をOFFに{/if}🔒
-	</button>
-	<button
-		onclick={() => (showScore = !showScore)}
-		{@attach tooltip(showScore ? 'スコアを非表示にします。' : 'スコアを表示します。', {
-			placement: 'left'
-		})}
-	>
-		スコアを{#if showScore}隠す{:else}表示する{/if}
-	</button>
-	<button
-		onclick={() => (Game.orderingMode = Game.orderingMode === 'ranking' ? 'manual' : 'ranking')}
-		{@attach tooltip('プレイヤーの並び順を切り替えます。', { placement: 'left' })}
-	>
-		並び順：{#if Game.orderingMode === 'ranking'}ランキング{:else}手動{/if}
-	</button>
-	<button
-		onclick={() => {
-			Game.orderingMode = 'manual';
-			Game.orderedAttendants
-				.toSorted((a, b) => Game.attendants[a].group - Game.attendants[b].group)
-				.forEach((a, i) => (Game.attendants[a].manualOrder = i));
-		}}
-		{@attach tooltip('並び順を手動にした上で、プレイヤーをグループ順に並べ替えます。', {
-			placement: 'left'
-		})}
-	>
-		グループ順に整列する
-	</button>
-	<button
-		onclick={() => effectEditDialog.open()}
-		{@attach tooltip('一問の正解で2◯/3◯できる特殊なボタンの設定を編集します。', {
-			placement: 'left'
-		})}
-	>
-		エフェクトボタン設定
-	</button>
-	<button
-		onclick={() => (Game.playSounds = !Game.playSounds)}
-		{@attach tooltip(Game.playSounds ? '効果音をOFFにします。' : '効果音をONにします。', {
-			placement: 'left'
-		})}
-	>
-		{#if Game.playSounds}🔊 ON（をOFFにする）{:else}🔇 OFF（をONにする）{/if}
-	</button>
-	<button
-		onclick={editAppearance}
-		{@attach tooltip('外観の設定を編集します（※この機能はアンロックが必要です）。', {
-			placement: 'left'
-		})}
-	>
-		デザイン設定🔒
-	</button>
-	<button
-		onclick={() => (Game.enableRating = !Game.enableRating)}
-		{@attach tooltip(
-			Game.enableRating
-				? 'レーティング表示をOFFにします。'
-				: 'これまでの戦績から計算したレーティング表示をONにします。',
-			{ placement: 'left' }
-		)}
-	>
-		{#if Game.enableRating}レートON（をOFFにする）{:else}レートOFF（をONにする）{/if}
-	</button>
-	<button
-		onclick={QuestionConsole.openSubWindow}
-		{@attach tooltip('遠隔操作・問題表示などができるサブウィンドウを開きます。', {
-			placement: 'left'
-		})}
-	>
-		操作盤を表示する
-	</button>
-	<button
-		disabled={Wasedashiki.serialPort != null}
-		onclick={() => {
-			if (isShiftKeyDown) {
-				showWasedashikiDebug = !showWasedashikiDebug;
-			} else {
-				Wasedashiki.initiateSerialConnection();
-			}
-		}}
-		{@attach tooltip('早稲田式早押しボタンとの連携機能を使い、接続を開始します。', {
-			placement: 'left'
-		})}
-	>
-		早稲田式連携の接続を開始する
-		{#if isShiftKeyDown}
-			（デバッグモード）
-		{/if}
+		プレイヤーの一部情報をクリアする
 	</button>
 	<button
 		onclick={() => transferAttendantsDialog.open()}
@@ -653,17 +660,49 @@
 	>
 		プレイヤーリストを他のタブに写す
 	</button>
+
+	<h3>とてもべんりな機能</h3>
 	<button
-		onclick={() => unlockDialog.open()}
-		{@attach tooltip('追加の機能を解禁します。', { placement: 'left' })}
+		onclick={() => answerHistoryDialog.open()}
+		{@attach tooltip('このゲームでの正解・誤答・スルーの履歴を表示します。', { placement: 'left' })}
 	>
-		機能をアンロックする
+		現在のゲームの正誤履歴
+	</button>
+	<button
+		onclick={() => logDialog.open()}
+		{@attach tooltip('歴代のゲームの戦績を表示します。', { placement: 'left' })}
+	>
+		歴代のゲームの戦績履歴
 	</button>
 	<button
 		onclick={() => (showWinner = !showWinner)}
 		{@attach tooltip('優勝者等を表彰するいい感じの画面を表示します。', { placement: 'left' })}
 	>
-		表彰画面を表示する
+		表彰画面
+	</button>
+
+	<h3>設定</h3>
+	<button
+		onclick={() => effectEditDialog.open()}
+		{@attach tooltip('一問の正解で2◯/3◯できる特殊なボタンの設定を編集します。', {
+			placement: 'left'
+		})}
+	>
+		エフェクトボタン設定
+	</button>
+	<button
+		onclick={editAppearance}
+		{@attach tooltip('外観の設定を編集します（※この機能はアンロックが必要です）。', {
+			placement: 'left'
+		})}
+	>
+		デザイン設定🔒
+	</button>
+	<button
+		onclick={() => unlockDialog.open()}
+		{@attach tooltip('追加の機能を解禁します。', { placement: 'left' })}
+	>
+		追加機能をアンロックする
 	</button>
 </div>
 
