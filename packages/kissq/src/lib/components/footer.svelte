@@ -89,4 +89,23 @@
 			opacity: 0.3;
 		}
 	}
+
+	@media (max-width: 599px) {
+		/* (mainly) for Smartphone */
+		footer {
+			font-size: 1rem;
+
+			.left {
+				gap: 0.2em;
+
+				& > a {
+					font-size: 0;
+
+					&::first-letter {
+						font-size: 1rem;
+					}
+				}
+			}
+		}
+	}
 </style>

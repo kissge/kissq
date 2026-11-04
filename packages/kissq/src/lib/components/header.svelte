@@ -335,4 +335,11 @@
 			transform: translateX(-50%);
 		}
 	}
+
+	@media (max-width: 599px) {
+		/* (mainly) for Smartphone */
+		header {
+			font-size: 1rem;
+		}
+	}
 </style>

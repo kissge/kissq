@@ -237,7 +237,7 @@
 		}
 
 		:global(body) {
-			height: 100vh;
+			height: 100dvh;
 		}
 
 		.toastify {

@@ -441,7 +441,7 @@
 <CombinationDialog bind:this={combinationDialog} />
 
 <style>
-	main.main {
+	.attendants-wrapper {
 		font-size: max(1.5dvw, 24px);
 	}
 

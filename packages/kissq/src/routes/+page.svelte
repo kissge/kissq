@@ -849,10 +849,6 @@
 				text-align: center;
 			}
 		}
-
-		:global(footer) {
-			font-size: max(1.5dvw, 24px);
-		}
 	}
 
 	@property --bar-height-ratio {
