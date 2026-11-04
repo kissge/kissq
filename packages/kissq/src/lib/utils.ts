@@ -45,5 +45,10 @@ export function getGroupSymbol(groupID: number): string {
 	return String.fromCodePoint(groupID + 65);
 }
 
+/** 値は変えずに `T | undefined` 型にキャストして返す */
+export function maybeUndefined<T>(value: T): T | undefined {
+	return value;
+}
+
 export type OptionalKeys<T, K extends keyof T> = Omit<T, K> & { [P in K]: T[P] | undefined };
 export type PartialBy<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;

@@ -848,6 +848,26 @@ export class GameState {
 		return { ti, team: this.teams[ti] };
 	}
 
+	/** 任意のスコアづけでのランキング（AttendantID -> 順位（同率あり）） */
+	getRankingBy(scorer: (attendant: AttendantState) => number[]): number[] {
+		const ranking = this.attendants
+			.map((_, i) => i)
+			.sort((ai, bi) => arrayCompare(scorer(this.attendants[bi]), scorer(this.attendants[ai])));
+
+		const ranks: number[] = [];
+		ranking.forEach((ai, rank) => {
+			const me = this.attendants[ai];
+			const previous = this.attendants[ranking[rank - 1]];
+			if (rank === 0 || arrayCompare(scorer(me), scorer(previous)) !== 0) {
+				ranks[ai] = rank + 1;
+			} else {
+				ranks[ai] = ranks[ranking[rank - 1]];
+			}
+		});
+
+		return ranks;
+	}
+
 	get ifFinished(): boolean {
 		return (this.defaultRule.questionLimit ?? Infinity) < this.questionCount;
 	}

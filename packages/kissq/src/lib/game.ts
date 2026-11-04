@@ -9,7 +9,6 @@ import type { WasedashikiMode } from './serial';
 import { playSound } from './sound';
 import type { GameState } from './state';
 import { AttendantID } from './types';
-import { arrayCompare } from './utils';
 import type { WasedashikiClass } from './wasedashiki.svelte';
 
 export abstract class GameClassBase<BattleMode extends 'single' | 'team'> {
@@ -149,36 +148,6 @@ export abstract class GameClassBase<BattleMode extends 'single' | 'team'> {
 
 	clickUndo() {
 		this.history.pop();
-	}
-
-	get totalScoreRanks(): number[] {
-		const ranking = this.currentState.attendants
-			.map((_, i) => i)
-			.sort((ai, bi) =>
-				arrayCompare(
-					this.currentState.attendants[bi].sortTotalScore(this.enableRating),
-					this.currentState.attendants[ai].sortTotalScore(this.enableRating)
-				)
-			);
-
-		const ranks: number[] = [];
-		ranking.forEach((ai, rank) => {
-			const me = this.currentState.attendants[ai];
-			const previous = this.currentState.attendants[ranking[rank - 1]];
-			if (
-				rank === 0 ||
-				arrayCompare(
-					me.sortTotalScore(this.enableRating),
-					previous.sortTotalScore(this.enableRating)
-				) !== 0
-			) {
-				ranks[ai] = rank + 1;
-			} else {
-				ranks[ai] = ranks[ranking[rank - 1]];
-			}
-		});
-
-		return ranks;
 	}
 
 	get ratingList(): number[] {

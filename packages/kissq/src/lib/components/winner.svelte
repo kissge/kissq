@@ -3,11 +3,14 @@
 	import { isUnlocked } from 'kissunlocklib';
 	import { getGameContext } from '$lib/gameContext';
 	import { AttendantID } from '$lib/types';
+	import { maybeUndefined } from '$lib/utils';
 
 	let Game = getGameContext();
 
 	let wallpaper = $state<string>();
 	let trophy = $state<string>();
+
+	let scoreMode = $state<'game' | 'total'>('game');
 
 	let name1stWrapper: HTMLDivElement;
 	const confetti = Array.from({ length: 28 }, (_, index) => ({
@@ -18,15 +21,21 @@
 		color: ['#ffe082', '#ffca28', '#ff8a65', '#80deea', '#ce93d8'][index % 5]
 	}));
 
-	let ranking: ({ rank: number; attendantIDs: AttendantID[] } | undefined)[] = $derived(
-		Object.entries(
-			Game.totalScoreRanks.reduce<Record<number, AttendantID[]>>((acc, rank, attendantID) => {
-				(acc[rank] ??= []).push(AttendantID(attendantID));
-				return acc;
-			}, {})
-		)
-			.map(([rank, attendantIDs]) => ({ rank: Number.parseInt(rank), attendantIDs }))
-			.toSorted((a, b) => a.rank - b.rank)
+	let singleRanking = $derived(
+		Game.battleMode === 'single'
+			? Object.entries(
+					(scoreMode === 'game' ? Game.scoreRanks : Game.totalScoreRanks).reduce<
+						Record<number, AttendantID[]>
+					>((acc, rank, attendantID) => {
+						(acc[rank] ??= []).push(AttendantID(attendantID));
+						return acc;
+					}, {})
+				)
+					.map(([rank, attendantIDs]) =>
+						maybeUndefined({ rank: Number.parseInt(rank), attendantIDs })
+					)
+					.toSorted((a, b) => a!.rank - b!.rank)
+			: null
 	);
 
 	onMount(() => {
@@ -42,24 +51,23 @@
 	});
 
 	$effect(() => {
+		// テキストを縦に拡大する
 		void getAttendantNames(0);
-		shrink1stNames();
+
+		name1stWrapper.style.scale = '';
+		name1stWrapper.style.height = '';
+		name1stWrapper.style.paddingTop = '';
+
+		const actualHeight = name1stWrapper.offsetHeight;
+		const instinctFontSize = parseFloat(getComputedStyle(name1stWrapper).fontSize);
+
+		name1stWrapper.style.scale = `1 ${Math.max(1, instinctFontSize / actualHeight)}`;
+		name1stWrapper.style.height = `${instinctFontSize}px`;
+		name1stWrapper.style.paddingTop = `${(instinctFontSize - actualHeight) / 2}px`;
 	});
 
-	function shrink1stNames() {
-		// 優勝者名が画面幅に収まるように縮小する（もともと収まるならしない）
-		name1stWrapper.style.transform = '';
-		const name1stWrapperWidth = name1stWrapper.scrollWidth;
-		const outerWidth = name1stWrapper.parentElement?.getBoundingClientRect().width ?? 0;
-
-		if (name1stWrapperWidth > outerWidth) {
-			// Why ^1.3 ? I don't know
-			name1stWrapper.style.transform = `scale(${(outerWidth / name1stWrapperWidth) ** 1.3}, 1)`;
-		}
-	}
-
 	function getAttendantNames(logicalRank: number): string[] | undefined {
-		return ranking[logicalRank]?.attendantIDs.map(
+		return singleRanking?.[logicalRank]?.attendantIDs.map(
 			(id) => Game.attendants[id].name || `プレイヤー${id + 1}`
 		);
 	}
@@ -90,17 +98,15 @@
 		<div class="winner-card">
 			<div class="winner-card-shine"></div>
 			<div class="name-1st-wrapper" bind:this={name1stWrapper}>
-				{#each getAttendantNames(0)! as name}
-					<div>{name}</div>
-				{/each}
+				{getAttendantNames(0)!.join('　')}
 			</div>
 		</div>
 
 		<div class="name-others-wrapper">
 			{#each [1, 2] as logicalRank (logicalRank)}
-				{#if ranking[logicalRank]}
+				{#if singleRanking?.[logicalRank]}
 					<div class:second={logicalRank === 1} class:third={logicalRank === 2} class="rank">
-						{ranking[logicalRank].rank}位
+						{singleRanking[logicalRank].rank}位
 					</div>
 					<div class="other-name">
 						{#each getAttendantNames(logicalRank)! as name, index (index)}
@@ -110,7 +116,24 @@
 				{/if}
 			{/each}
 		</div>
-		<div class="congratulations">WARITO MEDETAI</div>
+		<div class="congratulations">
+			{#if (singleRanking?.[0]?.attendantIDs.length ?? 0) >= 3}
+				DAIBU HIRATAI
+			{:else}
+				WARITO MEDETAI
+			{/if}
+		</div>
+	</div>
+
+	<div class="configs">
+		<button
+			onclick={(event) => {
+				event.stopPropagation();
+				scoreMode = scoreMode === 'game' ? 'total' : 'game';
+			}}
+		>
+			{scoreMode === 'game' ? 'このゲーム' : '累積'}
+		</button>
 	</div>
 </div>
 
@@ -211,6 +234,7 @@
 	.winner-card {
 		position: relative;
 		width: 100%;
+		box-sizing: border-box;
 		padding: clamp(1.5rem, 5vw, 3rem) 1.5rem;
 		border: 2px solid rgb(255 224 130 / 85%);
 		border-radius: 1.5rem;
@@ -220,6 +244,7 @@
 			inset 0 1px rgb(255 255 255 / 40%),
 			0 0 35px rgb(255 193 7 / 25%);
 		overflow: hidden;
+		text-align: center;
 		animation: card-pop 0.9s 0.15s cubic-bezier(0.2, 1.4, 0.4, 1) both;
 	}
 
@@ -242,17 +267,15 @@
 
 	.name-1st-wrapper {
 		position: relative;
-		width: auto;
-		display: flex;
-		align-items: center;
-		justify-content: center;
+		width: 100%;
+		box-sizing: border-box;
 		color: #ffffff;
 		font-size: clamp(2rem, 7vw, 4rem);
 		font-weight: 900;
-		gap: 1em;
 		white-space: nowrap;
 		text-shadow: 0 3px 12px rgb(0 0 0 / 60%);
-		transform-origin: center center;
+		text-align: center;
+		text-fit: shrink;
 	}
 
 	.trophy {
@@ -327,6 +350,26 @@
 		to {
 			opacity: 1;
 			transform: translateY(0);
+		}
+	}
+
+	.configs {
+		position: fixed;
+		bottom: 1em;
+		right: 1em;
+		opacity: 0.2;
+		transition: opacity 0.3s ease;
+
+		&:hover {
+			opacity: 1;
+		}
+
+		button {
+			box-shadow: none !important;
+			border: 1px solid white;
+			background: transparent;
+			color: white;
+			font-size: 1rem;
 		}
 	}
 
