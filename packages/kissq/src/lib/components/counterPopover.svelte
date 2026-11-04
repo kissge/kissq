@@ -42,10 +42,12 @@
 		z-index: 1000;
 		box-shadow: 0 2px 30px rgba(0, 0, 0, 0.5);
 		border-radius: 0.25rem;
-		background: #eee;
+		background: rgb(255 255 255 / 50%);
+		backdrop-filter: blur(0.5em);
 		padding: 0.6em;
 		font-size: 1.5em;
 		text-align: right;
+		text-shadow: 0 0 0.25em #fff;
 	}
 
 	small {
