@@ -312,6 +312,11 @@
 					background-color: #0002;
 					box-shadow: none;
 				}
+
+				&:active {
+					color: white;
+					background-color: #003 !important;
+				}
 			}
 		}
 

@@ -73,8 +73,6 @@
 
 	let attendantFLIPDelay = $state(0);
 
-	let showOtherMenu = $state(false);
-
 	let screenshotModeTimer = $state<number | NodeJS.Timeout>();
 	let screenshotOffset = $state(-1);
 
@@ -496,6 +494,7 @@
 		プレイヤーをグループ順に整列する
 	</button>
 	<button
+		class:active={Game.playSounds}
 		onclick={() => (Game.playSounds = !Game.playSounds)}
 		{@attach tooltip(Game.playSounds ? '効果音をOFFにします。' : '効果音をONにします。', {
 			placement: 'left'
@@ -536,6 +535,7 @@
 
 	<h3>スコア表示の一時切り替え</h3>
 	<button
+		class:active={showMarubatsuOverride}
 		onclick={() => (showMarubatsuOverride = !showMarubatsuOverride)}
 		disabled={Game.currentState.defaultRule.mode === 'marubatsu'}
 		{@attach tooltip('スコア表示を強制的に○×表示に切り替えます。', { placement: 'left' })}
@@ -548,6 +548,7 @@
 		{/if}
 	</button>
 	<button
+		class:active={showTotalOverride}
 		onclick={toggleTotalOverride}
 		{@attach tooltip(
 			'今日の通算成績表示に切り替えます（団体戦の内容も合算されています）（※この機能はアンロックが必要です）。',
@@ -563,6 +564,7 @@
 		🔒
 	</button>
 	<button
+		class:active={Game.enableRating}
 		onclick={() => (Game.enableRating = !Game.enableRating)}
 		{@attach tooltip(
 			Game.enableRating
@@ -579,6 +581,7 @@
 		{/if}
 	</button>
 	<button
+		class:active={!showScore}
 		onclick={() => (showScore = !showScore)}
 		{@attach tooltip(showScore ? 'スコアを非表示にします。' : 'スコアを表示します。', {
 			placement: 'left'
@@ -587,6 +590,7 @@
 		スコアを{#if showScore}隠す{:else}表示する{/if}
 	</button>
 	<button
+		class:active={screenshotModeTimer != null}
 		onclick={toggleScreenshotMode}
 		{@attach tooltip(
 			'画面写真を撮りやすいようにプレイヤー名をぼかします（※この機能はアンロックが必要です）。',
