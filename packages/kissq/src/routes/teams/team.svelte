@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { fade } from 'svelte/transition';
 	import type { Attendant } from '$lib/attendant';
+	import { TeamID } from '$lib/types';
 	import { getQuestionConsoleContext } from '$lib/questionConsole.svelte';
 	import { tooltip } from '$lib/tooltip.svelte';
 	import { getDnDContext } from './dnd.svelte';
@@ -115,7 +116,7 @@
 			onclick={() =>
 				QuestionConsole.postMessage({
 					command: 'attendantAdded',
-					attendant: Game.addAttendant({ teamID: ti })
+					attendant: Game.addAttendant({ teamID: TeamID(ti) })
 				})}
 			{@attach tooltip('このチームに新しいプレイヤーを追加します。')}
 		>

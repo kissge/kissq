@@ -8,7 +8,7 @@ import type { HistoryEntry } from './historyEntry';
 import { Rule, type RulePOJO } from './rule';
 import type { WasedashikiMode } from './serial';
 import type { GameState } from './state';
-import type { AttendantID } from './types';
+import { TeamID, type AttendantID } from './types';
 
 const urlParams = new URLSearchParams(typeof location !== 'undefined' ? location.search : '');
 
@@ -80,7 +80,7 @@ export class QuestionConsoleClass {
 				} else {
 					if (this.Game.attendantsPerTeam.length > 0) {
 						this.Game.addAttendant({
-							teamID: this.Game.attendantsPerTeam.length - 1,
+							teamID: TeamID(this.Game.attendantsPerTeam.length - 1),
 							name: message.name
 						});
 					}

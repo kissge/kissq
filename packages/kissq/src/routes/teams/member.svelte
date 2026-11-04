@@ -2,7 +2,7 @@
 	import { fade } from 'svelte/transition';
 	import Toastify from 'toastify-js';
 	import { RemoveHistoryEntry } from '$lib/historyEntry';
-	import { AttendantID } from '$lib/types';
+	import { AttendantID, TeamID } from '$lib/types';
 	import { getGroupSymbol } from '$lib/utils';
 	import { getQuestionConsoleContext } from '$lib/questionConsole.svelte';
 	import { tooltip, tooltipInteractive } from '$lib/tooltip.svelte';
@@ -184,7 +184,7 @@
 			bind:value={Game.attendants[AttendantID(ai)].name}
 			placeholder={`プレイヤー${ai + 1}`}
 			onpaste={(e) =>
-				Game.handlePasteEvent(e, AttendantID(ai), ti).forEach((attendant) =>
+				Game.handlePasteEvent(e, AttendantID(ai), TeamID(ti)).forEach((attendant) =>
 					QuestionConsole.postMessage({ command: 'attendantAdded', attendant })
 				)}
 		/>

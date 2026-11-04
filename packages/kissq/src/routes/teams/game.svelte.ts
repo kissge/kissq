@@ -9,7 +9,7 @@ import { Rule } from '$lib/rule';
 import type { WasedashikiMode } from '$lib/serial';
 import { playSound } from '$lib/sound';
 import { GameState } from '$lib/state';
-import { AttendantID } from '$lib/types';
+import { AttendantID, TeamID } from '$lib/types';
 
 export class TeamGameClass extends GameClassBase<'team'> {
 	battleMode = 'team' as const;
@@ -86,7 +86,7 @@ export class TeamGameClass extends GameClassBase<'team'> {
 
 	windowTitle = $derived.by(() => this._windowTitle);
 
-	addAttendant({ name, teamID }: { name?: string; teamID?: number }): Attendant {
+	addAttendant({ name, teamID }: { name?: string; teamID?: TeamID }): Attendant {
 		if (teamID === undefined) {
 			throw new Error('teamID is required');
 		}
@@ -104,7 +104,7 @@ export class TeamGameClass extends GameClassBase<'team'> {
 		return attendant;
 	}
 
-	handlePasteEvent(event: ClipboardEvent, attendantID: AttendantID, teamID: number): Attendant[] {
+	handlePasteEvent(event: ClipboardEvent, attendantID: AttendantID, teamID: TeamID): Attendant[] {
 		const text = (event.clipboardData?.getData('text') || '').trim();
 		const lines = text.split(/[\r\n]+/);
 		const added: Attendant[] = [];
