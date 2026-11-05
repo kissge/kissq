@@ -428,8 +428,8 @@
 			</div>
 		{:else}
 			<div class="table">
-				<div style="margin: 2rem 0">定番</div>
-				<div style="margin: 2rem 0" class="presets">
+				<div style="margin: 1.3333em 0">定番</div>
+				<div style="margin: 1.3333em 0" class="presets">
 					<button
 						onclick={() => {
 							rules[activeTab] = {
@@ -1301,7 +1301,7 @@
 			flex: 0 1 30px;
 			border: 0;
 			border-bottom: 1px solid #444;
-			font-size: 2rem;
+			font-size: 1.3333em;
 
 			&[inert] {
 				pointer-events: none;

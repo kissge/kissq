@@ -125,7 +125,7 @@
 					padding-left: 0.6em;
 					padding-right: 0.6em;
 					font-weight: bold;
-					font-size: 1rem;
+					font-size: 0.6666em;
 				}
 
 				> :nth-child(2n + 2) {
@@ -141,15 +141,14 @@
 					font-size: 1em;
 				}
 
-				input[type='number'],
-				button {
-					padding: 0 0.5rem;
-					height: 2.5rem;
+				input[type='number'] {
+					padding: 0 0.27778em;
+					height: 1.3em;
 				}
 
 				input[type='number'] {
 					width: 3em;
-					font-size: 2rem;
+					font-size: 1.3333em;
 					text-align: right;
 				}
 
