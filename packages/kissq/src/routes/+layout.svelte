@@ -152,7 +152,8 @@
 					text-align: right;
 				}
 
-				input[type='radio'] {
+				input[type='radio'],
+				input[type='checkbox'] {
 					width: 0.8em;
 					height: 0.8em;
 				}

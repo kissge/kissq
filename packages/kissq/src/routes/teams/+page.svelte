@@ -331,7 +331,7 @@
 		チーム分け
 	</button>
 	<button
-		onclick={QuestionConsole.openSubWindow}
+		onclick={() => QuestionConsole.openSubWindow(false)}
 		{@attach tooltip('遠隔操作・問題表示などができるサブウィンドウを開きます。', {
 			placement: 'left'
 		})}

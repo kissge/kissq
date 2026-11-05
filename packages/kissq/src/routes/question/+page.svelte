@@ -7,10 +7,12 @@
 	import 'toastify-js/src/toastify.css';
 	import { getAPIClient, type APIClient } from '$lib/api';
 	import type { Attendant } from '$lib/attendant';
+	import ConventionAssist from './conventionAssist.svelte';
+	import ImportDialog from './importDialog.svelte';
 	import RuleEditDialog from '$lib/components/ruleEditDialog.svelte';
 	import RuleTeamEditDialog from '$lib/components/ruleTeamEditDialog.svelte';
 	import type { HistoryEntry } from '$lib/historyEntry';
-	import { parseComment, parseCSV, qZero, type CSVQuestion } from '$lib/question';
+	import { parseComment, qZero, type BaseQuestion } from '$lib/question';
 	import type { IncomingMessage, OutgoingMessage } from '$lib/questionConsole.svelte';
 	import { Rule } from '$lib/rule';
 	import type { WasedashikiMode } from '$lib/serial';
@@ -19,11 +21,10 @@
 	import { tooltip } from '$lib/tooltip.svelte';
 	import { THROUGH, AttendantID } from '$lib/types';
 	import { collapseArray, getGroupSymbol, splitQuestion } from '$lib/utils';
-	import ConventionAssist from './conventionAssist.svelte';
 
 	const opener = (typeof window !== 'undefined' ? window.opener : {}) as Window;
 
-	interface RawQuestion extends CSVQuestion {
+	interface RawQuestion extends BaseQuestion {
 		shown?: 0 | 1;
 		correctAnswerer?: string | null;
 		likedBy?: string[];
@@ -31,7 +32,6 @@
 
 	let rawQuestions = $state<RawQuestion[]>([qZero]);
 	let questions = $derived(rawQuestions.map(parseComment));
-	let rawInput = $state('');
 	let currentIndex = $state(0);
 
 	let fontSize = $state(6);
@@ -65,8 +65,6 @@
 	let showConventionAssist = $state(false);
 
 	let timeElapsed = $state('');
-
-	let googleSheetsMode = $state(true);
 
 	let orderedAttendants = $derived.by(() => {
 		const array = (() => {
@@ -144,9 +142,9 @@
 		}
 	});
 
-	let inputDialog: HTMLDialogElement;
 	let ruleEditDialog: ReturnType<typeof RuleEditDialog>;
 	let ruleTeamEditDialog: ReturnType<typeof RuleTeamEditDialog>;
+	let importDialog: ReturnType<typeof ImportDialog>;
 
 	let attendantElements: HTMLElement[] = $state([]);
 	let isDragging = $state<AttendantID | null>(null);
@@ -383,8 +381,8 @@
 		};
 	});
 
-	async function loadFromCSV() {
-		rawQuestions = parseCSV(rawInput, googleSheetsMode);
+	async function onImport(questions: BaseQuestion[]) {
+		rawQuestions = [qZero, ...questions];
 		window.localStorage.setItem('questions', JSON.stringify(rawQuestions));
 
 		if (enableCompanion && companionSessionID && client) {
@@ -393,7 +391,7 @@
 					await client.api.questions.$put({
 						json: {
 							sessionID: companionSessionID,
-							questions: rawQuestions.map((q, id) => ({ ...q, id })).slice(1)
+							questions
 						}
 					})
 				).json()
@@ -403,8 +401,6 @@
 				Toastify({ text: '問題をクラウドに同期しました' }).showToast()
 			);
 		}
-
-		inputDialog.close();
 	}
 </script>
 
@@ -795,14 +791,7 @@
 </main>
 
 <footer class="console" class:show-keyboard={isKeyboardEnabled}>
-	<button
-		onclick={() => {
-			rawInput = '';
-			inputDialog.showModal();
-		}}
-	>
-		問題を読み込み
-	</button>
+	<button onclick={() => importDialog.open()}>問題を読み込み</button>
 	<button
 		class="labeled"
 		data-label="N"
@@ -858,22 +847,7 @@
 		postMessage({ command: 'updateAttendant', attendantID, diff })}
 />
 
-<dialog closedby="any" bind:this={inputDialog}>
-	<p style="font-size: 0.5em">
-		ヒント：スプレッドシート上で質問と回答の列を選択してコピーするとTSV形式になります。
-	</p>
-
-	<textarea
-		bind:value={rawInput}
-		onpaste={() => setTimeout(loadFromCSV, 0)}
-		placeholder="ここにCSV/TSVデータを貼り付けてください"></textarea>
-	<label>
-		<input type="checkbox" bind:checked={googleSheetsMode} />
-		Google Sheetsからコピペした、ぶっ壊れているかもしれないデータをなるべくいい感じにする
-	</label>
-	<button onclick={loadFromCSV}>読み込み</button>
-</dialog>
-
+<ImportDialog bind:this={importDialog} {onImport} />
 <RuleEditDialog bind:this={ruleEditDialog} {apply} />
 <RuleTeamEditDialog bind:this={ruleTeamEditDialog} {apply} />
 
@@ -1060,22 +1034,6 @@
 			width: 1em;
 			content: attr(data-label);
 			color: white;
-		}
-	}
-
-	dialog {
-		user-select: none;
-
-		textarea {
-			font-size: 0.5em;
-			width: 90%;
-		}
-
-		button,
-		label {
-			display: block;
-			margin-top: 1em;
-			font-size: 0.5em;
 		}
 	}
 

@@ -2,7 +2,7 @@ import type { InferResponseType } from 'hono/client';
 import { csv2json } from 'json-2-csv';
 import type { APIClient } from './api';
 
-export const qZero: CSVQuestion = {
+export const qZero: BaseQuestion = {
 	id: 0,
 	question: 'ここに問題が表示されます',
 	answer: 'ここに答えが表示されます',
@@ -10,7 +10,7 @@ export const qZero: CSVQuestion = {
 	slashOffset: undefined as number | undefined
 };
 
-export interface CSVQuestion {
+export interface BaseQuestion {
 	id: number;
 	question: string;
 	answer: string;
@@ -18,39 +18,31 @@ export interface CSVQuestion {
 	slashOffset: number | undefined;
 }
 
-export function parseCSV(rawInput: string, googleSheetsMode: boolean): CSVQuestion[] {
-	if (googleSheetsMode) {
+export function parseCSV(
+	rawInput: string,
+	options: { delimiter: 'comma' | 'tab' | 'auto'; googleSheetsMode: boolean }
+): Record<number, string>[] {
+	if (options.googleSheetsMode) {
 		return parseGoogleSheetsText(rawInput);
 	}
 
-	const tabCount = rawInput.match(/\t/g)?.length ?? 0;
-	const commaCount = rawInput.match(/,/g)?.length ?? 0;
-	const delimiter = tabCount > commaCount ? '\t' : ',';
+	if (options.delimiter === 'auto') {
+		const tabCount = rawInput.match(/\t/g)?.length ?? 0;
+		const commaCount = rawInput.match(/,/g)?.length ?? 0;
+		options.delimiter = tabCount > commaCount ? 'tab' : 'comma';
+	}
 
-	let lines = rawInput
-		.trim()
-		.split('\n')
-		.filter((line) => line.trim() !== '')
-		.join('\n');
-
-	return [
-		qZero,
-		...(
-			csv2json(lines, {
-				delimiter: { field: delimiter },
-				headerFields: ['question', 'answer', 'comment']
-			}) as { question: unknown; answer: unknown; comment?: unknown }[]
-		).map(({ question, answer, comment }, id) => ({
-			id: id + 1,
-			question: String(question),
-			answer: String(answer),
-			comment: String(comment ?? ''),
-			slashOffset: undefined
-		}))
-	];
+	return (
+		csv2json(rawInput, {
+			delimiter: { field: options.delimiter === 'comma' ? ',' : '\t' },
+			headerFields: Array.from({ length: 99 }, (_, i) => String(i))
+		}) as Record<number, unknown>[]
+	).map((row) =>
+		Object.fromEntries(Object.entries(row).map(([key, value]) => [key, value ? String(value) : '']))
+	);
 }
 
-function parseGoogleSheetsText(rawInput: string): CSVQuestion[] {
+function parseGoogleSheetsText(rawInput: string): Record<number, string>[] {
 	const results = [];
 
 	while (rawInput) {
@@ -119,16 +111,7 @@ function parseGoogleSheetsText(rawInput: string): CSVQuestion[] {
 		}
 	}
 
-	return [
-		qZero,
-		...results.map(([question, answer, comment], id) => ({
-			id: id + 1,
-			question: String(question),
-			answer: String(answer),
-			comment: String(comment ?? ''),
-			slashOffset: undefined
-		}))
-	];
+	return results.map((row) => Object.fromEntries(row.map((cell, i) => [i, cell])));
 }
 
 export function parseComment<Q extends { comment: string }>(
