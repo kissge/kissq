@@ -93,7 +93,7 @@
 	@media (max-width: 599px) {
 		/* (mainly) for Smartphone */
 		footer {
-			font-size: 1rem;
+			font-size: 0.5em;
 
 			.left {
 				gap: 0.2em;

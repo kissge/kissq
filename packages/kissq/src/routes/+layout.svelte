@@ -174,7 +174,7 @@
 		main.main {
 			display: grid;
 			grid-template-rows: auto 1fr auto;
-			flex: 1 0 100dvh;
+			flex: 0 0 100dvh;
 			gap: 0 1em;
 			background-image: url('$lib/assets/wallpaper.jpg');
 			background-position: center center;

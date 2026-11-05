@@ -211,7 +211,7 @@
 		background: #eee;
 		width: 100dvw;
 		font-weight: bold;
-		font-size: 2rem;
+		font-size: 1em;
 		anchor-name: --global-header;
 
 		h1 {
@@ -339,7 +339,7 @@
 	@media (max-width: 599px) {
 		/* (mainly) for Smartphone */
 		header {
-			font-size: 1rem;
+			font-size: 0.5em;
 		}
 	}
 </style>

@@ -188,7 +188,12 @@
 	<title>{Game.windowTitle}</title>
 </svelte:head>
 
-<main class="main">
+<main
+	style:grid-template-rows={QuestionConsole.showQuestionWindow
+		? 'auto auto 1fr auto'
+		: 'auto 1fr auto'}
+	class="main"
+>
 	<Header battleMode="team" showTotalOverride={false} {editRule} />
 
 	<QuestionWindow />
@@ -196,7 +201,7 @@
 	<div
 		class="attendants-wrapper"
 		class:vertical-centering={Layout.attendantsClientHeight < Layout.attendantsWrapperClientHeight}
-		style:height={`calc(100vh - ${Layout.headerClientHeight + Layout.footerClientHeight}px - 25px ${QuestionConsole.showQuestionWindow ? '- 6.25em - 0.7rem' : ''})`}
+		style:height={`calc(100dvh - ${Layout.headerClientHeight + Layout.footerClientHeight}px - 25px ${QuestionConsole.showQuestionWindow ? '- 6.25em - 0.7rem' : ''})`}
 		bind:clientHeight={Layout.attendantsWrapperClientHeight}
 	>
 		<div class="attendants" bind:clientHeight={Layout.attendantsClientHeight}>
@@ -476,9 +481,8 @@
 
 <style>
 	.attendants-wrapper {
-		font-size: max(1.5dvw, 24px);
+		overflow: auto;
 	}
-
 	.attendants-wrapper.vertical-centering {
 		display: flex;
 		align-items: center;
