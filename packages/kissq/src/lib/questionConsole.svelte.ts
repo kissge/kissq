@@ -21,9 +21,12 @@ export class QuestionConsoleClass {
 	showQRCode = $state(false);
 	currentQuestion = $state(qZero);
 
-	openSubWindow() {
+	openSubWindow(openInNewTab: boolean) {
+		// Why not using location.search? I forgot
 		const search = '?' + new SvelteURLSearchParams(location.search).toString();
-		this.subWindow = window.open('./question' + search, 'questionWindow', 'popup') || undefined;
+		this.subWindow =
+			window.open('./question' + search, 'questionWindow', openInNewTab ? undefined : 'popup') ||
+			undefined;
 	}
 
 	processWindowMessage(event: MessageEvent) {

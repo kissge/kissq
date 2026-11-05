@@ -507,12 +507,15 @@
 		{/if}
 	</button>
 	<button
-		onclick={QuestionConsole.openSubWindow}
+		onclick={() => QuestionConsole.openSubWindow(isShiftKeyDown)}
 		{@attach tooltip('遠隔操作・問題表示などができるサブウィンドウを開きます。', {
 			placement: 'left'
 		})}
 	>
 		操作盤を表示する
+		{#if isShiftKeyDown}
+			<small>（通常ウィンドウ）</small>
+		{/if}
 	</button>
 	<button
 		disabled={Wasedashiki.serialPort != null}
@@ -527,9 +530,10 @@
 			placement: 'left'
 		})}
 	>
-		早稲田式連携の接続を開始する
 		{#if isShiftKeyDown}
-			<small>（デバッグモード）</small>
+			早稲田式連携 <small>（デバッグモード）</small>
+		{:else}
+			早稲田式連携の接続を開始する
 		{/if}
 	</button>
 
