@@ -12,6 +12,8 @@
 
 	let scoreMode = $state<'game' | 'total'>('game');
 
+	let random = Math.random();
+
 	let name1stWrapper: HTMLDivElement;
 	const confetti = Array.from({ length: 28 }, (_, index) => ({
 		x: (index * 37) % 100,
@@ -86,6 +88,10 @@
 		name1stWrapper.style.minHeight = `${instinctFontSize}px`;
 		name1stWrapper.style.paddingTop = `${(instinctFontSize - actualHeight) / 2}px`;
 	});
+
+	function pick<T>(array: T[]): T {
+		return array[Math.floor(random * array.length)];
+	}
 </script>
 
 <div class="bg" style:background-image={wallpaper}>
@@ -146,10 +152,10 @@
 			{/each}
 		</div>
 		<div class="congratulations">
-			{#if (ranking.mode === 'single' ? ranking.ranks[0]?.names : ranking.ranks[0]?.teams)?.length ?? 0 >= 3}
-				DAIBU HIRATAI
+			{#if ((ranking.mode === 'single' ? ranking.ranks[0]?.names : ranking.ranks[0]?.teams)?.length ?? 0) >= 3}
+				{pick(['DAIBU HIRATAI', 'MINNA NAKAYOSHI', 'KANARI SESSEN'])}
 			{:else}
-				WARITO MEDETAI
+				{pick(['WARITO MEDETAI', 'IIKANJI DESUNE', 'MINANOMONO IWAE'])}
 			{/if}
 		</div>
 	</div>

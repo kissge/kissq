@@ -47,7 +47,7 @@
 	let wallpaper = $state<string | null>(null);
 	let trophy = $state<string | null>(null);
 
-	let showWinner = $state(true); // TODO: DEBUGGING
+	let showWinner = $state(false);
 
 	let logDialog: { open: () => void };
 	let ruleTeamEditDialog: { open: (rules: Rule[]) => Promise<Rule[] | null> };
