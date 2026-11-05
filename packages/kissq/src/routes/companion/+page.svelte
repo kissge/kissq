@@ -306,7 +306,9 @@
 		scroll-snap-align: center;
 		color: #fff;
 		font-size: min(4svw, 3svh);
+		word-break: break-word;
 		text-wrap: pretty;
+		white-space: pre-wrap;
 		overflow-y: auto;
 
 		&:first-child {
