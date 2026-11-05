@@ -114,20 +114,15 @@
 		}
 	}
 
-	let ruleEditDialog: { open: (rules: Rule[]) => Promise<Rule[] | null> };
-	let logDialog: { open: () => void };
-	let answerHistoryDialog: { open: () => void };
-	let effectEditDialog: { open: () => void };
-	let appearanceDialog: {
-		open: (
-			wallpaper: string | null,
-			trophy: string | null
-		) => Promise<[string | null, string | null] | null>;
-	};
-	let stateEditDialog: { open: (att: AttendantState) => Promise<AttendantStateValue | null> };
-	let penaltyRoulette: { run: (choices: Penalty[]) => Promise<number> };
-	let unlockDialog: { open: () => Promise<void> };
-	let transferAttendantsDialog: { open: () => void };
+	let ruleEditDialog: ReturnType<typeof RuleEditDialog>;
+	let logDialog: ReturnType<typeof LogDialog>;
+	let answerHistoryDialog: ReturnType<typeof AnswerHistoryDialog>;
+	let effectEditDialog: ReturnType<typeof EffectEditDialog>;
+	let appearanceDialog: ReturnType<typeof AppearanceDialog>;
+	let stateEditDialog: ReturnType<typeof StateEditDialog>;
+	let penaltyRoulette: ReturnType<typeof PenaltyRoulette>;
+	let unlockDialog: ReturnType<typeof UnlockDialog>;
+	let transferAttendantsDialog: ReturnType<typeof TransferAttendantsDialog>;
 
 	$effect(() => {
 		if (Game.history.length === 0) {

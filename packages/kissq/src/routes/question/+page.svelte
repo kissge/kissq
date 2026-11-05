@@ -145,8 +145,8 @@
 	});
 
 	let inputDialog: HTMLDialogElement;
-	let ruleEditDialog: { open: (rules: Rule[]) => Promise<Rule[] | null> };
-	let ruleTeamEditDialog: { open: (rules: Rule[]) => Promise<Rule[] | null> };
+	let ruleEditDialog: ReturnType<typeof RuleEditDialog>;
+	let ruleTeamEditDialog: ReturnType<typeof RuleTeamEditDialog>;
 
 	let attendantElements: HTMLElement[] = $state([]);
 	let isDragging = $state<AttendantID | null>(null);

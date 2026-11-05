@@ -49,17 +49,12 @@
 
 	let showWinner = $state(false);
 
-	let logDialog: { open: () => void };
-	let ruleTeamEditDialog: { open: (rules: Rule[]) => Promise<Rule[] | null> };
-	let appearanceDialog: {
-		open: (
-			wallpaper: string | null,
-			trophy: string | null
-		) => Promise<[string | null, string | null] | null>;
-	};
-	let unlockDialog: { open: () => Promise<void> };
-	let combinationDialog: { open: () => Promise<void> };
-	let transferAttendantsDialog: { open: () => void };
+	let logDialog: ReturnType<typeof LogDialog>;
+	let ruleTeamEditDialog: ReturnType<typeof RuleTeamEditDialog>;
+	let appearanceDialog: ReturnType<typeof AppearanceDialog>;
+	let unlockDialog: ReturnType<typeof UnlockDialog>;
+	let combinationDialog: ReturnType<typeof CombinationDialog>;
+	let transferAttendantsDialog: ReturnType<typeof TransferAttendantsDialog>;
 
 	async function editRule() {
 		const result = await ruleTeamEditDialog.open(Game.rules);

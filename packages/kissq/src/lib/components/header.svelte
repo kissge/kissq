@@ -30,8 +30,8 @@
 
 	let showPopover = $state(false);
 
-	let helpDialog: { open: () => void };
-	let ruleDetailsDialog: { open: () => void };
+	let helpDialog: ReturnType<typeof HelpDialog>;
+	let ruleDetailsDialog: ReturnType<typeof RuleDetailsDialog>;
 
 	let hideQuestionCount = $derived(
 		Game.currentState.defaultRule.mode === 'aql' && !Game.currentState.ifFinished
