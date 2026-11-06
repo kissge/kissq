@@ -185,8 +185,8 @@ importers:
         specifier: ^5.5.11
         version: 5.5.11
       kissunlocklib:
-        specifier: github:kissge/kissunlocklib
-        version: https://codeload.github.com/kissge/kissunlocklib/tar.gz/fef87d485e14481d27aa9482033d170e61e9ae20
+        specifier: github:kissge/kissqlib#path:packages/kissunlocklib
+        version: https://codeload.github.com/kissge/kissqlib/tar.gz/80678a1e6e87ede3e3635d1812382cb7b5a5635a#path:packages/kissunlocklib
       toastify-js:
         specifier: ^1.12.0
         version: 1.12.0
@@ -2400,9 +2400,9 @@ packages:
     resolution: {integrity: sha512-p/nXbhSEcu3pZRdkW1OfJhpsVtW1gd4Wa1fnQc9YLiTfAjn0312eMKimbdIQzuZl9aa9xUGaRlP9T/CJE/ditQ==}
     engines: {node: '>=0.10.0'}
 
-  kissunlocklib@https://codeload.github.com/kissge/kissunlocklib/tar.gz/fef87d485e14481d27aa9482033d170e61e9ae20:
-    resolution: {gitHosted: true, integrity: sha512-+iogNiiX3bF56LzrrWZKV5Tq6Z8qxTCHsutvSCgfKs/QtG7P3oR2lJg6nuHnVL+XAtXOLmAZyruZYsUlfINdRQ==, tarball: https://codeload.github.com/kissge/kissunlocklib/tar.gz/fef87d485e14481d27aa9482033d170e61e9ae20}
-    version: 0.1.0
+  kissunlocklib@https://codeload.github.com/kissge/kissqlib/tar.gz/80678a1e6e87ede3e3635d1812382cb7b5a5635a#path:packages/kissunlocklib:
+    resolution: {gitHosted: true, integrity: sha512-Cuw86urzzCCab8hLOAsFB3nDY2N8+DIZaBRzdtNdMN4Vx9NAnHwVAyvvBS6b+dThn2yPEhmif9nMSiYaV2L6Zg==, path: packages/kissunlocklib, tarball: https://codeload.github.com/kissge/kissqlib/tar.gz/80678a1e6e87ede3e3635d1812382cb7b5a5635a}
+    version: 0.0.0
 
   kleur@4.1.5:
     resolution: {integrity: sha512-o+NO+8WrRiQEE4/7nwRJhN1HWpVmJm511pBHUxPLtp0BUISzlBplORYSmTclCnJvQq2tKu/sgl3xVpkc7ZWuQQ==}
@@ -5017,7 +5017,7 @@ snapshots:
 
   jsonpointer@5.0.1: {}
 
-  kissunlocklib@https://codeload.github.com/kissge/kissunlocklib/tar.gz/fef87d485e14481d27aa9482033d170e61e9ae20: {}
+  kissunlocklib@https://codeload.github.com/kissge/kissqlib/tar.gz/80678a1e6e87ede3e3635d1812382cb7b5a5635a#path:packages/kissunlocklib: {}
 
   kleur@4.1.5: {}
 
