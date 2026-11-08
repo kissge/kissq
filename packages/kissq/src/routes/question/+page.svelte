@@ -578,7 +578,7 @@
 					{/if}
 
 					{#if att.life !== 'removed'}
-						{att.name || '--'}
+						{att.name || `プレイヤー${ai + 1}`}
 						{#if att.isLizhi}
 							{#if att.isLoseLizhi}
 								<span class="lizhi" transition:fade>ダブルリーチ</span>
