@@ -22,13 +22,21 @@
 	let logs = $state<LogEntry[]>([]);
 	let filters = $state<LogFilters>({
 		row: 'all',
-		column: ['team', 'seat', 'name', 'score', 'seatScore', 'status']
+		column: ['team', 'seat', 'name', 'score', 'seatScore', 'status'],
+		sort: 'newest'
 	});
+
+	let sortedLogs = $derived(
+		(filters.sort === 'newest' ? logs.toReversed() : logs).filter(
+			({ questionCount }) => questionCount > 0
+		)
+	);
 
 	onMount(() => {
 		const savedFilters = window.localStorage.getItem('logFilters');
 		if (savedFilters) {
 			filters = JSON.parse(savedFilters);
+			filters.sort ??= 'newest';
 		}
 	});
 
@@ -41,7 +49,7 @@
 	<div class="table-wrapper">
 		<table>
 			<tbody>
-				{#each logs.toReversed().filter(({ questionCount }) => questionCount > 0) as log, i (i)}
+				{#each sortedLogs as log, i (i)}
 					{@const showGroup = log.state.some((att) => att.group !== log.state[0].group)}
 					{@const teams =
 						log.mode === 'team'

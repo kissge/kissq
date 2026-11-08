@@ -53,6 +53,7 @@ export interface LogEntry {
 export interface LogFilters {
 	row: 'all' | 'won';
 	column: ('team' | 'seat' | 'name' | 'score' | 'seatScore' | 'status')[];
+	sort: 'newest' | 'oldest';
 }
 
 export class LoggerClass {

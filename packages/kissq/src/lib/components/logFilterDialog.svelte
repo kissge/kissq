@@ -7,7 +7,7 @@
 </script>
 
 <button class="show-btn" onclick={() => (showFilterDialog = !showFilterDialog)}>
-	表示する行・列を絞り込む
+	表示設定（行・列の絞り込み、並び順）
 </button>
 
 <div
@@ -15,6 +15,18 @@
 	style:opacity={showFilterDialog ? 1 : 0}
 	style:display={showFilterDialog ? '' : 'none'}
 >
+	<div style:grid-column="span 2">表示順</div>
+	<div style:grid-column="span 2" style:margin-bottom="1em">
+		<label>
+			<input type="radio" bind:group={filters.sort} value="newest" />
+			新しい順
+		</label>
+		<label>
+			<input type="radio" bind:group={filters.sort} value="oldest" />
+			古い順
+		</label>
+	</div>
+
 	<div>行</div>
 	<div>列</div>
 
