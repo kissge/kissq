@@ -220,6 +220,9 @@ export class BatsuHistoryEntry implements HistoryEntry {
 					state.attendants[ai2].score = 0;
 				});
 
+			// 巻き添えを踏まえないとteamScoreは確定しないので再計算
+			team.teamScore = state.teams[ti].calculateTeamScore(this.attendantID, score);
+
 			// 相手の封鎖解除
 			for (const [ti2, team2] of state.teams.entries()) {
 				if (ti === ti2) {
