@@ -238,6 +238,7 @@
 
 		:global(body) {
 			height: 100dvh;
+			text-autospace: normal;
 		}
 
 		.toastify {

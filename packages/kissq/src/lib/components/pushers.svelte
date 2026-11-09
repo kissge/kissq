@@ -55,7 +55,7 @@
 			{#each Wasedashiki.answererRanking as [attendantID, answerer] (attendantID ?? answerer.totalRank)}
 				<div class="attendant" in:fly={{ y: 300 }} out:fly={{ y: -300 }}>
 					<div class="rank">
-						{answerer.totalRank + 1} <small>着 / {Wasedashiki.pushers.length}</small>
+						{answerer.totalRank + 1}<small>着 / {Wasedashiki.pushers.length}</small>
 					</div>
 					<div
 						class="name"
