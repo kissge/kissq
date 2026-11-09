@@ -672,6 +672,11 @@ export class TeamState {
 			this.teamScore
 		];
 	}
+
+	/** attendantsがあるとGameStateが循環参照を含んでしまいJSON-serializableにならないため、それを除く */
+	get serializable() {
+		return { ...this, attendants: [] };
+	}
 }
 
 export type GameEventType =
@@ -850,5 +855,13 @@ export class GameState {
 
 	get ifFinished(): boolean {
 		return (this.defaultRule.questionLimit ?? Infinity) < this.questionCount;
+	}
+
+	/** JSON-serializableでない要素を削除する（循環参照をなくす） */
+	get serializable(): GameState {
+		return {
+			...this,
+			teams: this.teams.map((team) => team.serializable)
+		};
 	}
 }

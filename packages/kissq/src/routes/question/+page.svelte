@@ -16,7 +16,7 @@
 	import type { IncomingMessage, OutgoingMessage } from '$lib/questionConsole.svelte';
 	import { Rule } from '$lib/rule';
 	import type { WasedashikiMode } from '$lib/serial';
-	import type { GameState } from '$lib/state';
+	import type { AttendantState, GameState } from '$lib/state';
 	import { getTimeElapsedString } from '$lib/time';
 	import { tooltip } from '$lib/tooltip.svelte';
 	import { THROUGH, AttendantID } from '$lib/types';
@@ -67,24 +67,62 @@
 	let timeElapsed = $state('');
 
 	let orderedAttendants = $derived.by(() => {
-		const array = (() => {
+		const array: {
+			att: AttendantState;
+			ai: AttendantID;
+			ord: number;
+			startOfTeam?: number;
+			startOfSeat?: number;
+		}[] = (() => {
+			if (!currentState || !mainScreenOrder) {
+				return [];
+			}
+
+			if (battleMode === 'team') {
+				const array = [];
+
+				for (const [ti, team] of (currentState.teams ?? []).entries()) {
+					let startOfTeam: number | undefined = ti;
+					for (const [si, seat] of team.attendantIDsPerSeat.entries()) {
+						let startOfSeat: number | undefined = si;
+						for (const ai of seat ?? []) {
+							array.push({
+								att: currentState.attendants[ai],
+								ai: AttendantID(ai),
+								ord: 0,
+								startOfTeam,
+								startOfSeat
+							});
+							startOfTeam = undefined;
+							startOfSeat = undefined;
+						}
+					}
+				}
+
+				return array;
+			}
+
 			switch (order) {
 				case 'added':
-					return currentState?.attendants.map((att, ai) => ({ att, ai, ord: 0 }));
+					return currentState.attendants.map((att, ai) => ({ att, ai: AttendantID(ai), ord: 0 }));
 				case 'same':
-					return mainScreenOrder?.map((ai) => ({ att: currentState!.attendants[ai], ai, ord: 0 }));
+					return mainScreenOrder.map((ai) => ({
+						att: currentState!.attendants[ai],
+						ai: AttendantID(ai),
+						ord: 0
+					}));
 				case 'reverse':
 					return mainScreenOrder
-						?.map((ai) => ({ att: currentState!.attendants[ai], ai, ord: 0 }))
+						.map((ai) => ({ att: currentState!.attendants[ai], ai: AttendantID(ai), ord: 0 }))
 						.reverse();
 				default:
-					order satisfies never;
+					throw new Error(order satisfies never);
 			}
 		})();
 
-		for (let i = 0, j = 0; i < (array?.length ?? 0); i++) {
-			if (array![i].att.life !== 'removed') {
-				array![i].ord = j++;
+		for (let i = 0, j = 0; i < array.length; i++) {
+			if (array[i].att.life !== 'removed') {
+				array[i].ord = j++;
 			}
 		}
 
@@ -514,7 +552,13 @@
 	</div>
 	{#if currentState && orderedAttendants}
 		<div>
-			{#each orderedAttendants as { att, ai, ord: ord2 }, ord (ai)}
+			{#each orderedAttendants as { att, ai, ord: ord2, startOfTeam, startOfSeat }, ord (ai)}
+				{@const prefix = (() => {
+					const team =
+						startOfTeam != null && teams && (teams[startOfTeam] || `チーム${startOfTeam + 1}`);
+					const seat = startOfSeat != null ? `[${startOfSeat + 1}枠]` : null;
+					return [team, seat].filter(Boolean).join(' ');
+				})()}
 				<div
 					class={[
 						'attendant',
@@ -529,6 +573,10 @@
 							'drop-target': dropTarget === ord
 						}
 					]}
+					data-prefix={prefix}
+					style:--prefix-size={prefix.length * 0.6 +
+						[...prefix].filter((c) => c.charCodeAt(0) > 255).length * 0.5 +
+						'em'}
 					animate:flip={{ duration: 500 }}
 					bind:this={attendantElements[ai]}
 					role="listitem"
@@ -905,6 +953,20 @@
 			border: 1px solid #ccc;
 			padding: 0.5em;
 			line-height: 2.1;
+			--prefix-size: 5em;
+
+			&[data-prefix] {
+				position: relative;
+				margin-left: var(--prefix-size);
+
+				&::before {
+					display: block;
+					position: absolute;
+					left: calc(-1 * var(--prefix-size));
+					content: attr(data-prefix);
+					border-bottom: 5px solid #444;
+				}
+			}
 		}
 
 		.lizhi,

@@ -7,7 +7,7 @@ import { getGameContext } from './gameContext';
 import type { HistoryEntry } from './historyEntry';
 import { Rule, type RulePOJO } from './rule';
 import type { WasedashikiMode } from './serial';
-import type { GameState } from './state';
+import type { GameState, TeamState } from './state';
 import { TeamID, type AttendantID } from './types';
 
 const urlParams = new URLSearchParams(typeof location !== 'undefined' ? location.search : '');
@@ -141,18 +141,13 @@ export class QuestionConsoleClass {
 
 	syncState() {
 		if (this.subWindow) {
-			// Prevent circular object (only necessary for team, fyi)
-			const state = Object.fromEntries(
-				Object.entries(this.Game.currentState).flatMap(([k, v]) => (k === 'teams' ? [] : [[k, v]]))
-			) as GameState;
-
 			this.subWindow.postMessage(
 				JSON.parse(
 					JSON.stringify({
 						command: 'syncState',
 						mode: this.Game.battleMode,
 						attendants: this.Game.attendants,
-						currentState: state,
+						currentState: this.Game.currentState.serializable,
 						history: this.Game.history,
 						rules: this.Game.rules,
 						orderedAttendants: this.Game.orderedAttendants,
