@@ -375,13 +375,13 @@
 			<div class="table">
 				<div>押せる人数</div>
 				<div>
-					<label {@attach tooltip('〇、スルーのほか✕を押しても問題カウントが直ちに進みます。')}>
+					<label {@attach tooltip('〇、スルーのほか×を押しても問題カウントが直ちに進みます。')}>
 						<input type="radio" bind:group={rules[0].chance} value="single" />
 						シングルチャンス
 					</label>
 					<label
 						{@attach tooltip(
-							'〇、スルーを押したときは問題カウントが進みますが、✕を押しても問題カウントが進みません。'
+							'〇、スルーを押したときは問題カウントが進みますが、×を押しても問題カウントが進みません。'
 						)}
 					>
 						<input type="radio" bind:group={rules[0].chance} value="endless" />
@@ -462,7 +462,7 @@
 							};
 						}}
 					>
-						7〇3✕<small>（シングルチャンス）</small>
+						7〇3×<small>（シングルチャンス）</small>
 					</button>
 					<button
 						onclick={() => {

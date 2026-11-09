@@ -147,7 +147,7 @@ export class Rule {
 				str = `${this.win}〇`;
 
 				if (this.lose !== null) {
-					str += `${this.lose}✕`;
+					str += `${this.lose}×`;
 				}
 
 				if (this.maru !== 1) {
@@ -155,11 +155,11 @@ export class Rule {
 				}
 
 				if (this.batsu === 'batsu') {
-					str += '、N回目の誤答でN✕';
+					str += '、N回目の誤答でN×';
 				} else if (this.batsu === 'updown') {
 					str += '、誤答でゼロ〇に';
 				} else if (this.batsu !== 1 && this.batsu !== 0) {
-					str += `、誤答+${this.batsu}✕`;
+					str += `、誤答+${this.batsu}×`;
 				}
 				break;
 
@@ -167,7 +167,7 @@ export class Rule {
 				str = `${this.win} by ${this.win}（${this.win ** 2}点先取）`;
 
 				if (this.lose !== null) {
-					str += `、${this.lose}✕で失格`;
+					str += `、${this.lose}×で失格`;
 				}
 
 				if (this.maru !== 1) {
@@ -377,9 +377,9 @@ export class Rule {
 				);
 				arr.push('チームのスコアは、各枠のスコアを全て掛けた値');
 				arr.push(`${this.win}点に到達したチームが勝ち抜け`);
-				arr.push('枠のメンバーが誤答すると、枠に✕がつき、枠のスコアが1点にリセットされる');
+				arr.push('枠のメンバーが誤答すると、枠に×がつき、枠のスコアが1点にリセットされる');
 				arr.push(
-					'枠に✕がついている状態で枠のメンバーが誤答すると、2個目の✕がつき、その枠は封鎖状態になり、解答権を失う'
+					'枠に×がついている状態で枠のメンバーが誤答すると、2個目の×がつき、その枠は封鎖状態になり、解答権を失う'
 				);
 				arr.push('誰かが誤答すると、他のチームの枠の封鎖状態は解除される');
 				break;

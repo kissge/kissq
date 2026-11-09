@@ -642,7 +642,7 @@
 						{#if battleMode === 'single'}
 							<span class="score">
 								{#if att.rule.mode === 'marubatsu'}
-									{att.maruCount}◯{att.batsuCount}✕
+									{att.maruCount}◯{att.batsuCount}×
 								{:else if att.rule.mode === 'score' || att.rule.mode === 'survival' || att.rule.mode === 'MbyN'}
 									{att.score} pt{#if att.score !== 1}s{/if}
 								{/if}

@@ -152,7 +152,7 @@
 						{#if importingParsed}
 							<span class="sample">
 								: {importingParsed.attendants[0]?.totalScore.maru}◯
-								{importingParsed.attendants[0]?.totalScore.batsu}✕、…
+								{importingParsed.attendants[0]?.totalScore.batsu}×、…
 							</span>
 						{/if}
 					</label>

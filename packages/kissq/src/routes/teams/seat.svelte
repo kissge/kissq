@@ -78,7 +78,7 @@
 				class="batsu-count"
 				style:display={Game.currentState.defaultRule.mode === 'aql' ? '' : 'none'}
 			>
-				{'✕'.repeat(batsuCount)}
+				{'×'.repeat(batsuCount)}
 			</div>
 		</div>
 

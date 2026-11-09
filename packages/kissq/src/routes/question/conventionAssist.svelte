@@ -282,7 +282,7 @@
 									{/if}
 
 									{#if att.rule.mode === 'marubatsu'}
-										{att.maruCount}◯{att.batsuCount}✕
+										{att.maruCount}◯{att.batsuCount}×
 									{:else}
 										{att.score} pt{#if att.score !== 1}s{/if}
 									{/if}

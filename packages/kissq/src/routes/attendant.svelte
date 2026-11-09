@@ -177,7 +177,7 @@
 					{att.totalScore.batsu + att.trueBatsuCount}
 				</span>
 			{/key}
-			<span class="symbol">✕</span>
+			<span class="symbol">×</span>
 		</span><br />
 		<span class="total-rate" {@attach tooltip('通算正答率')}>
 			{(() => {
@@ -204,7 +204,7 @@
 						{att.batsuCount}
 					</span>
 				{/key}
-				<span class="symbol">✕</span>
+				<span class="symbol">×</span>
 			</span>
 		{/if}
 	{:else if att.rule.mode === 'score' || att.rule.mode === 'survival'}
@@ -363,8 +363,8 @@
 			class="batsu-btn"
 			{@attach tooltip(
 				Game.currentState.defaultRule.chance === 'single'
-					? `${att.name || 'このプレイヤー'}に1✕をつけて問題カウントを1進めます（休みの人がいれば1休減ります）`
-					: `${att.name || 'このプレイヤー'}に1✕をつけます（誰も正解しなければ最後にスルーボタンを押すのを忘れずに！）`,
+					? `${att.name || 'このプレイヤー'}に1×をつけて問題カウントを1進めます（休みの人がいれば1休減ります）`
+					: `${att.name || 'このプレイヤー'}に1×をつけます（誰も正解しなければ最後にスルーボタンを押すのを忘れずに！）`,
 				{ placement: 'bottom' }
 			)}
 		>
