@@ -15,6 +15,7 @@
 		"canvas-confetti": "^1.9.4",
 		"hono": "^4.12.32",
 		"json-2-csv": "^5.5.11",
+		"kisscsvimport": "github:kissge/kissqlib#path:packages/kisscsvimport",
 		"kissunlocklib": "github:kissge/kissqlib#path:packages/kissunlocklib",
 		"toastify-js": "^1.12.0"
 	},

@@ -184,6 +184,9 @@ importers:
       json-2-csv:
         specifier: ^5.5.11
         version: 5.5.11
+      kisscsvimport:
+        specifier: github:kissge/kissqlib#path:packages/kisscsvimport
+        version: https://codeload.github.com/kissge/kissqlib/tar.gz/15414baad4d44c2ac0f22d8b51fc1250a81af9ec#path:packages/kisscsvimport
       kissunlocklib:
         specifier: github:kissge/kissqlib#path:packages/kissunlocklib
         version: https://codeload.github.com/kissge/kissqlib/tar.gz/80678a1e6e87ede3e3635d1812382cb7b5a5635a#path:packages/kissunlocklib
@@ -1321,6 +1324,12 @@ packages:
   '@jridgewell/trace-mapping@0.3.9':
     resolution: {integrity: sha512-3Belt6tdc8bPgAtbcmdtNJlirVoTmEb5e2gC94PnkwEW9jI6CAHUeoG85tjWP5WquqfavoMtMwiG4P926ZKKuQ==}
 
+  '@lit-labs/ssr-dom-shim@1.6.0':
+    resolution: {integrity: sha512-VHb0ALPMTlgKjM6yIxxoQNnpKyUKLD04VzeQdsiXkMqkvYlAHxq9glGLmgbb889/1GsohSOAjvQYoiBppXFqrQ==}
+
+  '@lit/reactive-element@2.1.2':
+    resolution: {integrity: sha512-pbCDiVMnne1lYUIaYNN5wrwQXDtHaYtg7YEFPeW+hws6U47WeFvISGUWekPGKWOP1ygrs0ef0o1VJMk1exos5A==}
+
   '@oxfmt/binding-android-arm-eabi@0.74.0':
     resolution: {integrity: sha512-xxQwrf5EPI5zxvuCTW8r6tzCTjPQ+h6+HqJ0iRKRy2zS1yBllt/xLVjoIyUc+FnR7g0a5g1SZv2yyDYhTItLbA==}
     engines: {node: ^20.19.0 || >=22.12.0}
@@ -2385,6 +2394,10 @@ packages:
     resolution: {integrity: sha512-kVuwgVL7rfad9ETf02ZZxJPuMR5ZSUn139+T34BfmVxYhb/IsAIm/LzEeQ8YLJmXfuQ5z7LUAFrgPZZM6VLJPw==}
     engines: {node: '>= 16'}
 
+  json-2-csv@5.6.0:
+    resolution: {integrity: sha512-EOEkcWooN2FYMZLV1TM7BrHJEfV6/7Eexh+xmr72FADjZGuFwAlfzPdkMx2YxIldHGWkTtoL1QJGknzhJCln/w==}
+    engines: {node: '>= 16'}
+
   json-schema-traverse@1.0.0:
     resolution: {integrity: sha512-NM8/P9n3XjXhIZn1lLhkFaACTOURQXjWhV4BA/RnOv8xvgqtqpAX9IO4mRQxSx1Rlo4tqzeqb0sOlruaOy3dug==}
 
@@ -2400,6 +2413,10 @@ packages:
     resolution: {integrity: sha512-p/nXbhSEcu3pZRdkW1OfJhpsVtW1gd4Wa1fnQc9YLiTfAjn0312eMKimbdIQzuZl9aa9xUGaRlP9T/CJE/ditQ==}
     engines: {node: '>=0.10.0'}
 
+  kisscsvimport@https://codeload.github.com/kissge/kissqlib/tar.gz/15414baad4d44c2ac0f22d8b51fc1250a81af9ec#path:packages/kisscsvimport:
+    resolution: {gitHosted: true, integrity: sha512-Kl1CD5odBHDereDYXNA+UDLRi0O9jEx2jh+hhToucEkAW/YtwBnJCgkIUGMcjHD00WQTIzaJ9LUrlUwmCvKFBA==, path: packages/kisscsvimport, tarball: https://codeload.github.com/kissge/kissqlib/tar.gz/15414baad4d44c2ac0f22d8b51fc1250a81af9ec}
+    version: 0.0.0
+
   kissunlocklib@https://codeload.github.com/kissge/kissqlib/tar.gz/80678a1e6e87ede3e3635d1812382cb7b5a5635a#path:packages/kissunlocklib:
     resolution: {gitHosted: true, integrity: sha512-Cuw86urzzCCab8hLOAsFB3nDY2N8+DIZaBRzdtNdMN4Vx9NAnHwVAyvvBS6b+dThn2yPEhmif9nMSiYaV2L6Zg==, path: packages/kissunlocklib, tarball: https://codeload.github.com/kissge/kissqlib/tar.gz/80678a1e6e87ede3e3635d1812382cb7b5a5635a}
     version: 0.0.0
@@ -2414,6 +2431,15 @@ packages:
   leven@3.1.0:
     resolution: {integrity: sha512-qsda+H8jTaUaN/x5vzW2rzc+8Rw4TAQ/4KjB46IwK5VH+IlVeeeje/EoZRpiXvIqjFgK84QffqPztGI3VBLG1A==}
     engines: {node: '>=6'}
+
+  lit-element@4.2.2:
+    resolution: {integrity: sha512-aFKhNToWxoyhkNDmWZwEva2SlQia+jfG0fjIWV//YeTaWrVnOxD89dPKfigCUspXFmjzOEUQpOkejH5Ly6sG0w==}
+
+  lit-html@3.3.3:
+    resolution: {integrity: sha512-el8M6jK2o3RXBnrSHX3ZKrsN8zEV63pSExTO1wYJz7QndGYZ8353e2a5PPX+qHe2aGayfnchQmkAojaWAREOIA==}
+
+  lit@3.3.3:
+    resolution: {integrity: sha512-fycuvZg/hkpozL00lm1pEJH5nN/lr9ZXd6mJI2HSN4+Bzc+LDNdEApJ6HFbPkdFNHLvOplIIuJvxkS4XUxqirw==}
 
   locate-character@3.0.0:
     resolution: {integrity: sha512-SW13ws7BjaeJ6p7Q6CO2nchbYEc3X3J6WrmTTDto7yMPqVSZTUyY5Tjbid+Ab8gLnATtygYtiDIJGQRRn2ZOiA==}
@@ -4036,6 +4062,12 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.5
 
+  '@lit-labs/ssr-dom-shim@1.6.0': {}
+
+  '@lit/reactive-element@2.1.2':
+    dependencies:
+      '@lit-labs/ssr-dom-shim': 1.6.0
+
   '@oxfmt/binding-android-arm-eabi@0.74.0':
     optional: true
 
@@ -5005,6 +5037,11 @@ snapshots:
       deeks: 3.2.1
       doc-path: 4.1.4
 
+  json-2-csv@5.6.0:
+    dependencies:
+      deeks: 3.2.1
+      doc-path: 4.1.4
+
   json-schema-traverse@1.0.0: {}
 
   json5@2.2.3: {}
@@ -5017,6 +5054,11 @@ snapshots:
 
   jsonpointer@5.0.1: {}
 
+  kisscsvimport@https://codeload.github.com/kissge/kissqlib/tar.gz/15414baad4d44c2ac0f22d8b51fc1250a81af9ec#path:packages/kisscsvimport:
+    dependencies:
+      json-2-csv: 5.6.0
+      lit: 3.3.3
+
   kissunlocklib@https://codeload.github.com/kissge/kissqlib/tar.gz/80678a1e6e87ede3e3635d1812382cb7b5a5635a#path:packages/kissunlocklib: {}
 
   kleur@4.1.5: {}
@@ -5024,6 +5066,22 @@ snapshots:
   kolorist@1.8.0: {}
 
   leven@3.1.0: {}
+
+  lit-element@4.2.2:
+    dependencies:
+      '@lit-labs/ssr-dom-shim': 1.6.0
+      '@lit/reactive-element': 2.1.2
+      lit-html: 3.3.3
+
+  lit-html@3.3.3:
+    dependencies:
+      '@types/trusted-types': 2.0.7
+
+  lit@3.3.3:
+    dependencies:
+      '@lit/reactive-element': 2.1.2
+      lit-element: 4.2.2
+      lit-html: 3.3.3
 
   locate-character@3.0.0: {}
 

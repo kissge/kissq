@@ -5,10 +5,10 @@
 	import { fade, fly } from 'svelte/transition';
 	import Toastify from 'toastify-js';
 	import 'toastify-js/src/toastify.css';
+	import type { ImportedQuestion } from 'kisscsvimport';
 	import { getAPIClient, type APIClient } from '$lib/api';
 	import type { Attendant } from '$lib/attendant';
 	import ConventionAssist from './conventionAssist.svelte';
-	import ImportDialog from './importDialog.svelte';
 	import RuleEditDialog from '$lib/components/ruleEditDialog.svelte';
 	import RuleTeamEditDialog from '$lib/components/ruleTeamEditDialog.svelte';
 	import type { HistoryEntry } from '$lib/historyEntry';
@@ -65,6 +65,8 @@
 	let showConventionAssist = $state(false);
 
 	let timeElapsed = $state('');
+
+	let csvImportDialogOpen = $state(false);
 
 	let orderedAttendants = $derived.by(() => {
 		const array: {
@@ -182,7 +184,6 @@
 
 	let ruleEditDialog: ReturnType<typeof RuleEditDialog>;
 	let ruleTeamEditDialog: ReturnType<typeof RuleTeamEditDialog>;
-	let importDialog: ReturnType<typeof ImportDialog>;
 
 	let attendantElements: HTMLElement[] = $state([]);
 	let isDragging = $state<AttendantID | null>(null);
@@ -374,6 +375,8 @@
 	});
 
 	onMount(() => {
+		import('kisscsvimport');
+
 		enableCompanion = !!window.localStorage.getItem('enableCompanion');
 		if (enableCompanion) {
 			client = getAPIClient();
@@ -419,8 +422,8 @@
 		};
 	});
 
-	async function onImport(questions: BaseQuestion[]) {
-		rawQuestions = [qZero, ...questions];
+	async function onImport(questions: ImportedQuestion[]) {
+		rawQuestions = [qZero, ...questions.map((q) => ({ ...q, slashOffset: undefined }))];
 		window.localStorage.setItem('questions', JSON.stringify(rawQuestions));
 
 		if (enableCompanion && companionSessionID && client) {
@@ -841,7 +844,7 @@
 </main>
 
 <footer class="console" class:show-keyboard={isKeyboardEnabled}>
-	<button onclick={() => importDialog.open()}>問題を読み込み</button>
+	<button onclick={() => (csvImportDialogOpen = true)}>問題を読み込み</button>
 	<button
 		class="labeled"
 		data-label="N"
@@ -897,7 +900,16 @@
 		postMessage({ command: 'updateAttendant', attendantID, diff })}
 />
 
-<ImportDialog bind:this={importDialog} {onImport} />
+{#if client}
+	<csv-import-dialog
+		open={csvImportDialogOpen ? 'true' : undefined}
+		onimport={({ detail }: CustomEvent<ImportedQuestion[]>) => onImport(detail)}
+		onclose={() => (csvImportDialogOpen = false)}
+		onkeydown={(e: KeyboardEvent) => e.stopPropagation()}
+		role="dialog"
+		tabindex="-1"
+	></csv-import-dialog>
+{/if}
 <RuleEditDialog bind:this={ruleEditDialog} {apply} />
 <RuleTeamEditDialog bind:this={ruleTeamEditDialog} {apply} />
 
