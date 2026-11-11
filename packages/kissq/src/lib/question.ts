@@ -19,6 +19,12 @@ export interface BaseQuestion {
 	slashOffset: number | undefined;
 }
 
+export interface RawQuestion extends BaseQuestion {
+	shown?: 0 | 1;
+	correctAnswerer?: string | null;
+	likedBy?: string[];
+}
+
 export function parseCSV(
 	rawInput: string,
 	options: { delimiter: 'comma' | 'tab' | 'auto'; googleSheetsMode: boolean }

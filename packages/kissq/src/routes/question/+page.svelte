@@ -10,7 +10,7 @@
 	import { getAPIClient, type APIClient } from '$lib/api';
 	import RuleEditDialog from '$lib/components/ruleEditDialog.svelte';
 	import RuleTeamEditDialog from '$lib/components/ruleTeamEditDialog.svelte';
-	import { parseComment, qZero, type BaseQuestion } from '$lib/question';
+	import { parseComment, qZero, type RawQuestion } from '$lib/question';
 	import { Rule } from '$lib/rule';
 	import { getTimeElapsedString } from '$lib/time';
 	import { tooltip } from '$lib/tooltip.svelte';
@@ -27,12 +27,6 @@
 	import type { ImportedQuestion } from 'kisscsvimport';
 
 	const opener = (typeof window !== 'undefined' ? window.opener : {}) as Window;
-
-	interface RawQuestion extends BaseQuestion {
-		shown?: 0 | 1;
-		correctAnswerer?: string | null;
-		likedBy?: string[];
-	}
 
 	let rawQuestions = $state<RawQuestion[]>([qZero]);
 	let questions = $derived(rawQuestions.map(parseComment));
@@ -887,6 +881,12 @@
 		</button>
 		<button disabled={!companionSessionID} onclick={(e) => fetchRemoteQuestions()}>
 			クラウドから同期
+		</button>
+		<button
+			disabled={!companionSessionID}
+			onclick={(e) => window.open(`./records${location.search}`, 'records')}
+		>
+			記録集を出力
 		</button>
 	{/if}
 </footer>
