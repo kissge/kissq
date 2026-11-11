@@ -140,10 +140,8 @@ export function parseComment<Q extends { comment: string }>(
 
 function parseYouTubeURL(url: string): string {
 	const match = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]+)/);
-	if (!match) {
-		throw new Error(`Invalid YouTube URL: ${url}`);
-	}
-	return match[1];
+
+	return match?.[1] ?? 'ERROR: Invalid YouTube URL';
 }
 
 export type Media =

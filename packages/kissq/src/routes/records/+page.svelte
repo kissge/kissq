@@ -53,15 +53,17 @@
 				<tr>
 					<th rowspan={q.comment ? 2 : 1}>{i + 1}</th>
 					<td class="question">
-						{#each splitQuestion(q.question) as { c, dimmed }, i (i)}
-							<span
-								class="char"
-								class:dimmed
-								class:slash={typeof q.slashOffset === 'number' && i === q.slashOffset}
-							>
-								{c}
-							</span>
-						{/each}
+						<p>
+							{#each splitQuestion(q.question) as { c, dimmed }, i (i)}
+								<span
+									class="char"
+									class:dimmed
+									class:slash={typeof q.slashOffset === 'number' && i === q.slashOffset}
+								>
+									{c}
+								</span>
+							{/each}
+						</p>
 					</td>
 					<td class="answer">
 						<p>{q.answer}</p>
@@ -76,6 +78,19 @@
 					<tr>
 						<td colspan="2" class="comment">
 							<p>{q.comment}</p>
+
+							{#if q.media}
+								<p>
+									{#if q.media.type === 'img'}
+										（添付画像略）
+									{:else if q.media.type === 'youtube'}
+										<a href="https://youtu.be/{q.media.videoID}">
+											youtu.be/{q.media.videoID}
+										</a>
+									{/if}
+								</p>
+							{/if}
+
 							{#if q.likedBy && q.likedBy.length > 0}
 								<p class="likes">
 									❤️&nbsp;
@@ -173,6 +188,11 @@
 		margin: 0;
 	}
 
+	.question p,
+	.answer p {
+		white-space: pre-wrap;
+	}
+
 	.answer {
 		width: 11em;
 		color: #315d72;
@@ -196,6 +216,13 @@
 			border-left: 3px solid #c18b4a;
 			color: #667481;
 			font-size: 0.8em;
+			white-space: pre-wrap;
+		}
+
+		a {
+			font-family: monospace;
+			letter-spacing: 0.05em;
+			text-underline-offset: 0.3em;
 		}
 
 		.likes {
