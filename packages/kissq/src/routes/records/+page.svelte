@@ -4,7 +4,7 @@
 	import { getAPIClient, type APIClient } from '$lib/api';
 	import { parseComment, type RawQuestion } from '$lib/question';
 	import { THROUGH } from '$lib/types';
-	import { splitQuestion } from '$lib/utils';
+	import { collapseArray, splitQuestion } from '$lib/utils';
 
 	let client = $state<APIClient>();
 	let companionSessionID = $state('');
@@ -53,8 +53,7 @@
 				<tr>
 					<th rowspan={q.comment ? 2 : 1}>{i + 1}</th>
 					<td class="question">
-						{#each splitQuestion(q.question) as { c, next, dimmed }, i (i)}
-							<!-- svelte-ignore a11y_no_static_element_interactions, a11y_click_events_have_key_events -->
+						{#each splitQuestion(q.question) as { c, dimmed }, i (i)}
 							<span
 								class="char"
 								class:dimmed
@@ -77,6 +76,20 @@
 					<tr>
 						<td colspan="2" class="comment">
 							<p>{q.comment}</p>
+							{#if q.likedBy && q.likedBy.length > 0}
+								<p class="likes">
+									❤️&nbsp;
+									{#each Object.entries(collapseArray(q.likedBy)) as [user, count], i (user)}
+										{#if i > 0}
+											、
+										{/if}
+										{user}
+										{#if count > 1}
+											× {count}
+										{/if}
+									{/each}
+								</p>
+							{/if}
 						</td>
 					</tr>
 				{/if}
@@ -183,6 +196,10 @@
 			border-left: 3px solid #c18b4a;
 			color: #667481;
 			font-size: 0.8em;
+		}
+
+		.likes {
+			color: red;
 		}
 	}
 
