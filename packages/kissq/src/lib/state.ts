@@ -1,7 +1,8 @@
-import type { Attendant } from './attendant';
 import { Rule, type Penalty, type RuleType } from './rule';
 import { AttendantID } from './types';
 import { arrayCompare } from './utils';
+
+import type { Attendant } from './attendant';
 
 export type Life = 'alive' | 'won' | 'lost' | 'removed';
 export class AttendantState {

@@ -5,6 +5,7 @@ import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { HTTPException } from 'hono/http-exception';
 import * as z from 'zod';
+
 import { parseError } from './lib/error';
 
 const app = new Hono<{ Bindings: CloudflareBindings }>()

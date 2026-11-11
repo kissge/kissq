@@ -1,16 +1,18 @@
 import { createContext } from 'svelte';
 import { SvelteDate } from 'svelte/reactivity';
+
 import se2 from '$lib/assets/se2.mp3';
 import { han2zen, type Attendant } from '$lib/attendant';
 import { GameClassBase } from '$lib/game';
 import { BatsuHistoryEntry, BulkAdjustHistoryEntry, type HistoryEntry } from '$lib/historyEntry';
 import { LoggerClass } from '$lib/logs';
 import { Rule, type Penalty } from '$lib/rule';
-import type { WasedashikiMode } from '$lib/serial';
 import { playSound } from '$lib/sound';
 import { GameState } from '$lib/state';
 import { AttendantID } from '$lib/types';
 import { arrayCompare, getRankingOf } from '$lib/utils';
+
+import type { WasedashikiMode } from '$lib/serial';
 
 export class SingleGameClass extends GameClassBase<'single'> {
 	battleMode = 'single' as const;

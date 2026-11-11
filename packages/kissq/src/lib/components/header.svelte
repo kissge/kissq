@@ -2,14 +2,16 @@
 	import { isUnlocked } from 'kissunlocklib';
 	import { onMount } from 'svelte';
 	import { fly } from 'svelte/transition';
+
 	import HelpDialog from '$lib/components/helpDialog.svelte';
 	import { getGameContext } from '$lib/gameContext';
 	import { getLayoutContext } from '$lib/layout.svelte';
 	import { tooltip } from '$lib/tooltip.svelte';
 	import { getWasedashikiContext } from '$lib/wasedashiki.svelte';
-	import LimitIndicator from './limitIndicator.svelte';
+
 	import ChanceIndicator from './chanceIndicator.svelte';
 	import CounterPopover from './counterPopover.svelte';
+	import LimitIndicator from './limitIndicator.svelte';
 	import RuleDetailsDialog from './ruleDetailsDialog.svelte';
 
 	let {

@@ -1,15 +1,18 @@
 <script lang="ts">
 	import { fade, fly } from 'svelte/transition';
+
 	import { han2zen } from '$lib/attendant';
 	import { LoseHistoryEntry, RemoveHistoryEntry, WinHistoryEntry } from '$lib/historyEntry';
-	import type { AttendantState } from '$lib/state';
-	import { AttendantID } from '$lib/types';
-	import { getGroupSymbol } from '$lib/utils';
 	import { getLayoutContext } from '$lib/layout.svelte';
 	import { getQuestionConsoleContext } from '$lib/questionConsole.svelte';
 	import { tooltip } from '$lib/tooltip.svelte';
+	import { AttendantID } from '$lib/types';
+	import { getGroupSymbol } from '$lib/utils';
 	import { getWasedashikiContext } from '$lib/wasedashiki.svelte';
+
 	import { getSingleGameContext } from './game.svelte';
+
+	import type { AttendantState } from '$lib/state';
 
 	let {
 		ai,

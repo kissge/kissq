@@ -1,8 +1,10 @@
 import { createContext } from 'svelte';
+
 import { getGameContext } from './gameContext';
+import { AttendantID } from './types';
+
 import type { WasedashikiMode } from './serial';
 import type { Life } from './state';
-import { AttendantID } from './types';
 
 export type LogStateEntry = LogStateSingleEntry | LogStateTeamEntry;
 

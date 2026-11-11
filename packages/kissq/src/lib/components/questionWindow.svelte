@@ -2,6 +2,7 @@
 	import confetti from 'canvas-confetti';
 	import { onMount } from 'svelte';
 	import { fade, fly } from 'svelte/transition';
+
 	import { base } from '$app/paths';
 	import { getAPIClient, type APIClient } from '$lib/api';
 	import seLike from '$lib/assets/like.ogg';

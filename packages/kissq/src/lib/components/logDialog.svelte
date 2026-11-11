@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+
 	import {
 		getLoggerContext,
 		type LogEntry,
@@ -7,8 +8,9 @@
 		type LogStateTeamEntry
 	} from '$lib/logs';
 	import { getGroupSymbol } from '$lib/utils';
-	import LimitIndicator from './limitIndicator.svelte';
+
 	import ChanceIndicator from './chanceIndicator.svelte';
+	import LimitIndicator from './limitIndicator.svelte';
 	import LogFilterDialog from './logFilterDialog.svelte';
 
 	let Logger = getLoggerContext();

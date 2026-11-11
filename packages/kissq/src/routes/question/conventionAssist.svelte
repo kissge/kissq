@@ -1,9 +1,11 @@
 <script lang="ts">
 	import { fly } from 'svelte/transition';
-	import type { Attendant } from '$lib/attendant';
-	import type { GameState } from '$lib/state';
+
 	import { tooltip } from '$lib/tooltip.svelte';
 	import { AttendantID } from '$lib/types';
+
+	import type { Attendant } from '$lib/attendant';
+	import type { GameState } from '$lib/state';
 
 	let {
 		show = $bindable(),

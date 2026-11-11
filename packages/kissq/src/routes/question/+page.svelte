@@ -1,26 +1,30 @@
 <script lang="ts">
+	import 'toastify-js/src/toastify.css';
+
 	import { onMount } from 'svelte';
 	import { flip } from 'svelte/animate';
 	import { SvelteDate } from 'svelte/reactivity';
 	import { fade, fly } from 'svelte/transition';
 	import Toastify from 'toastify-js';
-	import 'toastify-js/src/toastify.css';
-	import type { ImportedQuestion } from 'kisscsvimport';
+
 	import { getAPIClient, type APIClient } from '$lib/api';
-	import type { Attendant } from '$lib/attendant';
-	import ConventionAssist from './conventionAssist.svelte';
 	import RuleEditDialog from '$lib/components/ruleEditDialog.svelte';
 	import RuleTeamEditDialog from '$lib/components/ruleTeamEditDialog.svelte';
-	import type { HistoryEntry } from '$lib/historyEntry';
 	import { parseComment, qZero, type BaseQuestion } from '$lib/question';
-	import type { IncomingMessage, OutgoingMessage } from '$lib/questionConsole.svelte';
 	import { Rule } from '$lib/rule';
-	import type { WasedashikiMode } from '$lib/serial';
-	import type { AttendantState, GameState } from '$lib/state';
 	import { getTimeElapsedString } from '$lib/time';
 	import { tooltip } from '$lib/tooltip.svelte';
 	import { THROUGH, AttendantID } from '$lib/types';
 	import { collapseArray, getGroupSymbol, splitQuestion } from '$lib/utils';
+
+	import ConventionAssist from './conventionAssist.svelte';
+
+	import type { Attendant } from '$lib/attendant';
+	import type { HistoryEntry } from '$lib/historyEntry';
+	import type { IncomingMessage, OutgoingMessage } from '$lib/questionConsole.svelte';
+	import type { WasedashikiMode } from '$lib/serial';
+	import type { AttendantState, GameState } from '$lib/state';
+	import type { ImportedQuestion } from 'kisscsvimport';
 
 	const opener = (typeof window !== 'undefined' ? window.opener : {}) as Window;
 

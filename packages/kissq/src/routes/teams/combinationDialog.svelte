@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { fly } from 'svelte/transition';
+
 	import { getGameContext } from '$lib/gameContext';
 	import { getWasedashikiContext } from '$lib/wasedashiki.svelte';
 

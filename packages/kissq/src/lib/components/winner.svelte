@@ -1,6 +1,7 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
 	import { isUnlocked } from 'kissunlocklib';
+	import { onMount } from 'svelte';
+
 	import { getGameContext } from '$lib/gameContext';
 	import { AttendantID, TeamID } from '$lib/types';
 	import { maybeUndefined } from '$lib/utils';

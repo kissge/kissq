@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { fade } from 'svelte/transition';
+
 	import type { Penalty } from '$lib/rule';
 
 	let show = $state(false);

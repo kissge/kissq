@@ -1,6 +1,8 @@
-import type { Attachment } from 'svelte/attachments';
-import tippy, { type Props } from 'tippy.js';
 import 'tippy.js/dist/tippy.css';
+
+import tippy, { type Props } from 'tippy.js';
+
+import type { Attachment } from 'svelte/attachments';
 
 export function tooltip(content: string, options?: Partial<Props>): Attachment {
 	return (element) => {

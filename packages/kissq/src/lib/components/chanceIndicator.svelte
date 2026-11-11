@@ -1,6 +1,7 @@
 <script lang="ts">
-	import type { WasedashikiMode } from '$lib/serial';
 	import { tooltipInDialog as tooltip } from '$lib/tooltip.svelte';
+
+	import type { WasedashikiMode } from '$lib/serial';
 
 	let { chance }: { chance: WasedashikiMode | undefined } = $props();
 </script>

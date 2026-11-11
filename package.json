@@ -1,17 +1,19 @@
 {
 	"name": "kissq-workspace",
 	"private": true,
+	"type": "module",
 	"scripts": {
+		"api:dev": "pnpm --filter kissq-companion run dev",
+		"dev": "pnpm --parallel run dev",
 		"format": "oxfmt --ignore-path .gitignore --ignore-path .oxfmtignore --write .",
 		"format:check": "oxfmt --ignore-path .gitignore --ignore-path .oxfmtignore --check .",
 		"lint": "oxlint .",
-		"web:dev": "pnpm --filter kissq run dev",
 		"web:build": "pnpm --filter kissq run build",
 		"web:check": "pnpm --filter kissq run check",
-		"api:dev": "pnpm --filter kissq-companion run dev",
-		"dev": "pnpm --parallel run dev"
+		"web:dev": "pnpm --filter kissq run dev"
 	},
 	"devDependencies": {
+		"@himynameisdave/oxfmt-config": "^1.1.0",
 		"oxfmt": "^0.74.0",
 		"oxlint": "^1.27.0"
 	},

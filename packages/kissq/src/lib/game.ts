@@ -1,14 +1,17 @@
 import { SvelteDate } from 'svelte/reactivity';
+
 import se1 from '$lib/assets/se1.mp3';
 import se3 from '$lib/assets/se3.mp3';
-import type { Attendant } from './attendant';
+
 import { MaruHistoryEntry, ThroughHistoryEntry, type HistoryEntry } from './historyEntry';
 import { LoggerClass } from './logs';
+import { playSound } from './sound';
+import { AttendantID } from './types';
+
+import type { Attendant } from './attendant';
 import type { Rule } from './rule';
 import type { WasedashikiMode } from './serial';
-import { playSound } from './sound';
 import type { GameState } from './state';
-import { AttendantID } from './types';
 import type { WasedashikiClass } from './wasedashiki.svelte';
 
 export abstract class GameClassBase<BattleMode extends 'single' | 'team'> {

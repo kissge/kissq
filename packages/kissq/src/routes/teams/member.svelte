@@ -1,12 +1,14 @@
 <script lang="ts">
 	import { fade } from 'svelte/transition';
 	import Toastify from 'toastify-js';
+
 	import { RemoveHistoryEntry } from '$lib/historyEntry';
-	import { AttendantID, TeamID } from '$lib/types';
-	import { getGroupSymbol } from '$lib/utils';
 	import { getQuestionConsoleContext } from '$lib/questionConsole.svelte';
 	import { tooltip, tooltipInteractive } from '$lib/tooltip.svelte';
+	import { AttendantID, TeamID } from '$lib/types';
+	import { getGroupSymbol } from '$lib/utils';
 	import { getWasedashikiContext } from '$lib/wasedashiki.svelte';
+
 	import { getDnDContext } from './dnd.svelte';
 	import { getTeamGameContext } from './game.svelte';
 

@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+
 	import { getWasedashikiContext } from '$lib/wasedashiki.svelte';
 
 	const Wasedashiki = getWasedashikiContext();

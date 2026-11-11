@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { isUnlocked } from 'kissunlocklib';
+
 	import { tooltipInDialog as tooltip } from '$lib/tooltip.svelte';
 
 	let dialog: HTMLDialogElement;

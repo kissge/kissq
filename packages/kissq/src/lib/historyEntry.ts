@@ -1,5 +1,6 @@
-import type { Penalty } from './rule';
 import { GameState, type AttendantStateValue } from './state';
+
+import type { Penalty } from './rule';
 import type { AttendantID } from './types';
 
 abstract class HistoryEntry {

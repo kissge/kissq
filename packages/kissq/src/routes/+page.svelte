@@ -5,13 +5,14 @@
 	import { flip } from 'svelte/animate';
 	import { fade, slide } from 'svelte/transition';
 	import Toastify from 'toastify-js';
+
 	import { loadFromHash, saveToHash } from '$lib/attendant';
+	import AnswerHistoryDialog from '$lib/components/answerHistoryDialog.svelte';
 	import AppearanceDialog from '$lib/components/appearanceDialog.svelte';
 	import EffectEditDialog from '$lib/components/effectEditDialog.svelte';
 	import Footer from '$lib/components/footer.svelte';
 	import Header from '$lib/components/header.svelte';
 	import LogDialog from '$lib/components/logDialog.svelte';
-	import AnswerHistoryDialog from '$lib/components/answerHistoryDialog.svelte';
 	import PenaltyRoulette from '$lib/components/penaltyRoulette.svelte';
 	import Pushers from '$lib/components/pushers.svelte';
 	import QuestionWindow from '$lib/components/questionWindow.svelte';
@@ -21,6 +22,7 @@
 	import TransferAttendantsDialog from '$lib/components/transferAttendantsDialog.svelte';
 	import UnlockDialog from '$lib/components/unlockDialog.svelte';
 	import WasedashikiDebug from '$lib/components/wasedashikiDebug.svelte';
+	import Winner from '$lib/components/winner.svelte';
 	import { EditHistoryEntry } from '$lib/historyEntry';
 	import { LayoutClass, setLayoutContext } from '$lib/layout.svelte';
 	import { LoggerClass, setLoggerContext } from '$lib/logs';
@@ -32,9 +34,9 @@
 	import { AttendantID } from '$lib/types';
 	import { setWasedashikiContext, WasedashikiClass } from '$lib/wasedashiki.svelte';
 	import { wave } from '$lib/waveEffect';
+
 	import Attendant from './attendant.svelte';
 	import { SingleGameClass, setSingleGameContext } from './game.svelte';
-	import Winner from '$lib/components/winner.svelte';
 
 	let Game = new SingleGameClass();
 	setSingleGameContext(Game);

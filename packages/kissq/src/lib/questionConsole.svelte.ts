@@ -1,14 +1,17 @@
 import { createContext } from 'svelte';
 import { SvelteURLSearchParams } from 'svelte/reactivity';
+
 import { qZero, type Media } from '$lib/question';
 import { getWasedashikiContext } from '$lib/wasedashiki.svelte';
-import type { Attendant } from './attendant';
+
 import { getGameContext } from './gameContext';
-import type { HistoryEntry } from './historyEntry';
 import { Rule, type RulePOJO } from './rule';
+import { TeamID, type AttendantID } from './types';
+
+import type { Attendant } from './attendant';
+import type { HistoryEntry } from './historyEntry';
 import type { WasedashikiMode } from './serial';
 import type { GameState, TeamState } from './state';
-import { TeamID, type AttendantID } from './types';
 
 const urlParams = new URLSearchParams(typeof location !== 'undefined' ? location.search : '');
 

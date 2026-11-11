@@ -1,4 +1,5 @@
 import { untrack } from 'svelte';
+
 import type { AttendantID, ButtonID } from './types';
 
 export interface Attendant {

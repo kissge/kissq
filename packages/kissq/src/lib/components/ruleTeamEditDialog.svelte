@@ -1,8 +1,10 @@
 <script lang="ts">
 	import { fade, fly } from 'svelte/transition';
+
 	import { Rule, type Penalty } from '$lib/rule';
-	import { getGroupSymbol } from '$lib/utils';
 	import { tooltipInDialog as tooltip } from '$lib/tooltip.svelte';
+	import { getGroupSymbol } from '$lib/utils';
+
 	import RulePresetDialog from './rulePresetDialog.svelte';
 
 	let {

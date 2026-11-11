@@ -1,9 +1,10 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+
 	import { getAPIClient, type APIClient } from '$lib/api';
+	import { parseComment, type CompanionParsedQuestion } from '$lib/question';
 	import { THROUGH } from '$lib/types';
 	import { splitQuestion } from '$lib/utils';
-	import { parseComment, type CompanionParsedQuestion } from '$lib/question';
 
 	let client: APIClient | undefined;
 	let sessionID: string | undefined;

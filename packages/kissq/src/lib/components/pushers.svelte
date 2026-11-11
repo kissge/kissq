@@ -1,10 +1,11 @@
 <script lang="ts">
 	import { fade, fly } from 'svelte/transition';
+
 	import { getGameContext } from '$lib/gameContext';
 	import { getLayoutContext } from '$lib/layout.svelte';
-	import { getWasedashikiContext } from '$lib/wasedashiki.svelte';
 	import { tooltip } from '$lib/tooltip.svelte';
 	import { AttendantID } from '$lib/types';
+	import { getWasedashikiContext } from '$lib/wasedashiki.svelte';
 
 	let Game = getGameContext();
 	let Wasedashiki = getWasedashikiContext();

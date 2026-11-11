@@ -1,12 +1,15 @@
 <script lang="ts">
 	import { fade } from 'svelte/transition';
-	import type { Attendant } from '$lib/attendant';
-	import { TeamID } from '$lib/types';
+
 	import { getQuestionConsoleContext } from '$lib/questionConsole.svelte';
 	import { tooltip } from '$lib/tooltip.svelte';
+	import { TeamID } from '$lib/types';
+
 	import { getDnDContext } from './dnd.svelte';
 	import { getTeamGameContext } from './game.svelte';
 	import Seat from './seat.svelte';
+
+	import type { Attendant } from '$lib/attendant';
 
 	let {
 		seats,

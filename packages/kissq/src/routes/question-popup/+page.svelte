@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+
 	import { qZero } from '$lib/question';
 
 	let question = $state(qZero.question);

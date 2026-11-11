@@ -166,6 +166,9 @@ importers:
 
   .:
     devDependencies:
+      '@himynameisdave/oxfmt-config':
+        specifier: ^1.1.0
+        version: 1.1.0(oxfmt@0.74.0(svelte@5.56.7(@typescript-eslint/types@8.41.0)))
       oxfmt:
         specifier: ^0.74.0
         version: 0.74.0(svelte@5.56.7(@typescript-eslint/types@8.41.0))
@@ -1129,6 +1132,11 @@ packages:
     engines: {node: '>=18'}
     cpu: [x64]
     os: [win32]
+
+  '@himynameisdave/oxfmt-config@1.1.0':
+    resolution: {integrity: sha512-RlT2gTZQtHt+5A3Yk0ogoIDfWo9/VtttIzhGyZRDscJAmzTMPyzpZCDA6xxThldYF7j8tUdCNGru5kK3vfjhjg==}
+    peerDependencies:
+      oxfmt: '>=0.74.0 <1'
 
   '@hono/zod-validator@0.9.0':
     resolution: {integrity: sha512-n0ZSXmCiHVIp4Y5wlOOyZCeTd/rsawA/qW1cipB8QOYKZ9N8Tk0nZUZCXho9cu374AN4JpDNKioNKBJ/W+LBug==}
@@ -3919,6 +3927,10 @@ snapshots:
 
   '@esbuild/win32-x64@0.28.1':
     optional: true
+
+  '@himynameisdave/oxfmt-config@1.1.0(oxfmt@0.74.0(svelte@5.56.7(@typescript-eslint/types@8.41.0)))':
+    dependencies:
+      oxfmt: 0.74.0(svelte@5.56.7(@typescript-eslint/types@8.41.0))
 
   '@hono/zod-validator@0.9.0(hono@4.12.32)(zod@4.4.3)':
     dependencies:

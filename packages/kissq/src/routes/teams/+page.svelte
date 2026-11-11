@@ -4,6 +4,7 @@
 	import { flip } from 'svelte/animate';
 	import { fade, fly, slide } from 'svelte/transition';
 	import Toastify from 'toastify-js';
+
 	import { loadFromHash, saveToHash } from '$lib/attendant';
 	import AppearanceDialog from '$lib/components/appearanceDialog.svelte';
 	import Footer from '$lib/components/footer.svelte';
@@ -12,23 +13,25 @@
 	import Pushers from '$lib/components/pushers.svelte';
 	import QuestionWindow from '$lib/components/questionWindow.svelte';
 	import RuleTeamEditDialog from '$lib/components/ruleTeamEditDialog.svelte';
-	import TransferAttendantsDialog from '$lib/components/transferAttendantsDialog.svelte';
 	import Stars from '$lib/components/stars.svelte';
+	import TransferAttendantsDialog from '$lib/components/transferAttendantsDialog.svelte';
 	import UnlockDialog from '$lib/components/unlockDialog.svelte';
+	import Winner from '$lib/components/winner.svelte';
 	import { LayoutClass, setLayoutContext } from '$lib/layout.svelte';
 	import { LoggerClass, setLoggerContext } from '$lib/logs';
 	import { QuestionConsoleClass, setQuestionConsoleContext } from '$lib/questionConsole.svelte';
 	import { Rule } from '$lib/rule';
 	import { reconnect } from '$lib/serial';
-	import type { GameEvent } from '$lib/state';
 	import { tooltip } from '$lib/tooltip.svelte';
 	import { setWasedashikiContext, WasedashikiClass } from '$lib/wasedashiki.svelte';
 	import { wave } from '$lib/waveEffect';
+
 	import CombinationDialog from './combinationDialog.svelte';
 	import { DnDClass, setDnDContext } from './dnd.svelte';
 	import { TeamGameClass, setTeamGameContext } from './game.svelte';
 	import Team from './team.svelte';
-	import Winner from '$lib/components/winner.svelte';
+
+	import type { GameEvent } from '$lib/state';
 
 	let Game = new TeamGameClass();
 	setTeamGameContext(Game);

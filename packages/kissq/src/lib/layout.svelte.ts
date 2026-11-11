@@ -1,5 +1,6 @@
 import { createContext } from 'svelte';
 import { Spring } from 'svelte/motion';
+
 import { isSafari } from './browser';
 import { getGameContext } from './gameContext';
 

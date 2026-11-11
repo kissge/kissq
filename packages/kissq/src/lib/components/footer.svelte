@@ -1,8 +1,9 @@
 <script lang="ts">
-	import type { Snippet } from 'svelte';
 	import { getGameContext } from '$lib/gameContext';
 	import { getLayoutContext } from '$lib/layout.svelte';
 	import { tooltip } from '$lib/tooltip.svelte';
+
+	import type { Snippet } from 'svelte';
 
 	let { children }: { children: Snippet<[]> } = $props();
 

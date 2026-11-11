@@ -1,9 +1,11 @@
 <script lang="ts">
 	import { fade } from 'svelte/transition';
-	import type { Attendant } from '$lib/attendant';
-	import { AttendantID, type ButtonID } from '$lib/types';
+
 	import { getGameContext } from '$lib/gameContext';
+	import { AttendantID, type ButtonID } from '$lib/types';
 	import { getWasedashikiContext } from '$lib/wasedashiki.svelte';
+
+	import type { Attendant } from '$lib/attendant';
 
 	let Game = getGameContext();
 	let Wasedashiki = getWasedashikiContext();

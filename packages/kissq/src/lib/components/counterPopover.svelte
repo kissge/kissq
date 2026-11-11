@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { fly } from 'svelte/transition';
+
 	import { getGameContext } from '$lib/gameContext';
 	import { getTimeElapsedString } from '$lib/time';
 
