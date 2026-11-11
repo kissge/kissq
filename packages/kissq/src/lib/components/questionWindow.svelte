@@ -10,6 +10,8 @@
 	import { playSound } from '$lib/sound';
 	import { splitQuestion } from '$lib/utils';
 
+	let { blur }: { blur: boolean } = $props();
+
 	let QuestionConsole = getQuestionConsoleContext();
 
 	const sessionID =
@@ -84,7 +86,7 @@
 </script>
 
 {#if QuestionConsole.showQuestionWindow}
-	<div transition:fade>
+	<div transition:fade class:blur>
 		<div class="question textbook-font">
 			{#key QuestionConsole.currentQuestion.question}
 				<p in:fade>
@@ -110,13 +112,15 @@
 			{/if}
 			<div class="answer">
 				A.
-				{#each QuestionConsole.currentQuestion.answer.split(/(（.+?）|\(.+?\)|【.+?】|［.+?］)/) as part, i (i)}
-					{#if i % 2}
-						<small>{part}</small>
-					{:else}
-						{part}
-					{/if}
-				{/each}
+				<p>
+					{#each QuestionConsole.currentQuestion.answer.split(/(（.+?）|\(.+?\)|【.+?】|［.+?］)/) as part, i (i)}
+						{#if i % 2}
+							<small>{part}</small>
+						{:else}
+							{part}
+						{/if}
+					{/each}
+				</p>
 			</div>
 			<button
 				class="popup-btn"
@@ -210,6 +214,14 @@
 			translate: 0 60%;
 			transition-delay: 0s;
 		}
+
+		p {
+			all: unset;
+		}
+	}
+
+	.blur p {
+		filter: blur(0.3em);
 	}
 
 	.popup-btn {

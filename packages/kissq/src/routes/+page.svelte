@@ -310,7 +310,7 @@
 >
 	<Header battleMode="single" {showTotalOverride} {editRule} />
 
-	<QuestionWindow />
+	<QuestionWindow blur={screenshotModeTimer != undefined} />
 
 	<div
 		class="attendants"
