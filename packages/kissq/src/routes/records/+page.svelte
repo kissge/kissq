@@ -31,7 +31,7 @@
 				throw new Error(`Failed to fetch questions: ${response.status}`);
 			}
 
-			rawQuestions = await response.json();
+			rawQuestions = (await response.json()).filter(({ shown }) => shown);
 		}
 	}
 </script>
@@ -43,6 +43,7 @@
 <header>
 	<h1 contenteditable bind:textContent={title}></h1>
 	<h2 contenteditable bind:textContent={subtitle}></h2>
+	<p class="rule"></p>
 </header>
 
 <main>
@@ -50,7 +51,7 @@
 		<tbody>
 			{#each questions as q, i (i)}
 				<tr>
-					<th rowspan={q.comment ? 2 : 1}>{q.id}</th>
+					<th rowspan={q.comment ? 2 : 1}>{i + 1}</th>
 					<td class="question">
 						{#each splitQuestion(q.question) as { c, next, dimmed }, i (i)}
 							<!-- svelte-ignore a11y_no_static_element_interactions, a11y_click_events_have_key_events -->
@@ -94,27 +95,65 @@
 		flex-direction: column;
 		justify-content: center;
 		align-items: center;
-		font-size: 2em;
+		min-height: 60vh;
+		padding: 3rem 2rem;
+		color: #172a3a;
 		font-family: serif;
+		text-align: center;
+	}
+
+	h1,
+	h2 {
+		margin: 0;
+		outline: none;
+	}
+
+	h1 {
+		font-size: clamp(2.5rem, 8vw, 5rem);
+		letter-spacing: 0.08em;
+		line-height: 1.2;
+	}
+
+	h2 {
+		margin-top: 1.2rem;
+		color: #667481;
+		font-size: clamp(1rem, 2vw, 1.4rem);
+		font-weight: normal;
+		letter-spacing: 0.12em;
+	}
+
+	.rule {
+		width: 5rem;
+		margin: 2rem 0 0;
+		border-top: 2px solid #c18b4a;
+	}
+
+	table {
+		width: 100%;
+		border-collapse: separate;
+		border-spacing: 0;
+		color: #263746;
+		line-height: 1.75;
 	}
 
 	tr {
 		break-inside: avoid;
 		page-break-inside: avoid;
-
-		&:has(.question):not(:first-child) :is(th, td) {
-			border-top: 1px dashed #ddd;
-		}
 	}
 
 	th,
 	td {
-		padding: 0.5em;
+		padding: 0.8em 0.7em;
 		vertical-align: top;
 	}
 
 	th {
+		width: 3.5em;
+		padding-top: 0.7em;
+		color: #9a6b32;
 		text-align: right;
+		font-family: serif;
+		font-size: 1.15em;
 	}
 
 	p {
@@ -122,8 +161,8 @@
 	}
 
 	.answer {
-		width: 10em;
-		color: navy;
+		width: 11em;
+		color: #315d72;
 		font-weight: bold;
 	}
 
@@ -135,11 +174,16 @@
 		font-weight: lighter;
 	}
 
-	.comment p {
-		margin-left: 5em;
-		padding-left: 1em;
-		border-left: 5px solid #ddd;
-		font-size: 0.8em;
+	.comment {
+		padding: 0;
+
+		p {
+			margin-left: 5em;
+			padding: 0.35em 1em;
+			border-left: 3px solid #c18b4a;
+			color: #667481;
+			font-size: 0.8em;
+		}
 	}
 
 	.char {
@@ -151,7 +195,7 @@
 
 		&.slash::after {
 			content: '/';
-			color: red;
+			color: #b94a48;
 			font-weight: bold;
 			margin: 0 0.2em;
 		}
@@ -160,23 +204,40 @@
 	:global {
 		body {
 			height: unset !important;
+			background: #fff;
+			print-color-adjust: exact;
 			text-wrap: pretty;
 		}
+	}
 
-		@media print {
-			@page {
-				size: A4 portrait;
-				margin: 10mm;
-			}
+	@media print {
+		@page {
+			size: A4 portrait;
+			margin: 14mm 13mm 16mm;
+		}
 
-			body {
-				font-size: 11pt;
-			}
+		header {
+			width: 100%;
+			height: 267mm;
+			min-height: 0;
+			padding: 0 12mm;
+			border-bottom: 1px solid #dfe5e8;
+		}
 
-			header {
-				width: 100%;
-				height: 277mm;
-			}
+		h1 {
+			font-size: 34pt;
+		}
+
+		h2 {
+			font-size: 12pt;
+		}
+
+		main {
+			page-break-before: always;
+		}
+
+		table {
+			font-size: 10.5pt;
 		}
 	}
 </style>
