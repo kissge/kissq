@@ -12,8 +12,10 @@
 
 	function sendText() {
 		queue.push(text);
-		logs = [...logs, text];
-		window.localStorage.setItem('wasedashikiDebugLogs', JSON.stringify(logs));
+		if (!logs.includes(text)) {
+			logs = [...logs, text];
+			window.localStorage.setItem('wasedashikiDebugLogs', JSON.stringify(logs));
+		}
 		text = '';
 	}
 
@@ -21,6 +23,8 @@
 		logs = (
 			JSON.parse(window.localStorage.getItem('wasedashikiDebugLogs') ?? '[]') as string[]
 		).filter((v, i, a) => a.indexOf(v) === i && v.trim());
+
+		Wasedashiki.serialPort = {} as SerialPort;
 
 		Wasedashiki.readLoopSerialPort({} as SerialPort, async function* () {
 			while (true) {

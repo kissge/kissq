@@ -164,6 +164,13 @@ export abstract class GameClassBase<BattleMode extends 'single' | 'team'> {
 		this.history.pop();
 	}
 
+	setChance(chance: WasedashikiMode) {
+		this.wasedashikiMode = chance;
+		this.rules.forEach((rule) => {
+			rule.chance = chance === 'single' || chance === 'handicap' ? 'single' : 'endless';
+		});
+	}
+
 	get ratingList(): number[] {
 		const ratings = this.currentState.attendants.map((att) => att.rate);
 		const mean = ratings.reduce((acc, val) => acc + val, 0) / ratings.length;

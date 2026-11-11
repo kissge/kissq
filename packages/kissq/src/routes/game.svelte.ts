@@ -10,7 +10,7 @@ import { Rule, type Penalty } from '$lib/rule';
 import { playSound } from '$lib/sound';
 import { GameState } from '$lib/state';
 import { AttendantID } from '$lib/types';
-import { arrayCompare, getRankingOf } from '$lib/utils';
+import { getRankingOf } from '$lib/utils';
 
 import type { WasedashikiMode } from '$lib/serial';
 

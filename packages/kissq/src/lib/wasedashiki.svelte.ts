@@ -98,19 +98,19 @@ export class WasedashikiClass {
 				switch (line) {
 					case '91':
 						Toastify({ text: '接続完了（シングルチャンス）' }).showToast();
-						this.Game.wasedashikiMode = 'single';
+						this.Game.setChance('single');
 						continue;
 					case '92':
 						Toastify({ text: '接続完了（ダブルチャンス）' }).showToast();
-						this.Game.wasedashikiMode = 'double';
+						this.Game.setChance('double');
 						continue;
 					case '93':
 						Toastify({ text: '接続完了（エンドレスチャンス）' }).showToast();
-						this.Game.wasedashikiMode = 'endless';
+						this.Game.setChance('endless');
 						continue;
 					case '94':
 						Toastify({ text: '接続完了（ハンデあり）' }).showToast();
-						this.Game.wasedashikiMode = 'handicap';
+						this.Game.setChance('handicap');
 						continue;
 					case '99':
 						this.reset();

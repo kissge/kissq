@@ -4,8 +4,17 @@
 	import { Rule, type Penalty } from '$lib/rule';
 	import { tooltipInDialog as tooltip } from '$lib/tooltip.svelte';
 	import { getGroupSymbol } from '$lib/utils';
+	import { getWasedashikiContext } from '$lib/wasedashiki.svelte';
 
 	import RulePresetDialog from './rulePresetDialog.svelte';
+
+	const Wasedashiki = (() => {
+		try {
+			return getWasedashikiContext();
+		} catch {
+			return undefined;
+		}
+	})();
 
 	let {
 		apply
@@ -447,7 +456,12 @@
 				<div>押せる人数</div>
 				<div>
 					<label {@attach tooltip('〇、スルーのほか×を押しても問題カウントが直ちに進みます。')}>
-						<input type="radio" bind:group={rules[0].chance} value="single" />
+						<input
+							type="radio"
+							bind:group={rules[0].chance}
+							value="single"
+							disabled={Wasedashiki?.serialPort != null}
+						/>
 						シングルチャンス
 					</label>
 					<label
@@ -455,7 +469,12 @@
 							'〇、スルーを押したときは問題カウントが進みますが、×を押しても問題カウントが進みません。'
 						)}
 					>
-						<input type="radio" bind:group={rules[0].chance} value="endless" />
+						<input
+							type="radio"
+							bind:group={rules[0].chance}
+							value="endless"
+							disabled={Wasedashiki?.serialPort != null}
+						/>
 						エンドレスチャンス
 					</label>
 					<div class="hint">※ 早稲田式連携中は、早稲田式早押しボタンの設定の方が優先されます。</div>
