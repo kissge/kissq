@@ -62,6 +62,10 @@
 	});
 </script>
 
+<svelte:head>
+	<title>kissQ Companion</title>
+</svelte:head>
+
 <main>
 	<div
 		class="carousel"
