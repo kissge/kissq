@@ -87,11 +87,27 @@
 			}
 		}}
 	>
+		<div class="slide" data-question-id="-1">
+			<p>
+				<ruby>kissQ<rt>きすきゅー</rt></ruby>にようこそ&thinsp;🤗
+			</p>
+			<p>
+				この画面では、一問終了ごとに、問題文、解答、解説、正解者、スラッシュ位置
+				<small>（ボタンを押したタイミング）</small>
+				を確認できます！
+			</p>
+			<p>
+				また、気に入った問題には「いいね！」を押すことができます。「いいね！」を押すとメインスクリーンに特別なエフェクトが表示されるほか、今日の大会の記録集にも反映されます。一問に何回でも押すことができます。ぜひいっぱい押して盛り上げてください！
+			</p>
+			<p class="right">
+				<button onclick={() => nameDialog.showModal()}>名前を変える</button>
+			</p>
+		</div>
+
 		{#each questions ?? [] as question (question.id)}
 			<div class="slide" data-question-id={question.id}>
 				<p class="question">
-					{#each splitQuestion(question.question) as { c, next, dimmed }, i (i)}
-						<!-- svelte-ignore a11y_no_static_element_interactions, a11y_click_events_have_key_events -->
+					{#each splitQuestion(question.question) as { c, dimmed }, i (i)}
 						<span
 							class="char"
 							class:dimmed
@@ -333,6 +349,17 @@
 
 		p {
 			margin: 0;
+		}
+
+		button {
+			border: 1px solid white;
+			background: transparent;
+			color: white;
+		}
+
+		&[data-question-id='-1'] {
+			display: block;
+			text-align: justify;
 		}
 	}
 
