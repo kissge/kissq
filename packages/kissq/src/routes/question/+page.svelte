@@ -54,7 +54,6 @@
 	let order = $state<'added' | 'same' | 'reverse'>('added');
 	let gameStartedAt = new SvelteDate();
 
-	let enableCompanion = $state(false);
 	let companionSessionID = $state('');
 	let client = $state<APIClient>();
 	let correctAnswererInput = $state<AttendantID | THROUGH | null>(null);
@@ -375,20 +374,13 @@
 	onMount(() => {
 		import('kisscsvimport');
 
-		enableCompanion = !!window.localStorage.getItem('enableCompanion');
-		if (enableCompanion) {
+		companionSessionID = new URLSearchParams(location.search).get('session') ?? '';
+		if (companionSessionID) {
 			client = getAPIClient();
-			companionSessionID = new URLSearchParams(location.search).get('session') ?? '';
-			if (companionSessionID) {
-				fetchRemoteQuestions().then(() =>
-					Toastify({ text: '問題をクラウドから同期しました' }).showToast()
-				);
-			} else {
-				enableCompanion = false;
-			}
-		}
-
-		if (!enableCompanion || !companionSessionID) {
+			fetchRemoteQuestions().then(() =>
+				Toastify({ text: '問題をクラウドから同期しました' }).showToast()
+			);
+		} else {
 			const stored = window.localStorage.getItem('questions');
 			if (stored) {
 				rawQuestions = JSON.parse(stored);
@@ -424,7 +416,7 @@
 		rawQuestions = [qZero, ...questions.map((q) => ({ ...q, slashOffset: undefined }))];
 		window.localStorage.setItem('questions', JSON.stringify(rawQuestions));
 
-		if (enableCompanion && companionSessionID && client) {
+		if (companionSessionID && client) {
 			console.log(
 				await (
 					await client.api.questions.$put({
@@ -747,10 +739,10 @@
 					<td
 						rowspan={1 +
 							(comment || media || (likedBy?.length ?? 0) > 0 ? 1 : 0) +
-							(enableCompanion && index > 0 ? 1 : 0)}
+							(companionSessionID && index > 0 ? 1 : 0)}
 					>
 						<button
-							{@attach enableCompanion && tooltip('ローカルのみ')}
+							{@attach !!companionSessionID && tooltip('ローカルのみ')}
 							onclick={() => showQuestion(index)}
 						>
 							{index}.
@@ -806,7 +798,7 @@
 					</tr>
 				{/if}
 
-				{#if enableCompanion && index > 0}
+				{#if companionSessionID && index > 0}
 					<tr class="companion">
 						<td colspan="2">
 							<div>
@@ -847,7 +839,7 @@
 		class="labeled"
 		data-label="N"
 		disabled={currentIndex === 0}
-		{@attach enableCompanion && tooltip('ローカルのみ')}
+		{@attach !!companionSessionID && tooltip('ローカルのみ')}
 		onclick={() => showQuestion(currentIndex - 1)}
 	>
 		← 前の問題へ
@@ -856,7 +848,7 @@
 		class="labeled"
 		data-label="M"
 		disabled={currentIndex === questions.length - 1}
-		{@attach enableCompanion && tooltip('ローカルのみ')}
+		{@attach !!companionSessionID && tooltip('ローカルのみ')}
 		onclick={() => showQuestion(currentIndex + 1)}
 	>
 		次の問題へ →
@@ -875,20 +867,18 @@
 	>
 		大会アシスト{#if showConventionAssist}を非表示に{/if}
 	</button>
-	{#if enableCompanion}
-		<button disabled={!companionSessionID} onclick={() => postMessage({ command: 'toggleQRCode' })}>
-			QRコードを表示・非表示
-		</button>
-		<button disabled={!companionSessionID} onclick={(e) => fetchRemoteQuestions()}>
-			クラウドから同期
-		</button>
-		<button
-			disabled={!companionSessionID}
-			onclick={(e) => window.open(`./records${location.search}`, 'records')}
-		>
-			記録集を出力
-		</button>
-	{/if}
+	<button disabled={!companionSessionID} onclick={() => postMessage({ command: 'toggleQRCode' })}>
+		QRコードを表示・非表示
+	</button>
+	<button disabled={!companionSessionID} onclick={(e) => fetchRemoteQuestions()}>
+		クラウドから同期
+	</button>
+	<button
+		disabled={!companionSessionID}
+		onclick={(e) => window.open(`./records${location.search}`, 'records')}
+	>
+		記録集を出力
+	</button>
 </footer>
 
 <ConventionAssist
