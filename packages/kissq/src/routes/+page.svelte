@@ -895,12 +895,6 @@
 		}
 	}
 
-	@property --bar-height-ratio {
-		syntax: '<number>';
-		initial-value: -999;
-		inherits: true;
-	}
-
 	@keyframes blink-animation {
 		to {
 			opacity: 0.3;

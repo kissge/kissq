@@ -1,5 +1,4 @@
 import { createContext } from 'svelte';
-import { Spring } from 'svelte/motion';
 
 import { isSafari } from './browser';
 import { getGameContext } from './gameContext';
@@ -69,23 +68,6 @@ export class LayoutClass {
 		return bestCols;
 	});
 
-	barMax = $derived.by(() => {
-		if (this.Game.attendants.length === 0) {
-			return null;
-		}
-
-		if (
-			this.Game.currentState.attendants.some(
-				({ rule }) => rule.mode !== this.Game.currentState.attendants[0].rule.mode
-			)
-		) {
-			return null;
-		}
-
-		return Math.max(...this.Game.currentState.attendants.map((a) => a.rule.max));
-	});
-	barHeightRatioArray = $state<Spring<number>[]>([]);
-
 	constructor() {
 		$effect(() => {
 			if (this.nameWidth.length === 0 || this.nameHeight.length === 0) {
@@ -112,34 +94,6 @@ export class LayoutClass {
 							0.09
 					)
 				);
-			}
-		});
-
-		$effect(() => {
-			if (this.Game.attendants.length < this.barHeightRatioArray.length) {
-				this.barHeightRatioArray = this.barHeightRatioArray.slice(0, this.Game.attendants.length);
-			} else if (this.Game.attendants.length > this.barHeightRatioArray.length) {
-				for (let i = this.barHeightRatioArray.length; i < this.Game.attendants.length; ++i) {
-					this.barHeightRatioArray.push(new Spring(0, { stiffness: 0.2, damping: 0.2 }));
-				}
-			}
-
-			for (let i = 0; i < this.barHeightRatioArray.length; ++i) {
-				const ratio = (() => {
-					switch (this.Game.currentState.attendants[i].rule.mode) {
-						case 'marubatsu':
-							return this.Game.currentState.attendants[i].maruCount;
-						case 'score':
-						case 'MbyN':
-						case 'survival':
-							return this.Game.currentState.attendants[i].score;
-						case 'aql':
-						case 'product':
-						case 'sum':
-							return 0;
-					}
-				})();
-				this.barHeightRatioArray[i].set(ratio);
 			}
 		});
 	}

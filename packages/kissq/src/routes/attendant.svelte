@@ -42,7 +42,6 @@
 	let QuestionConsole = getQuestionConsoleContext();
 
 	let att = $derived(Game.currentState.attendants[ai]);
-	let barHeight: number = $derived(Layout.barHeightRatioArray[ai]?.current ?? 0);
 
 	let showRate = $derived(
 		Game.history.length === 0 &&
@@ -144,7 +143,6 @@
 		'name',
 		{
 			blurred: screenshotModeTimer != null && ai !== Game.orderedAttendants[screenshotOffset],
-			'show-bar': showScore,
 			'answerer-1st':
 				Wasedashiki.answerers[(Wasedashiki.buttonMapping[ai] ?? 0) - 1]?.currentRank === 1,
 			'answerer-2nd':
@@ -158,7 +156,6 @@
 	style:writing-mode={Layout.nameDirection}
 	style:justify-content={Layout.nameDirection ? '' : 'center'}
 	style:text-align={Layout.nameDirection ? '' : 'center'}
-	style:--bar-height-ratio={Layout.barMax !== null ? Math.min(barHeight / Layout.barMax, 1) : -999}
 	{@attach tooltip('クリックして名前を編集', { placement: 'bottom' })}
 	bind:clientWidth={Layout.nameWidth[ai]}
 	bind:clientHeight={Layout.nameHeight[ai]}
@@ -478,19 +475,6 @@
 
 		&.blurred {
 			filter: blur(15px);
-		}
-
-		&.show-bar:after {
-			display: block;
-			position: absolute;
-			bottom: 0;
-			z-index: -1;
-			filter: blur(5px);
-			border-radius: 1em 0 0 0;
-			background: #0a1e3666;
-			width: 40%;
-			height: calc(70% * var(--bar-height-ratio) + 1em);
-			content: '';
 		}
 
 		&:focus:after {
