@@ -247,7 +247,7 @@
 		justify-self: center;
 		gap: 2em;
 		box-sizing: border-box;
-		padding-top: 2em;
+		padding: 2em 0;
 		width: 100%;
 		height: 100dvh;
 		min-height: 0;
@@ -255,7 +255,7 @@
 		overflow-y: hidden;
 		scroll-snap-stop: always;
 		scroll-snap-type: x mandatory;
-		scroll-marker-group: after;
+		scroll-marker-group: none;
 		position: relative;
 	}
 
@@ -302,15 +302,6 @@
 		color: #000;
 	}
 
-	.carousel::scroll-marker-group {
-		display: flex;
-		position: absolute;
-		left: 50%;
-		gap: 10px;
-		transform: translateX(-50%);
-		margin-top: -15px;
-	}
-
 	.slide {
 		display: flex;
 		flex: 1 0 70%;
@@ -322,7 +313,6 @@
 		box-shadow: 0 0 7px #fff;
 		border-radius: 10px;
 		padding: 1em;
-		height: calc(100svh - 75px);
 		min-height: 0;
 		scroll-snap-align: center;
 		color: #fff;
