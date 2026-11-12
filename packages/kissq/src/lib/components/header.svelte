@@ -207,7 +207,7 @@
 	header {
 		display: flex;
 		justify-content: space-between;
-		gap: 1em;
+		gap: 0.5em;
 		z-index: 9999;
 		box-sizing: border-box;
 		background: #eee;
