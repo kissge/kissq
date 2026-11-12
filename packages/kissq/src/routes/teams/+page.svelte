@@ -5,6 +5,7 @@
 	import { fade, fly, slide } from 'svelte/transition';
 	import Toastify from 'toastify-js';
 
+	import { dev } from '$app/env';
 	import { loadFromHash, saveToHash } from '$lib/attendant';
 	import AppearanceDialog from '$lib/components/appearanceDialog.svelte';
 	import Footer from '$lib/components/footer.svelte';
@@ -179,8 +180,10 @@
 		};
 
 		const beforeUnload = (event: BeforeUnloadEvent) => {
-			event.preventDefault();
-			event.returnValue = '';
+			if (!dev) {
+				event.preventDefault();
+				event.returnValue = '';
+			}
 		};
 
 		window.addEventListener('message', processWindowMessage);
