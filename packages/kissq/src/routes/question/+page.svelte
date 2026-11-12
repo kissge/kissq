@@ -343,7 +343,7 @@
 
 	function charPopup(char: string | undefined, nextChar: string) {
 		function _(c: string | undefined) {
-			return c === ' ' || c === '\t' ? '␣' : c === '\n' ? '⏎' : !c ? '🔚' : c;
+			return !c ? '🔚' : c === '\n' ? '⏎' : /\s/.test(c) ? '␣' : c;
 		}
 
 		return tooltip(`<span class="char-popup">${_(char)} | ${_(nextChar)}</span>`, {
@@ -755,9 +755,15 @@
 								class="char"
 								class:dimmed
 								class:slash={typeof slashOffset === 'number' && i <= slashOffset}
-								{@attach charPopup(c, next)}
+								{@attach rawQuestions[index].slashOffset === i
+									? tooltip('削除', { placement: 'right' })
+									: charPopup(c, next)}
 								onclick={() => {
-									rawQuestions[index].slashOffset = i;
+									if (rawQuestions[index].slashOffset === i) {
+										rawQuestions[index].slashOffset = undefined;
+									} else {
+										rawQuestions[index].slashOffset = i;
+									}
 								}}
 							>
 								{c}
