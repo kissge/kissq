@@ -279,15 +279,22 @@
 			isShiftKeyDown = false;
 		};
 
+		const beforeUnload = (event: BeforeUnloadEvent) => {
+			event.preventDefault();
+			event.returnValue = '';
+		};
+
 		window.addEventListener('keydown', keydown);
 		window.addEventListener('keyup', keyup);
 		window.addEventListener('blur', blur);
+		window.addEventListener('beforeunload', beforeUnload);
 
 		return () => {
 			window.removeEventListener('message', processWindowMessage);
 			window.removeEventListener('keydown', keydown);
 			window.removeEventListener('keyup', keyup);
 			window.removeEventListener('blur', blur);
+			window.removeEventListener('beforeunload', beforeUnload);
 		};
 	});
 

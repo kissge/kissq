@@ -177,9 +177,19 @@
 		const processWindowMessage = (event: MessageEvent) => {
 			QuestionConsole.processWindowMessage(event);
 		};
-		window.addEventListener('message', processWindowMessage);
 
-		return () => window.removeEventListener('message', processWindowMessage);
+		const beforeUnload = (event: BeforeUnloadEvent) => {
+			event.preventDefault();
+			event.returnValue = '';
+		};
+
+		window.addEventListener('message', processWindowMessage);
+		window.addEventListener('beforeunload', beforeUnload);
+
+		return () => {
+			window.removeEventListener('message', processWindowMessage);
+			window.removeEventListener('beforeunload', beforeUnload);
+		};
 	});
 
 	$effect(() => {
@@ -199,7 +209,7 @@
 >
 	<Header battleMode="team" showTotalOverride={false} {editRule} />
 
-	<QuestionWindow />
+	<QuestionWindow blur={false} />
 
 	<div
 		class="attendants-wrapper"
