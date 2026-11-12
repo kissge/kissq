@@ -103,7 +103,8 @@
 					onmouseleave={() => (showPopover = false)}
 					role="contentinfo"
 				>
-					Next: Q{hideQuestionCount ? '???' : Game.currentState.questionCount}
+					<span class="shrink-when-narrow">Next:</span>
+					Q{hideQuestionCount ? '???' : Game.currentState.questionCount}
 					{#if Game.currentState.defaultRule.questionLimit !== null}
 						<small>
 							/ <small>{Game.currentState.defaultRule.questionLimit}</small>
@@ -172,7 +173,7 @@
 						}}
 						{@attach tooltip('ルールの詳細を表示します。')}
 					>
-						Rule:
+						<span class="shrink-when-narrow">Rule:</span>
 						{Game.activeRulesText}
 					</a>
 				{/each}
@@ -193,7 +194,7 @@
 			onclick={editRule}
 			{@attach tooltip('ルールとルールグループを編集します。')}
 		>
-			編集
+			編<span class="hide-when-narrow">集</span>
 		</button>
 	</div>
 </header>
@@ -335,6 +336,21 @@
 		}
 		100% {
 			transform: translateX(-50%);
+		}
+	}
+
+	@media (max-width: 799px) {
+		.shrink-when-narrow {
+			font-size: 0.6em;
+		}
+
+		.hide-when-narrow {
+			display: none;
+		}
+
+		#help-btn {
+			font-size: 0.4em;
+			font-weight: bold;
 		}
 	}
 

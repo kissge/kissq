@@ -91,6 +91,28 @@
 		}
 	}
 
+	@media (max-width: 799px) {
+		footer {
+			gap: 0.2em;
+
+			.left {
+				gap: 0.2em;
+
+				& > a {
+					font-size: 0;
+
+					&::first-letter {
+						font-size: 1.6rem;
+					}
+				}
+			}
+
+			:global(button) {
+				max-width: unset;
+			}
+		}
+	}
+
 	@media (max-width: 599px) {
 		/* (mainly) for Smartphone */
 		footer {
