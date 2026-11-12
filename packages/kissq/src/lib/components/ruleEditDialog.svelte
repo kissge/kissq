@@ -200,6 +200,8 @@
 		)
 	);
 
+	let chanceLocked = $derived(Wasedashiki?.serialPort != null);
+
 	let isValid = $derived(
 		rules.every(
 			({
@@ -247,6 +249,24 @@
 				(isBulkAdjustmentNull ? true : mode === 'score' && bulkAdjustment.length > 0)
 		)
 	);
+
+	function usePreset(preset: EditingRule) {
+		// 早稲田式連携中
+		if (chanceLocked) {
+			preset.chance = rules[0].chance;
+		}
+
+		rules[activeTab] = preset;
+
+		// 基本ルールの設定を変更した場合、全てのルールに反映させる
+		for (const rule of rules) {
+			rule.chance = preset.chance;
+			rule.questionLimit = preset.questionLimit;
+			rule.isQuestionLimitNull = preset.isQuestionLimitNull;
+			rule.attendantLimitOverall = preset.attendantLimitOverall;
+			rule.isAttendantLimitOverallNull = preset.isAttendantLimitOverallNull;
+		}
+	}
 
 	function save() {
 		if (!isValid) return;
@@ -391,7 +411,7 @@
 							type="radio"
 							bind:group={rules[0].chance}
 							value="single"
-							disabled={Wasedashiki?.serialPort != null}
+							disabled={chanceLocked}
 						/>
 						シングルチャンス
 					</label>
@@ -404,7 +424,7 @@
 							type="radio"
 							bind:group={rules[0].chance}
 							value="endless"
-							disabled={Wasedashiki?.serialPort != null}
+							disabled={chanceLocked}
 						/>
 						エンドレスチャンス
 					</label>
@@ -453,7 +473,7 @@
 				<div style="margin: 1.3333em 0" class="presets">
 					<button
 						onclick={() => {
-							rules[activeTab] = {
+							usePreset({
 								mode: 'marubatsu',
 								chance: 'single',
 								win: 7,
@@ -480,14 +500,14 @@
 								isAttendantLimitOverallNull: true,
 								attendantLimitOverall: 1,
 								isRemoved: false
-							};
+							});
 						}}
 					>
 						7〇3×<small>（シングルチャンス）</small>
 					</button>
 					<button
 						onclick={() => {
-							rules[activeTab] = {
+							usePreset({
 								mode: 'marubatsu',
 								chance: 'endless',
 								win: 5,
@@ -514,14 +534,14 @@
 								isAttendantLimitOverallNull: true,
 								attendantLimitOverall: 1,
 								isRemoved: false
-							};
+							});
 						}}
 					>
 						5〇1休
 					</button>
 					<button
 						onclick={() => {
-							rules[activeTab] = {
+							usePreset({
 								mode: 'marubatsu',
 								chance: 'endless',
 								win: 15,
@@ -548,14 +568,14 @@
 								isAttendantLimitOverallNull: true,
 								attendantLimitOverall: 1,
 								isRemoved: false
-							};
+							});
 						}}
 					>
 						15〇1休、5〇ごとに5休
 					</button>
 					<button
 						onclick={() => {
-							rules[activeTab] = {
+							usePreset({
 								mode: 'score',
 								chance: 'endless',
 								win: 5,
@@ -582,14 +602,14 @@
 								isAttendantLimitOverallNull: true,
 								attendantLimitOverall: 1,
 								isRemoved: false
-							};
+							});
 						}}
 					>
 						+5/-5 NY
 					</button>
 					<button
 						onclick={() => {
-							rules[activeTab] = {
+							usePreset({
 								mode: 'MbyN',
 								chance: 'endless',
 								win: 10,
@@ -616,14 +636,14 @@
 								isAttendantLimitOverallNull: true,
 								attendantLimitOverall: 1,
 								isRemoved: false
-							};
+							});
 						}}
 					>
 						10 by 10
 					</button>
 					<button
 						onclick={() => {
-							rules[activeTab] = {
+							usePreset({
 								mode: 'score',
 								chance: 'endless',
 								win: 10,
@@ -650,14 +670,14 @@
 								isAttendantLimitOverallNull: true,
 								attendantLimitOverall: 1,
 								isRemoved: false
-							};
+							});
 						}}
 					>
 						10 Backstream
 					</button>
 					<button
 						onclick={() => {
-							rules[activeTab] = {
+							usePreset({
 								mode: 'survival',
 								chance: 'endless',
 								win: 0,
@@ -684,14 +704,14 @@
 								isAttendantLimitOverallNull: true,
 								attendantLimitOverall: 1,
 								isRemoved: false
-							};
+							});
 						}}
 					>
 						30アタサバ
 					</button>
 					<button
 						onclick={() => {
-							rules[activeTab] = {
+							usePreset({
 								mode: 'marubatsu',
 								chance: 'endless',
 								win: 4,
@@ -718,14 +738,14 @@
 								isAttendantLimitOverallNull: true,
 								attendantLimitOverall: 1,
 								isRemoved: false
-							};
+							});
 						}}
 					>
 						Freeze 4
 					</button>
 					<button
 						onclick={() => {
-							rules[activeTab] = {
+							usePreset({
 								mode: 'marubatsu',
 								chance: 'endless',
 								win: 7,
@@ -752,14 +772,14 @@
 								isAttendantLimitOverallNull: true,
 								attendantLimitOverall: 1,
 								isRemoved: false
-							};
+							});
 						}}
 					>
 						Crescendo 7
 					</button>
 					<button
 						onclick={() => {
-							rules[activeTab] = {
+							usePreset({
 								mode: 'marubatsu',
 								chance: 'endless',
 								win: 7,
@@ -786,14 +806,14 @@
 								isAttendantLimitOverallNull: true,
 								attendantLimitOverall: 1,
 								isRemoved: false
-							};
+							});
 						}}
 					>
 						7-Updown
 					</button>
 					<button
 						onclick={() => {
-							rules[activeTab] = {
+							usePreset({
 								mode: 'score',
 								chance: 'endless',
 								win: 4,
@@ -820,7 +840,7 @@
 								isAttendantLimitOverallNull: true,
 								attendantLimitOverall: 1,
 								isRemoved: false
-							};
+							});
 						}}
 					>
 						通過席

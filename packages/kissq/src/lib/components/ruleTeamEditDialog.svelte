@@ -171,6 +171,8 @@
 		)
 	);
 
+	let chanceLocked = $derived(Wasedashiki?.serialPort != null);
+
 	let isValid = $derived(
 		rules.every(
 			({
@@ -206,6 +208,24 @@
 						: yasuPerBatsu > 0)
 		)
 	);
+
+	function usePreset(preset: EditingRule) {
+		// 早稲田式連携中
+		if (chanceLocked) {
+			preset.chance = rules[0].chance;
+		}
+
+		rules[0] = preset;
+
+		// 基本ルールの設定を変更した場合、全てのルールに反映させる
+		for (const rule of rules) {
+			rule.mode = preset.mode;
+			rule.chance = preset.chance;
+			rule.win = preset.win;
+		}
+
+		copyRule();
+	}
 
 	function save() {
 		if (!isValid) return;
@@ -293,7 +313,7 @@
 				<div style="margin: 1.3333em 0" class="presets">
 					<button
 						onclick={() => {
-							rules[0] = {
+							usePreset({
 								mode: 'aql',
 								chance: 'endless',
 								win: 200,
@@ -317,15 +337,14 @@
 								multiplyMinimum: 0,
 								attendantLimitOverall: null,
 								isRemoved: false
-							};
-							copyRule();
+							});
 						}}
 					>
 						AQL（5枠）
 					</button>
 					<button
 						onclick={() => {
-							rules[0] = {
+							usePreset({
 								mode: 'aql',
 								chance: 'endless',
 								win: 70,
@@ -349,15 +368,14 @@
 								multiplyMinimum: 0,
 								attendantLimitOverall: null,
 								isRemoved: false
-							};
-							copyRule();
+							});
 						}}
 					>
 						AQL（4枠）
 					</button>
 					<button
 						onclick={() => {
-							rules[0] = {
+							usePreset({
 								mode: 'aql',
 								chance: 'endless',
 								win: 24,
@@ -381,15 +399,14 @@
 								multiplyMinimum: 0,
 								attendantLimitOverall: null,
 								isRemoved: false
-							};
-							copyRule();
+							});
 						}}
 					>
 						AQL（3枠）
 					</button>
 					<button
 						onclick={() => {
-							rules[0] = {
+							usePreset({
 								mode: 'product',
 								chance: 'endless',
 								win: 10,
@@ -413,15 +430,14 @@
 								multiplyMinimum: 0,
 								attendantLimitOverall: null,
 								isRemoved: false
-							};
-							copyRule();
+							});
 						}}
 					>
 						掛けて10
 					</button>
 					<button
 						onclick={() => {
-							rules[0] = {
+							usePreset({
 								mode: 'sum',
 								chance: 'endless',
 								win: 10,
@@ -445,8 +461,7 @@
 								multiplyMinimum: 0,
 								attendantLimitOverall: null,
 								isRemoved: false
-							};
-							copyRule();
+							});
 						}}
 					>
 						足して10
@@ -460,7 +475,7 @@
 							type="radio"
 							bind:group={rules[0].chance}
 							value="single"
-							disabled={Wasedashiki?.serialPort != null}
+							disabled={chanceLocked}
 						/>
 						シングルチャンス
 					</label>
@@ -473,7 +488,7 @@
 							type="radio"
 							bind:group={rules[0].chance}
 							value="endless"
-							disabled={Wasedashiki?.serialPort != null}
+							disabled={chanceLocked}
 						/>
 						エンドレスチャンス
 					</label>
