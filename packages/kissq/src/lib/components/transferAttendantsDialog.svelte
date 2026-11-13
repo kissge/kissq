@@ -3,6 +3,7 @@
 
 	import { getGameContext } from '$lib/gameContext';
 	import { AttendantID, type ButtonID } from '$lib/types';
+	import { getGroupSymbol } from '$lib/utils';
 	import { getWasedashikiContext } from '$lib/wasedashiki.svelte';
 
 	import type { Attendant } from '$lib/attendant';
@@ -133,7 +134,7 @@
 						<input type="checkbox" bind:group={importTargets} value="group" /> ルールグループ
 						{#if importingParsed}
 							<span class="sample">
-								: {String.fromCharCode(importingParsed.attendants[0]?.group + 65)}、…
+								: {getGroupSymbol(importingParsed.attendants[0]?.group ?? 0)}、…
 							</span>
 						{/if}
 					</label>
