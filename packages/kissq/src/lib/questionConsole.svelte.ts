@@ -11,7 +11,7 @@ import { TeamID, type AttendantID } from './types';
 import type { Attendant } from './attendant';
 import type { HistoryEntry } from './historyEntry';
 import type { WasedashikiMode } from './serial';
-import type { GameState, TeamState } from './state';
+import type { GameState } from './state';
 
 const urlParams = new URLSearchParams(typeof location !== 'undefined' ? location.search : '');
 

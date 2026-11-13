@@ -28,9 +28,9 @@
 	import { LayoutClass, setLayoutContext } from '$lib/layout.svelte';
 	import { LoggerClass, setLoggerContext } from '$lib/logs';
 	import { QuestionConsoleClass, setQuestionConsoleContext } from '$lib/questionConsole.svelte';
-	import { Rule, type Penalty } from '$lib/rule';
+	import { Rule } from '$lib/rule';
 	import { reconnect } from '$lib/serial';
-	import { AttendantState, type AttendantStateValue, type GameEvent } from '$lib/state';
+	import { AttendantState, type GameEvent } from '$lib/state';
 	import { tooltip } from '$lib/tooltip.svelte';
 	import { AttendantID } from '$lib/types';
 	import { setWasedashikiContext, WasedashikiClass } from '$lib/wasedashiki.svelte';
