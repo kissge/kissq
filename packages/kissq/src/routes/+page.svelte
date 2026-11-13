@@ -17,6 +17,7 @@
 	import PenaltyRoulette from '$lib/components/penaltyRoulette.svelte';
 	import Pushers from '$lib/components/pushers.svelte';
 	import QuestionWindow from '$lib/components/questionWindow.svelte';
+	import RestorePopup from '$lib/components/restorePopup.svelte';
 	import RuleEditDialog from '$lib/components/ruleEditDialog.svelte';
 	import Stars from '$lib/components/stars.svelte';
 	import StateEditDialog from '$lib/components/stateEditDialog.svelte';
@@ -281,6 +282,11 @@
 		};
 
 		const beforeUnload = (event: BeforeUnloadEvent) => {
+			window.localStorage.setItem(
+				'kissQ.recovery',
+				JSON.stringify({ Game, buttonMapping: Wasedashiki.buttonMapping })
+			);
+
 			if (!dev) {
 				event.preventDefault();
 				event.returnValue = '';
@@ -794,6 +800,7 @@
 <PenaltyRoulette bind:this={penaltyRoulette} />
 <UnlockDialog bind:this={unlockDialog} />
 <TransferAttendantsDialog bind:this={transferAttendantsDialog} />
+<RestorePopup />
 
 <style>
 	:global(html) {

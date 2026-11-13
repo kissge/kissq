@@ -13,6 +13,7 @@
 	import LogDialog from '$lib/components/logDialog.svelte';
 	import Pushers from '$lib/components/pushers.svelte';
 	import QuestionWindow from '$lib/components/questionWindow.svelte';
+	import RestorePopup from '$lib/components/restorePopup.svelte';
 	import RuleTeamEditDialog from '$lib/components/ruleTeamEditDialog.svelte';
 	import Stars from '$lib/components/stars.svelte';
 	import TransferAttendantsDialog from '$lib/components/transferAttendantsDialog.svelte';
@@ -180,6 +181,11 @@
 		};
 
 		const beforeUnload = (event: BeforeUnloadEvent) => {
+			window.localStorage.setItem(
+				'kissQ.recovery',
+				JSON.stringify({ Game, buttonMapping: Wasedashiki.buttonMapping })
+			);
+
 			if (!dev) {
 				event.preventDefault();
 				event.returnValue = '';
@@ -494,6 +500,7 @@
 <UnlockDialog bind:this={unlockDialog} />
 <CombinationDialog bind:this={combinationDialog} />
 <TransferAttendantsDialog bind:this={transferAttendantsDialog} />
+<RestorePopup />
 
 <style>
 	.attendants-wrapper {

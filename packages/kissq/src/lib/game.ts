@@ -3,13 +3,23 @@ import { SvelteDate } from 'svelte/reactivity';
 import se1 from '$lib/assets/se1.mp3';
 import se3 from '$lib/assets/se3.mp3';
 
-import { MaruHistoryEntry, ThroughHistoryEntry, type HistoryEntry } from './historyEntry';
+import {
+	BatsuHistoryEntry,
+	BulkAdjustHistoryEntry,
+	EditHistoryEntry,
+	LoseHistoryEntry,
+	MaruHistoryEntry,
+	RemoveHistoryEntry,
+	ThroughHistoryEntry,
+	WinHistoryEntry,
+	type HistoryEntry
+} from './historyEntry';
 import { LoggerClass } from './logs';
+import { Rule, type RulePOJO } from './rule';
 import { playSound } from './sound';
 import { AttendantID } from './types';
 
 import type { Attendant } from './attendant';
-import type { Rule } from './rule';
 import type { WasedashikiMode } from './serial';
 import type { GameState } from './state';
 import type { WasedashikiClass } from './wasedashiki.svelte';
@@ -55,6 +65,13 @@ export abstract class GameClassBase<BattleMode extends 'single' | 'team'> {
 			.flatMap(({ name, life }) => (life !== 'removed' ? [name.slice(0, 3) || '👤'] : []))
 			.join('・')}
 		- クイズ得点板のkissQ`;
+	}
+
+	toJSON() {
+		return Object.fromEntries([
+			...Keys.map((key) => [key, this[key]]),
+			['serializedAt', new Date()]
+		]);
 	}
 
 	clearHistory(Wasedashiki: WasedashikiClass) {
@@ -171,6 +188,68 @@ export abstract class GameClassBase<BattleMode extends 'single' | 'team'> {
 		});
 	}
 
+	loadFromSerialized(
+		serialized: GameClassSerialized,
+		target: 'attendants' | 'rules' | 'scores'
+	): void {
+		Object.entries(serialized).forEach(([key, value]) => {
+			if (key === 'rules') {
+				if (target === 'attendants') {
+					// ルールは復元しないので、グループ数と矛盾がないようにだけする
+					const groups = Math.max(...serialized.attendants.map(({ group }) => group)) + 1;
+					if (groups > serialized.rules.length) {
+						this.rules.push(
+							...Array.from({ length: groups - this.rules.length }, () => this.rules[0])
+						);
+					}
+				} else {
+					this.rules = value.map((rule: RulePOJO) => Rule.from(rule));
+				}
+			} else if (key === 'history') {
+				if (target === 'scores') {
+					this.history = value.map((entry: HistoryEntry) => {
+						switch (entry.type) {
+							case 'maru':
+								return new MaruHistoryEntry(entry.attendantID, entry.multiplier);
+							case 'batsu':
+								return new BatsuHistoryEntry(
+									entry.attendantID,
+									entry.increaseQuestionCount,
+									entry.penalty
+								);
+							case 'through':
+								return new ThroughHistoryEntry();
+							case 'remove':
+								return new RemoveHistoryEntry(entry.attendantID);
+							case 'win':
+								return new WinHistoryEntry(entry.attendantID);
+							case 'lose':
+								return new LoseHistoryEntry(entry.attendantID);
+							case 'edit':
+								return new EditHistoryEntry(entry.attendantID, entry.newState);
+							case 'bulk-adjust':
+								return new BulkAdjustHistoryEntry(entry.attendantIDs, entry.scoreDiff);
+							default:
+								throw new Error(
+									`Unknown history entry type: ${(entry satisfies never as any).type}`
+								);
+						}
+					});
+				}
+			} else if (key === 'gameStartedAt') {
+				if (target === 'scores') {
+					this.gameStartedAt = new SvelteDate(value);
+				}
+			} else if (key !== 'serializedAt') {
+				if (!(key in this)) {
+					throw new Error(`Unknown key: ${key}: ${value}`);
+				}
+
+				this[key as keyof this] = value;
+			}
+		});
+	}
+
 	get ratingList(): number[] {
 		const ratings = this.currentState.attendants.map((att) => att.rate);
 		const mean = ratings.reduce((acc, val) => acc + val, 0) / ratings.length;
@@ -181,3 +260,35 @@ export abstract class GameClassBase<BattleMode extends 'single' | 'team'> {
 		return tScore;
 	}
 }
+
+export class GameClassSerialized {
+	battleMode: 'single' | 'team' = 'single';
+	attendants: Attendant[] = [];
+	teams: string[] = [];
+	rules: RulePOJO[] = []; // <------------ !!!!!
+	history: HistoryEntry[] = [];
+	gameTitle: string = '';
+	totalQuestionCount: number = 0;
+	previousTrophyGetters: string[] = [];
+	// currentState (derived)
+	playSounds: boolean = true;
+	wasedashikiMode: WasedashikiMode | undefined;
+	// activeRulesText (derived)
+	orderingMode: 'ranking' | 'manual' = 'ranking';
+	// orderedAttendants (derived)
+	// attendantsPerTeam (derived)
+	enableRating: boolean = false;
+	effect2Name: string | undefined;
+	effect3Name: string | undefined;
+	isConventionAssistActive: boolean = false;
+	// showBanner (injected)
+	bulkAdjustmentScore: number | null = null;
+	// bulkAdjustmentTarget (ephemeral)
+	gameStartedAt: string = ''; // <------------ !!!!!
+
+	serializedAt: Date = new Date();
+}
+
+const Keys = Object.keys(new GameClassSerialized()).filter(
+	(key) => key !== 'serializedAt'
+) as (keyof Omit<GameClassSerialized, 'serializedAt'>)[];
