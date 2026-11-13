@@ -121,7 +121,6 @@
 		position-anchor: --global-header;
 		overflow: auto;
 		background: rgb(255 255 255 / 50%);
-		background-color: white;
 		border-radius: 0.25em;
 		box-shadow: 0 2px 30px rgba(0, 0, 0, 0.5);
 		backdrop-filter: blur(0.5em);
