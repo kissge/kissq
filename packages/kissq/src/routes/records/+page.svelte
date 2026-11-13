@@ -77,7 +77,17 @@
 				{#if q.comment}
 					<tr>
 						<td colspan="2" class="comment">
-							<p>{q.comment}</p>
+							<p>
+								{#each q.comment.split(/(https?:\/\/[^\s)）]+)/) as part, i}
+									{#if i % 2 === 1}
+										<a href={part} target="_blank" rel="noopener noreferrer">
+											{part}
+										</a>
+									{:else}
+										{part}
+									{/if}
+								{/each}
+							</p>
 
 							{#if q.media}
 								<p>
