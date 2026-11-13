@@ -900,16 +900,14 @@
 		postMessage({ command: 'updateAttendant', attendantID, diff })}
 />
 
-{#if client}
-	<csv-import-dialog
-		open={csvImportDialogOpen ? 'true' : undefined}
-		onimport={({ detail }: CustomEvent<ImportedQuestion[]>) => onImport(detail)}
-		onclose={() => (csvImportDialogOpen = false)}
-		onkeydown={(e: KeyboardEvent) => e.stopPropagation()}
-		role="dialog"
-		tabindex="-1"
-	></csv-import-dialog>
-{/if}
+<csv-import-dialog
+	open={csvImportDialogOpen ? 'true' : undefined}
+	onimport={({ detail }: CustomEvent<ImportedQuestion[]>) => onImport(detail)}
+	onclose={() => (csvImportDialogOpen = false)}
+	onkeydown={(e: KeyboardEvent) => e.stopPropagation()}
+	role="dialog"
+	tabindex="-1"
+></csv-import-dialog>
 <RuleEditDialog bind:this={ruleEditDialog} {apply} />
 <RuleTeamEditDialog bind:this={ruleTeamEditDialog} {apply} />
 
