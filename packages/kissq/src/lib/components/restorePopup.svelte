@@ -4,19 +4,15 @@
 	import Toastify from 'toastify-js';
 
 	import { getGameContext } from '$lib/gameContext';
+	import { rebuildHistoryEntry } from '$lib/historyEntry';
+	import { loadRecovery, removeRecovery, type RecoveryData } from '$lib/restore';
 	import { Rule } from '$lib/rule';
 	import { getWasedashikiContext } from '$lib/wasedashiki.svelte';
-
-	import type { GameClassSerialized } from '$lib/game';
-	import type { AttendantID, ButtonID } from '$lib/types';
 
 	const Game = getGameContext();
 	const Wasedashiki = getWasedashikiContext();
 
-	let data = $state<{
-		Game: GameClassSerialized;
-		buttonMapping: Record<AttendantID, ButtonID>;
-	}>();
+	let data = $state<RecoveryData>();
 
 	let show = $state(false);
 
@@ -42,17 +38,7 @@
 	});
 
 	onMount(() => {
-		const recovery = window.localStorage.getItem('kissQ.recovery');
-
-		if (!recovery) {
-			return;
-		}
-
-		try {
-			data = JSON.parse(recovery);
-		} catch (e) {
-			console.error('Failed to restore game state:', e);
-		}
+		data = loadRecovery();
 
 		if (!data) {
 			return;
@@ -68,12 +54,12 @@
 
 		Toastify({ text: '記録から復元しました。' }).showToast();
 
-		window.localStorage.removeItem('kissQ.recovery');
+		removeRecovery();
 		show = false;
 	}
 
 	function cancel() {
-		window.localStorage.removeItem('kissQ.recovery');
+		removeRecovery();
 		show = false;
 	}
 </script>
@@ -94,6 +80,17 @@
 					data.Game.rules.flatMap((rule, i) => (rule.isRemoved ? [] : { rule, i })),
 					data.Game.battleMode
 				)}
+			</dd>
+
+			<dt>操作履歴</dt>
+			<dd>
+				{#if data.Game.history.length > 3}
+					…… →
+				{/if}
+				{data.Game.history
+					.slice(-3)
+					.map((entry) => rebuildHistoryEntry(entry).toString(data!.Game))
+					.join(' → ') || 'なし'}
 			</dd>
 
 			<dt>保存日時</dt>

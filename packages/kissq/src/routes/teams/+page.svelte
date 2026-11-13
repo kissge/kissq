@@ -22,6 +22,7 @@
 	import { LayoutClass, setLayoutContext } from '$lib/layout.svelte';
 	import { LoggerClass, setLoggerContext } from '$lib/logs';
 	import { QuestionConsoleClass, setQuestionConsoleContext } from '$lib/questionConsole.svelte';
+	import { saveRecoveryIfNecessary } from '$lib/restore';
 	import { Rule } from '$lib/rule';
 	import { reconnect } from '$lib/serial';
 	import { tooltip } from '$lib/tooltip.svelte';
@@ -181,10 +182,7 @@
 		};
 
 		const beforeUnload = (event: BeforeUnloadEvent) => {
-			window.localStorage.setItem(
-				'kissQ.recovery',
-				JSON.stringify({ Game, buttonMapping: Wasedashiki.buttonMapping })
-			);
+			saveRecoveryIfNecessary(Game, Wasedashiki);
 
 			if (!dev) {
 				event.preventDefault();

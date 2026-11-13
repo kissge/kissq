@@ -5,9 +5,13 @@ import type { AttendantID } from './types';
 
 abstract class HistoryEntry {
 	abstract type: string;
-	abstract toString(state: GameState): string;
+	abstract toString(state: SuccinctGameState): string;
 	abstract reducer(state: GameState): GameState;
 	abstract reducerTeam(state: GameState): GameState;
+}
+
+interface SuccinctGameState {
+	attendants: { name: string }[];
 }
 
 type HistoryEntryType =
@@ -30,7 +34,7 @@ export class MaruHistoryEntry implements HistoryEntry {
 		public multiplier: number = 1
 	) {}
 
-	toString(state: GameState): string {
+	toString(state: SuccinctGameState): string {
 		return `${state.attendants[this.attendantID].name || 'プレイヤー ' + (this.attendantID + 1)} 正解`;
 	}
 
@@ -165,7 +169,7 @@ export class BatsuHistoryEntry implements HistoryEntry {
 		public penalty: Penalty | null = null
 	) {}
 
-	toString(state: GameState): string {
+	toString(state: SuccinctGameState): string {
 		return `${state.attendants[this.attendantID].name || 'プレイヤー ' + (this.attendantID + 1)} 誤答`;
 	}
 
@@ -270,7 +274,7 @@ export class RemoveHistoryEntry implements HistoryEntry {
 
 	constructor(public attendantID: AttendantID) {}
 
-	toString(state: GameState): string {
+	toString(state: SuccinctGameState): string {
 		return `${state.attendants[this.attendantID].name || 'プレイヤー ' + (this.attendantID + 1)} 削除`;
 	}
 
@@ -294,7 +298,7 @@ export class WinHistoryEntry implements HistoryEntry {
 
 	constructor(public attendantID: AttendantID) {}
 
-	toString(state: GameState): string {
+	toString(state: SuccinctGameState): string {
 		return `${state.attendants[this.attendantID].name || 'プレイヤー ' + (this.attendantID + 1)} 勝利`;
 	}
 
@@ -345,7 +349,7 @@ export class LoseHistoryEntry implements HistoryEntry {
 
 	constructor(public attendantID: AttendantID) {}
 
-	toString(state: GameState): string {
+	toString(state: SuccinctGameState): string {
 		return `${state.attendants[this.attendantID].name || 'プレイヤー ' + (this.attendantID + 1)} 失格`;
 	}
 
@@ -369,7 +373,7 @@ export class EditHistoryEntry implements HistoryEntry {
 		public newState: AttendantStateValue
 	) {}
 
-	toString(state: GameState): string {
+	toString(state: SuccinctGameState): string {
 		return `${state.attendants[this.attendantID].name || 'プレイヤー ' + (this.attendantID + 1)} 手編集`;
 	}
 
@@ -442,5 +446,30 @@ export class BulkAdjustHistoryEntry implements HistoryEntry {
 
 	reducerTeam(): GameState {
 		throw new Error('Not implemented');
+	}
+}
+
+export function rebuildHistoryEntry(pojo: HistoryEntryType): HistoryEntry {
+	{
+		switch (pojo.type) {
+			case 'maru':
+				return new MaruHistoryEntry(pojo.attendantID, pojo.multiplier);
+			case 'batsu':
+				return new BatsuHistoryEntry(pojo.attendantID, pojo.increaseQuestionCount, pojo.penalty);
+			case 'through':
+				return new ThroughHistoryEntry();
+			case 'remove':
+				return new RemoveHistoryEntry(pojo.attendantID);
+			case 'win':
+				return new WinHistoryEntry(pojo.attendantID);
+			case 'lose':
+				return new LoseHistoryEntry(pojo.attendantID);
+			case 'edit':
+				return new EditHistoryEntry(pojo.attendantID, pojo.newState);
+			case 'bulk-adjust':
+				return new BulkAdjustHistoryEntry(pojo.attendantIDs, pojo.scoreDiff);
+			default:
+				throw new Error(`Unknown history entry type: ${(pojo satisfies never as any).type}`);
+		}
 	}
 }

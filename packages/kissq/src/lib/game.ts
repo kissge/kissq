@@ -4,14 +4,9 @@ import se1 from '$lib/assets/se1.mp3';
 import se3 from '$lib/assets/se3.mp3';
 
 import {
-	BatsuHistoryEntry,
-	BulkAdjustHistoryEntry,
-	EditHistoryEntry,
-	LoseHistoryEntry,
 	MaruHistoryEntry,
-	RemoveHistoryEntry,
+	rebuildHistoryEntry,
 	ThroughHistoryEntry,
-	WinHistoryEntry,
 	type HistoryEntry
 } from './historyEntry';
 import { LoggerClass } from './logs';
@@ -24,7 +19,7 @@ import type { WasedashikiMode } from './serial';
 import type { GameState } from './state';
 import type { WasedashikiClass } from './wasedashiki.svelte';
 
-export abstract class GameClassBase<BattleMode extends 'single' | 'team'> {
+export abstract class GameClassBase<BattleMode extends 'single' | 'team' = 'single' | 'team'> {
 	abstract readonly battleMode: BattleMode;
 
 	abstract attendants: Attendant[];
@@ -207,34 +202,7 @@ export abstract class GameClassBase<BattleMode extends 'single' | 'team'> {
 				}
 			} else if (key === 'history') {
 				if (target === 'scores') {
-					this.history = value.map((entry: HistoryEntry) => {
-						switch (entry.type) {
-							case 'maru':
-								return new MaruHistoryEntry(entry.attendantID, entry.multiplier);
-							case 'batsu':
-								return new BatsuHistoryEntry(
-									entry.attendantID,
-									entry.increaseQuestionCount,
-									entry.penalty
-								);
-							case 'through':
-								return new ThroughHistoryEntry();
-							case 'remove':
-								return new RemoveHistoryEntry(entry.attendantID);
-							case 'win':
-								return new WinHistoryEntry(entry.attendantID);
-							case 'lose':
-								return new LoseHistoryEntry(entry.attendantID);
-							case 'edit':
-								return new EditHistoryEntry(entry.attendantID, entry.newState);
-							case 'bulk-adjust':
-								return new BulkAdjustHistoryEntry(entry.attendantIDs, entry.scoreDiff);
-							default:
-								throw new Error(
-									`Unknown history entry type: ${(entry satisfies never as any).type}`
-								);
-						}
-					});
+					this.history = value.map((entry: HistoryEntry) => rebuildHistoryEntry(entry));
 				}
 			} else if (key === 'gameStartedAt') {
 				if (target === 'scores') {
