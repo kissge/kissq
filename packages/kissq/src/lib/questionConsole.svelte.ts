@@ -22,6 +22,7 @@ export class QuestionConsoleClass {
 	subWindow = $state<Window>();
 	showQuestionWindow = $state(urlParams.has('qw'));
 	showQRCode = $state(false);
+	showWinner = $state(false);
 	currentQuestion = $state(qZero);
 
 	openSubWindow(openInNewTab: boolean) {
@@ -133,6 +134,10 @@ export class QuestionConsoleClass {
 				this.showQRCode = !this.showQRCode;
 				break;
 
+			case 'toggleWinner':
+				this.showWinner = !this.showWinner;
+				break;
+
 			case 'ping':
 				this.syncState();
 				break;
@@ -209,6 +214,7 @@ export type IncomingMessage =
 	| { command: 'setGameTitle'; title: string }
 	| { command: 'activateConventionAssist' }
 	| { command: 'toggleQRCode' }
+	| { command: 'toggleWinner' }
 	| { command: 'ping' };
 
 export type OutgoingMessage =

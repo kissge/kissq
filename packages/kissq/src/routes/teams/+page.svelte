@@ -53,8 +53,6 @@
 	let wallpaper = $state<string | null>(null);
 	let trophy = $state<string | null>(null);
 
-	let showWinner = $state(false);
-
 	let logDialog: ReturnType<typeof LogDialog>;
 	let ruleTeamEditDialog: ReturnType<typeof RuleTeamEditDialog>;
 	let appearanceDialog: ReturnType<typeof AppearanceDialog>;
@@ -423,7 +421,7 @@
 		歴代のゲームの戦績履歴
 	</button>
 	<button
-		onclick={() => (showWinner = !showWinner)}
+		onclick={() => (QuestionConsole.showWinner = !QuestionConsole.showWinner)}
 		{@attach tooltip('優勝者等を表彰するいい感じの画面を表示します。', { placement: 'left' })}
 	>
 		表彰画面
@@ -475,9 +473,9 @@
 	</div>
 {/if}
 
-{#if showWinner}
+{#if QuestionConsole.showWinner}
 	<!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_static_element_interactions -->
-	<div onclick={() => (showWinner = false)} style:cursor="pointer" transition:fade>
+	<div onclick={() => (QuestionConsole.showWinner = false)} style:cursor="pointer" transition:fade>
 		<Winner />
 	</div>
 {/if}

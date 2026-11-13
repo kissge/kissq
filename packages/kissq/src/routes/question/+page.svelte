@@ -862,6 +862,7 @@
 	<button onclick={() => postMessage({ command: 'toggleQuestionWindow' })}>
 		問題ウィンドウを表示・非表示
 	</button>
+	<button onclick={() => postMessage({ command: 'toggleWinner' })}>表彰画面</button>
 	<button
 		{@attach tooltip(
 			'全体メンバーリストの中から選択した何人かだけでゲームを行うことができます。大会にべんり！！！'
