@@ -414,6 +414,7 @@
 
 	async function onImport(questions: ImportedQuestion[]) {
 		rawQuestions = [qZero, ...questions.map((q) => ({ ...q, slashOffset: undefined }))];
+		currentIndex = 0;
 		window.localStorage.setItem('questions', JSON.stringify(rawQuestions));
 
 		if (companionSessionID && client) {
