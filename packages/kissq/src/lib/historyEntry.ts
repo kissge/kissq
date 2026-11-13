@@ -380,6 +380,8 @@ export class EditHistoryEntry implements HistoryEntry {
 		att.life = this.newState.life;
 		att.maruCount = this.newState.maruCount;
 		att.batsuCount = this.newState.batsuCount;
+		att.trueMaruCount = this.newState.maruCount;
+		att.trueBatsuCount = this.newState.batsuCount;
 		att.yasuCount = this.newState.yasuCount;
 		att.score = this.newState.score;
 
