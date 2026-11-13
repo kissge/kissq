@@ -787,7 +787,7 @@
 								{#if likedBy && likedBy.length > 0}
 									<br />
 									Liked by
-									<span style="color: red; font-weight: bold;">
+									<span style=" font-weight: bold;color: red;">
 										{#each Object.entries(collapseArray(likedBy)) as [user, count], i (user)}
 											{#if i > 0}
 												,
@@ -935,14 +935,14 @@
 	header.console > div {
 		display: flex;
 		flex-wrap: wrap;
-		align-items: center;
 		gap: 0.5em;
+		align-items: center;
 		margin-bottom: 1em;
 
 		button.blink {
-			animation: blink-animation 0.5s ease infinite;
-			background-color: red;
 			color: white;
+			background-color: red;
+			animation: blink-animation 0.5s ease infinite;
 		}
 
 		.spacer {
@@ -960,9 +960,9 @@
 		}
 
 		.attendant {
-			border: 1px solid #ccc;
 			padding: 0.5em;
 			line-height: 2.1;
+			border: 1px solid #ccc;
 			--prefix-size: 5em;
 
 			&[data-prefix] {
@@ -970,9 +970,9 @@
 				margin-left: var(--prefix-size);
 
 				&::before {
-					display: block;
 					position: absolute;
 					left: calc(-1 * var(--prefix-size));
+					display: block;
 					content: attr(data-prefix);
 					border-bottom: 5px solid #444;
 				}
@@ -982,23 +982,23 @@
 		.lizhi,
 		.won,
 		.lost {
-			border-radius: 1em;
 			padding: 0 0.5em;
+			border-radius: 1em;
 		}
 
 		.lizhi {
 			position: absolute;
 			top: -0.5em;
 			left: -0.5em;
-			background: #dddd0e;
 			font-size: 0.75em;
+			background: #dddd0e;
 		}
 		.won {
 			background: #7cfc00;
 		}
 		.lost {
-			background: #ff4500;
 			color: white;
+			background: #ff4500;
 		}
 	}
 
@@ -1007,8 +1007,8 @@
 		overflow: auto;
 
 		table {
-			border-collapse: collapse;
 			width: 100%;
+			border-collapse: collapse;
 		}
 
 		tr:nth-child(odd) {
@@ -1016,15 +1016,15 @@
 		}
 
 		tr.current {
-			background-color: #ffff99;
 			font-weight: bold;
+			background-color: #ffff99;
 		}
 
 		tr.companion {
 			td > div {
 				display: flex;
-				justify-content: flex-end;
 				gap: 0.5em;
+				justify-content: flex-end;
 
 				div {
 					display: flex;
@@ -1037,8 +1037,8 @@
 			}
 
 			.shown {
-				color: #dd2222;
 				font-weight: bold;
+				color: #dd2222;
 			}
 
 			&:not(:hover):has(.shown) select {
@@ -1047,9 +1047,9 @@
 		}
 
 		td {
+			padding: 0.5em;
 			vertical-align: top;
 			border: 1px solid #ccc;
-			padding: 0.5em;
 
 			&:first-child {
 				text-align: right;
@@ -1066,8 +1066,8 @@
 
 		.char {
 			&.dimmed {
-				color: #888;
 				font-style: normal;
+				color: #888;
 			}
 			&.slash,
 			&:hover {
@@ -1076,19 +1076,19 @@
 		}
 
 		.media-indicator {
-			background-color: #966;
 			padding: 0.1em 0.5em;
-			border-radius: 0.5em;
-			color: white;
 			font-weight: bold;
+			color: white;
+			background-color: #966;
+			border-radius: 0.5em;
 		}
 	}
 
 	footer.console {
 		display: flex;
 		flex-wrap: wrap;
-		align-items: center;
 		gap: 0.5em;
+		align-items: center;
 
 		button {
 			font-size: 1em;
@@ -1099,15 +1099,15 @@
 		position: relative;
 
 		&:after {
-			display: block;
 			position: absolute;
 			top: -0.5em;
 			right: -0.5em;
-			border-radius: 0.25em;
-			background: rgb(89 89 228);
+			display: block;
 			width: 1em;
-			content: attr(data-label);
 			color: white;
+			content: attr(data-label);
+			background: rgb(89 89 228);
+			border-radius: 0.25em;
 		}
 	}
 
@@ -1115,10 +1115,10 @@
 		position: relative;
 
 		.score {
-			border-radius: 0.5em;
-			background: black;
 			padding: 0 0.2em;
 			color: white;
+			background: black;
+			border-radius: 0.5em;
 		}
 
 		&:nth-last-child(2) {
@@ -1127,14 +1127,14 @@
 	}
 
 	.answerer-1st {
-		animation: answerer-1st-wrapper 0.3s ease infinite alternate;
-		border: 3px solid orange !important;
 		background-color: yellow;
+		border: 3px solid orange !important;
+		animation: answerer-1st-wrapper 0.3s ease infinite alternate;
 	}
 
 	.answerer-2nd {
-		border: 3px solid orange !important;
 		background-color: yellow;
+		border: 3px solid orange !important;
 	}
 
 	.answerer-late {
@@ -1143,39 +1143,39 @@
 
 	.dummy-drop-target {
 		position: absolute;
-		position-anchor: --last-attendant;
 		top: anchor(top);
 		bottom: anchor(bottom);
 		left: anchor(right);
 		width: 100dvw;
+		position-anchor: --last-attendant;
 	}
 
 	.drop-target::before {
-		display: inline-block;
 		position: absolute;
 		top: -25%;
 		left: -18px;
-		border-right: 10px dashed red;
+		display: inline-block;
 		height: 150%;
 		pointer-events: none;
 		content: '';
+		border-right: 10px dashed red;
 	}
 
 	.drag-handle {
-		cursor: grab;
 		color: #888;
+		cursor: grab;
 	}
 
 	header.console .history-entry {
 		display: inline-block;
+		padding: 0.2em 1em 0.2em 0.5em;
+		font-weight: bold;
+		color: white;
+		white-space: nowrap;
+		text-shadow: 0 0 5px #000;
+		background: #222;
 		border-top-right-radius: 1em;
 		border-bottom-right-radius: 1em;
-		background: #222;
-		padding: 0.2em 1em 0.2em 0.5em;
-		color: white;
-		font-weight: bold;
-		text-shadow: 0 0 5px #000;
-		white-space: nowrap;
 
 		&.maru,
 		&.win {

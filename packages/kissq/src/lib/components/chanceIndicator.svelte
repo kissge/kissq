@@ -19,12 +19,12 @@
 		box-sizing: border-box;
 		display: inline-block;
 		height: 1.8em;
-		translate: 0 -0.15em;
-		border-radius: 0.2em;
 		padding: 0.1em 0.3em;
-		color: white;
-		font-weight: bold;
 		font-size: 0.8em;
+		font-weight: bold;
+		color: white;
+		border-radius: 0.2em;
+		translate: 0 -0.15em;
 	}
 
 	.single {

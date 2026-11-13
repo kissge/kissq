@@ -249,8 +249,8 @@
 	}
 
 	th {
-		border-right: 1px solid #ccc;
 		padding: 0.5em;
+		border-right: 1px solid #ccc;
 	}
 
 	td {

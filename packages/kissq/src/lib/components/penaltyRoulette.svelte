@@ -61,10 +61,10 @@
 <style>
 	.bg {
 		position: fixed;
-		z-index: 9998;
 		inset: 0;
-		background-color: rgba(0, 0, 0, 0.3);
+		z-index: 9998;
 		user-select: none;
+		background-color: rgba(0, 0, 0, 0.3);
 	}
 
 	.roulette {
@@ -72,25 +72,25 @@
 		top: 50%;
 		left: 50%;
 		z-index: 9999;
-		/* animation: spin 1s linear 3.2; */
-		transition: transform 4s cubic-bezier(0.33, 1, 0.68, 1);
 		box-sizing: border-box;
+		width: 80dvmin;
+		height: 80dvmin;
 		margin-top: -40dvmin;
 		margin-left: -40dvmin;
+		border: 2dvmin solid #444;
+		border-radius: 50%;
 		box-shadow:
 			0 0 2dvmin #000 inset,
 			0 0 2dvmin #000;
-		border: 2dvmin solid #444;
-		border-radius: 50%;
-		width: 80dvmin;
-		height: 80dvmin;
+		/* animation: spin 1s linear 3.2; */
+		transition: transform 4s cubic-bezier(0.33, 1, 0.68, 1);
 	}
 
 	.roulette-label {
-		display: inline-block;
 		position: absolute;
 		top: 50%;
 		left: 50%;
+		display: inline-block;
 		font-size: 4dvmin;
 	}
 
@@ -99,13 +99,13 @@
 		top: 50%;
 		left: 50%;
 		z-index: 10000;
+		width: 0;
+		height: 0;
 		margin-top: -2.5dvmin;
 		margin-left: 35dvmin;
 		border-top: 2.5dvmin solid transparent;
 		border-right: 7.5dvmin solid rgb(250 92 92);
 		border-bottom: 2.5dvmin solid transparent;
-		width: 0;
-		height: 0;
 	}
 
 	@keyframes spin {

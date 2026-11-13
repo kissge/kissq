@@ -42,8 +42,8 @@
 
 <style>
 	main.main {
-		grid-template-rows: 1fr auto;
 		box-sizing: border-box;
+		grid-template-rows: 1fr auto;
 		padding: 0.5em;
 
 		&:hover .actions button {
@@ -52,8 +52,8 @@
 	}
 
 	p {
-		margin: 0;
 		padding: 0;
+		margin: 0;
 	}
 
 	.answer {
@@ -65,24 +65,24 @@
 		}
 
 		.actions {
-			display: block;
 			position: absolute;
 			bottom: 0;
 			left: 0;
+			display: block;
 
 			button {
-				opacity: 0.1;
-				transition: 0.3s opacity ease;
-				cursor: pointer;
-				border: none;
-				border-radius: 5em;
-				background: none;
-				padding: 0;
 				width: 1.5em;
 				height: 1.5em;
-				color: #fff;
+				padding: 0;
 				font-size: 0.8em;
+				color: #fff;
 				text-align: center;
+				cursor: pointer;
+				background: none;
+				border: none;
+				border-radius: 5em;
+				opacity: 0.1;
+				transition: 0.3s opacity ease;
 			}
 		}
 	}

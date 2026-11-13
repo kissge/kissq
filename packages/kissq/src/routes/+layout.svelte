@@ -32,18 +32,18 @@
 			display: flex;
 			flex-direction: column;
 			justify-content: space-between;
-			margin: 0;
-			padding: 0;
 			min-height: 100dvh;
+			padding: 0;
+			margin: 0;
 			overflow-x: hidden;
 			font-family: 'Noto Sans JP', sans-serif;
 		}
 
 		button {
-			border-radius: 0.3em;
 			padding: 0.2em 0.5em;
 			font-size: 0.8em;
 			user-select: none;
+			border-radius: 0.3em;
 
 			&:not(:disabled) {
 				cursor: pointer;
@@ -85,13 +85,13 @@
 		}
 
 		dialog {
-			cursor: default;
 			box-sizing: border-box;
-			box-shadow: 8px 8px 10px 0 #444;
-			border-radius: 0.5em;
 			width: min(90%, 40em);
 			max-height: 90dvh;
 			font-size: 1.5rem;
+			cursor: default;
+			border-radius: 0.5em;
+			box-shadow: 8px 8px 10px 0 #444;
 
 			p:first-child {
 				margin-top: 0;
@@ -99,13 +99,13 @@
 
 			.buttons {
 				display: flex;
-				justify-content: end;
 				gap: 0.5em;
+				justify-content: end;
 				margin-top: 0.5em;
 
 				.primary:not([disabled]) {
-					background-color: #06f;
 					color: white;
+					background-color: #06f;
 				}
 			}
 
@@ -121,13 +121,13 @@
 
 				> :nth-child(2n + 1) {
 					display: flex;
-					justify-content: end;
 					align-items: center;
-					border-right: 1px solid #ccc;
-					padding-left: 0.6em;
+					justify-content: end;
 					padding-right: 0.6em;
-					font-weight: bold;
+					padding-left: 0.6em;
 					font-size: 0.6666em;
+					font-weight: bold;
+					border-right: 1px solid #ccc;
 				}
 
 				> :nth-child(2n + 2) {
@@ -144,8 +144,8 @@
 				}
 
 				input[type='number'] {
-					padding: 0 0.27778em;
 					height: 1.3em;
+					padding: 0 0.27778em;
 				}
 
 				input[type='number'] {
@@ -175,14 +175,14 @@
 
 		main.main {
 			display: grid;
-			grid-template-rows: auto 1fr auto;
 			flex: 0 0 100dvh;
+			grid-template-rows: auto 1fr auto;
 			gap: 0 1em;
+			font-size: 2rem;
+			background-color: rgb(15 18 33);
 			background-image: url('$lib/assets/wallpaper.jpg');
 			background-position: center center;
 			background-size: cover;
-			background-color: rgb(15 18 33);
-			font-size: 2rem;
 
 			> * {
 				padding: 0.7rem 1.5rem;
@@ -191,46 +191,46 @@
 
 		.banner-bg {
 			position: fixed;
-			z-index: 9998;
 			inset: 0;
+			z-index: 9998;
 			background-color: rgba(0, 0, 0, 0.3);
 		}
 
 		.banner {
-			display: flex;
 			position: fixed;
 			top: calc(50% - 0.7em);
 			right: 0;
 			bottom: calc(50% - 0.7em);
 			left: 0;
-			justify-content: center;
-			align-items: center;
 			z-index: 9999;
-			box-shadow: 0 0 20px #222;
+			display: flex;
+			align-items: center;
+			justify-content: center;
 			overflow: hidden;
-			pointer-events: none;
-			font-weight: bold;
 			font-size: min(8dvw, 20dvh);
+			font-weight: bold;
 			line-height: 1;
-			user-select: none;
 			text-align: center;
-			text-shadow: 0 0 15px #444;
 			white-space: nowrap;
+			text-shadow: 0 0 15px #444;
+			pointer-events: none;
+			user-select: none;
+			box-shadow: 0 0 20px #222;
 
 			&.won,
 			&.finished {
-				backdrop-filter: blur(10px);
-				background-color: rgba(255 100 100 / 0.3);
 				color: white;
+				background-color: rgba(255 100 100 / 0.3);
+				backdrop-filter: blur(10px);
 			}
 			&.lizhi,
 			&.double-lizhi,
 			&.effect2,
 			&.effect3,
 			&.transit {
-				backdrop-filter: blur(10px);
-				background-color: rgba(240 240 175 / 0.4);
 				color: rgb(255 231 231);
+				background-color: rgba(240 240 175 / 0.4);
+				backdrop-filter: blur(10px);
 			}
 		}
 
@@ -248,8 +248,6 @@
 		}
 
 		.textbook-font {
-			color: #fff;
-			font-weight: bold;
 			font-family:
 		    /* macOS 向け */
 				'Yu Kyokasho',
@@ -262,16 +260,18 @@
 				/* 古いWindowsやOffice搭載環境向け（予備） */ 'HGKyokashotai',
 				'HG教科書体',
 				/* どの教科書体も無い場合の最終フォールバック */ sans-serif;
+			font-weight: bold;
+			color: #fff;
 		}
 
 		.other-menu-button {
 			flex: 0 0 2em;
 			height: 2em;
-			margin-right: -0.8em;
 			padding: 0;
+			margin-right: -0.8em;
+			font-weight: bold;
 			border: 0;
 			border-radius: 5em;
-			font-weight: bold;
 
 			&:focus {
 				box-shadow: none !important;
@@ -280,23 +280,23 @@
 
 		#other-menu:popover-open {
 			position: absolute;
-			position-area: top;
-			margin-bottom: 0.25em;
-			padding: 0.25em;
-			box-shadow: 0 0 5px #0008;
-			border: 0;
-			font-size: max(1.5dvw * 1.1, 24px * 1.1);
 			display: flex;
 			flex-direction: column;
 			gap: 0.2em;
 			max-height: 80dvh;
+			padding: 0.25em;
+			margin-bottom: 0.25em;
+			position-area: top;
+			font-size: max(1.5dvw * 1.1, 24px * 1.1);
+			border: 0;
+			box-shadow: 0 0 5px #0008;
 
 			h3 {
-				margin: 0;
 				padding: 0.2em 0.5em;
-				color: #888;
+				margin: 0;
 				font-size: 0.8em;
 				font-weight: inherit;
+				color: #888;
 				cursor: default;
 
 				&:not(:first-child) {
@@ -307,9 +307,9 @@
 
 			button {
 				margin-left: 0.5em;
-				border: 0;
-				background: none;
 				text-align: left;
+				background: none;
+				border: 0;
 
 				&:not([disabled]):hover {
 					background-color: #0002;

@@ -56,8 +56,8 @@
 	}
 
 	table {
-		margin-bottom: 2em;
 		width: 100%;
+		margin-bottom: 2em;
 		user-select: all;
 
 		tr:nth-child(2n + 1) {

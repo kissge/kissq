@@ -111,26 +111,26 @@
 <style>
 	.restore-popup {
 		position: fixed;
-		position-anchor: --global-header;
 		top: calc(anchor(bottom) + 0.5em);
 		right: calc(anchor(right) + 0.5em);
-		width: 23em;
-		max-height: calc(80vh - 5em);
-		max-width: calc(90% - 1em);
-		background-color: white;
 		z-index: 10000;
-		box-shadow: 0 2px 30px rgba(0, 0, 0, 0.5);
-		border-radius: 0.25em;
-		background: rgb(255 255 255 / 50%);
-		backdrop-filter: blur(0.5em);
+		width: 23em;
+		max-width: calc(90% - 1em);
+		max-height: calc(80vh - 5em);
 		padding: 0.6em 0.8em 0.8em;
+		position-anchor: --global-header;
 		overflow: auto;
+		background: rgb(255 255 255 / 50%);
+		background-color: white;
+		border-radius: 0.25em;
+		box-shadow: 0 2px 30px rgba(0, 0, 0, 0.5);
+		backdrop-filter: blur(0.5em);
 	}
 
 	.close-btn {
 		all: unset;
-		cursor: pointer;
 		float: right;
+		cursor: pointer;
 
 		&:hover {
 			color: white;

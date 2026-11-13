@@ -223,10 +223,10 @@
 		}
 
 		body {
+			background-color: rgb(15 18 33);
 			background-image: url('$lib/assets/wallpaper.jpg');
 			background-position: center center;
 			background-size: cover;
-			background-color: rgb(15 18 33);
 		}
 	}
 
@@ -236,27 +236,27 @@
 		box-sizing: border-box;
 		width: 100%;
 		height: 100dvh;
-		max-height: 100dvh;
 		min-height: 0;
+		max-height: 100dvh;
 		overflow: hidden;
 		overscroll-behavior: none;
 	}
 
 	.carousel {
-		display: flex;
-		justify-self: center;
-		gap: 2em;
+		position: relative;
 		box-sizing: border-box;
-		padding: 2em 0;
+		display: flex;
+		gap: 2em;
+		justify-self: center;
 		width: 100%;
 		height: 100dvh;
 		min-height: 0;
+		padding: 2em 0;
 		overflow-x: auto;
 		overflow-y: hidden;
-		scroll-snap-stop: always;
 		scroll-snap-type: x mandatory;
+		scroll-snap-stop: always;
 		scroll-marker-group: none;
-		position: relative;
 	}
 
 	.carousel::-webkit-scrollbar {
@@ -283,14 +283,14 @@
 	.carousel::scroll-button(*) {
 		position: absolute;
 		top: 50svh;
-		transition: 0.25s all ease-in-out;
-		cursor: pointer;
-		box-shadow: 0 0 10px #000;
-		border-radius: 50%;
-		background-color: #fff;
 		width: 30px;
 		height: 30px;
 		font-size: 20px;
+		cursor: pointer;
+		background-color: #fff;
+		border-radius: 50%;
+		box-shadow: 0 0 10px #000;
+		transition: 0.25s all ease-in-out;
 	}
 
 	.carousel::scroll-button(*):hover {
@@ -298,46 +298,46 @@
 	}
 
 	.carousel::scroll-button(*):disabled {
-		opacity: 0.2;
 		color: #000;
+		opacity: 0.2;
 	}
 
 	.slide {
+		box-sizing: border-box;
 		display: flex;
 		flex: 1 0 70%;
 		flex-direction: column;
-		justify-content: space-between;
 		gap: 1.2rem;
-		backdrop-filter: blur(5px);
-		box-sizing: border-box;
-		box-shadow: 0 0 7px #fff;
-		border-radius: 10px;
-		padding: 1em;
+		justify-content: space-between;
 		min-height: 0;
-		scroll-snap-align: center;
-		color: #fff;
+		padding: 1em;
+		overflow-y: auto;
 		font-size: min(4svw, 3svh);
+		color: #fff;
 		word-break: break-word;
 		text-wrap: pretty;
 		white-space: pre-wrap;
-		overflow-y: auto;
+		scroll-snap-align: center;
+		border-radius: 10px;
+		box-shadow: 0 0 7px #fff;
+		backdrop-filter: blur(5px);
 
 		&:first-child {
 			margin-left: 15%;
 		}
 		&:last-child {
 			flex: 0 0 30%;
-			backdrop-filter: none;
 			box-shadow: none;
+			backdrop-filter: none;
 
 			.spinner {
-				animation: spin 1s linear infinite;
+				width: 50px;
+				height: 50px;
 				margin: auto;
 				border: 5px solid #f3f3f3;
 				border-top: 5px solid #555;
 				border-radius: 50%;
-				width: 50px;
-				height: 50px;
+				animation: spin 1s linear infinite;
 			}
 		}
 
@@ -346,9 +346,9 @@
 		}
 
 		button {
-			border: 1px solid white;
-			background: transparent;
 			color: white;
+			background: transparent;
+			border: 1px solid white;
 		}
 
 		&[data-question-id='-1'] {
@@ -373,17 +373,17 @@
 	.char {
 		&.dimmed {
 			font-size: 0.9em;
-			opacity: 0.6;
 			font-weight: lighter;
+			opacity: 0.6;
 		}
 		&.after-slash {
-			opacity: 0.6;
 			font-weight: lighter;
+			opacity: 0.6;
 		}
 		&.slash::after {
-			content: '/';
-			color: yellow;
 			margin: 0 0.2em;
+			color: yellow;
+			content: '/';
 		}
 	}
 
@@ -397,8 +397,8 @@
 	}
 
 	small {
-		opacity: 0.6;
 		font-weight: lighter;
+		opacity: 0.6;
 	}
 
 	.answerer {
@@ -426,23 +426,23 @@
 
 		button {
 			display: inline;
-			cursor: pointer;
-			box-shadow: none;
-			border: none;
-			background: none;
 			padding: 0;
-			color: #f66;
 			font-size: 1.05em;
+			color: #f66;
+			cursor: pointer;
+			background: none;
+			border: none;
+			box-shadow: none;
 		}
 	}
 
 	.slide::scroll-marker {
-		transition: 0.1s all ease-in-out;
-		border: 1px solid #ddd;
-		border-radius: 50%;
 		width: 5px;
 		height: 5px;
 		content: '';
+		border: 1px solid #ddd;
+		border-radius: 50%;
+		transition: 0.1s all ease-in-out;
 	}
 
 	.slide:last-child::scroll-marker {

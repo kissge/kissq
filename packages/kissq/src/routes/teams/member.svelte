@@ -208,7 +208,7 @@
 	</div>
 	{#if Game.currentState.teams[ti].teamLife === 'alive' && (Game.currentState.defaultRule.mode === 'aql' ? batsuCount < 2 : true) && sAtt?.life === 'alive' && sAtt.yasuDisplay === 0}
 		<div class="buttons" data-attendant-id={ai}>
-			<div style="opacity: 0; pointer-events: none; position: absolute">
+			<div style=" position: absolute; pointer-events: none;opacity: 0">
 				<button
 					class="delete-btn"
 					disabled={Game.currentState.teams[ti].attendantIDsPerSeat
@@ -249,16 +249,16 @@
 <style>
 	input {
 		flex: 1 1 100%;
-		border: none;
-		background: transparent;
 		width: 100%;
 		min-width: 0;
-		color: #fff;
 		font-size: inherit;
+		color: #fff;
 		text-align: center;
 		text-shadow:
 			0px 0px 12px #0007,
 			0px 0px 12px #0007;
+		background: transparent;
+		border: none;
 
 		&::placeholder {
 			color: #fff;
@@ -267,15 +267,10 @@
 	}
 
 	.member {
+		box-sizing: border-box;
 		display: grid;
 		grid-template-columns: subgrid;
 		grid-column: 1 / -1;
-		backdrop-filter: blur(0px);
-		transition: opacity 1s ease;
-		box-sizing: border-box;
-		border-bottom: 1px solid #333;
-		border-radius: 0 0.75em 0.75em 0;
-		background-color: #00000040;
 		width: 100%;
 		min-width: 0;
 		height: 1.5em;
@@ -283,6 +278,11 @@
 		text-shadow:
 			0px 10px 50px #444,
 			0px 10px 50px #444;
+		background-color: #00000040;
+		border-bottom: 1px solid #333;
+		border-radius: 0 0.75em 0.75em 0;
+		backdrop-filter: blur(0px);
+		transition: opacity 1s ease;
 
 		&.first-member {
 			border-top: 1px solid #333;
@@ -310,14 +310,14 @@
 
 		& > div {
 			display: flex;
-			justify-content: center;
 			align-items: center;
+			justify-content: center;
 		}
 
 		&.yasu {
+			background-color: rgba(128 128 128 / 0.3);
 			opacity: 0.7;
 			backdrop-filter: blur(5px);
-			background-color: rgba(128 128 128 / 0.3);
 		}
 
 		&.lost {
@@ -325,8 +325,8 @@
 		}
 
 		&.lizhi {
-			box-shadow: 0 2px 2px 3px rgb(230 230 37);
 			background-color: rgba(255 255 158 / 0.5);
+			box-shadow: 0 2px 2px 3px rgb(230 230 37);
 		}
 
 		&:has(.answerer-1st) {
@@ -334,9 +334,9 @@
 		}
 
 		.drag-handle {
-			transition: opacity 0.25s ease-in-out;
 			padding: 0 0.5em;
 			color: #fff8;
+			transition: opacity 0.25s ease-in-out;
 
 			&:is(.member:hover *) {
 				color: #000;
@@ -344,22 +344,22 @@
 		}
 
 		.button-mapping {
-			display: flex;
-			justify-content: center;
-			align-items: center;
 			z-index: 20;
-			border-radius: 5em;
-			background: grey;
+			display: flex;
+			align-items: center;
+			justify-content: center;
 			width: 1.5em;
 			height: 1.5em;
-			color: white;
 			font-size: 0.7em;
+			color: white;
+			background: grey;
+			border-radius: 5em;
 		}
 
 		.group {
 			z-index: 10;
-			transition: background-color 0.3s ease;
 			color: white;
+			transition: background-color 0.3s ease;
 		}
 
 		.name {
@@ -394,10 +394,10 @@
 
 		.score {
 			display: flex;
-			border-radius: 0 1em 1em 0;
-			background: #fff2;
-			font-weight: bold;
 			font-size: 0.8em;
+			font-weight: bold;
+			background: #fff2;
+			border-radius: 0 1em 1em 0;
 
 			&:is(:hover > *) {
 				color: #000;
@@ -405,18 +405,18 @@
 		}
 
 		.buttons {
-			display: flex;
 			position: absolute;
 			right: 4em;
-			align-items: center;
+			display: flex;
 			gap: 2px;
-			opacity: 0;
+			align-items: center;
 			height: 100%;
 			pointer-events: none;
+			opacity: 0;
 
 			&:is(:hover > *) {
-				opacity: 1;
 				pointer-events: auto;
+				opacity: 1;
 			}
 
 			button {

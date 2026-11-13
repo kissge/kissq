@@ -94,7 +94,7 @@
 					<tr>
 						<td colspan="7">
 							{log.rules}
-							<LimitIndicator limit={log.attendantLimitOverall} style="total" />
+							<LimitIndicator limit={log.attendantLimitOverall} type="total" />
 							<ChanceIndicator chance={log.chance} />
 						</td>
 					</tr>
@@ -236,10 +236,10 @@
 	}
 
 	table {
-		cursor: text;
-		margin-bottom: 2em;
-		border-spacing: 10px;
 		width: 100%;
+		margin-bottom: 2em;
+		cursor: text;
+		border-spacing: 10px;
 
 		tr:last-child > * {
 			border-bottom: 1px solid #eee;
@@ -250,12 +250,12 @@
 		}
 
 		td {
-			border-right: 1px solid #ccc;
-			border-bottom: 1px solid #ccc;
-			padding: 0 0.5em;
 			max-width: 8em;
+			padding: 0 0.5em;
 			text-align: right;
 			word-break: break-word;
+			border-right: 1px solid #ccc;
+			border-bottom: 1px solid #ccc;
 
 			.no-select {
 				user-select: none;
@@ -263,13 +263,13 @@
 		}
 
 		.title {
-			background-color: #333;
 			color: #fff;
+			background-color: #333;
 		}
 	}
 
 	.hidden {
-		opacity: 0.2;
 		user-select: none;
+		opacity: 0.2;
 	}
 </style>

@@ -93,32 +93,32 @@
 	}
 
 	.rules {
+		box-sizing: border-box;
 		display: flex;
 		flex-wrap: wrap;
-		justify-content: center;
 		gap: var(--rule-gap);
+		justify-content: center;
 		width: 100%;
 		padding: 2em;
 		overflow-y: auto;
-		box-sizing: border-box;
 
 		&:has(.rule:last-child:nth-child(2n + 2))::after {
 			box-sizing: border-box;
-			min-height: 0;
 			flex: 1 1 var(--rule-base-width);
+			min-height: 0;
 			padding: 0 2em;
 			content: '';
 		}
 	}
 
 	.rule {
+		box-sizing: border-box;
 		flex: 1 1 var(--rule-base-width);
-		border-radius: 1em;
-		box-shadow: 0 0 1em rgb(0 0 0 / 20%);
 		padding: 1.5em 2em;
 		background: rgb(255 255 255 / 30%);
+		border-radius: 1em;
+		box-shadow: 0 0 1em rgb(0 0 0 / 20%);
 		backdrop-filter: blur(0.5em);
-		box-sizing: border-box;
 
 		&:first-child {
 			flex: 1 1 calc(var(--rule-base-width) * 2 + var(--rule-gap));

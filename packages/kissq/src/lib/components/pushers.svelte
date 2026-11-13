@@ -145,24 +145,24 @@
 <style>
 	.pushers {
 		position: fixed;
-		z-index: 999;
-		transition: top 0.3s ease;
 		inset: 0;
+		z-index: 999;
 		overflow: hidden;
-		font-weight: bold;
 		font-size: min(4dvw, 12dvh);
+		font-weight: bold;
 		line-height: 1;
-		user-select: none;
 		text-align: center;
 		white-space: nowrap;
+		user-select: none;
+		transition: top 0.3s ease;
 
 		& > div {
+			z-index: 999;
 			display: flex;
 			flex-direction: column;
-			justify-content: space-evenly;
-			align-items: center;
 			gap: 0.5em;
-			z-index: 999;
+			align-items: center;
+			justify-content: space-evenly;
 			width: 100%;
 		}
 
@@ -175,39 +175,39 @@
 
 		.rank {
 			z-index: 9999;
-			border: 1px solid white;
-			border-radius: 1em;
-			background: black;
-			color: white;
 			font-size: 0.5em;
 			line-height: 1.5;
+			color: white;
+			background: black;
+			border: 1px solid white;
+			border-radius: 1em;
 		}
 
 		.time {
 			z-index: 9999;
-			border: 1px solid white;
-			border-radius: 1em;
-			background: black;
-			color: white;
 			font-size: 0.5em;
 			line-height: 1.5;
+			color: white;
+			background: black;
+			border: 1px solid white;
+			border-radius: 1em;
 		}
 
 		.name {
+			padding: 0.1em 0;
 			margin-right: -1em;
 			margin-left: -1em;
-			background: #222;
-			padding: 0.1em 0;
-			color: white;
 			line-height: 1;
+			color: white;
 			text-shadow: 0 0 15px #fff8;
+			background: #222;
 		}
 
 		select {
-			border: none;
-			background: lightyellow;
 			padding: 0.1em;
 			font-size: 1em;
+			background: lightyellow;
+			border: none;
 		}
 
 		.answerer-1st {
@@ -216,12 +216,12 @@
 
 		.answerer-1st,
 		.answerer-1st-uncertain {
+			color: #222;
+			background: yellow;
 			box-shadow:
 				0px 0px 25px #aa0a,
 				0px 0px 25px #aa0a,
 				0px 0px 25px #aa0a;
-			background: yellow;
-			color: #222;
 		}
 
 		.answerer-2nd {
@@ -235,24 +235,24 @@
 
 	.pushers-bg {
 		position: fixed;
-		z-index: 998;
 		inset: 0;
-		background-color: rgba(0, 0, 0, 0.3);
+		z-index: 998;
 		pointer-events: none;
+		background-color: rgba(0, 0, 0, 0.3);
 	}
 
 	.escape-btn {
 		position: absolute;
 		right: 2em;
 		bottom: 100px;
-		opacity: 0;
 		z-index: 1000;
-		animation: appear 1s 10s ease forwards 1;
-		box-shadow: none !important;
-		border: 1px solid white;
-		background: transparent;
-		color: white;
 		font-size: 1rem;
+		color: white;
+		background: transparent;
+		border: 1px solid white;
+		box-shadow: none !important;
+		opacity: 0;
+		animation: appear 1s 10s ease forwards 1;
 	}
 
 	@keyframes answerer-1st {

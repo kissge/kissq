@@ -66,14 +66,14 @@
 
 <style>
 	.wasedashiki-debug {
-		display: flex;
 		position: fixed;
 		bottom: 0.125em;
 		left: 0;
-		flex-direction: column;
 		z-index: 9999;
-		background: rgba(0, 0, 0, 0.5);
+		display: flex;
+		flex-direction: column;
 		padding: 0.5em;
+		background: rgba(0, 0, 0, 0.5);
 
 		& > div {
 			display: flex;

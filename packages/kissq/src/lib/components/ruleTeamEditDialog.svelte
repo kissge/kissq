@@ -855,22 +855,22 @@
 
 		.tab {
 			flex: 1 1 100px;
-			cursor: pointer;
-			box-shadow: none;
-			border: 1px solid #aaa;
-			border-bottom-color: #444;
-			border-top-right-radius: 1em;
-			border-top-left-radius: 1em;
-			border-bottom-right-radius: 0;
-			border-bottom-left-radius: 0;
-			background-color: #fff;
 			padding: 0.5em;
 			text-align: center;
+			cursor: pointer;
+			background-color: #fff;
+			border: 1px solid #aaa;
+			border-bottom-color: #444;
+			border-top-left-radius: 1em;
+			border-top-right-radius: 1em;
+			border-bottom-right-radius: 0;
+			border-bottom-left-radius: 0;
+			box-shadow: none;
 
 			&.active {
+				pointer-events: none;
 				border-color: #444;
 				border-bottom: none;
-				pointer-events: none;
 			}
 
 			&:hover {
@@ -878,16 +878,16 @@
 			}
 
 			&:disabled {
-				color: inherit;
 				font-weight: bold;
+				color: inherit;
 			}
 		}
 
 		.tab.button {
 			flex: 0 1 30px;
+			font-size: 1.3333em;
 			border: 0;
 			border-bottom: 1px solid #444;
-			font-size: 1.3333em;
 
 			&[inert] {
 				pointer-events: none;
@@ -916,8 +916,8 @@
 	}
 
 	.hint {
-		color: #f22;
-		font-weight: bold;
 		font-size: 0.8em;
+		font-weight: bold;
+		color: #f22;
 	}
 </style>

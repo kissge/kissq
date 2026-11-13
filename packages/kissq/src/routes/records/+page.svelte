@@ -121,12 +121,12 @@
 	header {
 		display: flex;
 		flex-direction: column;
-		justify-content: center;
 		align-items: center;
+		justify-content: center;
 		min-height: 60vh;
 		padding: 3rem 2rem;
-		color: #172a3a;
 		font-family: serif;
+		color: #172a3a;
 		text-align: center;
 	}
 
@@ -138,15 +138,15 @@
 
 	h1 {
 		font-size: clamp(2.5rem, 8vw, 5rem);
-		letter-spacing: 0.08em;
 		line-height: 1.2;
+		letter-spacing: 0.08em;
 	}
 
 	h2 {
 		margin-top: 1.2rem;
-		color: #667481;
 		font-size: clamp(1rem, 2vw, 1.4rem);
 		font-weight: normal;
+		color: #667481;
 		letter-spacing: 0.12em;
 	}
 
@@ -158,10 +158,10 @@
 
 	table {
 		width: 100%;
-		border-collapse: separate;
-		border-spacing: 0;
-		color: #263746;
 		line-height: 1.75;
+		color: #263746;
+		border-spacing: 0;
+		border-collapse: separate;
 	}
 
 	tr {
@@ -178,10 +178,10 @@
 	th {
 		width: 3.5em;
 		padding-top: 0.7em;
-		color: #9a6b32;
-		text-align: right;
 		font-family: serif;
 		font-size: 1.15em;
+		color: #9a6b32;
+		text-align: right;
 	}
 
 	p {
@@ -195,28 +195,28 @@
 
 	.answer {
 		width: 11em;
-		color: #315d72;
 		font-weight: bold;
+		color: #315d72;
 	}
 
 	.through,
 	.correct {
 		margin-top: 0.6em;
-		text-align: right;
-		color: black;
 		font-weight: lighter;
+		color: black;
+		text-align: right;
 	}
 
 	.comment {
 		padding: 0;
 
 		p {
-			margin-left: 5em;
 			padding: 0.35em 1em;
-			border-left: 3px solid #c18b4a;
-			color: #667481;
+			margin-left: 5em;
 			font-size: 0.8em;
+			color: #667481;
 			white-space: pre-wrap;
+			border-left: 3px solid #c18b4a;
 		}
 
 		a {
@@ -232,25 +232,25 @@
 
 	.char {
 		&.dimmed {
-			color: #888;
-			font-style: normal;
 			font-size: 0.8em;
+			font-style: normal;
+			color: #888;
 		}
 
 		&.slash::after {
-			content: '/';
-			color: #b94a48;
-			font-weight: bold;
 			margin: 0 0.2em;
+			font-weight: bold;
+			color: #b94a48;
+			content: '/';
 		}
 	}
 
 	:global {
 		body {
 			height: unset !important;
-			background: #fff;
-			print-color-adjust: exact;
 			text-wrap: pretty;
+			print-color-adjust: exact;
+			background: #fff;
 		}
 	}
 

@@ -375,16 +375,16 @@
 
 <style>
 	button {
-		backdrop-filter: blur(10px);
-		box-shadow: 3px 3px 6px #00000080;
+		color: #fff;
+		background-color: #00000040;
 		border: none;
 		border-radius: 0;
-		background-color: #00000040;
-		color: #fff;
+		box-shadow: 3px 3px 6px #00000080;
+		backdrop-filter: blur(10px);
 
 		&:disabled {
-			opacity: 1;
 			color: #0004;
+			opacity: 1;
 		}
 
 		&:focus {
@@ -394,64 +394,64 @@
 
 	.answerer,
 	.button-mapping {
-		display: flex;
 		position: absolute;
-		justify-content: center;
+		display: flex;
 		align-items: center;
+		justify-content: center;
 	}
 	.answerer {
 		top: -0.75em;
 		left: 0;
-		border-radius: 1em;
-		background: black;
 		width: 100%;
-		color: #fff;
 		font-size: 0.5em;
+		color: #fff;
+		background: black;
+		border-radius: 1em;
 	}
 	.button-mapping {
 		top: 0.2em;
 		right: 0.25em;
 		z-index: 20;
-		border-radius: 5em;
-		background: grey;
 		width: 1.5em;
 		height: 1.5em;
-		color: white;
 		font-size: 0.4em;
+		color: white;
+		background: grey;
+		border-radius: 5em;
 	}
 
 	.group {
 		z-index: 10;
-		transition: background-color 0.3s ease;
 		border-radius: 2em 0.5em 0 0;
+		transition: background-color 0.3s ease;
 	}
 
 	.name {
-		display: flex;
 		position: relative;
+		display: flex;
 		flex: 1 1 100px;
 		align-items: center;
-		margin: -1em -0.5em;
 		padding: 0;
 		padding-top: calc(1em + 5px);
 		padding-bottom: 1em;
+		margin: -1em -0.5em;
 		overflow: hidden;
 		font-weight: bold;
 		line-height: 1.1;
-		text-wrap: balance;
 		word-break: break-all;
+		text-wrap: balance;
 
 		&:focus {
-			margin: 0 -0.5em;
 			padding-top: 5px;
 			padding-bottom: 0;
+			margin: 0 -0.5em;
 		}
 
 		&:empty:not(:focus)::before {
-			cursor: text;
-			content: attr(placeholder);
 			color: #aaa;
 			text-wrap: initial;
+			cursor: text;
+			content: attr(placeholder);
 		}
 
 		&.answerer-1st {
@@ -483,16 +483,16 @@
 	}
 
 	.hidden-buttons {
-		display: none;
 		position: absolute;
 		bottom: 50%;
 		left: -0.5em;
+		display: none;
 		flex-direction: column;
 		flex-wrap: wrap;
-		justify-content: space-evenly;
 		gap: 3px;
-		translate: 0% 50%;
+		justify-content: space-evenly;
 		font-size: 0.3em;
+		translate: 0% 50%;
 
 		button:hover:not([disabled]) {
 			background: #444;
@@ -504,30 +504,30 @@
 	}
 
 	.trophies {
-		display: flex;
 		position: absolute;
 		right: -0.5em;
+		display: flex;
 		flex-direction: column;
 
 		span {
+			width: 1.375em;
+			height: 1.375em;
+			background-color: #ffffffaa;
+			background-image: var(--trophy-image);
+			background-position: center;
+			background-size: cover;
+			border-radius: 50%;
+			box-shadow: 0 0 3px #888;
 			transition: margin-top 0.3s ease;
 			transition:
 				box-shadow 0.3s ease,
 				background-color 0.3s ease;
-			box-shadow: 0 0 3px #888;
-			border-radius: 50%;
-			background-image: var(--trophy-image);
-			background-position: center;
-			background-size: cover;
-			background-color: #ffffffaa;
-			width: 1.375em;
-			height: 1.375em;
 
 			&.previous-trophy-getter {
+				background-color: #ff08;
 				box-shadow:
 					0 0 3px #888,
 					0 0 10px #ff0;
-				background-color: #ff08;
 			}
 		}
 
@@ -542,27 +542,27 @@
 
 	.score {
 		position: relative;
-		align-content: center;
 		z-index: 100;
-		margin: 0 -0.25em;
-		border-radius: 0.2em;
-		background-color: #111;
+		align-content: center;
 		padding-bottom: 0.1em;
+		margin: 0 -0.25em;
 		font-weight: bold;
 		line-height: 0.9;
 		text-align: center;
 		text-shadow: 0 0 5px #000e;
+		background-color: #111;
+		border-radius: 0.2em;
 
 		&.showTotalOverride,
 		&.showRate {
 			&::before {
 				display: inline-block;
-				vertical-align: middle;
-				margin-right: 0.4em;
 				padding-bottom: 0.25em;
-				content: '通算';
+				margin-right: 0.4em;
 				font-size: 0.5em;
+				vertical-align: middle;
 				white-space: pre;
+				content: '通算';
 			}
 		}
 		&:not(.showTotalOverride).showRate::before {
@@ -575,13 +575,13 @@
 
 		small {
 			margin: 0 -0.25em;
-			font-weight: normal;
 			font-size: 0.4em;
+			font-weight: normal;
 		}
 
 		.m-by-n-score {
-			letter-spacing: -0.04em;
 			text-align: center;
+			letter-spacing: -0.04em;
 
 			small {
 				display: block;
@@ -608,19 +608,19 @@
 		}
 
 		.consecutive-count {
-			display: flex;
 			position: absolute;
 			top: -1em;
 			right: -0.4em;
-			justify-content: center;
-			align-items: center;
 			z-index: 100;
-			box-shadow: 0 0 8px #000a;
-			border-radius: 50%;
+			display: flex;
+			align-items: center;
+			justify-content: center;
 			width: 1.25em;
 			height: 1.25em;
 			font-weight: normal;
 			line-height: 0.5em;
+			border-radius: 50%;
+			box-shadow: 0 0 8px #000a;
 		}
 
 		.lose-lizhi {
@@ -658,35 +658,35 @@
 
 	input[type='checkbox'] {
 		display: block;
-		margin: 0 auto;
 		width: 3em;
 		height: 3em;
+		margin: 0 auto;
 	}
 
 	.buttons {
 		display: flex;
 		flex-wrap: wrap;
-		justify-content: space-evenly;
 		gap: 10px;
+		justify-content: space-evenly;
 		margin: 0.2em -0.45em;
 		font-size: 0.9em;
 
 		> * {
 			display: flex;
 			flex: 1 1 40px;
-			justify-content: center;
 			align-items: center;
+			justify-content: center;
 		}
 
 		.maru-btn:hover:not(:active),
 		.maru-btn:focus-visible:not(:active) {
-			background-color: red;
 			color: white;
+			background-color: red;
 		}
 		.batsu-btn:hover:not(:active),
 		.batsu-btn:focus-visible:not(:active) {
-			background-color: blue;
 			color: white;
+			background-color: blue;
 		}
 	}
 

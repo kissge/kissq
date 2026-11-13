@@ -44,22 +44,22 @@
 
 <style>
 	footer {
-		display: flex;
-		justify-content: end;
-		gap: 0.5em;
 		z-index: 9999;
 		box-sizing: border-box;
-		background: #eee;
+		display: flex;
+		gap: 0.5em;
+		justify-content: end;
 		width: 100dvw;
+		anchor-name: --footer;
 		overflow: hidden;
 		user-select: none;
-		anchor-name: --footer;
+		background: #eee;
 
 		.left {
 			display: flex;
 			flex-grow: 1;
-			align-items: center;
 			gap: 1em;
+			align-items: center;
 			font-size: 0.8em;
 
 			a {
@@ -78,9 +78,9 @@
 			white-space: nowrap;
 
 			&.blink {
-				animation: blink-animation 0.5s ease infinite;
-				background-color: red;
 				color: white;
+				background-color: red;
+				animation: blink-animation 0.5s ease infinite;
 			}
 		}
 	}

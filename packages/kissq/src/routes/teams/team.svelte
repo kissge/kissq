@@ -131,15 +131,15 @@
 <style>
 	input {
 		flex: 1 1 100%;
-		border: none;
-		background: transparent;
 		min-width: 0;
-		color: #fff;
 		font-size: inherit;
+		color: #fff;
 		text-align: center;
 		text-shadow:
 			0px 0px 12px #0007,
 			0px 0px 12px #0007;
+		background: transparent;
+		border: none;
 
 		&::placeholder {
 			color: #fff;
@@ -149,11 +149,11 @@
 
 	.life {
 		display: flex;
-		justify-content: center;
 		align-items: center;
-		color: #fff;
-		font-weight: bold;
+		justify-content: center;
 		font-size: 0.8em;
+		font-weight: bold;
+		color: #fff;
 		text-shadow:
 			0px 10px 50px #444,
 			0px 10px 50px #444;
@@ -161,22 +161,22 @@
 
 	.team-name {
 		display: flex;
-		justify-content: center;
 		align-items: center;
-		padding: 0 0.5em;
+		justify-content: center;
 		min-width: 0;
+		padding: 0 0.5em;
 		text-align: center;
 	}
 
 	.team-score {
 		display: flex;
-		justify-content: center;
 		align-items: center;
-		box-shadow: 0 0 10px #0008;
-		border-radius: 5em;
+		justify-content: center;
 		font-weight: bold;
 		text-align: center;
 		text-shadow: 0 0 8px #000;
+		border-radius: 5em;
+		box-shadow: 0 0 10px #0008;
 	}
 
 	.members {
@@ -197,10 +197,10 @@
 		display: flex;
 		grid-column: 1 / -1;
 		align-items: center;
+		width: calc(100% - 0.75em * 2);
+		margin-top: 0.5em;
 		opacity: 0;
 		transition: opacity 0.3s;
-		margin-top: 0.5em;
-		width: calc(100% - 0.75em * 2);
 
 		&:is(:global(.team:hover) *) {
 			opacity: 1;
@@ -211,12 +211,12 @@
 		}
 
 		button {
-			backdrop-filter: blur(10px);
-			box-shadow: 3px 3px 6px #00000080;
+			color: #fff;
+			background-color: #00000040;
 			border: none;
 			border-radius: 0;
-			background-color: #00000040;
-			color: #fff;
+			box-shadow: 3px 3px 6px #00000080;
+			backdrop-filter: blur(10px);
 
 			&:not([disabled]):hover {
 				background-color: #ffffff10;
@@ -235,14 +235,14 @@
 		align-content: start;
 
 		&.is-drop-target {
-			box-shadow: 0 0 10px #f008;
-			background-color: yellow;
 			color: #000;
+			background-color: yellow;
+			box-shadow: 0 0 10px #f008;
 		}
 
 		.name-dummy {
-			background-color: #00000040;
 			text-align: center;
+			background-color: #00000040;
 		}
 	}
 
@@ -250,11 +250,11 @@
 		.seat-id {
 			display: flex;
 			grid-column: 1 / 2;
-			justify-content: center;
-			align-items: center;
 			gap: 0.1em;
-			border-radius: 1em 0 0 1em;
+			align-items: center;
+			justify-content: center;
 			background-color: #aaa3;
+			border-radius: 1em 0 0 1em;
 
 			small {
 				margin-top: 0.75em;

@@ -37,18 +37,18 @@
 <style>
 	.counter-popover {
 		position: fixed;
-		position-anchor: --global-header;
 		top: calc(anchor(bottom) + 0.25em);
 		left: calc(anchor(left) + 0.5em);
 		z-index: 1000;
-		box-shadow: 0 2px 30px rgba(0, 0, 0, 0.5);
-		border-radius: 0.25rem;
-		background: rgb(255 255 255 / 50%);
-		backdrop-filter: blur(0.5em);
 		padding: 0.6em;
+		position-anchor: --global-header;
 		font-size: 1.5em;
 		text-align: right;
 		text-shadow: 0 0 0.25em #fff;
+		background: rgb(255 255 255 / 50%);
+		border-radius: 0.25rem;
+		box-shadow: 0 2px 30px rgba(0, 0, 0, 0.5);
+		backdrop-filter: blur(0.5em);
 	}
 
 	small {

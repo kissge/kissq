@@ -81,10 +81,10 @@
 	}
 
 	details {
+		padding: 0.25em 1em;
 		margin-left: 1em;
 		border: 1px solid #ccc;
 		border-radius: 4px;
-		padding: 0.25em 1em;
 
 		ul {
 			margin: 0.5em;

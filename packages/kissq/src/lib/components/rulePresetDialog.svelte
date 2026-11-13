@@ -339,14 +339,14 @@
 <style>
 	.backdrop {
 		position: absolute;
-		cursor: default;
 		inset: 0;
+		cursor: default;
 		background: #0008;
 
 		&:active,
 		&:focus {
-			box-shadow: none;
 			border: none;
+			box-shadow: none;
 		}
 	}
 
@@ -354,19 +354,19 @@
 		position: fixed;
 		top: 50%;
 		left: 50%;
-		transform: translate(-50%, -50%);
+		width: min(90%, 900px);
+		max-height: min(80dvh, 800px);
+		padding: 1em;
+		padding-top: 0;
 		margin-bottom: 0.25em;
+		overflow-y: auto;
+		background-color: white;
+		border: 3px solid #000;
+		border-radius: 0.5em;
 		box-shadow:
 			0 0 1em #0005,
 			0 0 1em #0002;
-		border: 3px solid #000;
-		border-radius: 0.5em;
-		background-color: white;
-		padding: 1em;
-		padding-top: 0;
-		width: min(90%, 900px);
-		max-height: min(80dvh, 800px);
-		overflow-y: auto;
+		transform: translate(-50%, -50%);
 	}
 
 	li {
@@ -392,8 +392,8 @@
 
 	.buttons {
 		display: flex;
-		justify-content: end;
 		gap: 0.5em;
+		justify-content: end;
 		margin-top: 1em;
 	}
 

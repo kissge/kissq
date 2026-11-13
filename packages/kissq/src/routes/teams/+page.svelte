@@ -513,37 +513,37 @@
 	.attendants {
 		display: grid;
 		grid-template-columns: repeat(auto-fit, minmax(560px, 1fr));
+		gap: 1em;
 		align-content: start;
 		align-items: stretch;
-		gap: 1em;
 		width: 100%;
 		user-select: none;
 	}
 
 	.team {
 		display: grid;
+		flex: 1 1 560px;
 		grid-template-rows: 2em 1fr;
 		grid-template-columns: 4em minmax(0, 1fr) 2em;
 		row-gap: 0.25em;
-		flex: 1 1 560px;
+		min-width: 0;
+		padding: 0.25em;
+		padding-bottom: 1em;
+		color: #fff;
+		text-shadow:
+			0px 10px 50px #444,
+			0px 10px 50px #444;
+		border-radius: 1.5em 0 1em 0;
+		box-shadow: 0 0 15px #eeea;
 		backdrop-filter: blur(10px);
 		transition:
 			background-color 0.3s ease,
 			backdrop-filter 0.3s ease,
 			scale 0.3s ease;
-		box-shadow: 0 0 15px #eeea;
-		border-radius: 1.5em 0 1em 0;
-		padding: 0.25em;
-		padding-bottom: 1em;
-		min-width: 0;
-		color: #fff;
-		text-shadow:
-			0px 10px 50px #444,
-			0px 10px 50px #444;
 
 		&.won {
-			box-shadow: 0 2px 2px 6px rgb(61 184 61);
 			background-color: rgba(114 250 114 / 0.5);
+			box-shadow: 0 2px 2px 6px rgb(61 184 61);
 		}
 
 		&:hover {
@@ -555,41 +555,41 @@
 		position: fixed;
 		top: 50%;
 		left: 50%;
-		transform: translate(-50%, -50%);
 		color: #fff;
 		text-align: center;
 		text-shadow:
 			0px 10px 50px #444,
 			0px 10px 50px #444;
+		transform: translate(-50%, -50%);
 	}
 
 	.new-team {
-		display: flex;
 		position: fixed;
 		right: 1em;
 		bottom: 1em;
-		justify-content: center;
-		align-items: center;
 		z-index: 10000;
-		background: #0008;
-		padding-top: 0.75em;
+		display: flex;
+		align-items: center;
+		justify-content: center;
 		width: 10em;
+		padding-top: 0.75em;
+		background: #0008;
 
 		&.is-drop-target {
-			background: yellow;
 			color: black;
+			background: yellow;
 		}
 	}
 
 	#other-menu:popover-open {
 		position: absolute;
-		position-area: top;
-		margin-bottom: 0.25em;
-		box-shadow: 0 0 5px #0008;
-		border: 0;
 		display: flex;
 		flex-wrap: wrap;
 		gap: 0.2em;
+		margin-bottom: 0.25em;
+		position-area: top;
+		border: 0;
+		box-shadow: 0 0 5px #0008;
 	}
 
 	:global(.tippy-box:has(button)) {

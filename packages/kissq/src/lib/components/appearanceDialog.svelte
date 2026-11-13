@@ -122,8 +122,8 @@
 	}
 
 	img {
-		vertical-align: middle;
 		height: 1em;
+		vertical-align: middle;
 	}
 
 	input[type='file'] {

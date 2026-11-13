@@ -392,15 +392,15 @@
 
 <style>
 	dialog {
-		display: flex;
 		top: 50%;
-		transform: translate(0, -50%);
-		background: white;
-		padding: 1em;
+		display: flex;
 		width: calc(100% - 5em);
 		height: calc(100% - 5em);
+		padding: 1em;
 		overflow-y: auto;
 		font-size: 1em;
+		background: white;
+		transform: translate(0, -50%);
 
 		&:has([class*='welcome']) {
 			justify-content: center;
@@ -416,9 +416,9 @@
 		top: 1em;
 		right: 1em;
 		z-index: 10000;
+		font-weight: bold;
 		border: 2px solid black;
 		border-radius: 3em;
-		font-weight: bold;
 	}
 
 	.welcome {
@@ -427,8 +427,8 @@
 		min-height: 100%;
 
 		& > div {
-			margin: auto;
 			max-width: 50em;
+			margin: auto;
 		}
 	}
 
@@ -443,50 +443,50 @@
 
 		& > div {
 			display: flex;
-			justify-content: center;
 			align-items: center;
-			border-right: 1px solid #0001;
-			padding: 0.25em;
+			justify-content: center;
 			min-width: 9em;
+			padding: 0.25em;
+			border-right: 1px solid #0001;
 
 			input[type='text'] {
-				border: 0;
-				border-bottom: 1px solid #ccc;
 				width: 100%;
 				font-size: 1em;
 				text-align: center;
+				border: 0;
+				border-bottom: 1px solid #ccc;
 			}
 
 			input[type='checkbox'] {
-				cursor: pointer;
 				width: 1em;
 				height: 1em;
 				font-size: 0.8em;
+				cursor: pointer;
 			}
 		}
 	}
 
 	.filler {
-		padding: 0;
 		min-width: 0 !important;
+		padding: 0;
 	}
 
 	.header-top {
 		position: sticky;
 		top: 0;
-		border-bottom: 2px solid #444;
-		background: white;
 		min-width: 6em;
+		background: white;
+		border-bottom: 2px solid #444;
 	}
 
 	.header-left {
 		position: sticky;
 		left: 0;
 		justify-content: flex-end !important;
-		box-shadow: 5px 0 5px rgba(0, 0, 0, 0.1);
-		border-right: 2px solid #444;
-		background: white;
 		min-width: 8em;
+		background: white;
+		border-right: 2px solid #444;
+		box-shadow: 5px 0 5px rgba(0, 0, 0, 0.1);
 
 		input[type='text'] {
 			text-align: right !important;
@@ -496,32 +496,32 @@
 	.footer-bottom {
 		position: sticky;
 		bottom: 0;
-		box-shadow: 0 -5px 5px rgba(0, 0, 0, 0.1);
 		background: white;
+		box-shadow: 0 -5px 5px rgba(0, 0, 0, 0.1);
 	}
 
 	.footer-right {
 		position: sticky;
 		right: 0;
-		box-shadow: -5px 0 5px rgba(0, 0, 0, 0.1);
 		background: white;
+		box-shadow: -5px 0 5px rgba(0, 0, 0, 0.1);
 	}
 
 	.team-name {
-		margin-right: 0.5em;
-		border-radius: 0.5em;
 		padding: 0.1em 0.5em;
-		color: white;
+		margin-right: 0.5em;
 		font-size: 0.5em;
+		color: white;
+		border-radius: 0.5em;
 	}
 
 	.life {
 		display: inline-block;
-		margin-right: 0.5em;
-		border-radius: 0.5em;
-		background-color: #555;
 		padding: 0.1em 0.5em;
+		margin-right: 0.5em;
 		color: white;
+		background-color: #555;
+		border-radius: 0.5em;
 
 		&.won {
 			background-color: green;
@@ -540,7 +540,7 @@
 	}
 
 	i {
-		color: #888;
 		font-style: normal;
+		color: #888;
 	}
 </style>

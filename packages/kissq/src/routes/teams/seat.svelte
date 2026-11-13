@@ -127,20 +127,20 @@
 
 	.seat-id {
 		&.is-drop-target {
-			box-shadow: 0 0 10px #f008;
-			background-color: yellow;
 			color: #000;
+			background-color: yellow;
+			box-shadow: 0 0 10px #f008;
 		}
 	}
 
 	.seat-total {
-		display: flex;
 		position: relative;
-		grid-column: -2 / -1;
+		display: flex;
 		flex-direction: column;
-		justify-content: center;
-		align-items: center;
+		grid-column: -2 / -1;
 		gap: 0;
+		align-items: center;
+		justify-content: center;
 		padding-right: 0.5em;
 		font-weight: bold;
 		line-height: 0.8;
@@ -149,17 +149,17 @@
 			position: absolute;
 			top: 0;
 			left: -1.75em;
-			rotate: 180deg;
-			border-left: 5px solid #fff;
-			border-radius: 0.75em;
 			width: 2em;
 			height: 100%;
 			content: '';
+			border-left: 5px solid #fff;
+			border-radius: 0.75em;
+			rotate: 180deg;
 		}
 
 		.batsu-count {
-			color: #f55;
 			font-size: 0.8em;
+			color: #f55;
 		}
 	}
 </style>

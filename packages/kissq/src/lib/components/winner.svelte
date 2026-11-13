@@ -182,14 +182,14 @@
 		z-index: 999999;
 		display: flex;
 		flex-direction: column;
-		justify-content: center;
 		align-items: center;
+		justify-content: center;
+		overflow: hidden;
+		color: white;
+		background-color: rgb(15 18 33 / 90%);
 		background-image: url('$lib/assets/wallpaper.jpg');
 		background-position: center center;
 		background-size: cover;
-		background-color: rgb(15 18 33 / 90%);
-		color: white;
-		overflow: hidden;
 		isolation: isolate;
 	}
 
@@ -197,8 +197,8 @@
 		position: absolute;
 		inset: 0;
 		z-index: -1;
-		background: linear-gradient(135deg, rgb(8 10 28 / 72%), rgb(50 17 64 / 68%));
 		content: '';
+		background: linear-gradient(135deg, rgb(8 10 28 / 72%), rgb(50 17 64 / 68%));
 	}
 
 	.glow {
@@ -206,8 +206,8 @@
 		z-index: -1;
 		width: min(80vw, 700px);
 		height: min(80vw, 700px);
-		border-radius: 50%;
 		background: rgb(255 193 7 / 22%);
+		border-radius: 50%;
 		filter: blur(80px);
 		animation: pulse 3s ease-in-out infinite;
 	}
@@ -235,18 +235,18 @@
 	.wrapper {
 		display: flex;
 		flex-direction: column;
-		justify-content: center;
 		align-items: center;
-		max-width: min(90vw, 900px);
+		justify-content: center;
 		width: min(90vw, 720px);
+		max-width: min(90vw, 900px);
 		text-align: center;
 		animation: arrive 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) both;
 	}
 
 	.eyebrow {
-		color: #ffe082;
 		font-size: clamp(0.7rem, 2vw, 1rem);
 		font-weight: 800;
+		color: #ffe082;
 		letter-spacing: 0.35em;
 		text-shadow: 0 0 15px rgb(255 193 7 / 70%);
 		transform: translateY(1em);
@@ -254,11 +254,11 @@
 
 	.title-1st {
 		display: flex;
+		gap: 0.2em;
 		align-items: center;
+		margin-bottom: 1.2rem;
 		font-size: clamp(2.6rem, 8vw, 4.5rem);
 		font-weight: 900;
-		gap: 0.2em;
-		margin-bottom: 1.2rem;
 		color: #fff8e1;
 		text-shadow:
 			0 3px 0 #b87800,
@@ -271,18 +271,18 @@
 
 	.winner-card {
 		position: relative;
-		width: 100%;
 		box-sizing: border-box;
+		width: 100%;
 		padding: clamp(1.5rem, 5vw, 3rem) 1.5rem;
+		overflow: hidden;
+		text-align: center;
+		background: linear-gradient(135deg, rgb(255 255 255 / 20%), rgb(255 193 7 / 14%));
 		border: 2px solid rgb(255 224 130 / 85%);
 		border-radius: 1.5rem;
-		background: linear-gradient(135deg, rgb(255 255 255 / 20%), rgb(255 193 7 / 14%));
 		box-shadow:
 			0 20px 70px rgb(0 0 0 / 40%),
 			inset 0 1px rgb(255 255 255 / 40%),
 			0 0 35px rgb(255 193 7 / 25%);
-		overflow: hidden;
-		text-align: center;
 		animation: card-pop 0.9s 0.15s cubic-bezier(0.2, 1.4, 0.4, 1) both;
 	}
 
@@ -305,38 +305,38 @@
 
 	.name-1st-wrapper {
 		position: relative;
-		width: 100%;
 		box-sizing: border-box;
-		color: #ffffff;
+		width: 100%;
 		font-size: clamp(2rem, 7vw, 4rem);
 		font-weight: 900;
+		color: #ffffff;
+		text-align: center;
 		white-space: nowrap;
 		text-shadow: 0 3px 12px rgb(0 0 0 / 60%);
-		text-align: center;
 		text-fit: shrink;
 	}
 
 	.trophy {
 		width: 2em;
 		height: 2em;
-		background-size: contain;
+		background-image: url('$lib/assets/trophy.png');
 		background-repeat: no-repeat;
 		background-position: center center;
-		background-image: url('$lib/assets/trophy.png');
+		background-size: contain;
 	}
 
 	.name-others-wrapper {
 		display: grid;
 		grid-template-columns: auto 1fr;
+		gap: 0.4rem 1rem;
 		align-items: center;
 		width: min(100%, 560px);
-		margin-top: 1.5rem;
 		padding: 0.8rem 1rem;
+		margin-top: 1.5rem;
+		text-align: left;
+		background: rgb(0 0 0 / 24%);
 		border: 1px solid rgb(255 255 255 / 18%);
 		border-radius: 1rem;
-		background: rgb(0 0 0 / 24%);
-		gap: 0.4rem 1rem;
-		text-align: left;
 		animation: arrive 0.8s 0.4s both;
 
 		&:empty {
@@ -346,9 +346,9 @@
 
 	.rank {
 		min-width: 3.5rem;
-		color: #e0e0e0;
 		font-size: 1.1rem;
 		font-weight: 800;
+		color: #e0e0e0;
 	}
 
 	.rank.second {
@@ -373,9 +373,9 @@
 
 	.congratulations {
 		margin-top: 1.5rem;
-		color: rgb(255 224 130 / 85%);
 		font-size: clamp(0.75rem, 2vw, 1rem);
 		font-weight: 800;
+		color: rgb(255 224 130 / 85%);
 		letter-spacing: 0.25em;
 		animation: pulse 2s ease-in-out infinite;
 	}
@@ -393,8 +393,8 @@
 
 	.configs {
 		position: fixed;
-		bottom: 1em;
 		right: 1em;
+		bottom: 1em;
 		opacity: 0.2;
 		transition: opacity 0.3s ease;
 
@@ -403,11 +403,11 @@
 		}
 
 		button {
-			box-shadow: none !important;
-			border: 1px solid white;
-			background: transparent;
-			color: white;
 			font-size: 1rem;
+			color: white;
+			background: transparent;
+			border: 1px solid white;
+			box-shadow: none !important;
 		}
 	}
 

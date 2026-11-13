@@ -57,21 +57,21 @@
 
 	.dialog {
 		position: absolute;
-		position-anchor: --show-btn;
-		display: grid;
 		bottom: anchor(top);
 		left: anchor(left);
+		display: grid;
 		grid-template-rows: 2em 1fr;
 		grid-template-columns: 1fr 1fr;
-		margin-bottom: 0.25em;
-		box-shadow: 0 0 1em #0005;
-		border: 2px solid #000;
-		border-radius: 0.25em;
-		background-color: white;
-		padding: 1em;
 		width: 480px;
 		max-height: min(80dvh, 800px);
+		padding: 1em;
+		margin-bottom: 0.25em;
+		position-anchor: --show-btn;
 		overflow-y: auto;
+		background-color: white;
+		border: 2px solid #000;
+		border-radius: 0.25em;
+		box-shadow: 0 0 1em #0005;
 
 		> div {
 			display: flex;

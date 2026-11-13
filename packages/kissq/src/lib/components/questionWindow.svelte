@@ -147,68 +147,68 @@
 <style>
 	.question {
 		position: relative;
-		backdrop-filter: blur(10px);
-		margin-top: -0.7rem;
-		box-shadow: 0 0 15px #eeea;
-		border-radius: 0 0 0.5em 0.5em;
-		background-color: #0008;
-		padding: 0.5em 1em;
 		height: 5em;
+		padding: 0.5em 1em;
+		margin-top: -0.7rem;
+		background-color: #0008;
+		border-radius: 0 0 0.5em 0.5em;
+		box-shadow: 0 0 15px #eeea;
+		backdrop-filter: blur(10px);
 
 		p {
-			margin: 0;
 			height: 100%;
+			margin: 0;
 			overflow: hidden;
 		}
 
 		small {
-			opacity: 0.6;
-			font-weight: lighter;
 			font-size: smaller;
+			font-weight: lighter;
+			opacity: 0.6;
 		}
 
 		.char {
 			&.dimmed {
 				font-size: 0.9em;
-				opacity: 0.6;
 				font-weight: lighter;
+				opacity: 0.6;
 			}
 			&.slash::after {
-				content: '/';
-				color: yellow;
 				margin: 0 0.2em;
+				color: yellow;
+				content: '/';
 			}
 		}
 	}
 
 	.likes {
-		display: inline-block;
 		position: absolute;
 		bottom: -0.5em;
 		left: 1em;
+		display: inline-block;
+		padding: 0.35em 1em 0.15em;
+		margin-top: 0.5em;
+		color: #f66;
+		background-color: #000c;
+		border-radius: 0.5em;
+		box-shadow: 0 0 15px #eeea;
 		backdrop-filter: blur(10px);
 		transition: 0.3s translate 1s ease;
-		margin-top: 0.5em;
-		box-shadow: 0 0 15px #eeea;
-		border-radius: 0.5em;
-		background-color: #000c;
-		padding: 0.35em 1em 0.15em;
-		color: #f66;
 	}
 
 	.answer {
-		display: inline-block;
 		position: absolute;
 		right: 1em;
 		bottom: -0.5em;
-		backdrop-filter: blur(10px);
-		transition: 0.3s translate 1s ease;
+		display: inline-block;
+		padding: 0.35em 1em 0.15em;
 
 		margin-top: 0.5em;
-		box-shadow: 0 0 15px #eeea;
-		border-radius: 0.5em;
 		background-color: #000c;
-		padding: 0.35em 1em 0.15em;
+		border-radius: 0.5em;
+		box-shadow: 0 0 15px #eeea;
+		backdrop-filter: blur(10px);
+		transition: 0.3s translate 1s ease;
 
 		&:is(.question:active *) {
 			translate: 0 60%;
@@ -228,13 +228,13 @@
 		position: absolute;
 		top: 0.5em;
 		right: 0.5em;
+		font-size: 0.8em;
+		color: #fff;
+		cursor: pointer;
+		background: none;
+		border: none;
 		opacity: 0;
 		transition: 0.3s opacity ease;
-		cursor: pointer;
-		border: none;
-		background: none;
-		color: #fff;
-		font-size: 0.8em;
 	}
 	.question:hover .popup-btn {
 		opacity: 1;
@@ -244,21 +244,21 @@
 		position: fixed;
 		top: 50%;
 		left: 50%;
-		transform: translate(-50%, -50%);
 		z-index: 1000;
 		box-sizing: border-box;
-		box-shadow: 0 0 25px #fff;
-		border-radius: 0.5em;
-		background-color: #fff;
-		padding: 2em;
 		width: min(50dvw, 50dvh);
 		height: min(50dvw, 50dvh);
+		padding: 2em;
+		background-color: #fff;
+		border-radius: 0.5em;
+		box-shadow: 0 0 25px #fff;
+		transform: translate(-50%, -50%);
 
 		img {
-			border-radius: 0.5em;
 			width: 100%;
 			height: 100%;
 			object-fit: contain;
+			border-radius: 0.5em;
 		}
 	}
 </style>

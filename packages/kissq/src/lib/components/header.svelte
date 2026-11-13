@@ -184,7 +184,7 @@
 			<LimitIndicator
 				limit={Game.currentState.defaultRule.attendantLimitOverall -
 					Game.currentState.attendants.filter(({ life }) => life === 'won').length}
-				style="rest"
+				type="rest"
 			/>
 		{/if}
 
@@ -206,16 +206,16 @@
 
 <style>
 	header {
-		display: flex;
-		justify-content: space-between;
-		gap: 0.5em;
 		z-index: 9999;
 		box-sizing: border-box;
-		background: #eee;
+		display: flex;
+		gap: 0.5em;
+		justify-content: space-between;
 		width: 100dvw;
-		font-weight: bold;
-		font-size: 1em;
 		anchor-name: --global-header;
+		font-size: 1em;
+		font-weight: bold;
+		background: #eee;
 
 		h1 {
 			all: unset;
@@ -234,10 +234,10 @@
 				content: 'kissQ';
 			}
 			&:empty:focus:after {
-				animation: blink 1s infinite;
-				border-right: 1px solid #000;
-				content: '';
 				font-weight: lighter;
+				content: '';
+				border-right: 1px solid #000;
+				animation: blink 1s infinite;
 			}
 		}
 	}
@@ -245,10 +245,10 @@
 	h1 {
 		.subtitle {
 			position: absolute;
-			position-anchor: --title;
 			top: calc(anchor(bottom) - 0.5em);
 			left: anchor(left);
 			z-index: 9999;
+			position-anchor: --title;
 			font-size: 0.6em;
 
 			&:is(a) {
@@ -273,17 +273,17 @@
 
 	.rule-wrapper {
 		display: flex;
-		align-items: flex-end;
 		gap: 0.25em;
+		align-items: flex-end;
 	}
 
 	#rule {
 		display: inline-block;
-		translate: 0 -0.15em;
 		overflow: hidden;
-		text-align: right;
 		text-overflow: ellipsis;
+		text-align: right;
 		white-space: nowrap;
+		translate: 0 -0.15em;
 	}
 
 	.scroller {

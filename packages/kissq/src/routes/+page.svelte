@@ -810,40 +810,40 @@
 			gap: 0.5em;
 
 			.attendant {
-				display: grid;
 				position: relative;
+				display: grid;
 				grid-template-rows: subgrid;
 				gap: 0.35em;
+				padding: 0.5em;
+				color: #fff;
+				text-shadow:
+					0px 10px 50px #444,
+					0px 10px 50px #444;
+				user-select: none;
+				background-color: #ffffff40;
+				border-radius: 1.5em 0 1em 0;
+				box-shadow: 0 0 15px #eeea;
 				backdrop-filter: blur(10px);
 				transition:
 					background-color 0.3s ease,
 					backdrop-filter 0.3s ease;
-				box-shadow: 0 0 15px #eeea;
-				border-radius: 1.5em 0 1em 0;
-				background-color: #ffffff40;
-				padding: 0.5em;
-				color: #fff;
-				user-select: none;
-				text-shadow:
-					0px 10px 50px #444,
-					0px 10px 50px #444;
 
 				&:nth-last-child(2) {
 					anchor-name: --last-attendant;
 				}
 
 				&.lizhi {
-					box-shadow: 0 2px 2px 6px rgb(230 230 37);
 					background-color: rgba(255 255 158 / 0.5);
+					box-shadow: 0 2px 2px 6px rgb(230 230 37);
 				}
 				&.won {
-					box-shadow: 0 2px 2px 6px rgb(61 184 61);
 					background-color: rgba(114 250 114 / 0.5);
+					box-shadow: 0 2px 2px 6px rgb(61 184 61);
 				}
 				&.yasu {
+					background-color: rgba(128 128 128 / 0.3);
 					opacity: 0.7;
 					backdrop-filter: blur(5px);
-					background-color: rgba(128 128 128 / 0.3);
 				}
 				&.lost {
 					background-color: rgba(240 128 128 / 0.8);
@@ -855,11 +855,11 @@
 
 				&:hover,
 				&:global(:has(.name:focus-within)) {
-					backdrop-filter: blur(20px);
+					background-color: #fafafa;
 					box-shadow:
 						0 2px 2px 3px #ccc,
 						0 0 30px #eee;
-					background-color: #fafafa;
+					backdrop-filter: blur(20px);
 					:global .name {
 						color: #000;
 						text-shadow: none;
@@ -867,45 +867,45 @@
 				}
 
 				&[draggable='true']::after {
-					display: block;
 					position: absolute;
 					bottom: 0;
-					cursor: grab;
+					display: block;
 					width: 100%;
-					content: '::::';
-					color: #888;
 					font-size: 0.5em;
+					color: #888;
 					text-align: center;
+					cursor: grab;
+					content: '::::';
 				}
 			}
 
 			.dummy-drop-target {
 				position: absolute;
-				position-anchor: --last-attendant;
 				top: anchor(top);
 				bottom: anchor(bottom);
 				left: anchor(right);
 				width: 100dvw;
+				position-anchor: --last-attendant;
 			}
 
 			.drop-target::before {
-				display: inline-block;
 				position: absolute;
 				top: 0;
 				left: -18px;
-				border-right: 10px dashed red;
+				display: inline-block;
 				height: 100%;
 				pointer-events: none;
 				content: '';
+				border-right: 10px dashed red;
 			}
 
 			.no-team {
 				position: fixed;
 				top: 50%;
 				left: 50%;
-				transform: translate(-50%, -50%);
 				color: #fff;
 				text-align: center;
+				transform: translate(-50%, -50%);
 			}
 		}
 	}
@@ -924,13 +924,13 @@
 
 	#bulk-menu:popover-open {
 		position: absolute;
-		position-area: top;
 		display: flex;
 		gap: 0.5em;
 		margin-bottom: 0.25em;
-		box-shadow: 0 0 5px #0008;
-		border: 0;
+		position-area: top;
 		font-size: 1.5em;
+		border: 0;
+		box-shadow: 0 0 5px #0008;
 
 		select {
 			font-size: 1em;
