@@ -15,22 +15,27 @@ export function loadRecovery(): RecoveryData | undefined {
 	}
 }
 
-export function saveRecoveryIfNecessary(Game: GameClassBase, Wasedashiki: WasedashikiClass): void {
+export function saveRecoveryIfNecessary(
+	Game: GameClassBase,
+	Wasedashiki: WasedashikiClass
+): boolean {
 	if (Game.attendants.length === 0) {
-		return;
+		return false;
 	}
 
 	if (
 		Game.history.length === 0 &&
 		Game.attendants.every((att) => att.totalScore.maru === 0 && att.totalScore.batsu === 0)
 	) {
-		return;
+		return false;
 	}
 
 	window.localStorage.setItem(
 		'kissQ.recovery',
 		JSON.stringify({ Game, buttonMapping: Wasedashiki.buttonMapping })
 	);
+
+	return true;
 }
 
 export function removeRecovery(): void {

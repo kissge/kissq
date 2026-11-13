@@ -283,9 +283,9 @@
 		};
 
 		const beforeUnload = (event: BeforeUnloadEvent) => {
-			saveRecoveryIfNecessary(Game, Wasedashiki);
+			const necessary = saveRecoveryIfNecessary(Game, Wasedashiki);
 
-			if (!dev) {
+			if (!dev && necessary) {
 				event.preventDefault();
 				event.returnValue = '';
 			}
