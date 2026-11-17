@@ -45,7 +45,9 @@
 		}
 
 		show =
-			data.Game.battleMode === Game.battleMode && savedAgo < 180 && data.Game.attendants.length > 0;
+			data.Game.battleMode === Game.battleMode &&
+			-savedAgo < 180 &&
+			data.Game.attendants.length > 0;
 	});
 
 	function restore() {
