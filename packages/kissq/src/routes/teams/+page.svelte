@@ -35,6 +35,7 @@
 	import Team from './team.svelte';
 
 	import type { GameEvent } from '$lib/state';
+	import type { TeamID } from '$lib/types';
 
 	let Game = new TeamGameClass();
 	setTeamGameContext(Game);
@@ -198,7 +199,7 @@
 	});
 
 	$effect(() => {
-		saveToHash(Game.attendants, Wasedashiki.buttonMapping);
+		saveToHash(Game.latestAttendants, Wasedashiki.buttonMapping);
 	});
 </script>
 
@@ -229,7 +230,7 @@
 					animate:flip={{ duration: 200 }}
 					class:won={Game.currentState.teams[ti].teamLife === 'won'}
 				>
-					<Team {seats} {ti} />
+					<Team {seats} ti={ti as TeamID} />
 				</div>
 			{:else}
 				<div class="no-team" {@attach wave()}>🍔チームがありません🍔</div>

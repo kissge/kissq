@@ -62,6 +62,13 @@ export abstract class GameClassBase<BattleMode extends 'single' | 'team' = 'sing
 		- クイズ得点板のkissQ`;
 	}
 
+	get latestAttendants(): Attendant[] {
+		return this.attendants.map((att, ai) => ({
+			...att,
+			group: this.currentState.attendants[ai].group
+		}));
+	}
+
 	toJSON() {
 		return Object.fromEntries([
 			...Keys.map((key) => [key, this[key]]),
@@ -81,6 +88,7 @@ export abstract class GameClassBase<BattleMode extends 'single' | 'team' = 'sing
 				maru: att.totalScore.maru + att.trueMaruCount,
 				batsu: att.totalScore.batsu + att.trueBatsuCount
 			};
+			this.attendants[ai].group = att.group;
 		});
 		this.totalQuestionCount += this.currentState.questionCount - 1;
 

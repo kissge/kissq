@@ -8,6 +8,7 @@
 	import Member from './member.svelte';
 
 	import type { Attendant } from '$lib/attendant';
+	import type { AttendantID, TeamID } from '$lib/types';
 
 	let {
 		seats,
@@ -15,9 +16,9 @@
 		atts,
 		si
 	}: {
-		seats: ({ att: Attendant; ai: number }[] | undefined)[];
-		ti: number;
-		atts: { att: Attendant; ai: number }[];
+		seats: ({ att: Attendant; ai: AttendantID }[] | undefined)[];
+		ti: TeamID;
+		atts: { att: Attendant; ai: AttendantID }[];
 		si: number;
 	} = $props();
 

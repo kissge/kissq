@@ -45,7 +45,7 @@
 		Game.attendants.some(({ name }) => name) || Object.keys(Wasedashiki.buttonMapping).length > 0
 			? encodeURIComponent(
 					JSON.stringify({
-						attendants: Game.attendants,
+						attendants: Game.latestAttendants,
 						buttonMapping: Wasedashiki.buttonMapping
 					})
 				)

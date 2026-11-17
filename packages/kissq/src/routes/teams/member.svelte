@@ -2,7 +2,7 @@
 	import { fade } from 'svelte/transition';
 	import Toastify from 'toastify-js';
 
-	import { RemoveHistoryEntry } from '$lib/historyEntry';
+	import { ChangeGroupHistoryEntry, RemoveHistoryEntry } from '$lib/historyEntry';
 	import { getQuestionConsoleContext } from '$lib/questionConsole.svelte';
 	import { tooltip, tooltipInteractive } from '$lib/tooltip.svelte';
 	import { AttendantID, TeamID } from '$lib/types';
@@ -20,9 +20,9 @@
 		rowStart,
 		batsuCount
 	}: {
-		ti: number;
+		ti: TeamID;
 		si: number;
-		ai: number;
+		ai: AttendantID;
 		mi: number;
 		rowStart: number;
 		batsuCount: number;
@@ -34,6 +34,31 @@
 	let QuestionConsole = getQuestionConsoleContext();
 
 	let sAtt = $derived(Game.currentState.attendants[ai]);
+
+	function changeGroup(ai: AttendantID, diff: number) {
+		const origRule = Game.rules[Game.currentState.attendants[ai].group];
+		const origGroup = Game.currentState.attendants[ai].group;
+		let newGroup = origGroup;
+
+		if (Game.history.at(-1)?.type === 'change-group') {
+			Game.history.pop();
+		}
+
+		do {
+			newGroup = (newGroup + diff) % Game.rules.length;
+		} while (
+			Game.rules[newGroup].isRemoved ||
+			(Game.history.length > 0 && Game.rules[newGroup].mode !== origRule.mode)
+		);
+
+		if (newGroup === origGroup) {
+			Toastify({
+				text: '変更できるグループがありません。ゲームモードが違うグループに変更できるのはゲーム開始直後のみです。'
+			}).showToast();
+		} else {
+			Game.history.push(new ChangeGroupHistoryEntry(ai, newGroup));
+		}
+	}
 </script>
 
 <div
@@ -112,17 +137,13 @@
 		{#if Game.activeRules.length > 1}
 			<button
 				class="group"
-				style:background-color={`hsl(${(360 / Game.rules.length) * Game.attendants[ai].group}, 70%, 40%)`}
-				onclick={() => {
-					do {
-						Game.attendants[ai].group = (Game.attendants[ai].group + 1) % Game.rules.length;
-					} while (Game.rules[Game.attendants[ai].group].isRemoved);
-				}}
+				style:background-color={`hsl(${(360 / Game.rules.length) * Game.currentState.attendants[ai].group}, 70%, 40%)`}
+				onclick={() => changeGroup(ai, 1)}
 				{@attach tooltip('このプレイヤーの所属ルールグループを変更します。')}
 			>
-				{#key Game.attendants[ai].group}
+				{#key Game.currentState.attendants[ai].group}
 					<span class="crossfade" in:fade={{ delay: 500 }} out:fade>
-						{getGroupSymbol(Game.attendants[ai].group)}
+						{getGroupSymbol(Game.currentState.attendants[ai].group)}
 					</span>
 				{/key}
 			</button>

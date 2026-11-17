@@ -54,7 +54,7 @@
 				onclick={() => {
 					navigator.clipboard.writeText(
 						JSON.stringify({
-							attendants: Game.attendants,
+							attendants: Game.latestAttendants,
 							buttonMapping: Wasedashiki.buttonMapping
 						})
 					);

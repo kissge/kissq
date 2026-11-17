@@ -1,8 +1,14 @@
 <script lang="ts">
 	import { fade, fly } from 'svelte/transition';
+	import Toastify from 'toastify-js';
 
 	import { han2zen } from '$lib/attendant';
-	import { LoseHistoryEntry, RemoveHistoryEntry, WinHistoryEntry } from '$lib/historyEntry';
+	import {
+		ChangeGroupHistoryEntry,
+		LoseHistoryEntry,
+		RemoveHistoryEntry,
+		WinHistoryEntry
+	} from '$lib/historyEntry';
 	import { getLayoutContext } from '$lib/layout.svelte';
 	import { getQuestionConsoleContext } from '$lib/questionConsole.svelte';
 	import { tooltip } from '$lib/tooltip.svelte';
@@ -49,6 +55,31 @@
 			att.rule.mode !== 'score' &&
 			Game.enableRating
 	);
+
+	function changeGroup(ai: AttendantID, diff: number) {
+		const origRule = Game.rules[Game.currentState.attendants[ai].group];
+		const origGroup = Game.currentState.attendants[ai].group;
+		let newGroup = origGroup;
+
+		if (Game.history.at(-1)?.type === 'change-group') {
+			Game.history.pop();
+		}
+
+		do {
+			newGroup = (newGroup + diff) % Game.rules.length;
+		} while (
+			Game.rules[newGroup].isRemoved ||
+			(Game.history.length > 0 && Game.rules[newGroup].mode !== origRule.mode)
+		);
+
+		if (newGroup === origGroup) {
+			Toastify({
+				text: '変更できるグループがありません。ゲームモードが違うグループに変更できるのはゲーム開始直後のみです。'
+			}).showToast();
+		} else {
+			Game.history.push(new ChangeGroupHistoryEntry(ai, newGroup));
+		}
+	}
 </script>
 
 {#if Wasedashiki.buttonMapping[ai] != null}
@@ -86,28 +117,21 @@
 {#if Game.activeRules.length > 1}
 	<button
 		class="group"
-		style:background-color={`hsl(${(360 / Game.rules.length) * Game.attendants[ai].group}, 70%, 40%)`}
+		style:background-color={`hsl(${(360 / Game.rules.length) * Game.currentState.attendants[ai].group}, 70%, 40%)`}
 		onclick={(event) => {
 			// Click with Shift key pressed or not
-			const diff = event.shiftKey ? Game.rules.length - 1 : 1;
-
-			do {
-				Game.attendants[ai].group = (Game.attendants[ai].group + diff) % Game.rules.length;
-			} while (Game.rules[Game.attendants[ai].group].isRemoved);
+			changeGroup(ai, event.shiftKey ? Game.rules.length - 1 : 1);
 		}}
 		oncontextmenu={(event) => {
-			event.preventDefault();
 			// Click with right mouse button
-			do {
-				Game.attendants[ai].group =
-					(Game.attendants[ai].group + Game.rules.length - 1) % Game.rules.length;
-			} while (Game.rules[Game.attendants[ai].group].isRemoved);
+			event.preventDefault();
+			changeGroup(ai, Game.rules.length - 1);
 		}}
 		{@attach tooltip('このプレイヤーの所属グループを変更します。')}
 	>
-		{#key Game.attendants[ai].group}
+		{#key Game.currentState.attendants[ai].group}
 			<span class="crossfade" in:fade={{ delay: 500 }} out:fade>
-				{getGroupSymbol(Game.attendants[ai].group)}
+				{getGroupSymbol(Game.currentState.attendants[ai].group)}
 			</span>
 		{/key}
 	</button>

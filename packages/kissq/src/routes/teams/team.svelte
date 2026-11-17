@@ -10,13 +10,14 @@
 	import Seat from './seat.svelte';
 
 	import type { Attendant } from '$lib/attendant';
+	import type { AttendantID } from '$lib/types';
 
 	let {
 		seats,
 		ti
 	}: {
-		seats: ({ att: Attendant; ai: number }[] | undefined)[];
-		ti: number;
+		seats: ({ att: Attendant; ai: AttendantID }[] | undefined)[];
+		ti: TeamID;
 	} = $props();
 
 	let Game = getTeamGameContext();

@@ -156,6 +156,8 @@
 							return `手編集 ${name}`;
 						case 'bulk-adjust':
 							return `まとめて ${name}`;
+						case 'change-group':
+							return `グループ変更 ${name}`;
 					}
 				})();
 
@@ -599,7 +601,7 @@
 
 					{#if activeRules.length > 1}
 						<select
-							bind:value={attendants[ai].group}
+							bind:value={currentState.attendants[ai].group}
 							onchange={(event) => {
 								const newGroup = Number.parseInt((event.target as HTMLSelectElement).value);
 								postMessage({

@@ -304,7 +304,7 @@
 	});
 
 	$effect(() => {
-		saveToHash(Game.attendants, Wasedashiki.buttonMapping);
+		saveToHash(Game.latestAttendants, Wasedashiki.buttonMapping);
 	});
 </script>
 
@@ -493,7 +493,7 @@
 		onclick={() => {
 			Game.orderingMode = 'manual';
 			Game.orderedAttendants
-				.toSorted((a, b) => Game.attendants[a].group - Game.attendants[b].group)
+				.toSorted((a, b) => Game.latestAttendants[a].group - Game.latestAttendants[b].group)
 				.forEach((a, i) => (Game.attendants[a].manualOrder = i));
 		}}
 		{@attach tooltip('並び順を手動にした上で、プレイヤーをグループ順に並べ替えます。', {

@@ -5,11 +5,11 @@ import { qZero, type Media } from '$lib/question';
 import { getWasedashikiContext } from '$lib/wasedashiki.svelte';
 
 import { getGameContext } from './gameContext';
+import { ChangeGroupHistoryEntry, type HistoryEntry } from './historyEntry';
 import { Rule, type RulePOJO } from './rule';
 import { TeamID, type AttendantID } from './types';
 
 import type { Attendant } from './attendant';
-import type { HistoryEntry } from './historyEntry';
 import type { WasedashikiMode } from './serial';
 import type { GameState } from './state';
 
@@ -108,11 +108,17 @@ export class QuestionConsoleClass {
 				break;
 
 			case 'updateAttendant':
-				for (const key of ['group', 'name'] as const satisfies (keyof Attendant)[]) {
-					if (key in message.diff && message.diff[key] !== undefined) {
-						// eslint-disable-next-line @typescript-eslint/no-explicit-any
-						(this.Game.attendants[message.attendantID] as any)[key] = message.diff[key];
+				if (message.diff.name) {
+					this.Game.attendants[message.attendantID].name = message.diff.name;
+				}
+
+				if (message.diff.group != undefined) {
+					if (this.Game.history.at(-1)?.type === 'change-group') {
+						this.Game.history.pop();
 					}
+					this.Game.history.push(
+						new ChangeGroupHistoryEntry(message.attendantID, message.diff.group)
+					);
 				}
 				break;
 

@@ -706,7 +706,7 @@ export class GameState {
 	attendants: AttendantState[];
 	teams: TeamState[];
 	questionCount: number = 1;
-	defaultRule: Rule;
+	rules: Rule[];
 	/** attendant IDの配列（個人ランキング） */
 	ranking: AttendantID[] = [];
 	/** 順位 (1-indexed) の配列（個人ランキング） */
@@ -747,8 +747,12 @@ export class GameState {
 			});
 		}
 
-		this.defaultRule = rules[0];
+		this.rules = rules;
 		this.ranking = this.attendants.map((_, i) => AttendantID(i));
+	}
+
+	get defaultRule(): Rule {
+		return this.rules[0];
 	}
 
 	increaseQuestionCount(): void {

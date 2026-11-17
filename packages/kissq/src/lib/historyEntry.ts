@@ -22,7 +22,8 @@ type HistoryEntryType =
 	| WinHistoryEntry
 	| LoseHistoryEntry
 	| EditHistoryEntry
-	| BulkAdjustHistoryEntry;
+	| BulkAdjustHistoryEntry
+	| ChangeGroupHistoryEntry;
 
 export type { HistoryEntryType as HistoryEntry };
 
@@ -449,6 +450,31 @@ export class BulkAdjustHistoryEntry implements HistoryEntry {
 	}
 }
 
+export class ChangeGroupHistoryEntry implements HistoryEntry {
+	type = 'change-group' as const;
+
+	constructor(
+		public attendantID: AttendantID,
+		public newGroup: number
+	) {}
+
+	toString(state: SuccinctGameState): string {
+		return `${state.attendants[this.attendantID].name || 'プレイヤー ' + (this.attendantID + 1)} グループ変更`;
+	}
+
+	reducer(state: GameState): GameState {
+		state.attendants[this.attendantID].group = this.newGroup;
+		state.attendants[this.attendantID].rule = state.rules[this.newGroup];
+		return state;
+	}
+
+	reducerTeam(state: GameState): GameState {
+		state.attendants[this.attendantID].group = this.newGroup;
+		state.attendants[this.attendantID].rule = state.rules[this.newGroup];
+		return state;
+	}
+}
+
 export function rebuildHistoryEntry(pojo: HistoryEntryType): HistoryEntry {
 	{
 		switch (pojo.type) {
@@ -468,6 +494,8 @@ export function rebuildHistoryEntry(pojo: HistoryEntryType): HistoryEntry {
 				return new EditHistoryEntry(pojo.attendantID, pojo.newState);
 			case 'bulk-adjust':
 				return new BulkAdjustHistoryEntry(pojo.attendantIDs, pojo.scoreDiff);
+			case 'change-group':
+				return new ChangeGroupHistoryEntry(pojo.attendantID, pojo.newGroup);
 			default:
 				throw new Error(`Unknown history entry type: ${(pojo satisfies never as any).type}`);
 		}

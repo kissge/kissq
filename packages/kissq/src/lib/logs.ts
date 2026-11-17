@@ -101,7 +101,7 @@ export class LoggerClass {
 					return {
 						mode: 'marubatsu',
 						name: att.name,
-						group: this.Game.attendants[ai].group,
+						group: this.Game.currentState.attendants[ai].group,
 						maruCount: att.maruCount,
 						batsuCount: att.batsuCount,
 						life: att.life,
@@ -113,7 +113,7 @@ export class LoggerClass {
 					return {
 						mode: att.rule.mode,
 						name: att.name,
-						group: this.Game.attendants[ai].group,
+						group: this.Game.currentState.attendants[ai].group,
 						score: att.score,
 						life: att.life,
 						i: AttendantID(ai)
@@ -124,7 +124,7 @@ export class LoggerClass {
 					return {
 						mode: att.rule.mode,
 						name: att.name,
-						group: this.Game.attendants[ai].group,
+						group: this.Game.currentState.attendants[ai].group,
 						score: att.score,
 						life: att.life,
 						team: this.Game.attendants[ai].team,
