@@ -6,7 +6,7 @@
 	import Toastify from 'toastify-js';
 
 	import { dev } from '$app/env';
-	import { loadFromHash, saveToHash } from '$lib/attendant';
+	import { loadFromHash, saveToHash, type Attendant } from '$lib/attendant';
 	import AppearanceDialog from '$lib/components/appearanceDialog.svelte';
 	import Footer from '$lib/components/footer.svelte';
 	import Header from '$lib/components/header.svelte';
@@ -26,6 +26,7 @@
 	import { Rule } from '$lib/rule';
 	import { reconnect } from '$lib/serial';
 	import { tooltip } from '$lib/tooltip.svelte';
+	import { AttendantID, BrandedArray, type TeamID } from '$lib/types';
 	import { setWasedashikiContext, WasedashikiClass } from '$lib/wasedashiki.svelte';
 	import { wave } from '$lib/waveEffect';
 
@@ -35,7 +36,6 @@
 	import Team from './team.svelte';
 
 	import type { GameEvent } from '$lib/state';
-	import type { TeamID } from '$lib/types';
 
 	let Game = new TeamGameClass();
 	setTeamGameContext(Game);
@@ -143,17 +143,19 @@
 			Wasedashiki.buttonMapping = data.buttonMapping ?? {};
 			Wasedashiki.buttonMappingRestored = Object.keys(Wasedashiki.buttonMapping).length > 0;
 		} else {
-			Game.attendants = Array.from({ length: 2 }, (_, ti) =>
-				Array.from({ length: 10 }, (_, ai) => ({
-					name: '',
-					group: 0,
-					team: ti,
-					seat: Math.floor(ai / 2),
-					trophyCount: 0,
-					totalScore: { maru: 0, batsu: 0 },
-					manualOrder: ti * 10 + ai
-				})).flat()
-			).flat();
+			Game.attendants = BrandedArray<Attendant, AttendantID>(
+				Array.from({ length: 2 }, (_, ti) =>
+					Array.from({ length: 10 }, (_, ai) => ({
+						name: '',
+						group: 0,
+						team: ti,
+						seat: Math.floor(ai / 2),
+						trophyCount: 0,
+						totalScore: { maru: 0, batsu: 0 },
+						manualOrder: ti * 10 + ai
+					})).flat()
+				).flat()
+			);
 		}
 
 		Game.teams = Array.from(new Set(Game.attendants.map(({ team }) => team)), () => '');
@@ -381,7 +383,7 @@
 				)
 			) {
 				Game.history = [];
-				Game.attendants = [
+				Game.attendants = BrandedArray<Attendant, AttendantID>([
 					{
 						name: '',
 						group: 0,
@@ -391,7 +393,7 @@
 						totalScore: { maru: 0, batsu: 0 },
 						manualOrder: 0
 					}
-				];
+				]);
 				Game.teams = [''];
 				Wasedashiki.buttonMapping = {};
 				Wasedashiki.answerers = [];

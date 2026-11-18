@@ -192,7 +192,8 @@ export class WasedashikiClass {
 								text: `ボタン ${this.lastButtonID} を持っているのがどのプレイヤーか分かりません。紐づけしてください`
 							}).showToast();
 						} else {
-							const att = this.Game.currentState.attendants[Number.parseInt(attendantID)];
+							const att =
+								this.Game.currentState.attendants[AttendantID(Number.parseInt(attendantID))];
 							const name = att.name || `プレイヤー${Number.parseInt(attendantID) + 1}`;
 							switch (att.life) {
 								case 'removed':

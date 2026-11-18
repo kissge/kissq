@@ -7,7 +7,7 @@ import { getWasedashikiContext } from '$lib/wasedashiki.svelte';
 import { getGameContext } from './gameContext';
 import { ChangeGroupHistoryEntry, type HistoryEntry } from './historyEntry';
 import { Rule, type RulePOJO } from './rule';
-import { TeamID, type AttendantID } from './types';
+import { BrandedArray, TeamID, type AttendantID } from './types';
 
 import type { Attendant } from './attendant';
 import type { WasedashikiMode } from './serial';
@@ -124,8 +124,7 @@ export class QuestionConsoleClass {
 				break;
 
 			case 'reorderAttendants': // single-only
-				this.Game.attendants[this.Game.orderedAttendants[message.attendantID]].manualOrder =
-					event.data.newOrder;
+				this.Game.attendants[message.attendantID].manualOrder = event.data.newOrder;
 				this.Game.orderedAttendants.forEach((a, i) => (this.Game.attendants[a].manualOrder = i));
 				break;
 
@@ -210,7 +209,7 @@ export type IncomingMessage =
 	| { command: 'clickUndo' }
 	| { command: 'clickReset' }
 	| { command: 'addAttendant'; name: string }
-	| { command: 'setAttendantList'; attendants: Attendant[] }
+	| { command: 'setAttendantList'; attendants: BrandedArray<Attendant, AttendantID> }
 	| { command: 'updateRules'; rules: RulePOJO[]; doClear: boolean; resetGroups: 'reset' | 'keep' }
 	| {
 			command: 'updateAttendant';
@@ -228,15 +227,15 @@ export type OutgoingMessage =
 	| {
 			command: 'syncState';
 			mode: 'single' | 'team';
-			attendants: Attendant[];
+			attendants: BrandedArray<Attendant, AttendantID>;
 			currentState: GameState;
 			history: HistoryEntry[];
 			rules: Rule[];
-			orderedAttendants: number[];
+			orderedAttendants: AttendantID[];
 			orderingMode: 'ranking' | 'manual';
 			previousTrophyGetters: AttendantID[];
 			answerers: ({ currentRank: 1 | 2 | 'late'; totalRank: number; delay: number } | null)[];
-			buttonMapping: Record<number, number>;
+			buttonMapping: Record<AttendantID, number>;
 			wasedashikiMode: WasedashikiMode | undefined;
 			effect2Name: string | undefined;
 			effect3Name: string | undefined;

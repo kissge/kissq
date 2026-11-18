@@ -14,7 +14,7 @@
 	import { Rule } from '$lib/rule';
 	import { getTimeElapsedString } from '$lib/time';
 	import { tooltip } from '$lib/tooltip.svelte';
-	import { THROUGH, AttendantID } from '$lib/types';
+	import { THROUGH, AttendantID, BrandedArray } from '$lib/types';
 	import { collapseArray, getGroupSymbol, splitQuestion } from '$lib/utils';
 
 	import ConventionAssist from './conventionAssist.svelte';
@@ -35,18 +35,18 @@
 	let fontSize = $state(6);
 	let isKeyboardEnabled = $state(true);
 
-	let attendants = $state<Attendant[]>([]);
+	let attendants = $state(BrandedArray<Attendant, AttendantID>([]));
 	let currentState = $state<GameState>();
 	let history = $state<HistoryEntry[]>([]);
 	let rules = $state<Rule[]>([]);
-	let mainScreenOrder = $state<number[]>();
+	let mainScreenOrder = $state<AttendantID[]>();
 	let mainScreenOrderingMode = $state<'ranking' | 'manual'>();
 	let previousTrophyGetters = $state<AttendantID[]>();
 	let answerers = $state<
 		({ currentRank: 1 | 2 | 'late'; totalRank: number; delay: number } | null)[]
 	>([]);
 	/** attendant ID -> button ID */
-	let buttonMapping = $state<Record<number, number>>({});
+	let buttonMapping = $state<Record<AttendantID, number>>({});
 	let wasedashikiMode = $state<WasedashikiMode>();
 	let effect2Name = $state<string>();
 	let effect3Name = $state<string>();
@@ -103,7 +103,10 @@
 
 			switch (order) {
 				case 'added':
-					return currentState.attendants.map((att, ai) => ({ att, ai: AttendantID(ai), ord: 0 }));
+					return currentState.attendants.map<
+						{ att: AttendantState; ai: AttendantID; ord: number },
+						true
+					>((att, ai) => ({ att, ai: AttendantID(ai), ord: 0 }));
 				case 'same':
 					return mainScreenOrder.map((ai) => ({
 						att: currentState!.attendants[ai],

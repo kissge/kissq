@@ -1,7 +1,7 @@
 import { GameState, type AttendantStateValue } from './state';
 
 import type { Penalty } from './rule';
-import type { AttendantID } from './types';
+import type { AttendantID, BrandedArray } from './types';
 
 abstract class HistoryEntry {
 	abstract type: string;
@@ -11,7 +11,7 @@ abstract class HistoryEntry {
 }
 
 interface SuccinctGameState {
-	attendants: { name: string }[];
+	attendants: BrandedArray<{ name: string }, AttendantID>;
 }
 
 type HistoryEntryType =
@@ -429,7 +429,7 @@ export class BulkAdjustHistoryEntry implements HistoryEntry {
 	type = 'bulk-adjust' as const;
 
 	constructor(
-		public attendantIDs: number[],
+		public attendantIDs: AttendantID[],
 		public scoreDiff: number
 	) {}
 

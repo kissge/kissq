@@ -1,3 +1,5 @@
+import type { BrandedArray } from './types';
+
 export function arrayCompare(a: number[], b: number[]): number {
 	for (let i = 0; i < Math.max(a.length, b.length); ++i) {
 		if (a[i] === b[i]) {
@@ -51,7 +53,12 @@ export function maybeUndefined<T>(value: T): T | undefined {
 }
 
 /** 任意のスコアづけでのランキング（AttendantIDなど -> 順位（同率あり）） */
-export function getRankingOf<T>(array: T[], scorer: (item: T) => number[]): number[] {
+export function getRankingOf<T, Index extends number>(
+	array: T[] | BrandedArray<T, Index>,
+	scorer: (item: T) => number[]
+): number[] {
+	array = array as T[];
+
 	const ranking = array
 		.map((_, i) => i)
 		.sort((ai, bi) => arrayCompare(scorer(array[bi]), scorer(array[ai])));

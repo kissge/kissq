@@ -2,7 +2,7 @@
 	import { fly } from 'svelte/transition';
 
 	import { tooltip } from '$lib/tooltip.svelte';
-	import { AttendantID } from '$lib/types';
+	import { AttendantID, BrandedArray } from '$lib/types';
 
 	import type { Attendant } from '$lib/attendant';
 	import type { GameState } from '$lib/state';
@@ -18,23 +18,23 @@
 		updateAttendant
 	}: {
 		show: boolean;
-		attendants: Attendant[];
+		attendants: BrandedArray<Attendant, AttendantID>;
 		currentState: GameState | undefined;
 		teams: string[] | undefined;
 		reset: () => void;
-		setAttendantList: (attendants: Attendant[]) => void;
+		setAttendantList: (attendants: BrandedArray<Attendant, AttendantID>) => void;
 		setGameTitle: (title: string) => void;
 		updateAttendant: (attendantID: AttendantID, diff: { group?: number; name?: string }) => void;
 	} = $props();
 
-	let fullAttendants = $state<Attendant[]>([]);
+	let fullAttendants = $state(BrandedArray<Attendant, AttendantID>([]));
 
 	let games = $state([
 		{
 			status: 'not-started' as 'not-started' | 'in-progress' | 'finished',
 			title: '',
 			attendantIDs: [] as AttendantID[],
-			attendants: [] as Attendant[],
+			attendants: BrandedArray<Attendant, AttendantID>([]),
 			state: undefined as GameState | undefined,
 			teams: undefined as string[] | undefined
 		}
@@ -47,7 +47,7 @@
 			games.reduce(
 				(acc, game) => {
 					if (game.status !== 'not-started' && game.attendantIDs.includes(AttendantID(ai))) {
-						const cai = game.attendantIDs.indexOf(AttendantID(ai));
+						const cai = AttendantID(game.attendantIDs.indexOf(AttendantID(ai)));
 						const att =
 							game.status === 'in-progress'
 								? currentState!.attendants[cai]
@@ -110,7 +110,9 @@
 			if (g.status === 'in-progress') {
 				g.state = _currentState;
 				g.teams = $state.snapshot(teams);
-				g.attendants = $state.snapshot(attendants);
+				g.attendants = BrandedArray<Attendant, AttendantID>(
+					$state.snapshot(attendants as Attendant[])
+				);
 				g.status = 'finished';
 				attendants.forEach((att, cai) => {
 					const ai = g.attendantIDs[cai];
@@ -143,7 +145,7 @@
 					</button>
 					<button
 						onclick={() => {
-							fullAttendants = [
+							fullAttendants = BrandedArray<Attendant, AttendantID>([
 								{
 									name: '',
 									group: 0,
@@ -153,7 +155,7 @@
 									totalScore: { maru: 0, batsu: 0 },
 									manualOrder: 0
 								}
-							];
+							]);
 						}}
 					>
 						空の参加者リストで開始する
@@ -194,14 +196,14 @@
 									event.preventDefault();
 									lines.forEach((line, i) => {
 										if (ai + i < fullAttendants.length) {
-											fullAttendants[ai + i] = {
+											fullAttendants[AttendantID(ai + i)] = {
 												name: line,
 												group: 0,
 												team: 0,
 												seat: 0,
 												trophyCount: 0,
 												totalScore: { maru: 0, batsu: 0 },
-												manualOrder: fullAttendants[ai + i].manualOrder
+												manualOrder: fullAttendants[AttendantID(ai + i)].manualOrder
 											};
 										} else {
 											addAttendant(line);
@@ -243,7 +245,9 @@
 									if (game.attendantIDs.length === fullAttendants.length) {
 										game.attendantIDs = [];
 									} else {
-										game.attendantIDs = fullAttendants.map((_, i) => AttendantID(i));
+										game.attendantIDs = fullAttendants.map<AttendantID, true>((_, i) =>
+											AttendantID(i)
+										);
 									}
 								}}
 								{@attach tooltip('全選択・全選択解除')}
@@ -269,7 +273,7 @@
 									<input type="checkbox" bind:group={game.attendantIDs} value={ai} /> 参加
 								</label>
 							{:else if game.attendantIDs.includes(AttendantID(ai)) && state}
-								{@const cai = game.attendantIDs.indexOf(AttendantID(ai))}
+								{@const cai = AttendantID(game.attendantIDs.indexOf(AttendantID(ai)))}
 								{@const att = state.attendants[cai]}
 								{@const ti = (game.status === 'in-progress' ? attendants : game.attendants)[cai]
 									.team}
@@ -321,15 +325,17 @@
 
 									// 新しい設定を送信
 									setAttendantList(
-										game.attendantIDs.map((ai) => {
-											const attendant = fullAttendants[ai];
+										BrandedArray<Attendant, AttendantID>(
+											game.attendantIDs.map((ai) => {
+												const attendant = fullAttendants[ai];
 
-											if (!attendant.name) {
-												attendant.name = `プレイヤー${ai + 1}`;
-											}
+												if (!attendant.name) {
+													attendant.name = `プレイヤー${ai + 1}`;
+												}
 
-											return attendant;
-										})
+												return attendant;
+											})
+										)
 									);
 									setGameTitle(game.title);
 
@@ -369,7 +375,7 @@
 								title: '',
 								state: undefined,
 								attendantIDs: [],
-								attendants: [],
+								attendants: BrandedArray<Attendant, AttendantID>([]),
 								teams: undefined
 							});
 						}}
@@ -379,7 +385,8 @@
 				</div>
 				{#each fullAttendants, ai (ai)}
 					<div class="footer-right">
-						{stats[ai].competed}<i>戦</i>{stats[ai].won}<i>勝</i>{stats[ai].lost}<i>失格</i>
+						{stats[AttendantID(ai)].competed}<i>戦</i>{stats[AttendantID(ai)].won}<i>勝</i>
+						{stats[AttendantID(ai)].lost}<i>失格</i>
 					</div>
 				{/each}
 				<div class="filler footer-right"></div>

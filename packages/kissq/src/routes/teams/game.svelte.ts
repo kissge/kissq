@@ -8,7 +8,7 @@ import { BatsuHistoryEntry, type HistoryEntry } from '$lib/historyEntry';
 import { Rule } from '$lib/rule';
 import { playSound } from '$lib/sound';
 import { GameState } from '$lib/state';
-import { AttendantID, TeamID } from '$lib/types';
+import { AttendantID, BrandedArray, TeamID } from '$lib/types';
 import { getRankingOf } from '$lib/utils';
 
 import type { LoggerClass } from '$lib/logs';
@@ -17,7 +17,7 @@ import type { WasedashikiMode } from '$lib/serial';
 export class TeamGameClass extends GameClassBase<'team'> {
 	battleMode = 'team' as const;
 
-	attendants = $state<Attendant[]>([]);
+	attendants = $state(BrandedArray<Attendant, AttendantID>([]));
 	teams = $state<string[]>([]);
 	rules = $state([
 		Rule.from({

@@ -12,7 +12,7 @@ import {
 import { LoggerClass } from './logs';
 import { Rule, type RulePOJO } from './rule';
 import { playSound } from './sound';
-import { AttendantID } from './types';
+import { AttendantID, BrandedArray } from './types';
 
 import type { Attendant } from './attendant';
 import type { WasedashikiMode } from './serial';
@@ -22,7 +22,7 @@ import type { WasedashikiClass } from './wasedashiki.svelte';
 export abstract class GameClassBase<BattleMode extends 'single' | 'team' = 'single' | 'team'> {
 	abstract readonly battleMode: BattleMode;
 
-	abstract attendants: Attendant[];
+	abstract attendants: BrandedArray<Attendant, AttendantID>;
 	abstract teams: string[];
 	abstract rules: Rule[];
 	abstract history: HistoryEntry[];
@@ -62,7 +62,7 @@ export abstract class GameClassBase<BattleMode extends 'single' | 'team' = 'sing
 		- クイズ得点板のkissQ`;
 	}
 
-	get latestAttendants(): Attendant[] {
+	get latestAttendants(): BrandedArray<Attendant, AttendantID> {
 		return this.attendants.map((att, ai) => ({
 			...att,
 			group: this.currentState.attendants[ai].group
@@ -94,9 +94,9 @@ export abstract class GameClassBase<BattleMode extends 'single' | 'team' = 'sing
 
 		this.Logger!.push();
 
-		const newAttendants = [...this.attendants];
+		const newAttendants = BrandedArray<Attendant, AttendantID>([...this.attendants]);
 		const removedIndex: number[] = [];
-		for (let i = 0, j = 0; i < newAttendants.length; i++) {
+		for (let i = AttendantID(0), j = 0; i < newAttendants.length; i++) {
 			if (this.currentState.attendants[i].life === 'removed') {
 				removedIndex.push(i);
 				j--;
@@ -226,7 +226,7 @@ export abstract class GameClassBase<BattleMode extends 'single' | 'team' = 'sing
 		});
 	}
 
-	get ratingList(): number[] {
+	get ratingList(): BrandedArray<number, AttendantID> {
 		const ratings = this.currentState.attendants.map((att) => att.rate);
 		const mean = ratings.reduce((acc, val) => acc + val, 0) / ratings.length;
 		const variance = ratings.reduce((acc, val) => acc + (val - mean) ** 2, 0) / ratings.length;
@@ -239,7 +239,7 @@ export abstract class GameClassBase<BattleMode extends 'single' | 'team' = 'sing
 
 export class GameClassSerialized {
 	battleMode: 'single' | 'team' = 'single';
-	attendants: Attendant[] = [];
+	attendants = BrandedArray<Attendant, AttendantID>([]);
 	teams: string[] = [];
 	rules: RulePOJO[] = []; // <------------ !!!!!
 	history: HistoryEntry[] = [];

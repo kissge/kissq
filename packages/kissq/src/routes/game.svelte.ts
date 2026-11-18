@@ -9,7 +9,7 @@ import { LoggerClass } from '$lib/logs';
 import { Rule, type Penalty } from '$lib/rule';
 import { playSound } from '$lib/sound';
 import { GameState } from '$lib/state';
-import { AttendantID } from '$lib/types';
+import { AttendantID, BrandedArray } from '$lib/types';
 import { getRankingOf } from '$lib/utils';
 
 import type { WasedashikiMode } from '$lib/serial';
@@ -17,7 +17,7 @@ import type { WasedashikiMode } from '$lib/serial';
 export class SingleGameClass extends GameClassBase<'single'> {
 	battleMode = 'single' as const;
 
-	attendants = $state<Attendant[]>([]);
+	attendants = $state(BrandedArray<Attendant, AttendantID>([]));
 	rules = $state([
 		Rule.from({
 			mode: 'marubatsu',
@@ -208,7 +208,7 @@ export class SingleGameClass extends GameClassBase<'single'> {
 		) {
 			const attendantIDs = [...this.bulkAdjustmentTarget.entries()]
 				.filter(([, v]) => v)
-				.map(([i]) => i);
+				.map(([i]) => AttendantID(i));
 			this.history.push(new BulkAdjustHistoryEntry(attendantIDs, this.bulkAdjustmentScore));
 			this.bulkAdjustmentScore = null;
 			this.bulkAdjustmentTarget = [];

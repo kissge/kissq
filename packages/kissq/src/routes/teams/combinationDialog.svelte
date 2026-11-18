@@ -2,7 +2,10 @@
 	import { fly } from 'svelte/transition';
 
 	import { getGameContext } from '$lib/gameContext';
+	import { BrandedArray, type AttendantID } from '$lib/types';
 	import { getWasedashikiContext } from '$lib/wasedashiki.svelte';
+
+	import type { Attendant } from '$lib/attendant';
 
 	let Game = getGameContext();
 	let Wasedashiki = getWasedashikiContext();
@@ -10,7 +13,7 @@
 	let mode = $state<'snake' | 'random' | 'new'>('snake');
 	let seatMode = $state<'all-same' | 'all-different'>('all-same');
 	let teamSize = $state<number>(2);
-	let teams = $state<{ name: string; rate?: number; attendantID?: number }[][]>([]);
+	let teams = $state<{ name: string; rate?: number; attendantID?: AttendantID }[][]>([]);
 	let memberList = $state<string>('');
 
 	let dialog: HTMLDialogElement;
@@ -48,18 +51,20 @@
 			});
 		} else {
 			Game.history = [];
-			Game.attendants = teams
-				.map((team, ti) => team.map((member, si) => ({ ...member, ti, si })))
-				.flat()
-				.map(({ name, ti, si }, ai) => ({
-					name,
-					group: 0,
-					team: ti,
-					seat: seatMode === 'all-same' ? 0 : si,
-					trophyCount: 0,
-					totalScore: { maru: 0, batsu: 0 },
-					manualOrder: ai
-				}));
+			Game.attendants = BrandedArray<Attendant, AttendantID>(
+				teams
+					.map((team, ti) => team.map((member, si) => ({ ...member, ti, si })))
+					.flat()
+					.map(({ name, ti, si }, ai) => ({
+						name,
+						group: 0,
+						team: ti,
+						seat: seatMode === 'all-same' ? 0 : si,
+						trophyCount: 0,
+						totalScore: { maru: 0, batsu: 0 },
+						manualOrder: ai
+					}))
+			);
 			Game.teams = teams.map(() => '');
 			Wasedashiki.buttonMapping = {};
 			Wasedashiki.answerers = [];

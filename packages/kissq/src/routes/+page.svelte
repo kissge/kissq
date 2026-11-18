@@ -7,7 +7,7 @@
 	import Toastify from 'toastify-js';
 
 	import { dev } from '$app/env';
-	import { loadFromHash, saveToHash } from '$lib/attendant';
+	import { loadFromHash, saveToHash, type Attendant } from '$lib/attendant';
 	import AnswerHistoryDialog from '$lib/components/answerHistoryDialog.svelte';
 	import AppearanceDialog from '$lib/components/appearanceDialog.svelte';
 	import EffectEditDialog from '$lib/components/effectEditDialog.svelte';
@@ -34,11 +34,11 @@
 	import { reconnect } from '$lib/serial';
 	import { AttendantState, type GameEvent } from '$lib/state';
 	import { tooltip } from '$lib/tooltip.svelte';
-	import { AttendantID } from '$lib/types';
+	import { AttendantID, BrandedArray } from '$lib/types';
 	import { setWasedashikiContext, WasedashikiClass } from '$lib/wasedashiki.svelte';
 	import { wave } from '$lib/waveEffect';
 
-	import Attendant from './attendant.svelte';
+	import AttendantComponent from './attendant.svelte';
 	import { SingleGameClass, setSingleGameContext } from './game.svelte';
 
 	let Game = new SingleGameClass();
@@ -225,7 +225,7 @@
 			Wasedashiki.buttonMapping = data.buttonMapping ?? {};
 			Wasedashiki.buttonMappingRestored = Object.keys(Wasedashiki.buttonMapping).length > 0;
 		} else {
-			Game.attendants = [
+			Game.attendants = BrandedArray<Attendant, AttendantID>([
 				{
 					name: '',
 					group: 0,
@@ -244,7 +244,7 @@
 					totalScore: { maru: 0, batsu: 0 },
 					manualOrder: 1
 				}
-			];
+			]);
 		}
 
 		reconnect()
@@ -371,7 +371,7 @@
 				style:opacity={isDragging === ord ? 0.25 : 1}
 				draggable={Game.orderingMode === 'manual'}
 			>
-				<Attendant
+				<AttendantComponent
 					ai={AttendantID(ai)}
 					{ord}
 					{screenshotModeTimer}
@@ -627,7 +627,7 @@
 					'プレイヤーリストを空にした上で、初期状態にリセットしますか？\nこの操作は元に戻せません。'
 				)
 			) {
-				Game.attendants = [];
+				Game.attendants = BrandedArray<Attendant, AttendantID>([]);
 				Game.history = [];
 				Wasedashiki.buttonMapping = {};
 				Wasedashiki.answerers = [];

@@ -1,5 +1,5 @@
 import { Rule, type Penalty, type RuleType } from './rule';
-import { AttendantID } from './types';
+import { AttendantID, BrandedArray } from './types';
 import { arrayCompare } from './utils';
 
 import type { Attendant } from './attendant';
@@ -489,13 +489,13 @@ export class TeamState {
 
 	constructor(
 		public attendantIDsPerSeat: (AttendantID[] | undefined)[],
-		public attendants: AttendantState[],
+		public attendants: BrandedArray<AttendantState, AttendantID>,
 		public lifeChangedAt: number | null = null
 	) {
-		if (this.attendants[0].rule.mode === 'aql') {
+		if (this.attendants[AttendantID(0)].rule.mode === 'aql') {
 			this.teamScore = 1;
-		} else if (this.attendants[0].rule.mode === 'product') {
-			this.teamScore = this.attendants[0].rule.multiplyMinimum;
+		} else if (this.attendants[AttendantID(0)].rule.mode === 'product') {
+			this.teamScore = this.attendants[AttendantID(0)].rule.multiplyMinimum;
 		}
 	}
 
@@ -517,11 +517,11 @@ export class TeamState {
 			this.attendants[attendantID].processMaru(multiplier);
 		let teamScore, teamLife;
 
-		switch (this.attendants[0].rule.mode) {
+		switch (this.attendants[AttendantID(0)].rule.mode) {
 			case 'aql':
 			case 'sum':
 				teamScore = this.calculateTeamScore(attendantID, score);
-				teamLife = this.attendants[0].rule.win <= teamScore ? 'won' : this.teamLife;
+				teamLife = this.attendants[AttendantID(0)].rule.win <= teamScore ? 'won' : this.teamLife;
 
 				return {
 					maruCount,
@@ -536,7 +536,7 @@ export class TeamState {
 
 			case 'product':
 				teamScore = this.calculateTeamScore(attendantID, score);
-				teamLife = this.attendants[0].rule.win <= teamScore ? 'won' : this.teamLife;
+				teamLife = this.attendants[AttendantID(0)].rule.win <= teamScore ? 'won' : this.teamLife;
 
 				if (this.attendants[attendantID].rule.lose != null) {
 					if (score >= this.attendants[attendantID].rule.lose) {
@@ -584,7 +584,7 @@ export class TeamState {
 
 		let teamScore, teamLife;
 
-		switch (this.attendants[0].rule.mode) {
+		switch (this.attendants[AttendantID(0)].rule.mode) {
 			case 'aql':
 			case 'product':
 			case 'sum':
@@ -602,7 +602,7 @@ export class TeamState {
 	}
 
 	calculateTeamScore(attendantID?: number, score?: number): number {
-		switch (this.attendants[0].rule.mode) {
+		switch (this.attendants[AttendantID(0)].rule.mode) {
 			case 'aql':
 				return Math.min(
 					this.attendantIDsPerSeat.reduce(
@@ -620,7 +620,7 @@ export class TeamState {
 							),
 						1
 					),
-					this.attendants[0].rule.win
+					this.attendants[AttendantID(0)].rule.win
 				);
 
 			case 'product':
@@ -635,7 +635,7 @@ export class TeamState {
 									: id === attendantID
 										? score!
 										: this.attendants[id].score),
-							this.attendants[0].rule.multiplyMinimum as number
+							this.attendants[AttendantID(0)].rule.multiplyMinimum as number
 						),
 					1
 				);
@@ -703,7 +703,7 @@ export type GameEvent =
 	  };
 
 export class GameState {
-	attendants: AttendantState[];
+	attendants: BrandedArray<AttendantState, AttendantID>;
 	teams: TeamState[];
 	questionCount: number = 1;
 	rules: Rule[];
@@ -715,7 +715,11 @@ export class GameState {
 	teamRanks: number[] = [];
 	latestEvent: GameEvent | null = null;
 
-	constructor(attendants: Attendant[], rules: Rule[], teams: string[] = []) {
+	constructor(
+		attendants: BrandedArray<Attendant, AttendantID>,
+		rules: Rule[],
+		teams: string[] = []
+	) {
 		this.attendants = attendants.map(
 			({ name, group, trophyCount, totalScore, manualOrder }, attendantID) =>
 				new AttendantState(
@@ -748,7 +752,7 @@ export class GameState {
 		}
 
 		this.rules = rules;
-		this.ranking = this.attendants.map((_, i) => AttendantID(i));
+		this.ranking = this.attendants.map<AttendantID, true>((_, i) => AttendantID(i));
 	}
 
 	get defaultRule(): Rule {

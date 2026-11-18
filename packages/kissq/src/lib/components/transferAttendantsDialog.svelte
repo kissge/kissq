@@ -2,7 +2,7 @@
 	import { fade } from 'svelte/transition';
 
 	import { getGameContext } from '$lib/gameContext';
-	import { AttendantID, type ButtonID } from '$lib/types';
+	import { AttendantID, BrandedArray, type ButtonID } from '$lib/types';
 	import { getGroupSymbol } from '$lib/utils';
 	import { getWasedashikiContext } from '$lib/wasedashiki.svelte';
 
@@ -21,7 +21,7 @@
 	let importingParsed = $derived.by(() => {
 		try {
 			return JSON.parse(importingRawData) as {
-				attendants: Attendant[];
+				attendants: BrandedArray<Attendant, AttendantID>;
 				buttonMapping: Record<AttendantID, ButtonID>;
 			};
 		} catch {
@@ -126,7 +126,7 @@
 						<input type="checkbox" checked disabled /> 名前（必須）
 						{#if importingParsed}
 							<span class="sample">
-								: {importingParsed.attendants[0]?.name || 'プレイヤー1'}、…
+								: {importingParsed.attendants[AttendantID(0)]?.name || 'プレイヤー1'}、…
 							</span>
 						{/if}
 					</label>
@@ -134,35 +134,41 @@
 						<input type="checkbox" bind:group={importTargets} value="group" /> ルールグループ
 						{#if importingParsed}
 							<span class="sample">
-								: {getGroupSymbol(importingParsed.attendants[0]?.group ?? 0)}、…
+								: {getGroupSymbol(importingParsed.attendants[AttendantID(0)]?.group ?? 0)}、…
 							</span>
 						{/if}
 					</label>
 					<label>
 						<input type="checkbox" bind:group={importTargets} value="team" /> チーム（団体戦用）
 						{#if importingParsed}
-							<span class="sample">: チーム{importingParsed.attendants[0]?.team + 1}、…</span>
+							<span class="sample">
+								: チーム{importingParsed.attendants[AttendantID(0)]?.team + 1}、…
+							</span>
 						{/if}
 					</label>
 					<label>
 						<input type="checkbox" bind:group={importTargets} value="trophy" /> トロフィー数
 						{#if importingParsed}
-							<span class="sample">: 🏆{importingParsed.attendants[0]?.trophyCount}、…</span>
+							<span class="sample">
+								: 🏆{importingParsed.attendants[AttendantID(0)]?.trophyCount}、…
+							</span>
 						{/if}
 					</label>
 					<label>
 						<input type="checkbox" bind:group={importTargets} value="totalScore" /> 通算成績
 						{#if importingParsed}
 							<span class="sample">
-								: {importingParsed.attendants[0]?.totalScore.maru}◯
-								{importingParsed.attendants[0]?.totalScore.batsu}×、…
+								: {importingParsed.attendants[AttendantID(0)]?.totalScore.maru}◯
+								{importingParsed.attendants[AttendantID(0)]?.totalScore.batsu}×、…
 							</span>
 						{/if}
 					</label>
 					<label>
 						<input type="checkbox" bind:group={importTargets} value="manualOrder" /> 並び順
 						{#if importingParsed}
-							<span class="sample">: {importingParsed.attendants[0]?.manualOrder + 1}番、…</span>
+							<span class="sample">
+								: {importingParsed.attendants[AttendantID(0)]?.manualOrder + 1}番、…
+							</span>
 						{/if}
 					</label>
 					<label>
