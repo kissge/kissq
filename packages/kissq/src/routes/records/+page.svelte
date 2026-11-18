@@ -25,7 +25,7 @@
 		if (client && companionSessionID) {
 			const response = await client.api.questions[':session_id'].$get({
 				param: { session_id: companionSessionID },
-				query: { shown: 'all', orderBy: 'id' }
+				query: { shown: 'all', orderBy: 'shownAt' }
 			});
 			if (!response.ok) {
 				throw new Error(`Failed to fetch questions: ${response.status}`);
