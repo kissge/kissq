@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { fade, fly } from 'svelte/transition';
+	import { fade } from 'svelte/transition';
 
 	import { Rule, type Penalty } from '$lib/rule';
 	import { tooltipInDialog as tooltip } from '$lib/tooltip.svelte';
@@ -25,7 +25,7 @@
 	let dialog: HTMLDialogElement;
 	let resolve: (result: Awaited<ReturnType<typeof open>>) => void;
 	export function open(rules_: Rule[]): Promise<Rule[] | null> {
-		rules = rules_.map(({ lose, questionLimit, batsu, yasuPerMaru, roulette, ...rule }) => {
+		rules = rules_.map(({ lose, questionLimit, batsu, yasuPerMaru, roulette, combo, ...rule }) => {
 			return {
 				...rule,
 				isLoseNull: lose === null,
@@ -57,6 +57,7 @@
 								}))
 								.toSorted((a, b) => a.maru - b.maru)
 						: [],
+				combo: combo ?? null,
 				rouletteName: roulette?.name ?? null
 			};
 		});
@@ -166,6 +167,7 @@
 				bulkAdjustment: null,
 				multiplyMinimum: rule.multiplyMinimum,
 				attendantLimitOverall: rule.attendantLimitOverall,
+				combo: rule.combo,
 				isRemoved: rule.isRemoved
 			})
 		)
@@ -336,6 +338,7 @@
 								bulkAdjustment: null,
 								multiplyMinimum: 0,
 								attendantLimitOverall: null,
+								combo: null,
 								isRemoved: false
 							});
 						}}
@@ -367,6 +370,7 @@
 								bulkAdjustment: null,
 								multiplyMinimum: 0,
 								attendantLimitOverall: null,
+								combo: null,
 								isRemoved: false
 							});
 						}}
@@ -398,6 +402,7 @@
 								bulkAdjustment: null,
 								multiplyMinimum: 0,
 								attendantLimitOverall: null,
+								combo: null,
 								isRemoved: false
 							});
 						}}
@@ -429,6 +434,7 @@
 								bulkAdjustment: null,
 								multiplyMinimum: 0,
 								attendantLimitOverall: null,
+								combo: null,
 								isRemoved: false
 							});
 						}}
@@ -460,6 +466,7 @@
 								bulkAdjustment: null,
 								multiplyMinimum: 0,
 								attendantLimitOverall: null,
+								combo: null,
 								isRemoved: false
 							});
 						}}
@@ -692,6 +699,28 @@
 					<label>
 						<input type="radio" bind:group={activeRule.yasuPerMaruMode} value={null} />
 						なし
+					</label>
+
+					<hr />
+
+					<label>
+						<input type="radio" bind:group={activeRule.combo} value={null} />
+						連答なし
+					</label>
+					<br />
+					<label>
+						<input type="radio" bind:group={activeRule.combo} value="1212" />
+						連答で1点 → 2点 → 1点 → 2点 → ……（abc）
+					</label>
+					<br />
+					<label>
+						<input type="radio" bind:group={activeRule.combo} value="1222" />
+						連答で1点 → 2点 → 2点 → 2点 → ……（旧abc）
+					</label>
+					<br />
+					<label>
+						<input type="radio" bind:group={activeRule.combo} value="1234" />
+						連答で1点 → 2点 → 3点 → 4点 → ……（Combo）
 					</label>
 				</div>
 

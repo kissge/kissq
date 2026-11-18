@@ -27,7 +27,7 @@
 				<ul>
 					{#each activeRulesText.shared as line, i (i)}
 						<li>
-							{#each line.split(/([-+]?\d+[点問人])/) as chunk, i (i)}
+							{#each line.split(/([-+]?\d+[点問人〇])/) as chunk, i (i)}
 								{#if i % 2 === 1}
 									<em>{chunk}</em>
 								{:else}
@@ -55,7 +55,7 @@
 				<ul>
 					{#each text as line, i (i)}
 						<li>
-							{#each line.split(/([-+]?\d+[点問])/) as chunk, i (i)}
+							{#each line.split(/([-+]?\d+[点問〇])/) as chunk, i (i)}
 								{#if i % 2 === 1}
 									<em>{chunk}</em>
 								{:else}

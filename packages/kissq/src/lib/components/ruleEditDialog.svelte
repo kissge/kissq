@@ -35,6 +35,7 @@
 				roulette,
 				bulkAdjustment,
 				attendantLimitOverall,
+				combo,
 				...rule
 			}) => {
 				return {
@@ -74,6 +75,7 @@
 					bulkAdjustment: bulkAdjustment ?? [2, -2, 1],
 					isAttendantLimitOverallNull: attendantLimitOverall === null,
 					attendantLimitOverall: attendantLimitOverall ?? 1,
+					combo: combo ?? null,
 					rouletteName: roulette?.name ?? null
 				};
 			}
@@ -195,6 +197,7 @@
 				attendantLimitOverall: rules[0].isAttendantLimitOverallNull
 					? null
 					: rules[0].attendantLimitOverall,
+				combo: rule.combo,
 				isRemoved: rule.isRemoved
 			})
 		)
@@ -499,6 +502,7 @@
 								multiplyMinimum: 0,
 								isAttendantLimitOverallNull: true,
 								attendantLimitOverall: 1,
+								combo: null,
 								isRemoved: false
 							});
 						}}
@@ -533,6 +537,7 @@
 								multiplyMinimum: 0,
 								isAttendantLimitOverallNull: true,
 								attendantLimitOverall: 1,
+								combo: null,
 								isRemoved: false
 							});
 						}}
@@ -567,6 +572,7 @@
 								multiplyMinimum: 0,
 								isAttendantLimitOverallNull: true,
 								attendantLimitOverall: 1,
+								combo: null,
 								isRemoved: false
 							});
 						}}
@@ -601,6 +607,7 @@
 								multiplyMinimum: 0,
 								isAttendantLimitOverallNull: true,
 								attendantLimitOverall: 1,
+								combo: null,
 								isRemoved: false
 							});
 						}}
@@ -635,6 +642,7 @@
 								multiplyMinimum: 0,
 								isAttendantLimitOverallNull: true,
 								attendantLimitOverall: 1,
+								combo: null,
 								isRemoved: false
 							});
 						}}
@@ -669,6 +677,7 @@
 								multiplyMinimum: 0,
 								isAttendantLimitOverallNull: true,
 								attendantLimitOverall: 1,
+								combo: null,
 								isRemoved: false
 							});
 						}}
@@ -703,6 +712,7 @@
 								multiplyMinimum: 0,
 								isAttendantLimitOverallNull: true,
 								attendantLimitOverall: 1,
+								combo: null,
 								isRemoved: false
 							});
 						}}
@@ -737,6 +747,7 @@
 								multiplyMinimum: 0,
 								isAttendantLimitOverallNull: true,
 								attendantLimitOverall: 1,
+								combo: null,
 								isRemoved: false
 							});
 						}}
@@ -771,6 +782,7 @@
 								multiplyMinimum: 0,
 								isAttendantLimitOverallNull: true,
 								attendantLimitOverall: 1,
+								combo: null,
 								isRemoved: false
 							});
 						}}
@@ -805,6 +817,7 @@
 								multiplyMinimum: 0,
 								isAttendantLimitOverallNull: true,
 								attendantLimitOverall: 1,
+								combo: null,
 								isRemoved: false
 							});
 						}}
@@ -839,11 +852,47 @@
 								multiplyMinimum: 0,
 								isAttendantLimitOverallNull: true,
 								attendantLimitOverall: 1,
+								combo: null,
 								isRemoved: false
 							});
 						}}
 					>
 						通過席
+					</button>
+					<button
+						onclick={() => {
+							usePreset({
+								mode: 'marubatsu',
+								chance: 'single',
+								win: 5,
+								isLoseNull: false,
+								lose: 2,
+								isQuestionLimitNull: true,
+								questionLimit: 30,
+								isAttendantLimitNull: true,
+								attendantLimit: 1,
+								maru: 1,
+								batsu: 1,
+								batsuMode: 'number',
+								transit: false,
+								yasuPerMaruMode: null,
+								yasuPerMaruMaru: 5,
+								yasuPerMaruYasu: 5,
+								yasuPerMaruDict: [],
+								yasuMode: 'constant',
+								yasuPerBatsu: 0,
+								rouletteName: null,
+								isBulkAdjustmentNull: true,
+								bulkAdjustment: [2, -2, 1],
+								multiplyMinimum: 0,
+								isAttendantLimitOverallNull: true,
+								attendantLimitOverall: 1,
+								combo: '1212',
+								isRemoved: false
+							});
+						}}
+					>
+						連答付き5〇2×<small>（シングルチャンス）</small>
 					</button>
 				</div>
 
@@ -1104,6 +1153,28 @@
 					<label>
 						<input type="radio" bind:group={activeRule.yasuPerMaruMode} value={null} />
 						なし
+					</label>
+
+					<hr />
+
+					<label>
+						<input type="radio" bind:group={activeRule.combo} value={null} />
+						連答なし
+					</label>
+					<br />
+					<label>
+						<input type="radio" bind:group={activeRule.combo} value="1212" />
+						連答で1点 → 2点 → 1点 → 2点 → ……（abc）
+					</label>
+					<br />
+					<label>
+						<input type="radio" bind:group={activeRule.combo} value="1222" />
+						連答で1点 → 2点 → 2点 → 2点 → ……（旧abc）
+					</label>
+					<br />
+					<label>
+						<input type="radio" bind:group={activeRule.combo} value="1234" />
+						連答で1点 → 2点 → 3点 → 4点 → ……（Combo）
 					</label>
 
 					<hr />

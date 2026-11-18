@@ -3,6 +3,7 @@ import { getGroupSymbol, type OptionalKeys, type PartialBy } from './utils';
 export type Penalty = { type: 'yasu'; count: number } | { type: 'zero' };
 
 export type RuleType = 'score' | 'marubatsu' | 'MbyN' | 'survival' | 'aql' | 'product' | 'sum';
+export type ComboType = '1212' | '1222' | '1234';
 
 export class Rule {
 	constructor(
@@ -41,6 +42,8 @@ export class Rule {
 		public multiplyMinimum: 0 | 1,
 		/** 勝ち抜け人数（全体） */
 		public attendantLimitOverall: number | null,
+		/** 連答ルール */
+		public combo: ComboType | null,
 		/** 削除済みかどうか */
 		public isRemoved: boolean = false
 	) {}
@@ -255,6 +258,10 @@ export class Rule {
 				this.mode satisfies never;
 		}
 
+		if (this.combo) {
+			str += '、連答付き';
+		}
+
 		if (this.yasuPerMaru) {
 			if ('mode' in this.yasuPerMaru) {
 				str += '、マル数に応じた休みあり';
@@ -431,6 +438,23 @@ export class Rule {
 				this.mode satisfies never;
 		}
 
+		if (this.combo) {
+			const u = this.mode === 'marubatsu' ? '〇' : '点';
+			switch (this.combo) {
+				case '1212':
+					arr.push(`連答するとボーナスで加点あり（1${u} → 2${u} → 1${u} → 2${u} → ……（abc））`);
+					break;
+				case '1222':
+					arr.push(`連答するとボーナスで加点あり（1${u} → 2${u} → 2${u} → 2${u} → ……（旧abc））`);
+					break;
+				case '1234':
+					arr.push(`連答するとボーナスで加点あり（1${u} → 2${u} → 3${u} → 4${u} → ……（Combo））`);
+					break;
+				default:
+					this.combo satisfies never;
+			}
+		}
+
 		if (this.yasuPerMaru) {
 			if ('mode' in this.yasuPerMaru) {
 				const sorted = Object.entries(this.yasuPerMaru.dict)
@@ -530,6 +554,7 @@ export class Rule {
 			rule.bulkAdjustment ?? null,
 			rule.multiplyMinimum ?? 0,
 			rule.attendantLimitOverall ?? null,
+			rule.combo ?? null,
 			rule.isRemoved
 		);
 	}
@@ -614,5 +639,5 @@ const _ = { ...({} as Rule) };
 /** List up possibly non-existent properties due to backward compatibility */
 export type RulePOJO = OptionalKeys<
 	PartialBy<Omit<typeof _, 'max'>, 'isRemoved'>,
-	'bulkAdjustment' | 'multiplyMinimum' | 'attendantLimitOverall'
+	'bulkAdjustment' | 'multiplyMinimum' | 'attendantLimitOverall' | 'combo'
 >;

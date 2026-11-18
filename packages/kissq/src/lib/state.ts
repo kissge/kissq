@@ -3,6 +3,7 @@ import { AttendantID, BrandedArray } from './types';
 import { arrayCompare } from './utils';
 
 import type { Attendant } from './attendant';
+import type { HistoryEntry } from './historyEntry';
 
 export type Life = 'alive' | 'won' | 'lost' | 'removed';
 export class AttendantState {
@@ -14,6 +15,7 @@ export class AttendantState {
 		public manualOrder: number,
 		public group: number,
 		public rule: Rule,
+		public history: HistoryEntry[],
 		public team: TeamState | null = null,
 		public trophyCount: number = 0,
 		public totalScore: { maru: number; batsu: number } = { maru: 0, batsu: 0 },
@@ -32,7 +34,10 @@ export class AttendantState {
 	}
 
 	/** マルを受けた場合のstateの変化を求める（破壊的にはしない） */
-	processMaru(multiplier: number = 1): {
+	processMaru(
+		multiplier: number,
+		assumeNextMaru: boolean
+	): {
 		maruCount: number;
 		score: number;
 		life: Life;
@@ -40,6 +45,8 @@ export class AttendantState {
 		yasuCount: number | 'next';
 		otherScoreDiff: number | 'transit';
 	} {
+		const comboBonus = this.calculateComboBonus(assumeNextMaru);
+
 		let maruCount = this.maruCount;
 		let score = this.score;
 		let life = this.life;
@@ -53,7 +60,7 @@ export class AttendantState {
 
 		switch (this.rule.mode) {
 			case 'marubatsu':
-				maruCount += this.rule.maru * multiplier;
+				maruCount += this.rule.maru * multiplier * comboBonus;
 				if (maruCount >= this.rule.win) {
 					life = 'won';
 					trophyCount++;
@@ -80,7 +87,7 @@ export class AttendantState {
 
 			case 'score':
 				maruCount++;
-				score += this.rule.maru * multiplier;
+				score += this.rule.maru * multiplier * comboBonus;
 				if (score >= this.rule.win) {
 					life = 'won';
 					trophyCount++;
@@ -110,7 +117,7 @@ export class AttendantState {
 				return { maruCount, score, life, trophyCount, yasuCount, otherScoreDiff };
 
 			case 'MbyN':
-				maruCount += this.rule.maru * multiplier;
+				maruCount += this.rule.maru * multiplier * comboBonus;
 				score = maruCount * (this.rule.win - this.batsuCount);
 				if (score >= this.rule.win ** 2) {
 					life = 'won';
@@ -138,7 +145,7 @@ export class AttendantState {
 
 			case 'survival':
 				maruCount++;
-				otherScoreDiff = -this.rule.maru * multiplier;
+				otherScoreDiff = -this.rule.maru * multiplier * comboBonus;
 				if (this.rule.yasuPerMaru) {
 					if ('mode' in this.rule.yasuPerMaru) {
 						const loopLength = Math.max(
@@ -164,7 +171,7 @@ export class AttendantState {
 			case 'product':
 			case 'sum':
 				maruCount++;
-				score += this.rule.maru * multiplier;
+				score += this.rule.maru * multiplier * comboBonus;
 
 				if (this.rule.yasuPerMaru) {
 					if ('mode' in this.rule.yasuPerMaru) {
@@ -187,6 +194,47 @@ export class AttendantState {
 				}
 
 				return { maruCount, score, life, trophyCount, yasuCount, otherScoreDiff };
+		}
+	}
+
+	calculateComboBonus(assumeNextMaru: boolean): number {
+		if (this.rule.combo == null) {
+			return 1;
+		}
+
+		const i = assumeNextMaru
+			? this.history.length
+			: this.history.findLastIndex((entry) => entry.type === 'maru');
+		if (
+			!assumeNextMaru &&
+			(i === -1 ||
+				(this.history[i].type === 'maru' && this.history[i].attendantID !== this.attendantID))
+		) {
+			return 1;
+		}
+
+		const j = this.history.findLastIndex(
+			(entry) =>
+				(entry.type === 'batsu' && entry.attendantID === this.attendantID) ||
+				(entry.type === 'maru' && entry.attendantID !== this.attendantID)
+		);
+		if (i <= j) {
+			return 1;
+		}
+
+		const consecutiveMaruCount =
+			this.history
+				.slice(j + 1, i + 1)
+				.filter((entry) => entry.type === 'maru' && entry.attendantID === this.attendantID).length +
+			(assumeNextMaru ? 1 : 0);
+
+		switch (this.rule.combo) {
+			case '1212':
+				return consecutiveMaruCount % 2 === 1 ? 1 : 2;
+			case '1222':
+				return consecutiveMaruCount === 1 ? 1 : 2;
+			case '1234':
+				return consecutiveMaruCount;
 		}
 	}
 
@@ -446,10 +494,11 @@ export class AttendantState {
 	get isLizhi(): boolean {
 		if (this.team) {
 			return (
-				this.team.teamLife === 'alive' && this.team.processMaru(this.attendantID).teamLife === 'won'
+				this.team.teamLife === 'alive' &&
+				this.team.processMaru(this.attendantID, 1, true).teamLife === 'won'
 			);
 		} else {
-			return this.life === 'alive' && this.processMaru().life === 'won';
+			return this.life === 'alive' && this.processMaru(1, true).life === 'won';
 		}
 	}
 
@@ -501,7 +550,8 @@ export class TeamState {
 
 	processMaru(
 		attendantID: AttendantID,
-		multiplier: number = 1
+		multiplier: number = 1,
+		assumeNextMaru: boolean = false
 	): {
 		maruCount: number;
 		score: number;
@@ -513,8 +563,9 @@ export class TeamState {
 		teamLife: Life;
 	} {
 		// eslint-disable-next-line prefer-const
-		let { maruCount, score, life, trophyCount, yasuCount, otherScoreDiff } =
-			this.attendants[attendantID].processMaru(multiplier);
+		let { maruCount, score, life, trophyCount, yasuCount, otherScoreDiff } = this.attendants[
+			attendantID
+		].processMaru(multiplier, assumeNextMaru);
 		let teamScore, teamLife;
 
 		switch (this.attendants[AttendantID(0)].rule.mode) {
@@ -728,6 +779,7 @@ export class GameState {
 					manualOrder,
 					group,
 					rules[group],
+					[],
 					null,
 					trophyCount,
 					totalScore
@@ -770,6 +822,13 @@ export class GameState {
 
 	clearLatestEvent(): GameState {
 		this.latestEvent = null;
+		return this;
+	}
+
+	setHistory(history: HistoryEntry[]): GameState {
+		this.attendants.forEach((att) => {
+			att.history = history;
+		});
 		return this;
 	}
 

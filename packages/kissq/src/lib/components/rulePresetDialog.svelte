@@ -52,6 +52,7 @@
 						bulkAdjustment: null,
 						multiplyMinimum: 0,
 						attendantLimitOverall: null,
+						combo: null,
 						isRemoved: false
 					},
 					{
@@ -71,6 +72,7 @@
 						bulkAdjustment: null,
 						multiplyMinimum: 0,
 						attendantLimitOverall: null,
+						combo: null,
 						isRemoved: false
 					},
 					{
@@ -90,6 +92,7 @@
 						bulkAdjustment: null,
 						multiplyMinimum: 0,
 						attendantLimitOverall: null,
+						combo: null,
 						isRemoved: false
 					},
 					{
@@ -109,6 +112,7 @@
 						bulkAdjustment: null,
 						multiplyMinimum: 0,
 						attendantLimitOverall: null,
+						combo: null,
 						isRemoved: false
 					}
 				],
@@ -134,6 +138,7 @@
 						bulkAdjustment: null,
 						multiplyMinimum: 0,
 						attendantLimitOverall: null,
+						combo: null,
 						isRemoved: false
 					},
 					{
@@ -153,6 +158,7 @@
 						bulkAdjustment: null,
 						multiplyMinimum: 0,
 						attendantLimitOverall: null,
+						combo: null,
 						isRemoved: false
 					},
 					{
@@ -172,6 +178,7 @@
 						bulkAdjustment: null,
 						multiplyMinimum: 0,
 						attendantLimitOverall: null,
+						combo: null,
 						isRemoved: false
 					}
 				],
@@ -201,6 +208,7 @@
 						bulkAdjustment: null,
 						multiplyMinimum: 0,
 						attendantLimitOverall: null,
+						combo: null,
 						isRemoved: false
 					},
 					{
@@ -220,6 +228,7 @@
 						bulkAdjustment: null,
 						multiplyMinimum: 0,
 						attendantLimitOverall: null,
+						combo: null,
 						isRemoved: false
 					}
 				],

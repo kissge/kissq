@@ -35,7 +35,8 @@ export class SingleGameClass extends GameClassBase<'single'> {
 			roulette: null,
 			bulkAdjustment: null,
 			multiplyMinimum: 0,
-			attendantLimitOverall: null
+			attendantLimitOverall: null,
+			combo: null
 		})
 	]);
 	history = $state<HistoryEntry[]>([]);
@@ -67,9 +68,9 @@ export class SingleGameClass extends GameClassBase<'single'> {
 
 	currentState = $derived(
 		this.history.reduce(
-			(state, entry) =>
+			(state, entry, index) =>
 				entry
-					.reducer(state.clearLatestEvent())
+					.reducer(state.clearLatestEvent().setHistory(this.history.slice(0, index + 1)))
 					.checkIfLastSurvivor()
 					.updateRanking()
 					.checkIfFinished(),

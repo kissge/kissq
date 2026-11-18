@@ -37,7 +37,7 @@ export class TeamGameClass extends GameClassBase<'team'> {
 			bulkAdjustment: null,
 			multiplyMinimum: 0,
 			attendantLimitOverall: null,
-			isRemoved: false
+			combo: null
 		})
 	]);
 	history = $state<HistoryEntry[]>([]);
@@ -64,8 +64,11 @@ export class TeamGameClass extends GameClassBase<'team'> {
 
 	currentState = $derived(
 		this.history.reduce(
-			(state, entry) =>
-				entry.reducerTeam(state.clearLatestEvent()).updateRanking().checkIfFinished(),
+			(state, entry, index) =>
+				entry
+					.reducerTeam(state.clearLatestEvent().setHistory(this.history.slice(0, index + 1)))
+					.updateRanking()
+					.checkIfFinished(),
 			new GameState(this.attendants, this.rules, this.teams).updateRanking(this.enableRating)
 		)
 	);
