@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { isUnlocked } from 'kissunlocklib';
 	import { onMount } from 'svelte';
 	import { fly } from 'svelte/transition';
 	import Toastify from 'toastify-js';
@@ -50,7 +51,12 @@
 			data.Game.attendants.length > 0;
 	});
 
-	function restore() {
+	async function restore() {
+		if (!(await isUnlocked())) {
+			Toastify({ text: 'この機能を利用するには追加機能のアンロックが必要です＞＜' }).showToast();
+			return;
+		}
+
 		Game.loadFromSerialized(data!.Game, target);
 		Wasedashiki.buttonMapping = data!.buttonMapping;
 
