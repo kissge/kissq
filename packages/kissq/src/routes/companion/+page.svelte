@@ -111,48 +111,49 @@
 		{#each questions ?? [] as question (question.id)}
 			{@const [, front, body] = question.comment.match(/(^(?:【.+?】)*)(.*)/s) ?? []}
 			<div class="slide" data-question-id={question.id}>
-				<p class="question">
-					{#each splitQuestion(question.question, question.slashOffset) as { c, kind, slash }, i (i)}
-						<span class="char kind-{kind} slash-{slash}">
-							{c}
-						</span>
-					{/each}
-				</p>
-				<p class="answer">
-					A. {#each question.answer.split(/(（.+?）|\(.+?\)|【.+?】|［.+?］)/) as part, i (i)}
-						{#if i % 2}
-							<small>{part}</small>
-						{:else}
-							{part}
-						{/if}
-					{/each}
-				</p>
-				{#if question.correctAnswerer}
-					<p class="answerer">
-						{question.correctAnswerer === THROUGH ? 'スルー' : `⭕️ ${question.correctAnswerer}`}
+				<div class="scrollable">
+					<p class="question">
+						{#each splitQuestion(question.question, question.slashOffset) as { c, kind, slash }, i (i)}
+							<span class="char kind-{kind} slash-{slash}">
+								{c}
+							</span>
+						{/each}
 					</p>
-				{/if}
-				{#if front}
-					<p class="comment-front">{front.trim()}</p>
-				{/if}
-				<p>
-					{body.trim()}
-				</p>
-				{#if question.media}
-					{#if question.media.type === 'img'}
-						<img src={question.media.url} class="comment-img" alt="関連画像" />
-					{:else if question.media.type === 'youtube'}
-						<iframe
-							src="https://youtube.com/embed/{question.media.videoID}"
-							title="YouTube video player"
-							style="width: 100%; aspect-ratio: 16/9; border: none;"
-							allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-							allowfullscreen
-						>
-						</iframe>
+					<p class="answer">
+						A. {#each question.answer.split(/(（.+?）|\(.+?\)|【.+?】|［.+?］)/) as part, i (i)}
+							{#if i % 2}
+								<small>{part}</small>
+							{:else}
+								{part}
+							{/if}
+						{/each}
+					</p>
+					{#if question.correctAnswerer}
+						<p class="answerer">
+							{question.correctAnswerer === THROUGH ? 'スルー' : `⭕️ ${question.correctAnswerer}`}
+						</p>
 					{/if}
-				{/if}
-				<div class="spacer"></div>
+					{#if front}
+						<p class="comment-front">{front.trim()}</p>
+					{/if}
+					<p>
+						{body.trim()}
+					</p>
+					{#if question.media}
+						{#if question.media.type === 'img'}
+							<img src={question.media.url} class="comment-img" alt="関連画像" />
+						{:else if question.media.type === 'youtube'}
+							<iframe
+								src="https://youtube.com/embed/{question.media.videoID}"
+								title="YouTube video player"
+								style="width: 100%; aspect-ratio: 16/9; border: none;"
+								allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+								allowfullscreen
+							>
+							</iframe>
+						{/if}
+					{/if}
+				</div>
 				<div class="likes">
 					いいね！
 					<div>
@@ -308,8 +309,7 @@
 		gap: 1.2rem;
 		justify-content: space-between;
 		min-height: 0;
-		padding: 1em;
-		overflow-y: auto;
+		padding: 0.5em;
 		font-size: min(4svw, 3svh);
 		color: #fff;
 		word-break: break-word;
@@ -352,6 +352,12 @@
 		&[data-question-id='-1'] {
 			display: block;
 			text-align: justify;
+		}
+
+		.scrollable {
+			flex: 1;
+			padding: 0.5em;
+			overflow-y: auto;
 		}
 	}
 
@@ -422,6 +428,7 @@
 	}
 
 	.likes {
+		padding: 0.5em;
 		color: #f66;
 
 		div {
