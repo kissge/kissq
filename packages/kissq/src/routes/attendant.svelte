@@ -61,7 +61,8 @@
 		const origGroup = Game.currentState.attendants[ai].group;
 		let newGroup = origGroup;
 
-		if (Game.history.at(-1)?.type === 'change-group') {
+		const prev = Game.history.at(-1);
+		if (prev?.type === 'change-group' && prev.attendantID === ai) {
 			Game.history.pop();
 		}
 

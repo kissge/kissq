@@ -113,7 +113,8 @@ export class QuestionConsoleClass {
 				}
 
 				if (message.diff.group != undefined) {
-					if (this.Game.history.at(-1)?.type === 'change-group') {
+					const prev = this.Game.history.at(-1);
+					if (prev?.type === 'change-group' && prev.attendantID === message.attendantID) {
 						this.Game.history.pop();
 					}
 					this.Game.history.push(
