@@ -29,18 +29,45 @@ export function collapseArray<T extends string | number>(array: T[]): Record<T, 
 const segmenter = new Intl.Segmenter(undefined, { granularity: 'grapheme' });
 
 export function splitQuestion(
-	question: string
-): { c: string | undefined; next: string; dimmed: boolean }[] {
-	const full = [...segmenter.segment(question)].map(({ segment }) => segment);
-	let offset = 0;
-
-	return question.split(/(（.+?）|\(.+?\)|【.+?】|［.+?］)/).flatMap((part, i) =>
-		[...segmenter.segment(part)].map(({ segment: c }) => ({
-			c,
-			next: full[++offset],
-			dimmed: i % 2 === 1
-		}))
-	);
+	question: string,
+	slashOffset?: number
+): {
+	c: string;
+	next: string | undefined;
+	kind: 'normal' | 'dimmed' | 'proper';
+	slash: 'before' | 'on' | 'after' | undefined;
+}[] {
+	return question
+		.split(/(『.+?』)/)
+		.flatMap<{ c: string; kind: 'normal' | 'dimmed' | 'proper' }>((part, i) =>
+			i % 2 === 0
+				? // 『』の外
+					part.split(/(（.+?）|\(.+?\)|［.+?］|【.+?】)/).flatMap((subpart, j) =>
+						[...segmenter.segment(subpart)].map(({ segment: c }) => ({
+							c,
+							kind: j % 2 === 0 ? 'normal' : 'dimmed'
+						}))
+					)
+				: // 『』の中 → 隅付き括弧は無視する
+					part.split(/(（.+?）|\(.+?\)|［.+?］)/).flatMap((subpart, j) =>
+						[...segmenter.segment(subpart)].map(({ segment: c }) => ({
+							c,
+							kind: j % 2 === 0 ? 'proper' : 'dimmed'
+						}))
+					)
+		)
+		.map((el, i, arr) => ({
+			...el,
+			next: arr[i + 1]?.c,
+			slash:
+				slashOffset == undefined
+					? undefined
+					: i === slashOffset
+						? 'on'
+						: i > slashOffset
+							? 'after'
+							: 'before'
+		}));
 }
 
 export function getGroupSymbol(groupID: number): string {

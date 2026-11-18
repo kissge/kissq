@@ -90,11 +90,10 @@
 		<div class="question textbook-font">
 			{#key QuestionConsole.currentQuestion.question}
 				<p in:fade>
-					{#each splitQuestion(QuestionConsole.currentQuestion.question) as { c, dimmed }, i (i)}
+					{#each splitQuestion(QuestionConsole.currentQuestion.question) as { c, kind }, i (i)}
 						<!-- svelte-ignore a11y_no_static_element_interactions, a11y_click_events_have_key_events -->
 						<span
-							class="char"
-							class:dimmed
+							class="char kind-{kind}"
 							class:slash={typeof QuestionConsole.currentQuestion.slashOffset === 'number' &&
 								i === QuestionConsole.currentQuestion.slashOffset}
 						>
@@ -168,7 +167,7 @@
 		}
 
 		.char {
-			&.dimmed {
+			&.kind-dimmed {
 				font-size: 0.9em;
 				font-weight: lighter;
 				opacity: 0.6;

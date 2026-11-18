@@ -109,16 +109,11 @@
 		</div>
 
 		{#each questions ?? [] as question (question.id)}
+			{@const [, front, body] = question.comment.match(/(^(?:【.+?】)*)(.*)/s) ?? []}
 			<div class="slide" data-question-id={question.id}>
 				<p class="question">
-					{#each splitQuestion(question.question) as { c, dimmed }, i (i)}
-						<span
-							class="char"
-							class:dimmed
-							class:after-slash={typeof question.slashOffset === 'number' &&
-								i > question.slashOffset}
-							class:slash={typeof question.slashOffset === 'number' && i === question.slashOffset}
-						>
+					{#each splitQuestion(question.question, question.slashOffset) as { c, kind, slash }, i (i)}
+						<span class="char kind-{kind} slash-{slash}">
 							{c}
 						</span>
 					{/each}
@@ -137,8 +132,11 @@
 						{question.correctAnswerer === THROUGH ? 'スルー' : `⭕️ ${question.correctAnswerer}`}
 					</p>
 				{/if}
+				{#if front}
+					<p class="comment-front">{front.trim()}</p>
+				{/if}
 				<p>
-					{question.comment}
+					{body.trim()}
 				</p>
 				{#if question.media}
 					{#if question.media.type === 'img'}
@@ -371,16 +369,19 @@
 	}
 
 	.char {
-		&.dimmed {
+		&.kind-dimmed {
 			font-size: 0.9em;
 			font-weight: lighter;
 			opacity: 0.6;
 		}
-		&.after-slash {
+		&.kind-proper {
+			color: #ccf;
+		}
+		&.slash-after {
 			font-weight: lighter;
 			opacity: 0.6;
 		}
-		&.slash::after {
+		&.slash-on::after {
 			margin: 0 0.2em;
 			color: yellow;
 			content: '/';
@@ -404,6 +405,10 @@
 	.answerer {
 		font-weight: bold;
 		text-align: right;
+	}
+
+	.comment-front {
+		font-size: 0.8em;
 	}
 
 	.comment-img {

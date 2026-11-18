@@ -346,7 +346,7 @@
 		}
 	}
 
-	function charPopup(char: string | undefined, nextChar: string) {
+	function charPopup(char: string, nextChar: string | undefined) {
 		function _(c: string | undefined) {
 			return !c ? '🔚' : c === '\n' ? '⏎' : /\s/.test(c) ? '␣' : c;
 		}
@@ -755,12 +755,11 @@
 						</button>
 					</td>
 					<td class:error={!question?.trim?.()}>
-						{#each splitQuestion(question) as { c, next, dimmed }, i (i)}
+						{#each splitQuestion(question, slashOffset) as { c, next, kind, slash }, i (i)}
 							<!-- svelte-ignore a11y_no_static_element_interactions, a11y_click_events_have_key_events -->
 							<span
-								class="char"
-								class:dimmed
-								class:slash={typeof slashOffset === 'number' && i <= slashOffset}
+								class="char kind-{kind}"
+								class:slash={slash === 'before' || slash === 'on'}
 								{@attach rawQuestions[index].slashOffset === i
 									? tooltip('削除', { placement: 'right' })
 									: charPopup(c, next)}
@@ -1072,9 +1071,13 @@
 		}
 
 		.char {
-			&.dimmed {
+			&.kind-dimmed {
 				font-style: normal;
 				color: #888;
+			}
+			&.kind-proper {
+				font-style: normal;
+				color: #00f;
 			}
 			&.slash,
 			&:hover {

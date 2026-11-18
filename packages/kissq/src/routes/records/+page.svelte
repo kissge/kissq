@@ -54,12 +54,8 @@
 					<th rowspan={q.comment ? 2 : 1}>{i + 1}</th>
 					<td class="question">
 						<p>
-							{#each splitQuestion(q.question) as { c, dimmed }, i (i)}
-								<span
-									class="char"
-									class:dimmed
-									class:slash={typeof q.slashOffset === 'number' && i === q.slashOffset}
-								>
+							{#each splitQuestion(q.question, q.slashOffset) as { c, kind, slash }, i (i)}
+								<span class="char kind-{kind}" class:slash={slash === 'on'}>
 									{c}
 								</span>
 							{/each}
@@ -241,7 +237,7 @@
 	}
 
 	.char {
-		&.dimmed {
+		&.kind-dimmed {
 			font-size: 0.8em;
 			font-style: normal;
 			color: #888;
