@@ -7,5 +7,6 @@ export default defineConfig({
 	singleQuote: true,
 	trailingComma: 'none',
 	printWidth: 100,
-	svelte: true
+	svelte: true,
+	ignorePatterns: ['worker-configuration.d.ts']
 });

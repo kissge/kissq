@@ -5,8 +5,8 @@
 	"scripts": {
 		"api:dev": "pnpm --filter kissq-companion run dev",
 		"dev": "pnpm --parallel run dev",
-		"format": "oxfmt --ignore-path .gitignore --ignore-path .oxfmtignore --write . && stylelint --fix **/*.svelte",
-		"format:check": "oxfmt --ignore-path .gitignore --ignore-path .oxfmtignore --check .",
+		"format": "oxfmt --write . && stylelint --fix **/*.svelte",
+		"format:check": "oxfmt --check . && stylelint **/*.svelte",
 		"lint": "oxlint && stylelint **/*.svelte",
 		"web:build": "pnpm --filter kissq run build",
 		"web:check": "pnpm --filter kissq run check",
