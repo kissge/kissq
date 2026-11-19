@@ -17,6 +17,7 @@
 	import RuleTeamEditDialog from '$lib/components/ruleTeamEditDialog.svelte';
 	import Stars from '$lib/components/stars.svelte';
 	import TransferAttendantsDialog from '$lib/components/transferAttendantsDialog.svelte';
+	import UndoButton from '$lib/components/undoButton.svelte';
 	import UnlockDialog from '$lib/components/unlockDialog.svelte';
 	import Winner from '$lib/components/winner.svelte';
 	import { LayoutClass, setLayoutContext } from '$lib/layout.svelte';
@@ -271,18 +272,7 @@
 		>
 			スルー
 		</button>
-		<button
-			onclick={() => Game.clickUndo()}
-			disabled={Game.history.length === 0}
-			{@attach tooltip('直前の操作を無かったことにします。')}
-			style="max-width: 20dvw"
-		>
-			{#key Game.history.length}
-				↩
-				<span in:fade>{Game.history.at(-1)?.toString(Game.currentState) || 'この世の始まり'}</span
-				>を元に戻す
-			{/key}
-		</button>
+		<UndoButton />
 		<button
 			onclick={() => {
 				Game.teams.push('');
