@@ -7,7 +7,7 @@ import type { Attachment } from 'svelte/attachments';
 export function tooltip(content: string, options?: Partial<Props>): Attachment {
 	return (element) => {
 		const tooltip = tippy(element, { content, ...options });
-		return tooltip.destroy;
+		return () => tooltip.destroy();
 	};
 }
 

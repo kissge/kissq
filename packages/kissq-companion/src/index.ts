@@ -34,7 +34,7 @@ const app = new Hono<{ Bindings: CloudflareBindings }>()
 					answer: string;
 					comment: string;
 					shown: 0 | 1;
-					shown_at: string;
+					shown_at: string | null;
 					correct_answerer: string | null;
 					slash_offset: number | null;
 					user_name: string | null;
@@ -47,7 +47,7 @@ const app = new Hono<{ Bindings: CloudflareBindings }>()
 					answer: string;
 					comment: string;
 					shown: 0 | 1;
-					shownAt: string;
+					shownAt: string | null;
 					correctAnswerer: string | null;
 					slashOffset: number | undefined;
 					likedBy: string[];
@@ -92,7 +92,7 @@ const app = new Hono<{ Bindings: CloudflareBindings }>()
 
 			if (orderBy === 'id') {
 				grouped.sort((a, b) => a.id - b.id);
-			} else if (orderBy === 'shownAt') {
+			} else {
 				grouped.sort((a, b) => (a.shownAt ?? '').localeCompare(b.shownAt ?? '') || a.id - b.id);
 			}
 

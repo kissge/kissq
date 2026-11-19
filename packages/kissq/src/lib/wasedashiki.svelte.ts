@@ -148,7 +148,7 @@ export class WasedashikiClass {
 								this.Game.clickMaru(AttendantID(Number.parseInt(answererAttendantID)), false);
 								this.answerers = [];
 							} else {
-								this.Game.clickBatsu(AttendantID(Number.parseInt(answererAttendantID)), false);
+								void this.Game.clickBatsu(AttendantID(Number.parseInt(answererAttendantID)), false);
 							}
 						} else {
 							Toastify({
@@ -204,6 +204,8 @@ export class WasedashikiClass {
 									break;
 								case 'lost':
 									Toastify({ text: `${name}は失格済み・封鎖中です` }).showToast();
+									break;
+								case 'alive':
 									break;
 							}
 						}

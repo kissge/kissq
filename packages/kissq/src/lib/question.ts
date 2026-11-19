@@ -26,13 +26,13 @@ export interface RawQuestion extends BaseQuestion {
 export function parseComment<Q extends { comment: string }>(
 	q: Q
 ): Q & { media: Media | undefined } {
-	const [comment, footer] = String(q.comment).split(/(?:\n|^)--\n+/);
+	const [comment, footer] = q.comment.split(/(?:\n|^)--\n+/);
 	const media = (() => {
-		if (!footer || !footer.match(/.+?:.+/)) {
+		if (!/.+?:.+/.exec(footer)) {
 			return undefined;
 		}
 
-		const [type, locator] = footer.match(/(.+?):(.+)/)!.slice(1) as [Media['type'], string];
+		const [type, locator] = /(.+?):(.+)/.exec(footer)!.slice(1) as [Media['type'], string];
 
 		return type === 'img' ? { type, url: locator } : { type, videoID: parseYouTubeURL(locator) };
 	})();
@@ -41,7 +41,7 @@ export function parseComment<Q extends { comment: string }>(
 }
 
 function parseYouTubeURL(url: string): string {
-	const match = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]+)/);
+	const match = /(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]+)/.exec(url);
 
 	return match?.[1] ?? 'ERROR: Invalid YouTube URL';
 }

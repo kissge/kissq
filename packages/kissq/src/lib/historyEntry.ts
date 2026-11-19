@@ -476,7 +476,7 @@ export class ChangeGroupHistoryEntry implements HistoryEntry {
 	}
 }
 
-export function rebuildHistoryEntry(pojo: HistoryEntryType): HistoryEntry {
+export function rebuildHistoryEntry(pojo: HistoryEntryType): HistoryEntryType {
 	{
 		switch (pojo.type) {
 			case 'maru':
@@ -498,7 +498,9 @@ export function rebuildHistoryEntry(pojo: HistoryEntryType): HistoryEntry {
 			case 'change-group':
 				return new ChangeGroupHistoryEntry(pojo.attendantID, pojo.newGroup);
 			default:
-				throw new Error(`Unknown history entry type: ${(pojo satisfies never as any).type}`);
+				throw new Error(
+					`Unknown history entry type: ${(pojo satisfies never as { type: any }).type}`
+				);
 		}
 	}
 }

@@ -14,7 +14,7 @@ import { getRankingOf } from '$lib/utils';
 
 import type { WasedashikiMode } from '$lib/serial';
 
-export class SingleGameClass extends GameClassBase<'single'> {
+export class SingleGameClass extends GameClassBase {
 	battleMode = 'single' as const;
 
 	attendants = $state(BrandedArray<Attendant, AttendantID>([]));
@@ -160,7 +160,7 @@ export class SingleGameClass extends GameClassBase<'single'> {
 	}
 
 	handlePasteEvent(event: ClipboardEvent, ord: number): Attendant[] {
-		const text = (event.clipboardData?.getData('text') || '').trim();
+		const text = (event.clipboardData?.getData('text') ?? '').trim();
 		const lines = text.split(/[\r\n]+/);
 		const added: Attendant[] = [];
 		if (lines.length >= 2) {
@@ -175,6 +175,7 @@ export class SingleGameClass extends GameClassBase<'single'> {
 			});
 		} else if (text.length > 0) {
 			event.preventDefault();
+			// oxlint-disable-next-line typescript/no-deprecated
 			document.execCommand('insertText', false, han2zen(text));
 		}
 

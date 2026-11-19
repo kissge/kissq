@@ -1,8 +1,10 @@
+import { maybeUndefined } from './utils';
+
 export type WasedashikiMode = 'single' | 'double' | 'endless' | 'handicap';
 
 export async function connectToSerialPort() {
 	try {
-		const serial = navigator.serial;
+		const serial = maybeUndefined(navigator.serial);
 		if (!serial) {
 			console.error('Web Serial API is not supported.');
 			return;
@@ -48,7 +50,7 @@ export async function* readFromSerialPort(port: SerialPort) {
 	let buffer = '';
 
 	try {
-		while (true) {
+		for (;;) {
 			const { value, done } = await reader.read();
 
 			if (done) {
@@ -60,7 +62,7 @@ export async function* readFromSerialPort(port: SerialPort) {
 
 			buffer += text;
 			const lines = buffer.split('\r\n');
-			buffer = lines.pop() || '';
+			buffer = lines.pop() ?? '';
 
 			for (const line of lines) {
 				yield line.trim();

@@ -504,7 +504,7 @@ export class Rule {
 
 		if (this.chance === 'single') {
 			arr.push('解答権は先着1人まで\n（シングルチャンス）');
-		} else if (this.chance === 'endless') {
+		} else {
 			arr.push('誤答すると次に早くボタンを押した人に解答権が順番に移る\n（エンドレスチャンス）');
 		}
 
@@ -581,13 +581,17 @@ export class Rule {
 
 		const rules = activeRules.map(({ rule, i }) => ({ rule: Rule.from(rule), i }));
 
-		const [equals, stringify] =
+		const [equals, stringify] = (
 			style === 'short'
 				? [(a: string, b: string) => a === b, (rule: Rule) => rule.toString()]
 				: [
 						(a: string[], b: string[]) => a.length === b.length && a.every((v, i) => v === b[i]),
 						(rule: Rule) => rule.toDetailsStrings()
-					];
+					]
+		) as [
+			(a: string | string[], b: string | string[]) => boolean,
+			(rule: Rule) => string | string[]
+		];
 
 		if (style === 'short' && rules.length === 1) {
 			return String(rules[0].rule);
@@ -595,8 +599,8 @@ export class Rule {
 
 		const groupedBy = rules.slice(1).reduce(
 			(acc, { rule, i }) => {
-				// eslint-disable-next-line @typescript-eslint/no-explicit-any
-				if (equals(stringify(rule) as any, acc.at(-1)!.text as any)) {
+				// oxlint-disable-next-line typescript/no-unsafe-argument
+				if (equals(stringify(rule), acc.at(-1)!.text)) {
 					acc.at(-1)!.end = i;
 					return acc;
 				} else {
@@ -608,8 +612,10 @@ export class Rule {
 
 		if (style === 'short') {
 			return groupedBy
-				.map(({ start, end, text }) => {
-					if (battleMode === 'team' && start > 0 && typeof text === 'string') {
+				.map(({ start, end, text: _text }) => {
+					let text = _text as string;
+
+					if (battleMode === 'team' && start > 0) {
 						text = text.split('、').slice(1).join('、');
 					}
 
@@ -634,7 +640,7 @@ export class Rule {
 	}
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+// oxlint-disable-next-line no-misused-spread
 const _ = { ...({} as Rule) };
 /** List up possibly non-existent properties due to backward compatibility */
 export type RulePOJO = OptionalKeys<

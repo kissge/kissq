@@ -518,8 +518,9 @@ export class AttendantState {
 
 	toJSON() {
 		return {
+			// oxlint-disable-next-line no-misused-spread
 			...this,
-			// eslint-disable-next-line @typescript-eslint/no-unused-vars
+			// oxlint-disable-next-line no-unused-vars
 			team: this.team && (({ attendants, ...rest }) => rest)(this.team), // Avoid circular reference
 			yasuDisplay: this.yasuDisplay,
 			isLizhi: this.isLizhi,
@@ -528,7 +529,7 @@ export class AttendantState {
 	}
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+// oxlint-disable-next-line no-misused-spread
 const _ = { ...({} as AttendantState) };
 export type AttendantStateValue = typeof _;
 
@@ -562,7 +563,6 @@ export class TeamState {
 		teamScore: number;
 		teamLife: Life;
 	} {
-		// eslint-disable-next-line prefer-const
 		let { maruCount, score, life, trophyCount, yasuCount, otherScoreDiff } = this.attendants[
 			attendantID
 		].processMaru(multiplier, assumeNextMaru);
@@ -678,7 +678,7 @@ export class TeamState {
 				return this.attendantIDsPerSeat.reduce(
 					(prod, seat) =>
 						prod *
-						(seat ?? []).reduce(
+						(seat ?? []).reduce<number>(
 							(sum, id) =>
 								sum +
 								(this.attendants[id].life === 'removed'
@@ -686,7 +686,7 @@ export class TeamState {
 									: id === attendantID
 										? score!
 										: this.attendants[id].score),
-							this.attendants[AttendantID(0)].rule.multiplyMinimum as number
+							this.attendants[AttendantID(0)].rule.multiplyMinimum
 						),
 					1
 				);
@@ -727,6 +727,7 @@ export class TeamState {
 
 	/** attendantsがあるとGameStateが循環参照を含んでしまいJSON-serializableにならないため、それを除く */
 	get serializable() {
+		// oxlint-disable-next-line no-misused-spread
 		return { ...this, attendants: [] };
 	}
 }
@@ -820,19 +821,19 @@ export class GameState {
 		});
 	}
 
-	clearLatestEvent(): GameState {
+	clearLatestEvent(): this {
 		this.latestEvent = null;
 		return this;
 	}
 
-	setHistory(history: HistoryEntry[]): GameState {
+	setHistory(history: HistoryEntry[]): this {
 		this.attendants.forEach((att) => {
 			att.history = history;
 		});
 		return this;
 	}
 
-	updateRanking(enableRating: boolean = false): GameState {
+	updateRanking(enableRating: boolean = false): this {
 		// sortが安定ソートであることに依存している
 
 		// 個人ランキング
@@ -880,7 +881,7 @@ export class GameState {
 		return this;
 	}
 
-	checkIfLastSurvivor(): GameState {
+	checkIfLastSurvivor(): this {
 		if (this.defaultRule.mode === 'survival') {
 			let survivor: AttendantID | null = null;
 
@@ -905,7 +906,7 @@ export class GameState {
 		return this;
 	}
 
-	checkIfFinished(): GameState {
+	checkIfFinished(): this {
 		if (this.ifFinished) {
 			this.latestEvent = { type: 'finished' };
 		}
@@ -928,6 +929,7 @@ export class GameState {
 	/** JSON-serializableでない要素を削除する（循環参照をなくす） */
 	get serializable(): GameState {
 		return {
+			// oxlint-disable-next-line no-misused-spread
 			...this,
 			teams: this.teams.map((team) => team.serializable)
 		};

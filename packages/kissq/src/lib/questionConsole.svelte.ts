@@ -29,7 +29,7 @@ export class QuestionConsoleClass {
 		// Why not using location.search? I forgot
 		const search = '?' + new SvelteURLSearchParams(location.search).toString();
 		this.subWindow =
-			window.open('./question' + search, 'questionWindow', openInNewTab ? undefined : 'popup') ||
+			window.open('./question' + search, 'questionWindow', openInNewTab ? undefined : 'popup') ??
 			undefined;
 	}
 
@@ -42,7 +42,7 @@ export class QuestionConsoleClass {
 			}
 		}
 
-		const message: IncomingMessage = event.data;
+		const message = event.data as IncomingMessage;
 
 		switch (message.command) {
 			case 'toggleQuestionWindow':
@@ -66,7 +66,7 @@ export class QuestionConsoleClass {
 				break;
 
 			case 'clickBatsu':
-				this.Game.clickBatsu(message.attendantID);
+				void this.Game.clickBatsu(message.attendantID);
 				break;
 
 			case 'clickThrough':
@@ -124,7 +124,7 @@ export class QuestionConsoleClass {
 				break;
 
 			case 'reorderAttendants': // single-only
-				this.Game.attendants[message.attendantID].manualOrder = event.data.newOrder;
+				this.Game.attendants[message.attendantID].manualOrder = message.newOrder;
 				this.Game.orderedAttendants.forEach((a, i) => (this.Game.attendants[a].manualOrder = i));
 				break;
 

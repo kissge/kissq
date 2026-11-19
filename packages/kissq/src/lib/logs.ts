@@ -180,8 +180,8 @@ export class LoggerClass {
 		window.localStorage.setItem('logs', JSON.stringify(logs));
 	}
 
-	load(): LogEntry[] {
-		return JSON.parse(window.localStorage.getItem('logs') ?? '[]');
+	load() {
+		return JSON.parse(window.localStorage.getItem('logs') ?? '[]') as LogEntry[];
 	}
 }
 

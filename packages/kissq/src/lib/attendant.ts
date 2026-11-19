@@ -22,9 +22,9 @@ export function loadFromHash(team?: boolean): {
 			return null;
 		}
 
-		const names = JSON.parse(decodeURIComponent(url.hash.slice(1)));
+		const names = JSON.parse(decodeURIComponent(url.hash.slice(1))) as object;
 
-		if (!('attendants' in names)) {
+		if (!('attendants' in names) || !('buttonMapping' in names)) {
 			return null;
 		}
 
@@ -73,11 +73,15 @@ export function saveToHash(
 	});
 }
 
+const segmenter = new Intl.Segmenter(undefined, { granularity: 'grapheme' });
+
 export function han2zen(str: string) {
 	// 全ASCII（4文字以上連続をどこかに含む場合は無視）
 	return /[!-~]{4}/gi.test(str)
 		? str
 		: str.replace(/[!-~]+/gi, (s) =>
-				[...s].map((c) => String.fromCodePoint(c.charCodeAt(0) + 0xfee0)).join('')
+				[...segmenter.segment(s)]
+					.map(({ segment: c }) => String.fromCodePoint(c.codePointAt(0)! + 0xfee0))
+					.join('')
 			);
 }

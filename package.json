@@ -16,6 +16,7 @@
 		"@himynameisdave/oxfmt-config": "^1.1.0",
 		"oxfmt": "^0.74.0",
 		"oxlint": "^1.27.0",
+		"oxlint-tsgolint": "^7.0.2007",
 		"postcss-html": "^2.0.0",
 		"stylelint": "^18.0.0",
 		"stylelint-config-html": "^2.0.0",

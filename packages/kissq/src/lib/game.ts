@@ -19,8 +19,8 @@ import type { WasedashikiMode } from './serial';
 import type { GameState } from './state';
 import type { WasedashikiClass } from './wasedashiki.svelte';
 
-export abstract class GameClassBase<BattleMode extends 'single' | 'team' = 'single' | 'team'> {
-	abstract readonly battleMode: BattleMode;
+export abstract class GameClassBase {
+	abstract readonly battleMode: 'single' | 'team';
 
 	abstract attendants: BrandedArray<Attendant, AttendantID>;
 	abstract teams: string[];
@@ -73,7 +73,7 @@ export abstract class GameClassBase<BattleMode extends 'single' | 'team' = 'sing
 		return Object.fromEntries([
 			...Keys.map((key) => [key, this[key]]),
 			['serializedAt', new Date()]
-		]);
+		]) as GameClassSerialized;
 	}
 
 	clearHistory(Wasedashiki: WasedashikiClass) {
@@ -206,11 +206,11 @@ export abstract class GameClassBase<BattleMode extends 'single' | 'team' = 'sing
 						);
 					}
 				} else {
-					this.rules = value.map((rule: RulePOJO) => Rule.from(rule));
+					this.rules = (value as RulePOJO[]).map((rule) => Rule.from(rule));
 				}
 			} else if (key === 'history') {
 				if (target === 'scores') {
-					this.history = value.map((entry: HistoryEntry) => rebuildHistoryEntry(entry));
+					this.history = (value as HistoryEntry[]).map((entry) => rebuildHistoryEntry(entry));
 				}
 			} else if (key === 'gameStartedAt') {
 				if (target === 'scores') {
@@ -221,7 +221,7 @@ export abstract class GameClassBase<BattleMode extends 'single' | 'team' = 'sing
 					throw new Error(`Unknown key: ${key}: ${value}`);
 				}
 
-				this[key as keyof this] = value;
+				this[key as keyof this] = value as this[any];
 			}
 		});
 	}

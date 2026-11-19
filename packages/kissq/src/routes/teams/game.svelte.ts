@@ -14,7 +14,7 @@ import { getRankingOf } from '$lib/utils';
 import type { LoggerClass } from '$lib/logs';
 import type { WasedashikiMode } from '$lib/serial';
 
-export class TeamGameClass extends GameClassBase<'team'> {
+export class TeamGameClass extends GameClassBase {
 	battleMode = 'team' as const;
 
 	attendants = $state(BrandedArray<Attendant, AttendantID>([]));
@@ -119,7 +119,7 @@ export class TeamGameClass extends GameClassBase<'team'> {
 	}
 
 	handlePasteEvent(event: ClipboardEvent, attendantID: AttendantID, teamID: TeamID): Attendant[] {
-		const text = (event.clipboardData?.getData('text') || '').trim();
+		const text = (event.clipboardData?.getData('text') ?? '').trim();
 		const lines = text.split(/[\r\n]+/);
 		const added: Attendant[] = [];
 		if (lines.length >= 2) {
@@ -139,6 +139,7 @@ export class TeamGameClass extends GameClassBase<'team'> {
 		return added;
 	}
 
+	// oxlint-disable-next-line typescript/require-await
 	async clickBatsu(attendantID: AttendantID, playSounds_: boolean = true) {
 		const single =
 			this.currentState.attendants[attendantID].rule.chance === 'single' ||
