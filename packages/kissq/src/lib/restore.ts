@@ -2,7 +2,7 @@ import type { GameClassBase, GameClassSerialized } from '$lib/game';
 import type { AttendantID, ButtonID } from '$lib/types';
 import type { WasedashikiClass } from '$lib/wasedashiki.svelte';
 
-export function loadRecovery(): RecoveryData | void {
+export function loadRecovery(): RecoveryData | undefined {
 	const raw = window.localStorage.getItem('kissQ.recovery');
 	if (!raw) {
 		return;
