@@ -22,7 +22,7 @@
 	{/key}
 </button>
 
-{#if show}
+{#if show && Game.history.length > 1}
 	<div class="popover" transition:fade={{ duration: 100 }}>
 		{#each Game.history.slice(-5, -1) as entry, i (i)}
 			<div class="entry">{entry.toString(Game.currentState)}</div>
