@@ -9,11 +9,18 @@
 	let client = $state<APIClient>();
 	let companionSessionID = $state('');
 
-	let rawQuestions = $state<RawQuestion[]>([]);
-	let questions = $derived(rawQuestions.map(parseComment));
-
 	let title = $state('記録集');
 	let subtitle = $state(new Date().toLocaleDateString('ja-JP'));
+	let showUnused = $state(false);
+
+	let rawQuestions = $state<RawQuestion[]>([]);
+	let questions = $derived(
+		[
+			...rawQuestions.filter(({ shown }) => shown),
+			...(showUnused ? rawQuestions.filter(({ shown }) => !shown) : [])
+		].map(parseComment)
+	);
+	let usedQuestionCount = $derived(rawQuestions.filter(({ shown }) => shown).length);
 
 	onMount(() => {
 		client = getAPIClient();
@@ -31,7 +38,9 @@
 				throw new Error(`Failed to fetch questions: ${response.status}`);
 			}
 
-			rawQuestions = (await response.json()).filter(({ shown }) => shown);
+			rawQuestions = (await response.json()).filter(
+				({ comment }) => !comment.includes('[no-records]')
+			);
 		}
 	}
 </script>
@@ -50,6 +59,11 @@
 	<table>
 		<tbody>
 			{#each questions as q, i (i)}
+				{#if i === usedQuestionCount}
+					<tr class="unused-separator">
+						<td colspan="3">未使用問題</td>
+					</tr>
+				{/if}
 				<tr>
 					<th rowspan={q.comment ? 2 : 1}>{i + 1}</th>
 					<td class="question">
@@ -119,6 +133,15 @@
 	</table>
 </main>
 
+<nav>
+	<label>
+		<input type="checkbox" bind:checked={showUnused} />
+		未使用問題を含める
+	</label>
+	<div class="spacer"></div>
+	<button onclick={() => window.print()}>印刷・PDF</button>
+</nav>
+
 <style>
 	* {
 		box-sizing: border-box;
@@ -173,6 +196,13 @@
 	tr {
 		break-inside: avoid;
 		page-break-inside: avoid;
+	}
+
+	tr.unused-separator {
+		page-break-before: always;
+		font-family: serif;
+		font-size: 1.5em;
+		font-weight: bold;
 	}
 
 	th,
@@ -251,6 +281,21 @@
 		}
 	}
 
+	nav {
+		position: fixed;
+		bottom: 1em;
+		left: 50%;
+		display: flex;
+		gap: 1em;
+		width: calc(100% - 2em);
+		max-width: 600px;
+		padding: 1em;
+		background: #2222;
+		box-shadow: 0 0 1em rgba(0, 0, 0, 0.4);
+		backdrop-filter: blur(0.5em);
+		transform: translateX(-50%);
+	}
+
 	:global {
 		body {
 			height: unset !important;
@@ -288,6 +333,10 @@
 
 		table {
 			font-size: 10.5pt;
+		}
+
+		nav {
+			display: none;
 		}
 	}
 </style>
