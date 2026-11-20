@@ -52,7 +52,7 @@
 	let effect3Name = $state<string>();
 	let teams = $state<string[]>();
 	let order = $state<'added' | 'same' | 'reverse'>('added');
-	let gameStartedAt = new SvelteDate();
+	let gameStartedAt = $state(new SvelteDate());
 
 	let companionSessionID = $state('');
 	let client = $state<APIClient>();
@@ -62,6 +62,18 @@
 	let showConventionAssist = $state(false);
 
 	let timeElapsed = $state('');
+	let showTimer = $state(false);
+	let timeTargetString = $state('');
+	let timeTarget = $derived.by(() => {
+		if (!timeTargetString) {
+			return null;
+		}
+
+		const [hours, minutes] = timeTargetString.split(':').map(Number);
+		const target = new Date(gameStartedAt.getTime());
+		target.setHours(hours, minutes, 0, 0);
+		return target;
+	});
 
 	let csvImportDialogOpen = $state(false);
 
@@ -439,6 +451,10 @@
 			);
 		}
 	}
+
+	function clamp(value: number, min: number = 0, max: number = 100) {
+		return Math.min(Math.max(value, min), max);
+	}
 </script>
 
 <svelte:head>
@@ -712,28 +728,74 @@
 		</div>
 	{/if}
 
-	Next: Q{currentState?.questionCount}
-	{#if rules[0]?.questionLimit != null}
-		/ {rules[0].questionLimit}
-	{/if}
-	（{attendants.length}人
-	<small>
-		（勝抜 {currentState?.attendants.filter((a) => a.life === 'won').length ?? 0}人 / 失格 {currentState?.attendants.filter(
-			(a) => a.life === 'lost'
-		).length ?? 0}人） [{timeElapsed}]
-	</small>）
-	{#each historyDisplay as entry (entry.key)}
-		<div
-			class={['history-entry', entry.type]}
-			in:fly={{ x: 100, duration: 1000 }}
-			out:fly={{ x: -100, duration: 1000 }}
-			animate:flip
-		>
-			{entry.text}
+	<div>
+		Next: Q{currentState?.questionCount}
+		{#if rules[0]?.questionLimit != null}
+			/ {rules[0].questionLimit}
+		{/if}
+		（{attendants.length}人
+		<small>
+			（勝抜 {currentState?.attendants.filter((a) => a.life === 'won').length ?? 0}人 / 失格 {currentState?.attendants.filter(
+				(a) => a.life === 'lost'
+			).length ?? 0}人）
+			<button
+				onclick={() => {
+					if (companionSessionID) {
+						showTimer = !showTimer;
+					} else {
+						Toastify({ text: 'コンパニオンモードが無効です' }).showToast();
+					}
+				}}
+				{@attach tooltip(`プログレスバーを${showTimer ? '非表示' : '表示'}`)}
+			>
+				{timeElapsed}
+			</button>
+		</small>）
+		{#each historyDisplay as entry (entry.key)}
+			<div
+				class={['history-entry', entry.type]}
+				in:fly={{ x: 100, duration: 1000 }}
+				out:fly={{ x: -100, duration: 1000 }}
+				animate:flip
+			>
+				{entry.text}
+			</div>
+		{/each}
+		{#if rules[0]?.questionLimit != null && (currentState?.questionCount ?? 0) > rules[0].questionLimit}
+			<div class="history-entry finished" in:fly={{ x: 100, duration: 1000 }}>問題終了</div>
+		{/if}
+	</div>
+
+	{#if showTimer}
+		<div class="timer-wrapper" transition:fade>
+			<div>{gameStartedAt.toLocaleTimeString('ja-JP')}</div>
+			<div class="timer-bar">
+				<div
+					class="timer-bar-inner"
+					style:width={clamp(
+						((SvelteDate.now() - gameStartedAt.getTime()) /
+							((timeTarget?.getTime() ?? Infinity) - gameStartedAt.getTime())) *
+							100
+					) + '%'}
+				></div>
+			</div>
+			<div>
+				<input type="time" bind:value={timeTargetString} />
+			</div>
+
+			<div>
+				{rawQuestions.filter((q) => q.shown).length}問表示済
+			</div>
+			<div class="timer-bar">
+				<div
+					class="timer-bar-inner"
+					style:width={clamp(
+						(rawQuestions.filter((q) => q.shown).length / (rawQuestions.length - 1)) * 100
+					) + '%'}
+				></div>
+			</div>
+			<div>{rawQuestions.length - 1}問</div>
 		</div>
-	{/each}
-	{#if rules[0]?.questionLimit != null && (currentState?.questionCount ?? 0) > rules[0].questionLimit}
-		<div class="history-entry finished" in:fly={{ x: 100, duration: 1000 }}>問題終了</div>
 	{/if}
 </header>
 
@@ -1005,6 +1067,27 @@
 		.lost {
 			color: white;
 			background: #ff4500;
+		}
+
+		small button {
+			padding: 0 0.2em;
+		}
+
+		&.timer-wrapper {
+			display: grid;
+			grid-template-columns: auto 1fr auto;
+
+			.timer-bar {
+				height: 1em;
+				background-color: #ccc;
+				border-radius: 0.5em;
+			}
+
+			.timer-bar-inner {
+				height: 100%;
+				background-color: #00f;
+				border-radius: 0.5em;
+			}
 		}
 	}
 
