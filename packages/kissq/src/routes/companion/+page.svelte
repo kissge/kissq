@@ -351,6 +351,7 @@
 
 		&[data-question-id='-1'] {
 			display: block;
+			padding: 1em;
 			text-align: justify;
 		}
 
