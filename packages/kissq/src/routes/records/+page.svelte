@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { json2csv } from 'json-2-csv';
 	import { onMount } from 'svelte';
 
 	import { getAPIClient, type APIClient } from '$lib/api';
@@ -6,8 +7,8 @@
 	import { THROUGH } from '$lib/types';
 	import { collapseArray, splitQuestion } from '$lib/utils';
 
-	let client = $state<APIClient>();
-	let companionSessionID = $state('');
+	let client: APIClient | undefined;
+	let companionSessionID: string | null = null;
 
 	let title = $state('記録集');
 	let subtitle = $state(new Date().toLocaleDateString('ja-JP'));
@@ -24,7 +25,7 @@
 
 	onMount(() => {
 		client = getAPIClient();
-		companionSessionID = new URLSearchParams(location.search).get('session') ?? '';
+		companionSessionID = new URLSearchParams(location.search).get('session');
 		fetchRemoteQuestions();
 	});
 
@@ -42,6 +43,28 @@
 				({ comment }) => !comment.includes('[no-records]')
 			);
 		}
+	}
+
+	function saveCSVFile() {
+		const content = questions.map((q, i) => [
+			i + 1,
+			q.question,
+			q.answer,
+			q.correctAnswerer === THROUGH ? 'スルー' : (q.correctAnswerer ?? ''),
+			q.comment ?? ''
+		]);
+		// start with BOM (for Excel)
+		const csvText = '\uFEFF' + json2csv(content, { prependHeader: false });
+
+		const blob = new Blob([csvText], { type: 'text/csv;charset=utf-8;' });
+		const url = URL.createObjectURL(blob);
+		const link = document.createElement('a');
+		link.setAttribute('href', url);
+		link.setAttribute('download', `${title} - ${subtitle}.csv`);
+		link.style.visibility = 'hidden';
+		document.body.appendChild(link);
+		link.click();
+		document.body.removeChild(link);
 	}
 </script>
 
@@ -140,6 +163,7 @@
 	</label>
 	<div class="spacer"></div>
 	<button onclick={() => window.print()}>印刷・PDF</button>
+	<button onclick={saveCSVFile}>CSV出力</button>
 </nav>
 
 <style>

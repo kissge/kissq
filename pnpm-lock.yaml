@@ -202,6 +202,9 @@ importers:
       hono:
         specifier: ^4.12.32
         version: 4.12.32
+      json-2-csv:
+        specifier: ^5.6.0
+        version: 5.6.0
       kisscsvimport:
         specifier: github:kissge/kissqlib#path:packages/kisscsvimport
         version: https://codeload.github.com/kissge/kissqlib/tar.gz/df8ca4b6ba197fb252659f9c7fdd4e0426eb28e5#path:packages/kisscsvimport
