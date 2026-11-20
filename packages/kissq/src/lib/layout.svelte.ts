@@ -17,7 +17,7 @@ export class LayoutClass {
 
 	nameWidth = $state([0, 0]);
 	nameHeight = $state([0, 0]);
-	nameDirection = $state<'vertical-rl' | ''>('vertical-rl');
+	nameDirection = $state<'vertical' | 'horizontal'>('vertical');
 
 	container: HTMLDivElement | undefined;
 
@@ -75,7 +75,7 @@ export class LayoutClass {
 			}
 
 			if (this.nameWidth[0] > this.nameHeight[0] * 1.2) {
-				this.nameDirection = '';
+				this.nameDirection = 'horizontal';
 				this.fontSize = Math.floor(
 					Math.min(
 						((this.container?.clientWidth ?? 0) / this.columnCount) * 0.15,
@@ -85,7 +85,7 @@ export class LayoutClass {
 					)
 				);
 			} else {
-				this.nameDirection = 'vertical-rl';
+				this.nameDirection = 'vertical';
 				this.fontSize = Math.floor(
 					Math.min(
 						((this.container?.clientWidth ?? 0) / this.columnCount) * 0.3,

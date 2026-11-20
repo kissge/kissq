@@ -166,6 +166,7 @@
 	spellcheck="false"
 	class={[
 		'name',
+		'direction-' + Layout.nameDirection,
 		{
 			blurred: screenshotModeTimer != null && ai !== Game.orderedAttendants[screenshotOffset],
 			'answerer-1st':
@@ -178,9 +179,6 @@
 				Wasedashiki.answerers[(Wasedashiki.buttonMapping[ai] ?? 0) - 1]?.currentRank === 'late'
 		}
 	]}
-	style:writing-mode={Layout.nameDirection}
-	style:justify-content={Layout.nameDirection ? '' : 'center'}
-	style:text-align={Layout.nameDirection ? '' : 'center'}
 	{@attach tooltip('クリックして名前を編集', { placement: 'bottom' })}
 	bind:clientWidth={Layout.nameWidth[ai]}
 	bind:clientHeight={Layout.nameHeight[ai]}
@@ -477,6 +475,15 @@
 			text-wrap: initial;
 			cursor: text;
 			content: attr(placeholder);
+		}
+
+		&.direction-vertical {
+			writing-mode: vertical-rl;
+		}
+
+		&.direction-horizontal {
+			justify-content: center;
+			text-align: center;
 		}
 
 		&.answerer-1st {
