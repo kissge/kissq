@@ -611,6 +611,16 @@
 							onDragEnd();
 						}
 					}}
+					ondblclick={() => {
+						const newNickname = prompt('プレイヤーのニックネームを入力してください', att.nickname);
+						if (newNickname != null) {
+							postMessage({
+								command: 'updateAttendant',
+								attendantID: ai,
+								diff: { nickname: newNickname }
+							});
+						}
+					}}
 					style:opacity={isDragging === ord ? 0.25 : 1}
 					draggable={isDragAvailable}
 				>
@@ -707,6 +717,7 @@
 							</button>
 						{/if}
 					{/if}
+					<span class="nickname">{att.nickname}</span>
 				</div>
 			{:else}
 				{#if !isSyncAlive}
@@ -1067,6 +1078,13 @@
 		.lost {
 			color: white;
 			background: #ff4500;
+		}
+
+		.nickname {
+			position: absolute;
+			bottom: 0;
+			left: 0.75em;
+			font-size: 0.675em;
 		}
 
 		small button {

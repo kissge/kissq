@@ -10,6 +10,7 @@ export interface Attendant {
 	trophyCount: number;
 	totalScore: { maru: number; batsu: number };
 	manualOrder: number;
+	nickname?: string;
 }
 
 export function loadFromHash(team?: boolean): {

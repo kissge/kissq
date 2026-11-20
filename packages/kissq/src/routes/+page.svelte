@@ -743,8 +743,17 @@
 	</div>
 	<div class={['banner', isBannerVisible.type]} transition:slide={{ axis: 'x' }}>
 		{#if 'attendantID' in isBannerVisible}
-			{Game.attendants[isBannerVisible.attendantID].name ||
-				'プレイヤー ' + (isBannerVisible.attendantID + 1)}
+			<div class="banner-name-wrapper">
+				{#if Game.attendants[isBannerVisible.attendantID].nickname}
+					<div class="banner-nickname">
+						{Game.attendants[isBannerVisible.attendantID].nickname}
+					</div>
+				{/if}
+				<div class="banner-name">
+					{Game.attendants[isBannerVisible.attendantID].name ||
+						'プレイヤー ' + (isBannerVisible.attendantID + 1)}
+				</div>
+			</div>
 		{/if}
 		{#if isBannerVisible.type === 'won'}
 			勝ち抜け
@@ -922,6 +931,25 @@
 
 		select {
 			font-size: 1em;
+		}
+	}
+
+	.banner-name-wrapper {
+		margin-right: 0.25em;
+	}
+
+	.banner-name-wrapper:has(.banner-nickname) {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-end;
+
+		.banner-nickname {
+			font-size: 0.4em;
+			font-weight: lighter;
+		}
+
+		.banner-name {
+			font-size: 0.8em;
 		}
 	}
 </style>

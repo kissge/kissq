@@ -14,6 +14,7 @@ export class AttendantState {
 		public attendantID: AttendantID,
 		public manualOrder: number,
 		public group: number,
+		public nickname: string | undefined,
 		public rule: Rule,
 		public history: HistoryEntry[],
 		public team: TeamState | null = null,
@@ -773,12 +774,13 @@ export class GameState {
 		teams: string[] = []
 	) {
 		this.attendants = attendants.map(
-			({ name, group, trophyCount, totalScore, manualOrder }, attendantID) =>
+			({ name, nickname, group, trophyCount, totalScore, manualOrder }, attendantID) =>
 				new AttendantState(
 					name,
 					AttendantID(attendantID),
 					manualOrder,
 					group,
+					nickname,
 					rules[group],
 					[],
 					null,

@@ -179,6 +179,7 @@
 				Wasedashiki.answerers[(Wasedashiki.buttonMapping[ai] ?? 0) - 1]?.currentRank === 'late'
 		}
 	]}
+	data-nickname={Game.attendants[ai].nickname}
 	{@attach tooltip('クリックして名前を編集', { placement: 'bottom' })}
 	bind:clientWidth={Layout.nameWidth[ai]}
 	bind:clientHeight={Layout.nameHeight[ai]}
@@ -477,13 +478,29 @@
 			content: attr(placeholder);
 		}
 
+		&::after {
+			position: absolute;
+			font-size: 0.5em;
+			content: attr(data-nickname);
+		}
+
 		&.direction-vertical {
 			writing-mode: vertical-rl;
+
+			&::after {
+				top: 3em;
+				left: 0.5em;
+			}
 		}
 
 		&.direction-horizontal {
 			justify-content: center;
 			text-align: center;
+
+			&::after {
+				top: 1.25em;
+				left: unset;
+			}
 		}
 
 		&.answerer-1st {

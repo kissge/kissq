@@ -121,6 +121,11 @@ export class QuestionConsoleClass {
 						new ChangeGroupHistoryEntry(message.attendantID, message.diff.group)
 					);
 				}
+
+				if (message.diff.nickname != undefined) {
+					this.Game.attendants[message.attendantID].nickname = message.diff.nickname;
+				}
+
 				break;
 
 			case 'reorderAttendants': // single-only
@@ -214,7 +219,7 @@ export type IncomingMessage =
 	| {
 			command: 'updateAttendant';
 			attendantID: AttendantID;
-			diff: { group?: number; name?: string };
+			diff: { group?: number; name?: string; nickname?: string };
 	  }
 	| { command: 'reorderAttendants'; attendantID: AttendantID; newOrder: number }
 	| { command: 'setGameTitle'; title: string }
