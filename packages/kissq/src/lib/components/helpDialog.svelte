@@ -45,6 +45,8 @@
 </script>
 
 <div bind:this={dialog} style:display={hide ? 'none' : 'block'}>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
 	<h1>❓<ruby><rb>kissQ</rb><rt>きすきゅー</rt></ruby>の使い方</h1>
 
 	<h2>ルール</h2>
