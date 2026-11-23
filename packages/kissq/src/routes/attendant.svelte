@@ -61,11 +61,6 @@
 		const origGroup = Game.currentState.attendants[ai].group;
 		let newGroup = origGroup;
 
-		const prev = Game.history.at(-1);
-		if (prev?.type === 'change-group' && prev.attendantID === ai) {
-			Game.history.pop();
-		}
-
 		do {
 			newGroup = (newGroup + diff) % Game.rules.length;
 		} while (
@@ -73,12 +68,21 @@
 			(Game.history.length > 0 && Game.rules[newGroup].mode !== origRule.mode)
 		);
 
-		if (newGroup === origGroup) {
-			Toastify({
-				text: '変更できるグループがありません。ゲームモードが違うグループに変更できるのはゲーム開始直後のみです。'
-			}).showToast();
+		if (Game.history.length === 0) {
+			Game.attendants[ai].group = newGroup;
 		} else {
-			Game.history.push(new ChangeGroupHistoryEntry(ai, newGroup));
+			const prev = Game.history.at(-1);
+			if (prev?.type === 'change-group' && prev.attendantID === ai) {
+				Game.history.pop();
+			}
+
+			if (newGroup === origGroup) {
+				Toastify({
+					text: '変更できるグループがありません。ゲームモードが違うグループに変更できるのはゲーム開始直後のみです。'
+				}).showToast();
+			} else {
+				Game.history.push(new ChangeGroupHistoryEntry(ai, newGroup));
+			}
 		}
 	}
 </script>
