@@ -762,4 +762,11 @@
 				0px 10px 50px #aa08;
 		}
 	}
+
+	:global([data-theme='high-contrast']) {
+		.maru-count,
+		.batsu-count {
+			color: white;
+		}
+	}
 </style>

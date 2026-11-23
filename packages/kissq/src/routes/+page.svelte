@@ -162,13 +162,13 @@
 	async function editAppearance() {
 		const result = await appearanceDialog.open(wallpaper, trophy);
 		if (result) {
-			wallpaper = result[0];
-			trophy = result[1];
+			document.querySelector('html')!.dataset.theme = result.designTheme;
+
 			const main = document.querySelector('main') as HTMLElement;
-			main.style.backgroundImage = wallpaper ? `url(${wallpaper})` : '';
-			main.style.setProperty('--trophy-image', trophy ? `url(${trophy})` : '');
-			window.localStorage.setItem('wallpaper', wallpaper || '');
-			window.localStorage.setItem('trophy', trophy || '');
+			main.style.backgroundImage = result.wallpaper ? `url(${result.wallpaper})` : '';
+			main.style.setProperty('--trophy-image', result.trophy ? `url(${result.trophy})` : '');
+			window.localStorage.setItem('wallpaper', result.wallpaper || '');
+			window.localStorage.setItem('trophy', result.trophy || '');
 		}
 	}
 
@@ -950,6 +950,14 @@
 
 		.banner-name {
 			font-size: 0.8em;
+		}
+	}
+
+	:global([data-theme='high-contrast']) {
+		main .attendants .attendant {
+			color: black;
+			text-shadow: none;
+			background-color: #fff;
 		}
 	}
 </style>

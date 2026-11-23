@@ -8,7 +8,11 @@
 	export function open(
 		_wallpaper: string | null,
 		_trophy: string | null
-	): Promise<[string | null, string | null] | null> {
+	): Promise<{
+		designTheme: 'normal' | 'high-contrast';
+		wallpaper: string | null;
+		trophy: string | null;
+	} | null> {
 		wallpaper = _wallpaper;
 		trophy = _trophy;
 
@@ -27,9 +31,10 @@
 		}
 
 		dialog.close();
-		resolve([wallpaper, trophy]);
+		resolve({ designTheme, wallpaper, trophy });
 	}
 
+	let designTheme = $state<'normal' | 'high-contrast'>('normal');
 	let wallpaper = $state<string | null>(null);
 	let trophy = $state<string | null>(null);
 
@@ -59,6 +64,19 @@
 
 <dialog bind:this={dialog}>
 	<div class="table">
+		<div>デザインテーマ</div>
+		<div>
+			<label>
+				<input type="radio" bind:group={designTheme} value="normal" />
+				通常
+			</label>
+			<br />
+			<label>
+				<input type="radio" bind:group={designTheme} value="high-contrast" />
+				ハイコントラスト<small>（プロジェクターがしょぼいときに使う）</small>
+			</label>
+		</div>
+
 		<div>壁紙</div>
 		<div>
 			{#if wallpaper}

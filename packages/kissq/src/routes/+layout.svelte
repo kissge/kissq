@@ -337,5 +337,31 @@
 				translate: 0 0;
 			}
 		}
+
+		[data-theme='high-contrast'] {
+			button {
+				color: black;
+				background-color: white;
+				border: 3px solid black;
+
+				&[disabled] {
+					color: #ccc;
+					border-color: #ccc;
+				}
+
+				&:not([disabled]):hover {
+					color: white;
+					background-color: #000;
+				}
+			}
+
+			#other-menu:popover-open button:not([disabled]):hover {
+				color: black;
+			}
+
+			.other-menu-button {
+				border: none;
+			}
+		}
 	}
 </style>

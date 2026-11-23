@@ -126,4 +126,12 @@
 			}
 		}
 	}
+
+	:global([data-theme='high-contrast']) {
+		footer {
+			color: black;
+			outline: 3px solid black;
+			background-color: white;
+		}
+	}
 </style>

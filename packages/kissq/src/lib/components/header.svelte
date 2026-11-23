@@ -360,4 +360,12 @@
 			font-size: 0.5em;
 		}
 	}
+
+	:global([data-theme='high-contrast']) {
+		header {
+			color: black;
+			outline: 3px solid black;
+			background-color: white;
+		}
+	}
 </style>
