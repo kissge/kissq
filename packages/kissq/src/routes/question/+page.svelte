@@ -611,16 +611,6 @@
 							onDragEnd();
 						}
 					}}
-					ondblclick={() => {
-						const newNickname = prompt('プレイヤーのニックネームを入力してください', att.nickname);
-						if (newNickname != null) {
-							postMessage({
-								command: 'updateAttendant',
-								attendantID: ai,
-								diff: { nickname: newNickname }
-							});
-						}
-					}}
 					style:opacity={isDragging === ord ? 0.25 : 1}
 					draggable={isDragAvailable}
 				>
@@ -651,7 +641,31 @@
 					{/if}
 
 					{#if att.life !== 'removed'}
-						{att.name || `プレイヤー${ai + 1}`}
+						<input
+							value={att.name}
+							placeholder={`プレイヤー${ai + 1}`}
+							onkeyup={(event) => {
+								const newName = (event.target as HTMLInputElement).value;
+								postMessage({
+									command: 'updateAttendant',
+									attendantID: ai,
+									diff: { name: newName }
+								});
+							}}
+							ondblclick={() => {
+								const newNickname = prompt(
+									'プレイヤーのニックネームを入力してください',
+									att.nickname
+								);
+								if (newNickname != null) {
+									postMessage({
+										command: 'updateAttendant',
+										attendantID: ai,
+										diff: { nickname: newNickname }
+									});
+								}
+							}}
+						/>
 						{#if att.isLizhi}
 							{#if att.isLoseLizhi}
 								<span class="lizhi" transition:fade>ダブルリーチ</span>
@@ -1238,6 +1252,16 @@
 
 		&:nth-last-child(2) {
 			anchor-name: --last-attendant;
+		}
+
+		input {
+			min-width: 1ch;
+			field-sizing: content;
+			border-color: transparent;
+		}
+
+		&:hover input {
+			border-color: #888;
 		}
 	}
 

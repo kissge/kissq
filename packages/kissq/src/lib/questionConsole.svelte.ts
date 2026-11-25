@@ -108,7 +108,7 @@ export class QuestionConsoleClass {
 				break;
 
 			case 'updateAttendant':
-				if (message.diff.name) {
+				if (message.diff.name != undefined) {
 					this.Game.attendants[message.attendantID].name = message.diff.name;
 				}
 
