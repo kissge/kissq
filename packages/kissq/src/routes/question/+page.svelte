@@ -1063,6 +1063,11 @@
 		padding: 1em;
 	}
 
+	header.console {
+		z-index: 100;
+		box-shadow: 0 2px 5px #0004;
+	}
+
 	header.console > div {
 		display: flex;
 		flex-wrap: wrap;
@@ -1252,6 +1257,7 @@
 		flex-wrap: wrap;
 		gap: 0.5em;
 		align-items: center;
+		box-shadow: 0 -2px 5px #0004;
 
 		button {
 			font-size: 1em;
