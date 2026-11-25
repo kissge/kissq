@@ -9,7 +9,7 @@
 
 	let {
 		show = $bindable(),
-		attendants,
+		latestAttendants,
 		currentState,
 		teams,
 		reset,
@@ -18,7 +18,7 @@
 		updateAttendant
 	}: {
 		show: boolean;
-		attendants: BrandedArray<Attendant, AttendantID>;
+		latestAttendants: BrandedArray<Attendant, AttendantID>;
 		currentState: GameState | undefined;
 		teams: string[] | undefined;
 		reset: () => void;
@@ -111,10 +111,10 @@
 				g.state = _currentState;
 				g.teams = $state.snapshot(teams);
 				g.attendants = BrandedArray<Attendant, AttendantID>(
-					$state.snapshot(attendants as Attendant[])
+					$state.snapshot(latestAttendants as Attendant[])
 				);
 				g.status = 'finished';
-				attendants.forEach((att, cai) => {
+				latestAttendants.forEach((att, cai) => {
 					const ai = g.attendantIDs[cai];
 					fullAttendants[ai] = att;
 				});
@@ -138,10 +138,10 @@
 					<p>まずは参加者リストを用意しましょう。</p>
 					<button
 						onclick={() => {
-							fullAttendants = attendants;
+							fullAttendants = latestAttendants;
 						}}
 					>
-						現在のメイン画面のプレイヤーリスト（{attendants.length}人）をコピーして開始する
+						現在のメイン画面のプレイヤーリスト（{latestAttendants.length}人）をコピーして開始する
 					</button>
 					<button
 						onclick={() => {
@@ -229,7 +229,7 @@
 						state.defaultRule.mode === 'sum'
 							? ('team' as const)
 							: ('single' as const))}
-					{@const atts = game.status === 'finished' ? game.attendants : attendants}
+					{@const atts = game.status === 'finished' ? game.attendants : latestAttendants}
 					{@const _teams = game.status === 'finished' ? game.teams : teams}
 
 					<!-- Header (top) -->
@@ -275,8 +275,9 @@
 							{:else if game.attendantIDs.includes(AttendantID(ai)) && state}
 								{@const cai = AttendantID(game.attendantIDs.indexOf(AttendantID(ai)))}
 								{@const att = state.attendants[cai]}
-								{@const ti = (game.status === 'in-progress' ? attendants : game.attendants)[cai]
-									.team}
+								{@const ti = (game.status === 'in-progress' ? latestAttendants : game.attendants)[
+									cai
+								].team}
 
 								{#if battleMode === 'single'}
 									{#if att.life === 'won'}

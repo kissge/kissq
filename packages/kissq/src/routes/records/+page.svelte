@@ -4,15 +4,21 @@
 
 	import { getAPIClient, type APIClient } from '$lib/api';
 	import { parseComment, type RawQuestion } from '$lib/question';
-	import { THROUGH } from '$lib/types';
-	import { collapseArray, splitQuestion } from '$lib/utils';
+	import { AttendantID, BrandedArray, THROUGH } from '$lib/types';
+	import { collapseArray, countAndSort, getRankingOf, splitQuestion } from '$lib/utils';
+
+	import type { Attendant } from '$lib/attendant';
 
 	let client: APIClient | undefined;
 	let companionSessionID: string | null = null;
 
+	let attendants = $state(BrandedArray<Attendant, AttendantID>([]));
+
 	let title = $state('記録集');
 	let subtitle = $state(new Date().toLocaleDateString('ja-JP'));
 	let showUnused = $state(false);
+	let showTotalRanking = $state(true);
+	let showLikesRanking = $state(true);
 
 	let rawQuestions = $state<RawQuestion[]>([]);
 	let questions = $derived(
@@ -23,9 +29,28 @@
 	);
 	let usedQuestionCount = $derived(rawQuestions.filter(({ shown }) => shown).length);
 
+	let totalRanks = $derived(
+		getRankingOf(attendants, (att) => [att.totalScore.maru, att.totalScore.batsu])
+	);
+	let totalRanking = $derived(
+		attendants
+			.map(({ name, totalScore: { maru, batsu } }, ai) => ({
+				name: name || `プレイヤー${ai + 1}`,
+				maru,
+				batsu,
+				rank: totalRanks[ai]
+			}))
+			.sort((a, b) => a.rank - b.rank)
+	);
+	let likesRanking = $derived(countAndSort(questions.map((q) => q.likedBy ?? []).flat()));
+
 	onMount(() => {
 		client = getAPIClient();
-		companionSessionID = new URLSearchParams(location.search).get('session');
+
+		const search = new URLSearchParams(location.search);
+		companionSessionID = search.get('session');
+		attendants = JSON.parse(search.get('attendants')!);
+
 		fetchRemoteQuestions();
 	});
 
@@ -87,6 +112,7 @@
 						<td colspan="3">未使用問題</td>
 					</tr>
 				{/if}
+
 				<tr>
 					<th rowspan={q.comment ? 2 : 1}>{i + 1}</th>
 					<td class="question">
@@ -151,6 +177,50 @@
 						</td>
 					</tr>
 				{/if}
+
+				{#if i === usedQuestionCount - 1}
+					{#if showTotalRanking}
+						<tr class="tr-ranking">
+							<td colspan="3">
+								<div>
+									<h2>通算成績</h2>
+									<div class="ranking-table">
+										{#each totalRanking as { name, maru, batsu, rank }, i (i)}
+											<div class="rank">
+												{#if totalRanking.at(i - 1)?.rank !== rank}
+													{rank}位
+												{/if}
+											</div>
+											<div>{name}</div>
+											<div>{maru}〇{batsu}×</div>
+										{/each}
+									</div>
+								</div>
+							</td>
+						</tr>
+					{/if}
+
+					{#if showLikesRanking}
+						<tr class="tr-ranking">
+							<td colspan="3">
+								<div>
+									<h2>いっぱいいいねしてくれた人</h2>
+									<div class="ranking-table">
+										{#each likesRanking.filter(({ rank }) => rank <= 3) as { value: name, count, rank }, i (i)}
+											<div class="rank">
+												{#if totalRanking.at(i - 1)?.rank !== rank}
+													{rank}位
+												{/if}
+											</div>
+											<div>{name}</div>
+											<div>♥️ ✕ {count}</div>
+										{/each}
+									</div>
+								</div>
+							</td>
+						</tr>
+					{/if}
+				{/if}
 			{/each}
 		</tbody>
 	</table>
@@ -159,7 +229,15 @@
 <nav>
 	<label>
 		<input type="checkbox" bind:checked={showUnused} />
-		未使用問題を含める
+		未使用問題
+	</label>
+	<label>
+		<input type="checkbox" bind:checked={showTotalRanking} />
+		通算成績
+	</label>
+	<label>
+		<input type="checkbox" bind:checked={showLikesRanking} />
+		いいねランキング
 	</label>
 	<div class="spacer"></div>
 	<button onclick={() => window.print()}>印刷・PDF</button>
@@ -215,6 +293,13 @@
 		color: #263746;
 		border-spacing: 0;
 		border-collapse: separate;
+
+		h2 {
+			padding-top: 0.125em;
+			margin: 0;
+			font-weight: bold;
+			letter-spacing: 0;
+		}
 	}
 
 	tr {
@@ -227,6 +312,23 @@
 		font-family: serif;
 		font-size: 1.5em;
 		font-weight: bold;
+	}
+
+	tr.tr-ranking {
+		td > div {
+			display: flex;
+			gap: 1rem;
+			align-items: space-between;
+			justify-content: center;
+			margin-top: 2em;
+
+			& > :first-child {
+				flex: 0 0 10.5em;
+				padding-right: 2.5em;
+				text-align: right;
+				border-right: 1px solid #c18b4a;
+			}
+		}
 	}
 
 	th,
@@ -242,6 +344,16 @@
 		font-size: 1.15em;
 		color: #9a6b32;
 		text-align: right;
+	}
+
+	.ranking-table {
+		display: grid;
+		grid-template-columns: 3em 12em 5em;
+		gap: 0 1em;
+
+		.rank {
+			text-align: right;
+		}
 	}
 
 	p {
@@ -310,9 +422,9 @@
 		bottom: 1em;
 		left: 50%;
 		display: flex;
-		gap: 1em;
+		gap: 0.5em;
 		width: calc(100% - 2em);
-		max-width: 600px;
+		max-width: 720px;
 		padding: 1em;
 		background: #2222;
 		box-shadow: 0 0 1em rgba(0, 0, 0, 0.4);
@@ -326,6 +438,12 @@
 			text-wrap: pretty;
 			print-color-adjust: exact;
 			background: #fff;
+		}
+	}
+
+	@media screen {
+		main {
+			margin-bottom: 6em;
 		}
 	}
 

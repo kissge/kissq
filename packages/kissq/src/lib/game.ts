@@ -65,6 +65,10 @@ export abstract class GameClassBase {
 	get latestAttendants(): BrandedArray<Attendant, AttendantID> {
 		return this.attendants.map((att, ai) => ({
 			...att,
+			totalScore: {
+				maru: att.totalScore.maru + this.currentState.attendants[ai].trueMaruCount,
+				batsu: att.totalScore.batsu + this.currentState.attendants[ai].trueBatsuCount
+			},
 			group: this.currentState.attendants[ai].group
 		}));
 	}

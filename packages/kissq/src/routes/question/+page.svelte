@@ -35,7 +35,7 @@
 	let fontSize = $state(6);
 	let isKeyboardEnabled = $state(true);
 
-	let attendants = $state(BrandedArray<Attendant, AttendantID>([]));
+	let latestAttendants = $state(BrandedArray<Attendant, AttendantID>([]));
 	let currentState = $state<GameState>();
 	let history = $state<HistoryEntry[]>([]);
 	let rules = $state<Rule[]>([]);
@@ -229,7 +229,7 @@
 				lastSyncedTime = Date.now();
 
 				battleMode = event.data.mode;
-				attendants = event.data.attendants;
+				latestAttendants = event.data.latestAttendants;
 				currentState = event.data.currentState;
 				history = event.data.history;
 				rules = event.data.rules;
@@ -744,7 +744,7 @@
 		{#if rules[0]?.questionLimit != null}
 			/ {rules[0].questionLimit}
 		{/if}
-		（{attendants.length}人
+		（{latestAttendants.length}人
 		<small>
 			（勝抜 {currentState?.attendants.filter((a) => a.life === 'won').length ?? 0}人 / 失格 {currentState?.attendants.filter(
 				(a) => a.life === 'lost'
@@ -960,7 +960,11 @@
 	</button>
 	<button
 		disabled={!companionSessionID}
-		onclick={(e) => window.open(`./records${location.search}`, 'records')}
+		onclick={() => {
+			const search = new URLSearchParams(location.search);
+			search.set('attendants', JSON.stringify(latestAttendants));
+			window.open(`./records?${search}`, 'records');
+		}}
 	>
 		記録集を出力
 	</button>
@@ -969,7 +973,7 @@
 <ConventionAssist
 	bind:this={conventionAssist}
 	bind:show={showConventionAssist}
-	{attendants}
+	{latestAttendants}
 	{currentState}
 	{teams}
 	reset={() => postMessage({ command: 'clickReset' })}

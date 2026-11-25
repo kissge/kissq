@@ -165,7 +165,7 @@ export class QuestionConsoleClass {
 					JSON.stringify({
 						command: 'syncState',
 						mode: this.Game.battleMode,
-						attendants: this.Game.attendants,
+						latestAttendants: this.Game.latestAttendants,
 						currentState: this.Game.currentState.serializable,
 						history: this.Game.history,
 						rules: this.Game.rules,
@@ -232,7 +232,7 @@ export type OutgoingMessage =
 	| {
 			command: 'syncState';
 			mode: 'single' | 'team';
-			attendants: BrandedArray<Attendant, AttendantID>;
+			latestAttendants: BrandedArray<Attendant, AttendantID>;
 			currentState: GameState;
 			history: HistoryEntry[];
 			rules: Rule[];

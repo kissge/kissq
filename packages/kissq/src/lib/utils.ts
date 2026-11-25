@@ -80,10 +80,18 @@ export function maybeUndefined<T>(value: T): T | undefined {
 }
 
 /** 任意のスコアづけでのランキング（AttendantIDなど -> 順位（同率あり）） */
+export function getRankingOf<T, _Index extends number>(
+	array: T[],
+	scorer: (item: T) => number[]
+): number[];
+export function getRankingOf<T, Index extends number>(
+	array: BrandedArray<T, Index>,
+	scorer: (item: T) => number[]
+): BrandedArray<number, Index>;
 export function getRankingOf<T, Index extends number>(
 	array: T[] | BrandedArray<T, Index>,
 	scorer: (item: T) => number[]
-): number[] {
+): number[] | BrandedArray<number, Index> {
 	array = array as T[];
 
 	const ranking = array
@@ -102,6 +110,28 @@ export function getRankingOf<T, Index extends number>(
 	});
 
 	return ranks;
+}
+
+/** 出現回数をカウントし、多い順に並べる */
+export function countAndSort<T extends string | number>(
+	array: readonly T[]
+): { value: T; count: number; rank: number }[] {
+	const counts = array.reduce(
+		(acc, item) => {
+			acc[item] = (acc[item] ?? 0) + 1;
+			return acc;
+		},
+		{} as Record<T, number>
+	);
+
+	const values = Object.entries(counts).map(([value, count]) => ({
+		value: value as T,
+		count: count as number
+	}));
+
+	const ranks = getRankingOf(values, (item) => [item.count]);
+
+	return values.map((item, i) => ({ ...item, rank: ranks[i] })).sort((a, b) => a.rank - b.rank);
 }
 
 export type OptionalKeys<T, K extends keyof T> = Omit<T, K> & { [P in K]: T[P] | undefined };
