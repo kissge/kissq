@@ -32,7 +32,7 @@
 			display: flex;
 			flex-direction: column;
 			justify-content: space-between;
-			min-height: 100dvh;
+			min-height: calc(var(--base-zoom-level, 1) * 100dvh);
 			padding: 0;
 			margin: 0;
 			overflow-x: hidden;
@@ -236,10 +236,11 @@
 
 		:global(html) {
 			font-size: var(--root-font-size);
+			zoom: calc(1 / var(--base-zoom-level, 1) * 100%);
 		}
 
 		:global(body) {
-			height: 100dvh;
+			height: calc(var(--base-zoom-level, 1) * 100dvh);
 			text-autospace: normal;
 		}
 

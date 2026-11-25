@@ -32,7 +32,8 @@
 	let questions = $derived(rawQuestions.map(parseComment));
 	let currentIndex = $state(0);
 
-	let fontSize = $state(6);
+	let baseZoomLevel = $state(1);
+	let fontSize = $state(16);
 	let isKeyboardEnabled = $state(true);
 
 	let latestAttendants = $state(BrandedArray<Attendant, AttendantID>([]));
@@ -210,6 +211,8 @@
 	let lastSyncedTime = -Infinity;
 	let isSyncAlive = $state(false);
 
+	let isMounted = $state(false);
+
 	const Keys = [
 		['Q', 'A'],
 		['W', 'S'],
@@ -369,10 +372,15 @@
 	}
 
 	$effect(() => {
-		(document.querySelector(':root') as HTMLElement).style.setProperty(
-			'--root-font-size',
-			`${fontSize / 5}vw`
-		);
+		const root = document.querySelector(':root') as HTMLElement;
+		root.style.setProperty('--root-font-size', `${fontSize}px`);
+		root.style.setProperty('--base-zoom-level', baseZoomLevel.toString());
+	});
+
+	$effect(() => {
+		if (isMounted) {
+			window.localStorage.setItem('kissQ.consoleFontSize', fontSize.toString());
+		}
 	});
 
 	$effect(() => {
@@ -404,7 +412,8 @@
 			}
 		}
 
-		fontSize = Number(window.localStorage.getItem('fontSize') ?? fontSize);
+		fontSize = Number(window.localStorage.getItem('kissQ.consoleFontSize') ?? fontSize);
+		updateBrowserZoom();
 
 		timeElapsed = getTimeElapsedString(gameStartedAt);
 		const updateTimeTimer = setInterval(() => {
@@ -413,6 +422,8 @@
 
 		window.addEventListener('message', processWindowMessage);
 		window.addEventListener('keydown', processKeyboardInput);
+		window.addEventListener('keydown', hookZoomKeyboardShortcut, { passive: false });
+		window.addEventListener('resize', updateBrowserZoom);
 
 		const timer = setInterval(() => postMessage({ command: 'ping' }), 1000);
 
@@ -420,14 +431,46 @@
 			isSyncAlive = Date.now() - lastSyncedTime < 5000;
 		}, 1000);
 
+		isMounted = true;
+
 		return () => {
 			window.removeEventListener('message', processWindowMessage);
 			window.removeEventListener('keydown', processKeyboardInput);
+			window.removeEventListener('keydown', hookZoomKeyboardShortcut);
+			window.removeEventListener('resize', updateBrowserZoom);
 			clearInterval(updateTimeTimer);
 			clearInterval(timer);
 			clearInterval(syncCheckTimer);
 		};
 	});
+
+	function updateBrowserZoom() {
+		baseZoomLevel = window.outerWidth / window.innerWidth;
+	}
+
+	function hookZoomKeyboardShortcut(event: KeyboardEvent) {
+		if (!(event.ctrlKey || event.metaKey)) {
+			return;
+		}
+
+		switch (event.key) {
+			case '+':
+			case ';':
+				fontSize = Math.min(fontSize + 1, 40);
+				break;
+			case '0':
+				fontSize = 16;
+				break;
+			case '-':
+			case '=':
+				fontSize = Math.max(fontSize - 1, 1);
+				break;
+			default:
+				return;
+		}
+
+		event.preventDefault();
+	}
 
 	async function onImport(questions: ImportedQuestion[]) {
 		rawQuestions = [qZero, ...questions.map((q) => ({ ...q, slashOffset: undefined }))];
@@ -553,16 +596,7 @@
 		</label>
 		<label>
 			フォントサイズ
-			<input
-				type="number"
-				value={fontSize}
-				min="1"
-				max="40"
-				onchange={(e) => {
-					fontSize = Number((e.target as HTMLInputElement).value);
-					window.localStorage.setItem('fontSize', fontSize.toString());
-				}}
-			/>
+			<input type="number" bind:value={fontSize} min="1" max="40" />
 		</label>
 	</div>
 	{#if currentState && orderedAttendants}
