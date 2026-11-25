@@ -100,7 +100,7 @@
 
 		&.group-by-seat {
 			:global {
-				& .member:not(:nth-child(2)):not(:last-child) {
+				& .member:not(:nth-child(3)):not(:last-child) {
 					border-top-right-radius: 0;
 					border-bottom-right-radius: 0;
 					.score {
@@ -109,14 +109,14 @@
 					}
 				}
 
-				& .member:nth-child(2):not(:last-child) {
+				& .member:nth-child(3):not(:last-child) {
 					border-bottom-right-radius: 0;
 					.score {
 						border-bottom-right-radius: 0;
 					}
 				}
 
-				& .member:last-child:not(:nth-child(2)) {
+				& .member:last-child:not(:nth-child(3)) {
 					border-top-right-radius: 0;
 					.score {
 						border-top-right-radius: 0;
@@ -161,6 +161,25 @@
 		.batsu-count {
 			font-size: 0.8em;
 			color: #f55;
+		}
+	}
+
+	:global([data-theme='high-contrast']) {
+		.seat-id {
+			color: white;
+			background: black;
+			border: 1px solid white;
+		}
+
+		.seat-id.is-drop-target {
+			color: black;
+			background: yellow;
+		}
+
+		.seat-total {
+			&::before {
+				border-color: black;
+			}
 		}
 	}
 </style>

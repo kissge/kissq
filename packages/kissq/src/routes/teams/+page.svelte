@@ -104,8 +104,10 @@
 	async function editAppearance() {
 		const result = await appearanceDialog.open(wallpaper, trophy);
 		if (result) {
-			wallpaper = result[0];
-			trophy = result[1];
+			document.querySelector('html')!.dataset.theme = result.designTheme;
+
+			wallpaper = result.wallpaper;
+			trophy = result.trophy;
 			const main = document.querySelector('main') as HTMLElement;
 			main.style.backgroundImage = wallpaper ? `url(${wallpaper})` : '';
 			main.style.setProperty('--trophy-image', trophy ? `url(${trophy})` : '');
@@ -607,6 +609,18 @@
 	@keyframes answerer-1st-wrapper {
 		to {
 			scale: 1.05;
+		}
+	}
+
+	:global([data-theme='high-contrast']) {
+		.team {
+			color: black;
+			text-shadow: none;
+			background: #fff;
+		}
+
+		.new-team.is-drop-target {
+			background: yellow;
 		}
 	}
 </style>

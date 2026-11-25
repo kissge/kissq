@@ -164,11 +164,13 @@
 		if (result) {
 			document.querySelector('html')!.dataset.theme = result.designTheme;
 
+			wallpaper = result.wallpaper;
+			trophy = result.trophy;
 			const main = document.querySelector('main') as HTMLElement;
-			main.style.backgroundImage = result.wallpaper ? `url(${result.wallpaper})` : '';
-			main.style.setProperty('--trophy-image', result.trophy ? `url(${result.trophy})` : '');
-			window.localStorage.setItem('wallpaper', result.wallpaper || '');
-			window.localStorage.setItem('trophy', result.trophy || '');
+			main.style.backgroundImage = wallpaper ? `url(${wallpaper})` : '';
+			main.style.setProperty('--trophy-image', trophy ? `url(${trophy})` : '');
+			window.localStorage.setItem('wallpaper', wallpaper || '');
+			window.localStorage.setItem('trophy', trophy || '');
 		}
 	}
 

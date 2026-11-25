@@ -455,4 +455,24 @@
 	.is-drop-target {
 		background-color: yellow;
 	}
+
+	:global([data-theme='high-contrast']) {
+		.member {
+			text-shadow: none;
+			background: white;
+
+			input {
+				color: black;
+				text-shadow: none;
+			}
+		}
+
+		.is-drop-target {
+			background: yellow;
+		}
+
+		.score {
+			background: black;
+		}
+	}
 </style>

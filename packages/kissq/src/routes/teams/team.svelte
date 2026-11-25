@@ -263,4 +263,30 @@
 			}
 		}
 	}
+
+	:global([data-theme='high-contrast']) {
+		input {
+			color: black;
+			text-shadow: none;
+			background: white;
+
+			&::placeholder {
+				color: black;
+			}
+		}
+
+		.team-score {
+			color: white;
+		}
+
+		.bottom-buttons {
+			button {
+				background: black;
+
+				&:not([disabled]):hover {
+					background: #444;
+				}
+			}
+		}
+	}
 </style>
