@@ -602,12 +602,6 @@
 	{#if currentState && orderedAttendants}
 		<div>
 			{#each orderedAttendants as { att, ai, ord: ord2, startOfTeam, startOfSeat }, ord (ai)}
-				{@const prefix = (() => {
-					const team =
-						startOfTeam != null && teams && (teams[startOfTeam] || `チーム${startOfTeam + 1}`);
-					const seat = startOfSeat != null ? `[${startOfSeat + 1}枠]` : null;
-					return [team, seat].filter(Boolean).join(' ');
-				})()}
 				<div
 					class={[
 						'attendant',
@@ -622,10 +616,6 @@
 							'drop-target': dropTarget === ord
 						}
 					]}
-					data-prefix={prefix}
-					style:--prefix-size={prefix.length * 0.6 +
-						[...prefix].filter((c) => c.charCodeAt(0) > 255).length * 0.5 +
-						'em'}
 					animate:flip={{ duration: 500 }}
 					bind:this={attendantElements[ai]}
 					role="listitem"
@@ -675,9 +665,15 @@
 					{/if}
 
 					{#if att.life !== 'removed'}
+						{#if battleMode === 'team' && teams}
+							<div class="team-name">
+								{teams[latestAttendants[ai].team] || `T-${latestAttendants[ai].team + 1}`}
+							</div>
+							<div class="seat-number">{latestAttendants[ai].seat + 1}</div>
+						{/if}
 						<input
 							value={att.name}
-							placeholder={`プレイヤー${ai + 1}`}
+							placeholder={`${ai + 1}P`}
 							onkeyup={(event) => {
 								const newName = (event.target as HTMLInputElement).value;
 								postMessage({
@@ -711,16 +707,14 @@
 								{#if battleMode === 'team'}封鎖リーチ{:else}失格リーチ{/if}
 							</span>
 						{/if}
-						&nbsp;
 						{#if battleMode === 'single'}
 							<span class="score">
 								{#if att.rule.mode === 'marubatsu'}
-									{att.maruCount}◯{att.batsuCount}×
+									{att.maruCount}〇{att.batsuCount}×
 								{:else if att.rule.mode === 'score' || att.rule.mode === 'survival' || att.rule.mode === 'MbyN'}
 									{att.score} pt{#if att.score !== 1}s{/if}
 								{/if}
 							</span>
-							&nbsp;
 						{/if}
 						{#if att.life === 'won'}
 							<span class="won" transition:fade>勝ち</span>
@@ -731,41 +725,47 @@
 						{:else if att.yasuDisplay > 0}
 							{#if att.yasuCount === 'next'}次{/if}{att.yasuDisplay}休
 						{:else}
-							<button
-								class="labeled"
-								data-label={Keys[ord2]?.[0] || ''}
-								onclick={() => postMessage({ command: 'clickMaru', attendantID: AttendantID(ai) })}
-							>
-								O
-							</button>
-
-							{#if effect2Name}
+							<div class="btn-wrapper">
 								<button
+									class="labeled"
+									data-label={Keys[ord2]?.[0] || ''}
 									onclick={() =>
-										postMessage({ command: 'clickEffect2', attendantID: AttendantID(ai) })}
+										postMessage({ command: 'clickMaru', attendantID: AttendantID(ai) })}
 								>
-									2O
+									O
 								</button>
-							{/if}
-							{#if effect3Name}
-								<button
-									onclick={() =>
-										postMessage({ command: 'clickEffect3', attendantID: AttendantID(ai) })}
-								>
-									3O
-								</button>
-							{/if}
 
-							<button
-								class="labeled"
-								data-label={Keys[ord2]?.[1] || ''}
-								onclick={() => postMessage({ command: 'clickBatsu', attendantID: AttendantID(ai) })}
-							>
-								X
-							</button>
+								{#if effect2Name}
+									<button
+										onclick={() =>
+											postMessage({ command: 'clickEffect2', attendantID: AttendantID(ai) })}
+									>
+										2O
+									</button>
+								{/if}
+								{#if effect3Name}
+									<button
+										onclick={() =>
+											postMessage({ command: 'clickEffect3', attendantID: AttendantID(ai) })}
+									>
+										3O
+									</button>
+								{/if}
+
+								<button
+									class="labeled"
+									data-label={Keys[ord2]?.[1] || ''}
+									onclick={() =>
+										postMessage({ command: 'clickBatsu', attendantID: AttendantID(ai) })}
+								>
+									X
+								</button>
+							</div>
 						{/if}
 					{/if}
-					<span class="nickname">{att.nickname}</span>
+					<span class="nickname {battleMode === 'team' && teams ? 'with-team' : ''}">
+						{att.nickname}
+					</span>
 				</div>
 			{:else}
 				{#if !isSyncAlive}
@@ -966,7 +966,7 @@
 </main>
 
 <footer class="console" class:show-keyboard={isKeyboardEnabled}>
-	<button onclick={() => (csvImportDialogOpen = true)}>問題を読み込み</button>
+	<button onclick={() => (csvImportDialogOpen = true)}>問読込</button>
 	<button
 		class="labeled"
 		data-label="N"
@@ -974,7 +974,7 @@
 		{@attach !!companionSessionID && tooltip('ローカルのみ')}
 		onclick={() => showQuestion(currentIndex - 1)}
 	>
-		← 前の問題へ
+		← 前問
 	</button>
 	<button
 		class="labeled"
@@ -983,12 +983,10 @@
 		{@attach !!companionSessionID && tooltip('ローカルのみ')}
 		onclick={() => showQuestion(currentIndex + 1)}
 	>
-		次の問題へ →
+		次問 →
 	</button>
-	<button onclick={() => postMessage({ command: 'toggleQuestionWindow' })}>
-		問題ウィンドウを表示・非表示
-	</button>
-	<button onclick={() => postMessage({ command: 'toggleWinner' })}>表彰画面</button>
+	<button onclick={() => postMessage({ command: 'toggleQuestionWindow' })}>問表示</button>
+	<button onclick={() => postMessage({ command: 'toggleWinner' })}>表彰</button>
 	<button
 		{@attach tooltip(
 			'全体メンバーリストの中から選択した何人かだけでゲームを行うことができます。大会にべんり！！！'
@@ -998,10 +996,10 @@
 			showConventionAssist = !showConventionAssist;
 		}}
 	>
-		大会アシスト{#if showConventionAssist}を非表示に{/if}
+		大会ｱｼｽﾄ{#if showConventionAssist}を非表示に{/if}
 	</button>
 	<button disabled={!companionSessionID} onclick={() => postMessage({ command: 'toggleQRCode' })}>
-		QRコードを表示・非表示
+		QR表示
 	</button>
 	<button disabled={!companionSessionID} onclick={(e) => fetchRemoteQuestions()}>
 		クラウドから同期
@@ -1014,7 +1012,7 @@
 			window.open(`./records?${search}`, 'records');
 		}}
 	>
-		記録集を出力
+		記録集
 	</button>
 </footer>
 
@@ -1072,7 +1070,7 @@
 		display: flex;
 		flex-wrap: wrap;
 		gap: 0.5em;
-		align-items: center;
+		align-items: stretch;
 		margin-bottom: 1em;
 
 		button.blink {
@@ -1096,21 +1094,35 @@
 		}
 
 		.attendant {
-			padding: 0.5em;
-			line-height: 2.1;
-			border: 1px solid #ccc;
-			--prefix-size: 5em;
+			&:has(.lizhi) {
+				box-shadow: 0 0 0.5em #0004;
+			}
 
-			&[data-prefix] {
-				position: relative;
-				margin-left: var(--prefix-size);
+			.team-name {
+				max-width: 4em;
+				height: 1em;
+				text-align: center;
+				text-fit: shrink;
+			}
 
-				&::before {
-					position: absolute;
-					left: calc(-1 * var(--prefix-size));
-					display: block;
-					content: attr(data-prefix);
-					border-bottom: 5px solid #444;
+			.seat-number {
+				width: 2em;
+				margin: 0 auto;
+				font-size: 0.6em;
+				line-height: 1em;
+				text-align: center;
+				border: 1px solid #ccc;
+				border-radius: 1em;
+			}
+
+			.btn-wrapper {
+				display: flex;
+				flex-wrap: wrap;
+				max-width: 5em;
+
+				&:not(:has(:nth-child(3))) {
+					flex-direction: column;
+					align-items: center;
 				}
 			}
 		}
@@ -1118,7 +1130,7 @@
 		.lizhi,
 		.won,
 		.lost {
-			padding: 0 0.5em;
+			text-align: center;
 			border-radius: 1em;
 		}
 
@@ -1126,8 +1138,10 @@
 			position: absolute;
 			top: -0.5em;
 			left: -0.5em;
+			padding: 0.5em 0;
 			font-size: 0.75em;
 			background: #dddd0e;
+			writing-mode: vertical-rl;
 		}
 		.won {
 			background: #7cfc00;
@@ -1139,9 +1153,14 @@
 
 		.nickname {
 			position: absolute;
-			bottom: 0;
-			left: 0.75em;
+			top: 0;
+			left: -0.5em;
 			font-size: 0.675em;
+			writing-mode: vertical-rl;
+
+			&.with-team {
+				top: 2.5em;
+			}
 		}
 
 		small button {
@@ -1156,6 +1175,7 @@
 				height: 1em;
 				background-color: #ccc;
 				border-radius: 0.5em;
+				translate: 0 0.35em;
 			}
 
 			.timer-bar-inner {
@@ -1255,7 +1275,7 @@
 	footer.console {
 		display: flex;
 		flex-wrap: wrap;
-		gap: 0.5em;
+		gap: 0.25em;
 		align-items: center;
 		box-shadow: 0 -2px 5px #0004;
 
@@ -1271,6 +1291,7 @@
 			position: absolute;
 			top: -0.5em;
 			right: -0.5em;
+			z-index: 1;
 			display: block;
 			width: 1em;
 			color: white;
@@ -1282,10 +1303,15 @@
 
 	.attendant {
 		position: relative;
+		display: flex;
+		flex-direction: column;
+		gap: 0.5em;
 
 		.score {
 			padding: 0 0.2em;
+			font-size: 0.8em;
 			color: white;
+			text-align: center;
 			background: black;
 			border-radius: 0.5em;
 		}
@@ -1295,9 +1321,12 @@
 		}
 
 		input {
-			min-width: 1ch;
+			flex-grow: 1;
+			min-height: 1ch;
+			max-height: 12ch;
 			field-sizing: content;
 			border-color: transparent;
+			writing-mode: vertical-rl;
 		}
 
 		&:hover input {
