@@ -748,17 +748,9 @@ export type GameEventType =
 	| 'finished';
 
 export type GameEvent =
-	| {
-			type: 'finished';
-	  }
-	| {
-			type: GameEventType;
-			attendantID: AttendantID;
-	  }
-	| {
-			type: GameEventType;
-			teamID: TeamID;
-	  };
+	| { type: 'finished'; target?: never }
+	| { type: GameEventType; target: 'single'; attendantID: AttendantID }
+	| { type: GameEventType; target: 'team'; teamID: TeamID };
 
 export class GameState {
 	attendants: BrandedArray<AttendantState, AttendantID>;
@@ -911,7 +903,7 @@ export class GameState {
 			if (survivor !== null) {
 				this.attendants[survivor].life = 'won';
 				this.attendants[survivor].trophyCount++;
-				this.latestEvent = { type: 'won', attendantID: survivor };
+				this.latestEvent = { type: 'won', target: 'single', attendantID: survivor };
 			}
 		}
 

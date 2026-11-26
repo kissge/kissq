@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { isUnlocked } from 'kissunlocklib';
-	import { watch } from 'runed';
 	import { onMount } from 'svelte';
 	import { flip } from 'svelte/animate';
 	import { fade, slide } from 'svelte/transition';
@@ -10,6 +9,7 @@
 	import { loadFromHash, saveToHash, type Attendant } from '$lib/attendant';
 	import AnswerHistoryDialog from '$lib/components/answerHistoryDialog.svelte';
 	import AppearanceDialog from '$lib/components/appearanceDialog.svelte';
+	import Banner from '$lib/components/banner.svelte';
 	import EffectEditDialog from '$lib/components/effectEditDialog.svelte';
 	import Footer from '$lib/components/footer.svelte';
 	import Header from '$lib/components/header.svelte';
@@ -19,7 +19,6 @@
 	import QuestionWindow from '$lib/components/questionWindow.svelte';
 	import RestorePopup from '$lib/components/restorePopup.svelte';
 	import RuleEditDialog from '$lib/components/ruleEditDialog.svelte';
-	import Stars from '$lib/components/stars.svelte';
 	import StateEditDialog from '$lib/components/stateEditDialog.svelte';
 	import TransferAttendantsDialog from '$lib/components/transferAttendantsDialog.svelte';
 	import UndoButton from '$lib/components/undoButton.svelte';
@@ -33,7 +32,7 @@
 	import { saveRecoveryIfNecessary } from '$lib/restore';
 	import { Rule } from '$lib/rule';
 	import { reconnect } from '$lib/serial';
-	import { AttendantState, type GameEvent } from '$lib/state';
+	import { AttendantState } from '$lib/state';
 	import { tooltip } from '$lib/tooltip.svelte';
 	import { AttendantID, BrandedArray, TeamID } from '$lib/types';
 	import { setWasedashikiContext, WasedashikiClass } from '$lib/wasedashiki.svelte';
@@ -53,29 +52,6 @@
 	let Logger = new LoggerClass('single');
 	setLoggerContext(Logger);
 	Game.Logger = Logger;
-
-	let isBannerVisible = $state<GameEvent | null>(null);
-	watch(
-		() => Game.currentState.latestEvent,
-		(curr, prev) => {
-			if (
-				curr?.type !== prev?.type ||
-				(curr &&
-					prev &&
-					'attendantID' in curr &&
-					'attendantID' in prev &&
-					curr?.attendantID !== prev?.attendantID)
-			) {
-				showBanner(curr);
-			}
-		}
-	);
-	let showBannerTimeout: number | NodeJS.Timeout = 0;
-	function showBanner(event: GameEvent | null, duration: number = 3000) {
-		isBannerVisible = event;
-		clearTimeout(showBannerTimeout);
-		showBannerTimeout = setTimeout(() => (isBannerVisible = null), duration);
-	}
 
 	let attendantFLIPDelay = $state(0);
 
@@ -204,7 +180,6 @@
 
 	onMount(() => {
 		Game.penaltyRoulette = penaltyRoulette;
-		Game.showBanner = showBanner;
 
 		isUnlocked().then((unlocked) => {
 			if (unlocked) {
@@ -739,41 +714,7 @@
 	</button>
 </div>
 
-{#if isBannerVisible}
-	<div class="banner-bg" transition:fade>
-		<Stars />
-	</div>
-	<div class={['banner', isBannerVisible.type]} transition:slide={{ axis: 'x' }}>
-		{#if 'attendantID' in isBannerVisible}
-			<div class="banner-name-wrapper">
-				{#if Game.attendants[isBannerVisible.attendantID].nickname}
-					<div class="banner-nickname">
-						{Game.attendants[isBannerVisible.attendantID].nickname}
-					</div>
-				{/if}
-				<div class="banner-name">
-					{Game.attendants[isBannerVisible.attendantID].name ||
-						'プレイヤー ' + (isBannerVisible.attendantID + 1)}
-				</div>
-			</div>
-		{/if}
-		{#if isBannerVisible.type === 'won'}
-			勝ち抜け
-		{:else if isBannerVisible.type === 'lizhi'}
-			リーチ
-		{:else if isBannerVisible.type === 'double-lizhi'}
-			ダブルリーチ
-		{:else if isBannerVisible.type === 'effect2'}
-			{Game.effect2Name}
-		{:else if isBannerVisible.type === 'effect3'}
-			{Game.effect3Name}
-		{:else if isBannerVisible.type === 'transit'}
-			通過席
-		{:else if isBannerVisible.type === 'finished'}
-			問題終了
-		{/if}
-	</div>
-{/if}
+<Banner />
 
 {#if QuestionConsole.showWinner}
 	<!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_static_element_interactions -->
@@ -933,25 +874,6 @@
 
 		select {
 			font-size: 1em;
-		}
-	}
-
-	.banner-name-wrapper {
-		margin-right: 0.25em;
-	}
-
-	.banner-name-wrapper:has(.banner-nickname) {
-		display: flex;
-		flex-direction: column;
-		align-items: flex-end;
-
-		.banner-nickname {
-			font-size: 0.4em;
-			font-weight: lighter;
-		}
-
-		.banner-name {
-			font-size: 0.8em;
 		}
 	}
 

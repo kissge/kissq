@@ -49,7 +49,7 @@ export class MaruHistoryEntry implements HistoryEntry {
 		);
 
 		if (att.life === 'alive' && life === 'won') {
-			state.latestEvent = { type: 'won', attendantID: this.attendantID };
+			state.latestEvent = { type: 'won', target: 'single', attendantID: this.attendantID };
 		}
 
 		if (att.life !== 'won' && life === 'won') {
@@ -85,11 +85,15 @@ export class MaruHistoryEntry implements HistoryEntry {
 
 		if (life === 'alive' && att.processMaru(1, true).life === 'won') {
 			if (att.rule.transit) {
-				state.latestEvent = { type: 'transit', attendantID: this.attendantID };
+				state.latestEvent = { type: 'transit', target: 'single', attendantID: this.attendantID };
 			} else if (att.processBatsu().life === 'lost') {
-				state.latestEvent = { type: 'double-lizhi', attendantID: this.attendantID };
+				state.latestEvent = {
+					type: 'double-lizhi',
+					target: 'single',
+					attendantID: this.attendantID
+				};
 			} else {
-				state.latestEvent = { type: 'lizhi', attendantID: this.attendantID };
+				state.latestEvent = { type: 'lizhi', target: 'single', attendantID: this.attendantID };
 			}
 		}
 
@@ -132,7 +136,7 @@ export class MaruHistoryEntry implements HistoryEntry {
 			team.processMaru(this.attendantID, this.multiplier);
 
 		if (team.teamLife === 'alive' && teamLife === 'won') {
-			state.latestEvent = { type: 'won', teamID: ti };
+			state.latestEvent = { type: 'won', target: 'team', teamID: ti };
 		}
 
 		if (team.teamLife !== 'won' && teamLife === 'won') {
@@ -155,9 +159,9 @@ export class MaruHistoryEntry implements HistoryEntry {
 				.some((ai) => ai != null && team.processMaru(ai, this.multiplier).teamLife === 'won')
 		) {
 			if (att.rule.transit) {
-				state.latestEvent = { type: 'transit', teamID: ti };
+				state.latestEvent = { type: 'transit', target: 'team', teamID: ti };
 			} else {
-				state.latestEvent = { type: 'lizhi', teamID: ti };
+				state.latestEvent = { type: 'lizhi', target: 'team', teamID: ti };
 			}
 		}
 		return state;

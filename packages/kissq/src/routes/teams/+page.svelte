@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { watch } from 'runed';
 	import { onMount } from 'svelte';
 	import { flip } from 'svelte/animate';
 	import { fade, fly, slide } from 'svelte/transition';
@@ -8,6 +7,7 @@
 	import { dev } from '$app/env';
 	import { loadFromHash, saveToHash, type Attendant } from '$lib/attendant';
 	import AppearanceDialog from '$lib/components/appearanceDialog.svelte';
+	import Banner from '$lib/components/banner.svelte';
 	import Footer from '$lib/components/footer.svelte';
 	import Header from '$lib/components/header.svelte';
 	import LogDialog from '$lib/components/logDialog.svelte';
@@ -15,7 +15,6 @@
 	import QuestionWindow from '$lib/components/questionWindow.svelte';
 	import RestorePopup from '$lib/components/restorePopup.svelte';
 	import RuleTeamEditDialog from '$lib/components/ruleTeamEditDialog.svelte';
-	import Stars from '$lib/components/stars.svelte';
 	import TransferAttendantsDialog from '$lib/components/transferAttendantsDialog.svelte';
 	import UndoButton from '$lib/components/undoButton.svelte';
 	import UnlockDialog from '$lib/components/unlockDialog.svelte';
@@ -35,8 +34,6 @@
 	import { DnDClass, setDnDContext } from './dnd.svelte';
 	import { TeamGameClass, setTeamGameContext } from './game.svelte';
 	import Team from './team.svelte';
-
-	import type { GameEvent } from '$lib/state';
 
 	let Game = new TeamGameClass();
 	setTeamGameContext(Game);
@@ -80,25 +77,6 @@
 				),
 			resetGroups
 		);
-	}
-
-	let isBannerVisible = $state<GameEvent | null>(null);
-	watch(
-		() => Game.currentState.latestEvent,
-		(curr, prev) => {
-			if (
-				curr?.type !== prev?.type ||
-				(curr && prev && 'teamID' in curr && 'teamID' in prev && curr?.teamID !== prev?.teamID)
-			) {
-				showBanner(curr);
-			}
-		}
-	);
-	let showBannerTimeout: number | NodeJS.Timeout = 0;
-	function showBanner(event: GameEvent | null, duration: number = 3000) {
-		isBannerVisible = event;
-		clearTimeout(showBannerTimeout);
-		showBannerTimeout = setTimeout(() => (isBannerVisible = null), duration);
 	}
 
 	async function editAppearance() {
@@ -441,34 +419,7 @@
 	</button>
 </div>
 
-{#if isBannerVisible}
-	<div class="banner-bg" transition:fade>
-		<Stars />
-	</div>
-	<div class={['banner', isBannerVisible.type]} transition:slide={{ axis: 'x' }}>
-		{#if 'attendantID' in isBannerVisible}
-			{Game.attendants[isBannerVisible.attendantID].name ||
-				'プレイヤー ' + (isBannerVisible.attendantID + 1)}
-		{:else if 'teamID' in isBannerVisible}
-			{Game.teams[isBannerVisible.teamID] || 'チーム ' + (isBannerVisible.teamID + 1)}
-		{/if}
-		{#if isBannerVisible.type === 'won'}
-			勝ち抜け
-		{:else if isBannerVisible.type === 'lizhi'}
-			リーチ
-		{:else if isBannerVisible.type === 'double-lizhi'}
-			ダブルリーチ
-		{:else if isBannerVisible.type === 'effect2'}
-			!!
-		{:else if isBannerVisible.type === 'effect3'}
-			!!
-		{:else if isBannerVisible.type === 'transit'}
-			通過席
-		{:else if isBannerVisible.type === 'finished'}
-			問題終了
-		{/if}
-	</div>
-{/if}
+<Banner />
 
 {#if QuestionConsole.showWinner}
 	<!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_static_element_interactions -->

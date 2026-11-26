@@ -1109,11 +1109,6 @@
 			flex-grow: 1;
 		}
 
-		input[type='number'] {
-			width: 3em;
-			font-size: 1rem;
-		}
-
 		.attendant {
 			&:has(.lizhi) {
 				box-shadow: 0 0 0.5em #0004;

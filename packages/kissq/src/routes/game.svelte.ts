@@ -8,7 +8,7 @@ import { BatsuHistoryEntry, BulkAdjustHistoryEntry, type HistoryEntry } from '$l
 import { LoggerClass } from '$lib/logs';
 import { Rule, type Penalty } from '$lib/rule';
 import { playSound } from '$lib/sound';
-import { GameState } from '$lib/state';
+import { GameState, type GameEvent } from '$lib/state';
 import { AttendantID, BrandedArray, TeamID } from '$lib/types';
 import { getRankingOf } from '$lib/utils';
 
@@ -51,9 +51,7 @@ export class SingleGameClass extends GameClassBase {
 	effect2Name = $state<string>();
 	effect3Name = $state<string>();
 	isConventionAssistActive = $state(false);
-	showBanner = (options: { type: 'effect2' | 'effect3'; attendantID: AttendantID }) => {
-		void options;
-	};
+	showBanner: (event: GameEvent, duration?: number) => void = () => {};
 	bulkAdjustmentScore = $state<number | null>(null);
 	bulkAdjustmentTarget = $state<boolean[]>([]);
 	gameStartedAt = $state(new SvelteDate());

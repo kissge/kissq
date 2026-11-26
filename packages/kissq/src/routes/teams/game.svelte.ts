@@ -7,7 +7,7 @@ import { GameClassBase } from '$lib/game';
 import { BatsuHistoryEntry, type HistoryEntry } from '$lib/historyEntry';
 import { Rule } from '$lib/rule';
 import { playSound } from '$lib/sound';
-import { GameState } from '$lib/state';
+import { GameState, type GameEvent } from '$lib/state';
 import { AttendantID, BrandedArray, TeamID } from '$lib/types';
 import { getRankingOf } from '$lib/utils';
 
@@ -55,7 +55,7 @@ export class TeamGameClass extends GameClassBase {
 	enableRating = false;
 	effect2Name = undefined;
 	effect3Name = undefined;
-	showBanner = () => {};
+	showBanner: (event: GameEvent, duration?: number) => void = () => {};
 	bulkAdjustmentScore = null;
 	bulkAdjust = () => {};
 	addBulkAdjustmentTarget = () => {};

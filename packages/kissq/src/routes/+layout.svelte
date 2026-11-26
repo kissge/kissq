@@ -189,51 +189,6 @@
 			}
 		}
 
-		.banner-bg {
-			position: fixed;
-			inset: 0;
-			z-index: 9998;
-			background-color: rgba(0, 0, 0, 0.3);
-		}
-
-		.banner {
-			position: fixed;
-			top: calc(50% - 0.7em);
-			right: 0;
-			bottom: calc(50% - 0.7em);
-			left: 0;
-			z-index: 9999;
-			display: flex;
-			align-items: center;
-			justify-content: center;
-			overflow: hidden;
-			font-size: min(8dvw, 20dvh);
-			font-weight: bold;
-			line-height: 1;
-			text-align: center;
-			white-space: nowrap;
-			text-shadow: 0 0 15px #444;
-			pointer-events: none;
-			user-select: none;
-			box-shadow: 0 0 20px #222;
-
-			&.won,
-			&.finished {
-				color: white;
-				background-color: rgba(255 100 100 / 0.3);
-				backdrop-filter: blur(10px);
-			}
-			&.lizhi,
-			&.double-lizhi,
-			&.effect2,
-			&.effect3,
-			&.transit {
-				color: rgb(255 231 231);
-				background-color: rgba(240 240 175 / 0.4);
-				backdrop-filter: blur(10px);
-			}
-		}
-
 		:global(html) {
 			font-size: var(--root-font-size);
 			zoom: calc(1 / var(--base-zoom-level, 1) * 100%);

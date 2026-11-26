@@ -16,7 +16,7 @@ import { AttendantID, BrandedArray, type TeamID } from './types';
 
 import type { Attendant } from './attendant';
 import type { WasedashikiMode } from './serial';
-import type { GameState } from './state';
+import type { GameEvent, GameState } from './state';
 import type { WasedashikiClass } from './wasedashiki.svelte';
 
 export abstract class GameClassBase {
@@ -43,7 +43,7 @@ export abstract class GameClassBase {
 	abstract effect2Name: string | undefined;
 	abstract effect3Name: string | undefined;
 	abstract isConventionAssistActive: boolean;
-	abstract showBanner: (options: { type: 'effect2' | 'effect3'; attendantID: AttendantID }) => void;
+	abstract showBanner: (event: GameEvent, duration?: number) => void;
 	abstract bulkAdjustmentScore: number | null;
 	abstract bulkAdjust(): void;
 	abstract addBulkAdjustmentTarget(attendantID: AttendantID): void;
@@ -165,7 +165,7 @@ export abstract class GameClassBase {
 			playSound(se1);
 			setTimeout(() => playSound(se1), 150);
 		}
-		this.showBanner({ type: 'effect2', attendantID });
+		this.showBanner({ type: 'effect2', target: 'single', attendantID });
 	}
 
 	clickEffect3(attendantID: AttendantID) {
@@ -175,7 +175,7 @@ export abstract class GameClassBase {
 			setTimeout(() => playSound(se1), 150);
 			setTimeout(() => playSound(se1), 300);
 		}
-		this.showBanner({ type: 'effect3', attendantID });
+		this.showBanner({ type: 'effect3', target: 'single', attendantID });
 	}
 
 	clickThrough() {
