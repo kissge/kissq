@@ -8,6 +8,7 @@
 	import seLike from '$lib/assets/like.ogg';
 	import { getQuestionConsoleContext } from '$lib/questionConsole.svelte';
 	import { playSound } from '$lib/sound';
+	import { tooltip } from '$lib/tooltip.svelte';
 	import { splitQuestion } from '$lib/utils';
 
 	let { blur }: { blur: boolean } = $props();
@@ -86,7 +87,7 @@
 </script>
 
 {#if QuestionConsole.showQuestionWindow}
-	<div transition:fade class:blur>
+	<div in:fade class:blur>
 		<div class="question textbook-font">
 			{#key QuestionConsole.currentQuestion.question}
 				<p in:fade>
@@ -121,18 +122,26 @@
 					{/each}
 				</p>
 			</div>
-			<button
-				class="popup-btn"
-				onclick={() => {
-					popupWindow = window.open(
-						'./question-popup',
-						'popupWindow',
-						'popup=yes, toolbar=no, scrollbars=no, menubar=no, status=no, directories=no, width=800, height=200'
-					);
-				}}
-			>
-				↗︎
-			</button>
+			<div class="popup-btn-wrapper">
+				<button
+					{@attach tooltip('問題のみを表示するウィンドウを開きます。')}
+					onclick={() => {
+						popupWindow = window.open(
+							'./question-popup',
+							'popupWindow',
+							'popup=yes, toolbar=no, scrollbars=no, menubar=no, status=no, directories=no, width=800, height=200'
+						);
+					}}
+				>
+					↗︎
+				</button>
+				<button
+					{@attach tooltip('問題ウィンドウを閉じます。')}
+					onclick={() => (QuestionConsole.showQuestionWindow = false)}
+				>
+					✕
+				</button>
+			</div>
 		</div>
 	</div>
 {/if}
@@ -223,19 +232,27 @@
 		filter: blur(0.3em);
 	}
 
-	.popup-btn {
+	.popup-btn-wrapper {
 		position: absolute;
 		top: 0.5em;
 		right: 0.5em;
 		font-size: 0.8em;
-		color: #fff;
-		cursor: pointer;
-		background: none;
-		border: none;
 		opacity: 0;
 		transition: 0.3s opacity ease;
+
+		button {
+			color: #fff;
+			cursor: pointer;
+			background: none;
+			border: 1px solid transparent;
+
+			&:hover {
+				border-color: white;
+				box-shadow: none;
+			}
+		}
 	}
-	.question:hover .popup-btn {
+	.question:hover .popup-btn-wrapper {
 		opacity: 1;
 	}
 
