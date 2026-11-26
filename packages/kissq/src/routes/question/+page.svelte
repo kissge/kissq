@@ -8,6 +8,7 @@
 	import Toastify from 'toastify-js';
 
 	import { getAPIClient, type APIClient } from '$lib/api';
+	import { isMacOS } from '$lib/browser';
 	import RuleEditDialog from '$lib/components/ruleEditDialog.svelte';
 	import RuleTeamEditDialog from '$lib/components/ruleTeamEditDialog.svelte';
 	import { parseComment, qZero, type RawQuestion } from '$lib/question';
@@ -583,23 +584,6 @@
 		>
 			ルール編集
 		</button>
-		<div class="spacer"></div>
-		<div>
-			プレイヤーの表示順
-			<select bind:value={order} disabled={battleMode === 'team'}>
-				<option value="added">追加順</option>
-				<option value="same">画面と同じ</option>
-				<option value="reverse">画面の逆順</option>
-			</select>
-		</div>
-		<label>
-			<input type="checkbox" bind:checked={isKeyboardEnabled} />
-			キーボード操作
-		</label>
-		<label>
-			フォントサイズ
-			<input type="number" bind:value={fontSize} min="1" max="40" />
-		</label>
 	</div>
 	{#if currentState && orderedAttendants}
 		<div>
@@ -1016,7 +1000,52 @@
 	>
 		記録集
 	</button>
+
+	<div class="spacer"></div>
+
+	<button
+		popovertarget="other-menu"
+		class="other-menu-button"
+		onclick={() => setTimeout(() => (document.getElementById('other-menu')!.scrollTop = 0), 100)}
+		{@attach tooltip('その他の操作を表示します。')}
+	>
+		⋮
+	</button>
 </footer>
+
+<!-- svelte-ignore a11y_click_events_have_key_events -->
+<div popover id="other-menu" role="menu" tabindex="-1">
+	<h3>表示設定</h3>
+	<label>
+		プレイヤーの表示順
+		<select bind:value={order} disabled={battleMode === 'team'}>
+			<option value="added">追加順</option>
+			<option value="same">画面と同じ</option>
+			<option value="reverse">画面の逆順</option>
+		</select>
+	</label>
+	<label>
+		<div>
+			フォントサイズ
+			<small>
+				{#if isMacOS}
+					（⌘＋ / ⌘−）
+				{:else}
+					（Ctrl + ＋ / Ctrl + −）
+				{/if}
+			</small>
+		</div>
+		<input type="number" bind:value={fontSize} min="1" max="40" />
+	</label>
+
+	<h3>操作設定</h3>
+	<button class:active={isKeyboardEnabled} onclick={() => (isKeyboardEnabled = !isKeyboardEnabled)}>
+		キーボード操作：{isKeyboardEnabled ? '有効' : '無効'}
+		<small>
+			（を{isKeyboardEnabled ? '無効' : '有効'}に）
+		</small>
+	</button>
+</div>
 
 <ConventionAssist
 	bind:this={conventionAssist}
@@ -1046,11 +1075,6 @@
 	input,
 	select {
 		font-size: 1.2em;
-	}
-
-	input[type='checkbox'] {
-		width: 0.8em;
-		height: 0.8em;
 	}
 
 	button {
@@ -1083,11 +1107,6 @@
 
 		.spacer {
 			flex-grow: 1;
-		}
-
-		label {
-			display: flex;
-			gap: 0.25em;
 		}
 
 		input[type='number'] {
@@ -1402,6 +1421,17 @@
 		&.through,
 		&.finished {
 			background: #0f0;
+		}
+	}
+
+	#other-menu {
+		font-size: 1em;
+
+		label {
+			display: flex;
+			gap: 0.5em;
+			justify-content: space-between;
+			margin-left: 1em;
 		}
 	}
 
