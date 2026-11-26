@@ -321,6 +321,8 @@
 			...questions[currentIndex]
 		});
 
+		rawQuestions[index].shown = 1;
+
 		if (syncCloud && client && companionSessionID && index > 0) {
 			(async () => {
 				await client.api.question.show.$post({
@@ -862,7 +864,7 @@
 	<table>
 		<tbody>
 			{#each questions as { question, answer, comment, media, shown, correctAnswerer, slashOffset, likedBy }, index (question + index)}
-				<tr class:current={index === currentIndex}>
+				<tr class:current={index === currentIndex} class:shown>
 					<td
 						rowspan={1 +
 							(comment || media || (likedBy?.length ?? 0) > 0 ? 1 : 0) +
@@ -902,7 +904,7 @@
 				</tr>
 
 				{#if comment || media || (likedBy?.length ?? 0) > 0}
-					<tr>
+					<tr class:current={index === currentIndex} class:shown>
 						<td colspan="2" class="comment">
 							<small>
 								{comment}
@@ -996,7 +998,7 @@
 			showConventionAssist = !showConventionAssist;
 		}}
 	>
-		大会ｱｼｽﾄ{#if showConventionAssist}を非表示に{/if}
+		大会アシスト{#if showConventionAssist}を非表示に{/if}
 	</button>
 	<button disabled={!companionSessionID} onclick={() => postMessage({ command: 'toggleQRCode' })}>
 		QR表示
@@ -1199,6 +1201,10 @@
 			background-color: #f0f0f0;
 		}
 
+		tr.shown {
+			background: rgb(118 112 221 / 0.3);
+		}
+
 		tr.current {
 			font-weight: bold;
 			background-color: #ffff99;
@@ -1280,7 +1286,7 @@
 		box-shadow: 0 -2px 5px #0004;
 
 		button {
-			font-size: 1em;
+			font-size: 0.8em;
 		}
 	}
 
