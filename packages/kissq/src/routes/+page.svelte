@@ -35,7 +35,7 @@
 	import { reconnect } from '$lib/serial';
 	import { AttendantState, type GameEvent } from '$lib/state';
 	import { tooltip } from '$lib/tooltip.svelte';
-	import { AttendantID, BrandedArray } from '$lib/types';
+	import { AttendantID, BrandedArray, TeamID } from '$lib/types';
 	import { setWasedashikiContext, WasedashikiClass } from '$lib/wasedashiki.svelte';
 	import { wave } from '$lib/waveEffect';
 
@@ -232,7 +232,7 @@
 				{
 					name: '',
 					group: 0,
-					team: 0,
+					team: TeamID(0),
 					seat: 0,
 					trophyCount: 0,
 					totalScore: { maru: 0, batsu: 0 },
@@ -241,7 +241,7 @@
 				{
 					name: '',
 					group: 0,
-					team: 0,
+					team: TeamID(0),
 					seat: 0,
 					trophyCount: 0,
 					totalScore: { maru: 0, batsu: 0 },

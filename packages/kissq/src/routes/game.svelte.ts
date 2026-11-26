@@ -9,7 +9,7 @@ import { LoggerClass } from '$lib/logs';
 import { Rule, type Penalty } from '$lib/rule';
 import { playSound } from '$lib/sound';
 import { GameState } from '$lib/state';
-import { AttendantID, BrandedArray } from '$lib/types';
+import { AttendantID, BrandedArray, TeamID } from '$lib/types';
 import { getRankingOf } from '$lib/utils';
 
 import type { WasedashikiMode } from '$lib/serial';
@@ -61,8 +61,10 @@ export class SingleGameClass extends GameClassBase {
 	Logger?: LoggerClass;
 
 	// dummy
-	teams: string[] = [];
-	attendantsPerTeam: ({ att: Attendant; ai: AttendantID }[] | undefined)[][] = [];
+	teams = BrandedArray<string, TeamID>([]);
+	attendantsPerTeam = BrandedArray<({ att: Attendant; ai: AttendantID }[] | undefined)[], TeamID>(
+		[]
+	);
 
 	penaltyRoulette?: { run: (choices: Penalty[]) => Promise<number> };
 
@@ -127,7 +129,7 @@ export class SingleGameClass extends GameClassBase {
 	 * 現在のスコアでの個人ランキング（同率を考慮）
 	 * 添字はattendantID、値は順位（1位が1、2位が2、同率の場合は同じ順位）
 	 */
-	get scoreRanks(): number[] {
+	get scoreRanks(): BrandedArray<number, AttendantID> {
 		const mixed = this.currentState.attendants.some(
 			(a, _, all) => a.rule.mode !== all[0].rule.mode
 		);
@@ -141,7 +143,7 @@ export class SingleGameClass extends GameClassBase {
 	 * 通算スコアでの個人ランキング（同率を考慮）
 	 * 添字はattendantID、値は順位（1位が1、2位が2、同率の場合は同じ順位）
 	 */
-	get totalScoreRanks(): number[] {
+	get totalScoreRanks(): BrandedArray<number, AttendantID> {
 		return getRankingOf(this.currentState.attendants, (a) => a.sortTotalScore(this.enableRating));
 	}
 
@@ -149,7 +151,7 @@ export class SingleGameClass extends GameClassBase {
 		const attendant: Attendant = {
 			name: han2zen(name ?? ''),
 			group: 0,
-			team: 0,
+			team: TeamID(0),
 			seat: 0,
 			trophyCount: 0,
 			totalScore: { maru: 0, batsu: 0 },

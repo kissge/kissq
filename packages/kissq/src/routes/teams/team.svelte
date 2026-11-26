@@ -104,7 +104,7 @@
 						.filter((_, i) => Game.attendants[i].team !== ti)
 						.map((att) => {
 							if (att.team > ti) {
-								return { ...att, team: att.team - 1 };
+								return { ...att, team: TeamID(att.team - 1) };
 							}
 							return att;
 						});

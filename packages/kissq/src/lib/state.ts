@@ -1,5 +1,5 @@
 import { Rule, type Penalty, type RuleType } from './rule';
-import { AttendantID, BrandedArray } from './types';
+import { AttendantID, BrandedArray, TeamID } from './types';
 import { arrayCompare } from './utils';
 
 import type { Attendant } from './attendant';
@@ -752,12 +752,12 @@ export type GameEvent =
 	  }
 	| {
 			type: GameEventType;
-			teamID: number;
+			teamID: TeamID;
 	  };
 
 export class GameState {
 	attendants: BrandedArray<AttendantState, AttendantID>;
-	teams: TeamState[];
+	teams: BrandedArray<TeamState, TeamID>;
 	questionCount: number = 1;
 	rules: Rule[];
 	/** attendant IDの配列（個人ランキング） */
@@ -771,7 +771,7 @@ export class GameState {
 	constructor(
 		attendants: BrandedArray<Attendant, AttendantID>,
 		rules: Rule[],
-		teams: string[] = []
+		teams: BrandedArray<string, TeamID> = BrandedArray<string, TeamID>([])
 	) {
 		this.attendants = attendants.map(
 			({ name, nickname, group, trophyCount, totalScore, manualOrder }, attendantID) =>
@@ -789,8 +789,9 @@ export class GameState {
 				)
 		);
 		this.teams = attendants
-			.reduce<AttendantID[][][]>(
+			.reduce<BrandedArray<AttendantID[][], TeamID>>(
 				(acc, att, ai) => {
+					// oxlint-disable-next-line typescript/no-unnecessary-condition
 					acc[att.team] ??= [];
 					acc[att.team][att.seat] ??= [];
 					acc[att.team][att.seat].push(AttendantID(ai));

@@ -27,7 +27,7 @@
 	import { Rule } from '$lib/rule';
 	import { reconnect } from '$lib/serial';
 	import { tooltip } from '$lib/tooltip.svelte';
-	import { AttendantID, BrandedArray, type TeamID } from '$lib/types';
+	import { AttendantID, BrandedArray, TeamID } from '$lib/types';
 	import { setWasedashikiContext, WasedashikiClass } from '$lib/wasedashiki.svelte';
 	import { wave } from '$lib/waveEffect';
 
@@ -151,7 +151,7 @@
 					Array.from({ length: 10 }, (_, ai) => ({
 						name: '',
 						group: 0,
-						team: ti,
+						team: TeamID(ti),
 						seat: Math.floor(ai / 2),
 						trophyCount: 0,
 						totalScore: { maru: 0, batsu: 0 },
@@ -161,7 +161,9 @@
 			);
 		}
 
-		Game.teams = Array.from(new Set(Game.attendants.map(({ team }) => team)), () => '');
+		Game.teams = BrandedArray<string, TeamID>(
+			Array.from(new Set(Game.attendants.map(({ team }) => team)), () => '')
+		);
 
 		reconnect()
 			.then((port) => {
@@ -233,7 +235,7 @@
 				<div
 					class="team"
 					animate:flip={{ duration: 200 }}
-					class:won={Game.currentState.teams[ti].teamLife === 'won'}
+					class:won={Game.currentState.teams[TeamID(ti)].teamLife === 'won'}
 				>
 					<Team {seats} ti={ti as TeamID} />
 				</div>
@@ -250,7 +252,7 @@
 			transition:fly={{ x: 200 }}
 			ondragover={(event) => {
 				event.preventDefault();
-				DnD.setDropTarget({ ti: Game.teams.length, si: 0 });
+				DnD.setDropTarget({ ti: TeamID(Game.teams.length), si: 0 });
 			}}
 			ondragleave={() => DnD.setDropTarget()}
 			role="listitem"
@@ -281,7 +283,7 @@
 				Game.attendants.push({
 					name: '',
 					group: 0,
-					team: Game.teams.length - 1,
+					team: TeamID(Game.teams.length - 1),
 					seat: 0,
 					trophyCount: 0,
 					totalScore: { maru: 0, batsu: 0 },
@@ -379,14 +381,14 @@
 					{
 						name: '',
 						group: 0,
-						team: 0,
+						team: TeamID(0),
 						seat: 0,
 						trophyCount: 0,
 						totalScore: { maru: 0, batsu: 0 },
 						manualOrder: 0
 					}
 				]);
-				Game.teams = [''];
+				Game.teams = BrandedArray<string, TeamID>(['']);
 				Wasedashiki.buttonMapping = {};
 				Wasedashiki.answerers = [];
 				Wasedashiki.lastButtonID = undefined;

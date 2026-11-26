@@ -18,7 +18,7 @@ export class TeamGameClass extends GameClassBase {
 	battleMode = 'team' as const;
 
 	attendants = $state(BrandedArray<Attendant, AttendantID>([]));
-	teams = $state<string[]>([]);
+	teams = $state(BrandedArray<string, TeamID>([]));
 	rules = $state([
 		Rule.from({
 			mode: 'aql',
@@ -74,14 +74,15 @@ export class TeamGameClass extends GameClassBase {
 	);
 
 	attendantsPerTeam = $derived.by(() => {
-		const atts = this.attendants.reduce<({ att: Attendant; ai: AttendantID }[] | undefined)[][]>(
+		const atts = this.attendants.reduce(
 			(acc, att, ai) => {
+				// oxlint-disable-next-line typescript/no-unnecessary-condition
 				acc[att.team] ??= [];
 				acc[att.team][att.seat] ??= [];
 				acc[att.team][att.seat]!.push({ att, ai: AttendantID(ai) });
 				return acc;
 			},
-			this.teams.map(() => [])
+			this.teams.map<({ att: Attendant; ai: AttendantID }[] | undefined)[]>(() => [])
 		);
 
 		return atts;
@@ -96,7 +97,7 @@ export class TeamGameClass extends GameClassBase {
 	 * 現在のスコアでのチームランキング（同率を考慮）
 	 * 添字はteamID、値は順位（1位が1、2位が2、同率の場合は同じ順位）
 	 */
-	get scoreRanks(): number[] {
+	get scoreTeamRanks(): BrandedArray<number, TeamID> {
 		return getRankingOf(this.currentState.teams, (t) => t.sortScore());
 	}
 

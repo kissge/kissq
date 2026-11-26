@@ -12,7 +12,7 @@ import {
 import { LoggerClass } from './logs';
 import { Rule, type RulePOJO } from './rule';
 import { playSound } from './sound';
-import { AttendantID, BrandedArray } from './types';
+import { AttendantID, BrandedArray, type TeamID } from './types';
 
 import type { Attendant } from './attendant';
 import type { WasedashikiMode } from './serial';
@@ -23,7 +23,7 @@ export abstract class GameClassBase {
 	abstract readonly battleMode: 'single' | 'team';
 
 	abstract attendants: BrandedArray<Attendant, AttendantID>;
-	abstract teams: string[];
+	abstract teams: BrandedArray<string, TeamID>;
 	abstract rules: Rule[];
 	abstract history: HistoryEntry[];
 	abstract gameTitle: string;
@@ -35,7 +35,10 @@ export abstract class GameClassBase {
 	abstract activeRulesText: string;
 	abstract orderingMode: 'ranking' | 'manual';
 	abstract orderedAttendants: AttendantID[];
-	abstract attendantsPerTeam: ({ att: Attendant; ai: AttendantID }[] | undefined)[][];
+	abstract attendantsPerTeam: BrandedArray<
+		({ att: Attendant; ai: AttendantID }[] | undefined)[],
+		TeamID
+	>;
 	abstract enableRating: boolean;
 	abstract effect2Name: string | undefined;
 	abstract effect3Name: string | undefined;
@@ -50,8 +53,6 @@ export abstract class GameClassBase {
 
 	abstract addAttendant(options: { name?: string; teamID?: number }): void;
 	abstract clickBatsu(attendantID: AttendantID, playSounds_?: boolean): Promise<void>;
-
-	abstract get scoreRanks(): number[];
 
 	get _windowTitle() {
 		return `kissQ -

@@ -1,6 +1,7 @@
-import type { GameClassBase, GameClassSerialized } from '$lib/game';
+import type { GameClassSerialized } from '$lib/game';
 import type { AttendantID, ButtonID } from '$lib/types';
 import type { WasedashikiClass } from '$lib/wasedashiki.svelte';
+import type { GameClass } from './gameContext';
 
 export function loadRecovery(): RecoveryData | undefined {
 	const raw = window.localStorage.getItem('kissQ.recovery');
@@ -15,10 +16,7 @@ export function loadRecovery(): RecoveryData | undefined {
 	}
 }
 
-export function saveRecoveryIfNecessary(
-	Game: GameClassBase,
-	Wasedashiki: WasedashikiClass
-): boolean {
+export function saveRecoveryIfNecessary(Game: GameClass, Wasedashiki: WasedashikiClass): boolean {
 	if (Game.attendants.length === 0) {
 		return false;
 	}

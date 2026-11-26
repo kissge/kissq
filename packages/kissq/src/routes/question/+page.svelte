@@ -14,7 +14,7 @@
 	import { Rule } from '$lib/rule';
 	import { getTimeElapsedString } from '$lib/time';
 	import { tooltip } from '$lib/tooltip.svelte';
-	import { THROUGH, AttendantID, BrandedArray } from '$lib/types';
+	import { THROUGH, AttendantID, BrandedArray, type TeamID } from '$lib/types';
 	import { collapseArray, getGroupSymbol, splitQuestion } from '$lib/utils';
 
 	import ConventionAssist from './conventionAssist.svelte';
@@ -51,7 +51,7 @@
 	let wasedashikiMode = $state<WasedashikiMode>();
 	let effect2Name = $state<string>();
 	let effect3Name = $state<string>();
-	let teams = $state<string[]>();
+	let teams = $state<BrandedArray<string, TeamID>>();
 	let order = $state<'added' | 'same' | 'reverse'>('added');
 	let gameStartedAt = $state(new SvelteDate());
 

@@ -21,7 +21,7 @@ type StripArrayMember<T> = {
 	[
 		K in keyof T as number extends K
 			? never
-			: K extends 'at' | 'filter' | 'flat' | 'flatMap' | 'forEach' | 'map'
+			: K extends 'at' | 'filter' | 'findIndex' | 'flat' | 'flatMap' | 'forEach' | 'map'
 				? never
 				: K
 	]: T[K];
@@ -34,7 +34,8 @@ export type BrandedArray<T, Index extends number> = StripArrayMember<Array<T>> &
 	filter(
 		callbackfn: (value: T, index: Index, array: BrandedArray<T, Index>) => unknown
 	): BrandedArray<T, Index>;
-	flat(): BrandedArray<T extends Array<infer U> ? U : T, Index>;
+	findIndex(callbackfn: (value: T, index: Index, array: BrandedArray<T, Index>) => unknown): Index;
+	flat(): (T extends Array<infer U> ? U : T)[];
 	flatMap<U>(
 		callbackfn: (value: T, index: Index, array: BrandedArray<T, Index>) => U | ReadonlyArray<U>
 	): U[];

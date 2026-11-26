@@ -118,10 +118,10 @@
 
 		// teamが空になったかもしれないので、前に詰める
 		const emptyTeams = Array.from({ length: Game.currentState.teams.length }, (_, ti) =>
-			Game.currentState.teams[ti].attendantIDsPerSeat.flat().length > 0 ? null : ti
+			Game.currentState.teams[TeamID(ti)].attendantIDsPerSeat.flat().length > 0 ? null : ti
 		).filter((v): v is number => v != null);
 		for (const att of Game.attendants) {
-			att.team -= emptyTeams.filter((t) => t < att.team).length;
+			att.team = TeamID(att.team - emptyTeams.filter((t) => t < att.team).length);
 		}
 		emptyTeams.reverse().forEach((t) => Game.teams.splice(t, 1));
 

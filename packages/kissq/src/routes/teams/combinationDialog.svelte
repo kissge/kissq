@@ -2,7 +2,7 @@
 	import { fly } from 'svelte/transition';
 
 	import { getGameContext } from '$lib/gameContext';
-	import { BrandedArray, type AttendantID } from '$lib/types';
+	import { BrandedArray, TeamID, type AttendantID } from '$lib/types';
 	import { getWasedashikiContext } from '$lib/wasedashiki.svelte';
 
 	import type { Attendant } from '$lib/attendant';
@@ -13,7 +13,9 @@
 	let mode = $state<'snake' | 'random' | 'new'>('snake');
 	let seatMode = $state<'all-same' | 'all-different'>('all-same');
 	let teamSize = $state<number>(2);
-	let teams = $state<{ name: string; rate?: number; attendantID?: AttendantID }[][]>([]);
+	let teams = $state(
+		BrandedArray<{ name: string; rate?: number; attendantID?: AttendantID }[], TeamID>([])
+	);
 	let memberList = $state<string>('');
 
 	let dialog: HTMLDialogElement;
@@ -26,7 +28,7 @@
 		mode = 'snake';
 		seatMode = 'all-same';
 		teamSize = 2;
-		teams = [];
+		teams = BrandedArray<{ name: string; rate?: number; attendantID?: AttendantID }[], TeamID>([]);
 
 		dialog.showModal();
 		dialog.scrollTop = 0;
@@ -94,12 +96,14 @@
 			const shuffled = Game.currentState.attendants
 				.map((att, attendantID) => ({ name: att.name, rate: att.rate, attendantID }))
 				.toSorted(() => Math.random() - 0.5);
-			teams = [];
-			for (let i = 0; i < teamCount; ++i) {
+			teams = BrandedArray<{ name: string; rate?: number; attendantID?: AttendantID }[], TeamID>(
+				[]
+			);
+			for (let i = TeamID(0); i < teamCount; ++i) {
 				teams[i] = shuffled.splice(0, teamSize);
 			}
 			for (let ti = 0; shuffled.length > 0; ++ti) {
-				teams[ti % teamCount].push(shuffled.shift()!);
+				teams[TeamID(ti % teamCount)].push(shuffled.shift()!);
 			}
 		} else if (mode === 'snake') {
 			const sorted = Game.currentState.attendants
@@ -108,12 +112,14 @@
 
 			const snake = function* () {
 				while (true) {
-					yield* Array.from({ length: teamCount }, (_, i) => i);
-					yield* Array.from({ length: teamCount }, (_, i) => teamCount - i - 1);
+					yield* Array.from({ length: teamCount }, (_, i) => TeamID(i));
+					yield* Array.from({ length: teamCount }, (_, i) => TeamID(teamCount - i - 1));
 				}
 			};
 
-			teams = Array.from({ length: teamCount }, () => []);
+			teams = BrandedArray<{ name: string; rate?: number; attendantID?: AttendantID }[], TeamID>(
+				Array.from({ length: teamCount }, () => [])
+			);
 			for (const i of snake()) {
 				if (sorted.length === 0) {
 					break;
@@ -126,12 +132,14 @@
 				.map((name) => name.trim())
 				.filter((name) => name.length > 0);
 
-			teams = [];
-			for (let i = 0; i < teamCount; ++i) {
+			teams = BrandedArray<{ name: string; rate?: number; attendantID?: AttendantID }[], TeamID>(
+				[]
+			);
+			for (let i = TeamID(0); i < teamCount; ++i) {
 				teams[i] = names.splice(0, teamSize).map((name) => ({ name }));
 			}
 			for (let ti = 0; names.length > 0; ++ti) {
-				teams[ti % teamCount].push({ name: names.shift()! });
+				teams[TeamID(ti % teamCount)].push({ name: names.shift()! });
 			}
 		}
 	}

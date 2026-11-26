@@ -244,7 +244,7 @@ export type OutgoingMessage =
 			wasedashikiMode: WasedashikiMode | undefined;
 			effect2Name: string | undefined;
 			effect3Name: string | undefined;
-			teams: string[];
+			teams: BrandedArray<string, TeamID>;
 			gameStartedAt: number;
 	  }
 	| {

@@ -2,7 +2,7 @@
 	import { fly } from 'svelte/transition';
 
 	import { tooltip } from '$lib/tooltip.svelte';
-	import { AttendantID, BrandedArray } from '$lib/types';
+	import { AttendantID, BrandedArray, TeamID } from '$lib/types';
 
 	import type { Attendant } from '$lib/attendant';
 	import type { GameState } from '$lib/state';
@@ -20,7 +20,7 @@
 		show: boolean;
 		latestAttendants: BrandedArray<Attendant, AttendantID>;
 		currentState: GameState | undefined;
-		teams: string[] | undefined;
+		teams: BrandedArray<string, TeamID> | undefined;
 		reset: () => void;
 		setAttendantList: (attendants: BrandedArray<Attendant, AttendantID>) => void;
 		setGameTitle: (title: string) => void;
@@ -36,7 +36,7 @@
 			attendantIDs: [] as AttendantID[],
 			attendants: BrandedArray<Attendant, AttendantID>([]),
 			state: undefined as GameState | undefined,
-			teams: undefined as string[] | undefined
+			teams: undefined as BrandedArray<string, TeamID> | undefined
 		}
 	]);
 
@@ -89,7 +89,7 @@
 		fullAttendants.push({
 			name,
 			group: 0,
-			team: 0,
+			team: TeamID(0),
 			seat: 0,
 			trophyCount: 0,
 			totalScore: { maru: 0, batsu: 0 },
@@ -109,7 +109,7 @@
 		for (const g of games) {
 			if (g.status === 'in-progress') {
 				g.state = _currentState;
-				g.teams = $state.snapshot(teams);
+				g.teams = $state.snapshot(teams) as BrandedArray<string, TeamID> | undefined;
 				g.attendants = BrandedArray<Attendant, AttendantID>(
 					$state.snapshot(latestAttendants as Attendant[])
 				);
@@ -149,7 +149,7 @@
 								{
 									name: '',
 									group: 0,
-									team: 0,
+									team: TeamID(0),
 									seat: 0,
 									trophyCount: 0,
 									totalScore: { maru: 0, batsu: 0 },
@@ -199,7 +199,7 @@
 											fullAttendants[AttendantID(ai + i)] = {
 												name: line,
 												group: 0,
-												team: 0,
+												team: TeamID(0),
 												seat: 0,
 												trophyCount: 0,
 												totalScore: { maru: 0, batsu: 0 },

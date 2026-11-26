@@ -1,11 +1,11 @@
 import { untrack } from 'svelte';
 
-import type { AttendantID, BrandedArray, ButtonID } from './types';
+import { TeamID, type AttendantID, type BrandedArray, type ButtonID } from './types';
 
 export interface Attendant {
 	name: string;
 	group: number;
-	team: number;
+	team: TeamID;
 	seat: number;
 	trophyCount: number;
 	totalScore: { maru: number; batsu: number };
@@ -35,7 +35,7 @@ export function loadFromHash(team?: boolean): {
 		if (team && attendants.every(({ team, seat }) => team === 0 && seat === 0)) {
 			const half = Math.ceil(attendants.length / 2);
 			attendants.forEach((attendant, index) => {
-				attendant.team = Math.floor(index / half);
+				attendant.team = TeamID(Math.floor(index / half));
 				attendant.seat = index % half;
 			});
 		}

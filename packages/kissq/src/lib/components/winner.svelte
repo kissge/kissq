@@ -47,7 +47,7 @@
 			: {
 					mode: 'team' as const,
 					ranks: Object.entries(
-						Game.scoreRanks.reduce<Record<number, TeamID[]>>((acc, rank, attendantID) => {
+						Game.scoreTeamRanks.reduce<Record<number, TeamID[]>>((acc, rank, attendantID) => {
 							(acc[rank] ??= []).push(TeamID(attendantID));
 							return acc;
 						}, {})

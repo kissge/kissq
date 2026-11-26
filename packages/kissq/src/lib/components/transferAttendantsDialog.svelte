@@ -2,7 +2,7 @@
 	import { fade } from 'svelte/transition';
 
 	import { getGameContext } from '$lib/gameContext';
-	import { AttendantID, BrandedArray, type ButtonID } from '$lib/types';
+	import { AttendantID, BrandedArray, TeamID, type ButtonID } from '$lib/types';
 	import { getGroupSymbol } from '$lib/utils';
 	import { getWasedashikiContext } from '$lib/wasedashiki.svelte';
 
@@ -101,7 +101,7 @@
 									({
 										name: p.name,
 										group: importTargets.includes('group') ? p.group : 0,
-										team: importTargets.includes('team') ? p.team : 0,
+										team: importTargets.includes('team') ? p.team : TeamID(0),
 										seat: importTargets.includes('team') ? p.seat : 0,
 										trophyCount: importTargets.includes('trophy') ? p.trophyCount : 0,
 										totalScore: importTargets.includes('totalScore')

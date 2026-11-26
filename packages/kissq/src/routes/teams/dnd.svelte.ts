@@ -1,14 +1,16 @@
 import { createContext } from 'svelte';
 
-export class DnDClass {
-	dragTarget = $state<{ ai: number; ti: number; si: number; mi: number }>();
-	dropTarget = $state<{ ti: number; si: number }>();
+import type { TeamID } from '$lib/types';
 
-	setDragTarget(target?: { ai: number; ti: number; si: number; mi: number }) {
+export class DnDClass {
+	dragTarget = $state<{ ai: number; ti: TeamID; si: number; mi: number }>();
+	dropTarget = $state<{ ti: TeamID; si: number }>();
+
+	setDragTarget(target?: { ai: number; ti: TeamID; si: number; mi: number }) {
 		this.dragTarget = target;
 	}
 
-	setDropTarget(target?: { ti: number; si: number }) {
+	setDropTarget(target?: { ti: TeamID; si: number }) {
 		this.dropTarget = target;
 	}
 }

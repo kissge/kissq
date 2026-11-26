@@ -1,7 +1,7 @@
 import { createContext } from 'svelte';
 
 import { getGameContext } from './gameContext';
-import { AttendantID } from './types';
+import { AttendantID, type BrandedArray, type TeamID } from './types';
 
 import type { WasedashikiMode } from './serial';
 import type { Life } from './state';
@@ -30,7 +30,7 @@ export type LogStateTeamEntry = {
 	mode: 'aql' | 'product' | 'sum';
 	name: string;
 	group: number;
-	team: number;
+	team: TeamID;
 	seat: number | null;
 	score: number;
 	life: Life;
@@ -48,7 +48,7 @@ export interface LogEntry {
 	gameTitle: string;
 	questionCount: number;
 	rules: string;
-	teams?: string[];
+	teams?: BrandedArray<string, TeamID>;
 	state: LogStateEntry[];
 }
 
