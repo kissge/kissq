@@ -763,7 +763,7 @@ export class GameState {
 	/** attendant IDの配列（個人ランキング） */
 	ranking: AttendantID[] = [];
 	/** 順位 (1-indexed) の配列（個人ランキング） */
-	ranks: number[] = [];
+	ranks = BrandedArray<number, AttendantID>([]);
 	/** 順位 (1-indexed) の配列（チームランキング） */
 	teamRanks: number[] = [];
 	latestEvent: GameEvent | null = null;
@@ -849,7 +849,7 @@ export class GameState {
 			)
 		);
 
-		this.ranks = [];
+		this.ranks = BrandedArray<number, AttendantID>([]);
 		this.ranking.forEach((ai, rank) => {
 			const me = this.attendants[ai];
 			const previous = this.attendants[this.ranking[rank - 1]];

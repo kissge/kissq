@@ -1,12 +1,12 @@
 import { createContext } from 'svelte';
 
-import type { TeamID } from '$lib/types';
+import type { AttendantID, TeamID } from '$lib/types';
 
 export class DnDClass {
-	dragTarget = $state<{ ai: number; ti: TeamID; si: number; mi: number }>();
+	dragTarget = $state<{ ai: AttendantID; ti: TeamID; si: number; mi: number }>();
 	dropTarget = $state<{ ti: TeamID; si: number }>();
 
-	setDragTarget(target?: { ai: number; ti: TeamID; si: number; mi: number }) {
+	setDragTarget(target?: { ai: AttendantID; ti: TeamID; si: number; mi: number }) {
 		this.dragTarget = target;
 	}
 
