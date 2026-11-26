@@ -219,11 +219,12 @@
 			box-shadow: 3px 3px 6px #00000080;
 			backdrop-filter: blur(10px);
 
-			&:not([disabled]):hover {
+			&:not([disabled], .disabled):hover {
 				background-color: #ffffff10;
 			}
 
-			&[disabled] {
+			&[disabled],
+			&.disabled {
 				opacity: 0.1;
 			}
 		}
@@ -283,7 +284,7 @@
 			button {
 				background: black;
 
-				&:not([disabled]):hover {
+				&:not([disabled], .disabled):hover {
 					background: #444;
 				}
 			}

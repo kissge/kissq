@@ -547,7 +547,7 @@
 		font-size: 0.3em;
 		translate: 0% 50%;
 
-		button:hover:not([disabled]) {
+		button:hover:not([disabled], .disabled) {
 			background: #444;
 		}
 	}

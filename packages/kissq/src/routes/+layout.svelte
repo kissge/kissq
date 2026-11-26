@@ -45,7 +45,7 @@
 			user-select: none;
 			border-radius: 0.3em;
 
-			&:not(:disabled) {
+			&:not(:disabled, .disabled) {
 				cursor: pointer;
 
 				&:hover,
@@ -64,11 +64,11 @@
 			flex: 1 0 0;
 		}
 
-		label:has([disabled]) {
+		label:has([disabled], .disabled) {
 			color: #aaa;
 		}
 
-		label:not(:has([disabled])) {
+		label:not(:has([disabled], .disabled)) {
 			cursor: pointer;
 			border-radius: 0.5em;
 
@@ -103,7 +103,7 @@
 				justify-content: end;
 				margin-top: 0.5em;
 
-				.primary:not([disabled]) {
+				.primary:not([disabled], .disabled) {
 					color: white;
 					background-color: #06f;
 				}
@@ -267,12 +267,12 @@
 				background: none;
 				border: 0;
 
-				&:not([disabled]):hover {
+				&:not([disabled], .disabled):hover {
 					background-color: #0002;
 					box-shadow: none;
 				}
 
-				&:active {
+				&:not([disabled], .disabled):active {
 					color: white;
 					background-color: #003 !important;
 				}
@@ -300,18 +300,19 @@
 				background-color: white;
 				border: 3px solid black;
 
-				&[disabled] {
+				&[disabled],
+				&.disabled {
 					color: #ccc;
 					border-color: #ccc;
 				}
 
-				&:not([disabled]):hover {
+				&:not([disabled], .disabled):hover {
 					color: white;
 					background-color: #000;
 				}
 			}
 
-			#other-menu:popover-open button:not([disabled]):hover {
+			#other-menu:popover-open button:not([disabled], .disabled):hover {
 				color: black;
 			}
 
