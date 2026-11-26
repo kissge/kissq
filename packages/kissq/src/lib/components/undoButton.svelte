@@ -47,6 +47,7 @@
 		position-anchor: --undo-button;
 		font-size: 0.8em;
 		text-align: center;
+		text-wrap: pretty;
 		background: rgb(255 255 255 / 50%);
 		border-radius: 0.25rem;
 		box-shadow: 0 2px 30px rgba(0, 0, 0, 0.5);

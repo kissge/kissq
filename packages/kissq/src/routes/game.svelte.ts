@@ -74,7 +74,6 @@ export class SingleGameClass extends GameClassBase {
 				entry
 					.reducer(state.clearLatestEvent().setHistory(this.history.slice(0, index + 1)))
 					.checkIfLastSurvivor()
-					.updateRanking()
 					.checkIfFinished(),
 			new GameState(this.attendants, this.rules).updateRanking(this.enableRating)
 		)

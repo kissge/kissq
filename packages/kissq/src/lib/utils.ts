@@ -134,5 +134,9 @@ export function countAndSort<T extends string | number>(
 	return values.map((item, i) => ({ ...item, rank: ranks[i] })).sort((a, b) => a.rank - b.rank);
 }
 
+export function NotAvailable(): never {
+	throw new Error('Not available');
+}
+
 export type OptionalKeys<T, K extends keyof T> = Omit<T, K> & { [P in K]: T[P] | undefined };
 export type PartialBy<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;

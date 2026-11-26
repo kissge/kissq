@@ -81,6 +81,8 @@ export class MaruHistoryEntry implements HistoryEntry {
 			});
 		}
 
+		state.updateRanking();
+
 		if (life === 'alive' && att.processMaru(1, true).life === 'won') {
 			if (att.rule.transit) {
 				state.latestEvent = { type: 'transit', attendantID: this.attendantID };

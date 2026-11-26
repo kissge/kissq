@@ -1,6 +1,6 @@
 import { Rule, type Penalty, type RuleType } from './rule';
 import { AttendantID, BrandedArray, TeamID } from './types';
-import { arrayCompare } from './utils';
+import { arrayCompare, NotAvailable } from './utils';
 
 import type { Attendant } from './attendant';
 import type { HistoryEntry } from './historyEntry';
@@ -27,7 +27,8 @@ export class AttendantState {
 		public batsuCount: number = 0,
 		public yasuCount: number | 'next' = 0,
 		public trueMaruCount: number = 0,
-		public trueBatsuCount: number = 0
+		public trueBatsuCount: number = 0,
+		public rank: number = 0
 	) {
 		if (rule.mode === 'survival') {
 			this.score = rule.lose!;
@@ -61,7 +62,8 @@ export class AttendantState {
 
 		switch (this.rule.mode) {
 			case 'marubatsu':
-				maruCount += this.rule.maru * multiplier * comboBonus;
+				maruCount +=
+					(this.rule.maru === 'rank' ? this.rank : this.rule.maru) * multiplier * comboBonus;
 				if (maruCount >= this.rule.win) {
 					life = 'won';
 					trophyCount++;
@@ -88,7 +90,7 @@ export class AttendantState {
 
 			case 'score':
 				maruCount++;
-				score += this.rule.maru * multiplier * comboBonus;
+				score += (this.rule.maru === 'rank' ? this.rank : this.rule.maru) * multiplier * comboBonus;
 				if (score >= this.rule.win) {
 					life = 'won';
 					trophyCount++;
@@ -118,7 +120,8 @@ export class AttendantState {
 				return { maruCount, score, life, trophyCount, yasuCount, otherScoreDiff };
 
 			case 'MbyN':
-				maruCount += this.rule.maru * multiplier * comboBonus;
+				maruCount +=
+					(this.rule.maru === 'rank' ? this.rank : this.rule.maru) * multiplier * comboBonus;
 				score = maruCount * (this.rule.win - this.batsuCount);
 				if (score >= this.rule.win ** 2) {
 					life = 'won';
@@ -146,7 +149,8 @@ export class AttendantState {
 
 			case 'survival':
 				maruCount++;
-				otherScoreDiff = -this.rule.maru * multiplier * comboBonus;
+				otherScoreDiff =
+					-(this.rule.maru === 'rank' ? this.rank : this.rule.maru) * multiplier * comboBonus;
 				if (this.rule.yasuPerMaru) {
 					if ('mode' in this.rule.yasuPerMaru) {
 						const loopLength = Math.max(
@@ -172,7 +176,8 @@ export class AttendantState {
 			case 'product':
 			case 'sum':
 				maruCount++;
-				score += this.rule.maru * multiplier * comboBonus;
+				score +=
+					(this.rule.maru === 'rank' ? NotAvailable() : this.rule.maru) * multiplier * comboBonus;
 
 				if (this.rule.yasuPerMaru) {
 					if ('mode' in this.rule.yasuPerMaru) {
@@ -864,6 +869,10 @@ export class GameState {
 			} else {
 				this.ranks[ai] = this.ranks[this.ranking[rank - 1]];
 			}
+		});
+
+		this.attendants.forEach((att, ai) => {
+			att.rank = this.ranks[ai];
 		});
 
 		// チームランキング

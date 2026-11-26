@@ -1,4 +1,4 @@
-import { getGroupSymbol, type OptionalKeys, type PartialBy } from './utils';
+import { getGroupSymbol, NotAvailable, type OptionalKeys, type PartialBy } from './utils';
 
 export type Penalty = { type: 'yasu'; count: number } | { type: 'zero' };
 
@@ -20,7 +20,7 @@ export class Rule {
 		/** 勝ち抜け人数 */
 		public attendantLimit: number | null,
 		/** 1問正解で得られるスコアまたはマル数 */
-		public maru: number,
+		public maru: number | 'rank',
 		/** 1問誤答で得られるスコア（負数）またはバツ数（正数）またはその時点のバツ数 */
 		public batsu: number | 'batsu' | 'updown',
 		/** 通過席ルール */
@@ -128,7 +128,9 @@ export class Rule {
 					str += `、${this.lose}点で失格`;
 				}
 
-				if (this.maru !== 1) {
+				if (this.maru === 'rank') {
+					str += `、正解+（現在の順位）点`;
+				} else if (this.maru !== 1) {
 					str += `、正解+${this.maru}点`;
 				}
 
@@ -153,7 +155,9 @@ export class Rule {
 					str += `${this.lose}×`;
 				}
 
-				if (this.maru !== 1) {
+				if (this.maru === 'rank') {
+					str += `、正解+（現在の順位）〇`;
+				} else if (this.maru !== 1) {
 					str += `、正解+${this.maru}〇`;
 				}
 
@@ -173,7 +177,9 @@ export class Rule {
 					str += `、${this.lose}×で失格`;
 				}
 
-				if (this.maru !== 1) {
+				if (this.maru === 'rank') {
+					str += `、正解+（現在の順位）点`;
+				} else if (this.maru !== 1) {
 					str += `、正解+${this.maru}点`;
 				}
 
@@ -189,7 +195,9 @@ export class Rule {
 
 			case 'survival':
 				str = `${this.lose} アタサバ`;
-				if (this.maru !== 1) {
+				if (this.maru === 'rank') {
+					str += `、正解（現在の順位）点`;
+				} else if (this.maru !== 1) {
 					str += `、正解${-this.maru}点`;
 				}
 				if (this.batsu === 'batsu') {
@@ -205,7 +213,9 @@ export class Rule {
 			case 'aql':
 				str = `AQL（${this.win}点先取）`;
 
-				if (this.maru !== 1) {
+				if (this.maru === 'rank') {
+					NotAvailable();
+				} else if (this.maru !== 1) {
 					str += `、正解+${this.maru}点`;
 				}
 				break;
@@ -213,7 +223,9 @@ export class Rule {
 			case 'product':
 				str = `掛けて${this.win}点先取`;
 
-				if (this.maru !== 1) {
+				if (this.maru === 'rank') {
+					NotAvailable();
+				} else if (this.maru !== 1) {
 					str += `、正解+${this.maru}点`;
 				}
 
@@ -239,7 +251,9 @@ export class Rule {
 					str += `、${this.lose}点で失格`;
 				}
 
-				if (this.maru !== 1) {
+				if (this.maru === 'rank') {
+					NotAvailable();
+				} else if (this.maru !== 1) {
 					str += `、正解+${this.maru}点`;
 				}
 
@@ -302,8 +316,11 @@ export class Rule {
 				if (this.lose !== null) {
 					arr.push(`${this.lose}点で失格`);
 				}
-
-				arr.push(`1問正解で${this.maru}点獲得`);
+				if (this.maru === 'rank') {
+					arr.push('1問正解で（現在の順位）点獲得');
+				} else {
+					arr.push(`1問正解で${this.maru}点獲得`);
+				}
 
 				if (this.batsu === 'batsu') {
 					arr.push(`N回目の誤答で-N点`);
@@ -327,7 +344,9 @@ export class Rule {
 					arr.push(`誤答数が${this.lose}問到達で失格`);
 				}
 
-				if (this.maru !== 1) {
+				if (this.maru === 'rank') {
+					arr.push('※ 1問正解で正解数 +（現在の順位）');
+				} else if (this.maru !== 1) {
 					arr.push(`※ 1問正解で正解数 +${this.maru}`);
 				}
 
@@ -349,7 +368,9 @@ export class Rule {
 					arr.push(`誤答ポイントが${this.lose}点減ってしまうと失格`);
 				}
 
-				if (this.maru !== 1) {
+				if (this.maru === 'rank') {
+					arr.push('※ 1問正解で正答ポイント +（現在の順位）');
+				} else if (this.maru !== 1) {
 					arr.push(`※ 1問正解で正答ポイント +${this.maru}`);
 				}
 
@@ -365,7 +386,12 @@ export class Rule {
 
 			case 'survival':
 				arr.push(`はじめ、ポイントを${this.lose}点持った状態でスタート`);
-				arr.push(`1問正解で自分以外全員のポイントが${this.maru}点減る`);
+
+				if (this.maru === 'rank') {
+					arr.push('1問正解で自分以外全員のポイントが（現在の自分の順位）点減る');
+				} else {
+					arr.push(`1問正解で自分以外全員のポイントが${this.maru}点減る`);
+				}
 
 				if (this.batsu === 'batsu') {
 					arr.push(`N回目の誤答で自分のポイントがN点減る`);

@@ -30,6 +30,7 @@
 				lose,
 				questionLimit,
 				attendantLimit,
+				maru,
 				batsu,
 				yasuPerMaru,
 				roulette,
@@ -46,6 +47,8 @@
 					questionLimit: questionLimit ?? 30,
 					isAttendantLimitNull: attendantLimit === null,
 					attendantLimit: attendantLimit ?? 1,
+					maruMode: typeof maru === 'number' ? 'number' : maru,
+					maru: typeof maru === 'number' ? maru : 1,
 					batsuMode: typeof batsu === 'number' ? 'number' : batsu,
 					batsu: typeof batsu === 'number' ? batsu : 0,
 					yasuPerMaruMode:
@@ -96,6 +99,7 @@
 		| 'lose'
 		| 'questionLimit'
 		| 'attendantLimit'
+		| 'maru'
 		| 'batsu'
 		| 'yasuPerMaru'
 		| 'roulette'
@@ -111,6 +115,8 @@
 		questionLimit: NonNullable<Rule['questionLimit']>;
 		isAttendantLimitNull: boolean;
 		attendantLimit: NonNullable<Rule['attendantLimit']>;
+		maruMode: (Rule['maru'] & string) | 'number';
+		maru: number;
 		batsuMode: (Rule['batsu'] & string) | 'number';
 		batsu: number;
 		yasuPerMaruMode: 'maru' | 'number' | 'custom' | null;
@@ -166,7 +172,7 @@
 				lose: rule.isLoseNull ? null : rule.lose,
 				questionLimit: rules[0].isQuestionLimitNull ? null : rules[0].questionLimit,
 				attendantLimit: rule.isAttendantLimitNull ? null : rule.attendantLimit,
-				maru: rule.maru,
+				maru: rule.maruMode === 'number' ? rule.maru : rule.maruMode,
 				batsu: rule.batsuMode === 'number' ? rule.batsu : rule.batsuMode,
 				transit: rule.transit,
 				yasuPerMaru:
@@ -486,6 +492,7 @@
 								questionLimit: 30,
 								isAttendantLimitNull: true,
 								attendantLimit: 1,
+								maruMode: 'number',
 								maru: 1,
 								batsu: 1,
 								batsuMode: 'number',
@@ -521,6 +528,7 @@
 								questionLimit: 30,
 								isAttendantLimitNull: true,
 								attendantLimit: 1,
+								maruMode: 'number',
 								maru: 1,
 								batsu: 1,
 								batsuMode: 'number',
@@ -556,6 +564,7 @@
 								questionLimit: 30,
 								isAttendantLimitNull: true,
 								attendantLimit: 1,
+								maruMode: 'number',
 								maru: 1,
 								batsu: 1,
 								batsuMode: 'number',
@@ -591,6 +600,7 @@
 								questionLimit: 30,
 								isAttendantLimitNull: true,
 								attendantLimit: 1,
+								maruMode: 'number',
 								maru: 1,
 								batsu: -1,
 								batsuMode: 'number',
@@ -626,6 +636,7 @@
 								questionLimit: 30,
 								isAttendantLimitNull: true,
 								attendantLimit: 1,
+								maruMode: 'number',
 								maru: 1,
 								batsu: 1,
 								batsuMode: 'number',
@@ -661,6 +672,7 @@
 								questionLimit: 30,
 								isAttendantLimitNull: true,
 								attendantLimit: 1,
+								maruMode: 'number',
 								maru: 1,
 								batsu: -1,
 								batsuMode: 'batsu',
@@ -696,6 +708,7 @@
 								questionLimit: 30,
 								isAttendantLimitNull: true,
 								attendantLimit: 1,
+								maruMode: 'number',
 								maru: 1,
 								batsu: -2,
 								batsuMode: 'number',
@@ -731,6 +744,7 @@
 								questionLimit: 30,
 								isAttendantLimitNull: true,
 								attendantLimit: 1,
+								maruMode: 'number',
 								maru: 1,
 								batsu: 1,
 								batsuMode: 'number',
@@ -766,6 +780,7 @@
 								questionLimit: 30,
 								isAttendantLimitNull: true,
 								attendantLimit: 1,
+								maruMode: 'number',
 								maru: 1,
 								batsu: 1,
 								batsuMode: 'number',
@@ -801,6 +816,7 @@
 								questionLimit: 30,
 								isAttendantLimitNull: true,
 								attendantLimit: 1,
+								maruMode: 'number',
 								maru: 1,
 								batsu: 1,
 								batsuMode: 'updown',
@@ -836,6 +852,7 @@
 								questionLimit: 30,
 								isAttendantLimitNull: true,
 								attendantLimit: 1,
+								maruMode: 'number',
 								maru: 1,
 								batsu: -1,
 								batsuMode: 'number',
@@ -871,6 +888,7 @@
 								questionLimit: 30,
 								isAttendantLimitNull: true,
 								attendantLimit: 1,
+								maruMode: 'number',
 								maru: 1,
 								batsu: 1,
 								batsuMode: 'number',
@@ -1059,14 +1077,22 @@
 
 				<div>1問正解で</div>
 				<div>
-					{#if activeRule.mode === 'survival'}
-						自分以外全員のスコアから
-						<input type="number" bind:value={activeRule.maru} min="1" />
-						pts 減らす
-					{:else}
-						<input type="number" bind:value={activeRule.maru} />
-						{activeRule.mode === 'score' ? 'pts' : '○'} 獲得できる
-					{/if}
+					<label>
+						<input type="radio" bind:group={activeRule.maruMode} value="number" />
+						{#if activeRule.mode === 'survival'}
+							自分以外全員のスコアから
+							<input type="number" bind:value={activeRule.maru} min="1" />
+							pts 減らす
+						{:else}
+							<input type="number" bind:value={activeRule.maru} />
+							{activeRule.mode === 'score' ? 'pts' : '○'} 獲得できる
+						{/if}
+					</label>
+					<br />
+					<label>
+						<input type="radio" bind:group={activeRule.maruMode} value="rank" />
+						（現在の順位）{activeRule.mode === 'score' ? 'pts' : '○'} 獲得できる
+					</label>
 
 					<hr />
 
