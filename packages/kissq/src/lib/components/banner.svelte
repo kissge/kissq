@@ -13,6 +13,7 @@
 	Game.showBanner = showBanner;
 
 	let isBannerVisible = $state<GameEvent | null>(null);
+	let bannerShrinker = $state<HTMLDivElement>();
 
 	watch(
 		() => Game.currentState.latestEvent,
@@ -36,6 +37,12 @@
 		isBannerVisible = event;
 		clearTimeout(hideBannerTimeout);
 		hideBannerTimeout = setTimeout(() => (isBannerVisible = null), duration);
+
+		setTimeout(() => {
+			if (bannerShrinker) {
+				bannerShrinker.style.transform = `scaleX(${Math.min(1, (window.innerWidth - 100) / bannerShrinker.offsetWidth)})`;
+			}
+		}, 10);
 	}
 </script>
 
@@ -45,41 +52,43 @@
 	</div>
 
 	<div class={['banner', isBannerVisible.type]} transition:slide={{ axis: 'x' }}>
-		{#if isBannerVisible.target === 'single'}
-			<div class="banner-name-wrapper">
-				{#if Game.attendants[isBannerVisible.attendantID].nickname}
-					<div class="banner-nickname">
-						{Game.attendants[isBannerVisible.attendantID].nickname}
+		<div class="banner-shrinker" bind:this={bannerShrinker}>
+			{#if isBannerVisible.target === 'single'}
+				<div class="banner-name-wrapper">
+					{#if Game.attendants[isBannerVisible.attendantID].nickname}
+						<div class="banner-nickname">
+							{Game.attendants[isBannerVisible.attendantID].nickname}
+						</div>
+					{/if}
+					<div class="banner-name">
+						{Game.attendants[isBannerVisible.attendantID].name ||
+							'プレイヤー ' + (isBannerVisible.attendantID + 1)}
 					</div>
-				{/if}
-				<div class="banner-name">
-					{Game.attendants[isBannerVisible.attendantID].name ||
-						'プレイヤー ' + (isBannerVisible.attendantID + 1)}
 				</div>
-			</div>
-		{:else if isBannerVisible.target === 'team'}
-			{Game.teams[isBannerVisible.teamID] || 'チーム ' + (isBannerVisible.teamID + 1)}
-		{/if}
+			{:else if isBannerVisible.target === 'team'}
+				{Game.teams[isBannerVisible.teamID] || 'チーム ' + (isBannerVisible.teamID + 1)}
+			{/if}
 
-		{#if isBannerVisible.type === 'won'}
-			勝ち抜け
-		{:else if isBannerVisible.type === 'lizhi'}
-			リーチ
-		{:else if isBannerVisible.type === 'double-lizhi'}
-			ダブルリーチ
-		{:else if isBannerVisible.type === 'effect2'}
-			{Game.effect2Name}
-		{:else if isBannerVisible.type === 'effect3'}
-			{Game.effect3Name}
-		{:else if isBannerVisible.type === 'star'}
-			{Game.starName}
-		{:else if isBannerVisible.type === 'transit'}
-			通過席
-		{:else if isBannerVisible.type === 'finished'}
-			問題終了
-		{:else}
-			{NotAvailable()}
-		{/if}
+			{#if isBannerVisible.type === 'won'}
+				勝ち抜け
+			{:else if isBannerVisible.type === 'lizhi'}
+				リーチ
+			{:else if isBannerVisible.type === 'double-lizhi'}
+				ダブルリーチ
+			{:else if isBannerVisible.type === 'effect2'}
+				{Game.effect2Name}
+			{:else if isBannerVisible.type === 'effect3'}
+				{Game.effect3Name}
+			{:else if isBannerVisible.type === 'star'}
+				{Game.starName}
+			{:else if isBannerVisible.type === 'transit'}
+				通過席
+			{:else if isBannerVisible.type === 'finished'}
+				問題終了
+			{:else}
+				{NotAvailable()}
+			{/if}
+		</div>
 	</div>
 {/if}
 
@@ -146,6 +155,14 @@
 			color: rgb(255 231 231);
 			background-color: rgba(240 240 175 / 0.4);
 			backdrop-filter: blur(10px);
+		}
+
+		.banner-shrinker {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			text-align: center;
+			white-space: nowrap;
 		}
 	}
 </style>
