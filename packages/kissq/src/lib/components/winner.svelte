@@ -4,14 +4,14 @@
 
 	import { getGameContext } from '$lib/gameContext';
 	import { AttendantID, TeamID } from '$lib/types';
-	import { maybeUndefined } from '$lib/utils';
+	import { getRankingOf, maybeUndefined, NotAvailable } from '$lib/utils';
 
 	let Game = getGameContext();
 
 	let wallpaper = $state<string>();
 	let trophy = $state<string>();
 
-	let scoreMode = $state<'game' | 'total'>('game');
+	let scoreMode = $state<'game' | 'total' | 'stars'>('game');
 
 	let random = Math.random();
 
@@ -25,13 +25,20 @@
 	}));
 
 	let ranking = $derived(
-		Game.battleMode === 'single'
+		Game.battleMode === 'single' || scoreMode === 'stars'
 			? {
 					mode: 'single' as const,
 					ranks: Object.entries(
-						(scoreMode === 'game' ? Game.scoreRanks : Game.totalScoreRanks).reduce<
-							Record<number, AttendantID[]>
-						>((acc, rank, attendantID) => {
+						(scoreMode === 'stars'
+							? getRankingOf(Game.latestAttendants, (att) => [att.starCount])
+							: Game.battleMode === 'team'
+								? NotAvailable()
+								: scoreMode === 'game'
+									? Game.scoreRanks
+									: scoreMode === 'total'
+										? Game.totalScoreRanks
+										: NotAvailable(scoreMode satisfies never)
+						).reduce<Record<number, AttendantID[]>>((acc, rank, attendantID) => {
 							(acc[rank] ??= []).push(attendantID);
 							return acc;
 						}, {})
@@ -118,7 +125,7 @@
 		</div>
 		<div class="title-1st">
 			<div class="trophy" style:background-image={trophy}></div>
-			<span>優勝</span>
+			<span>{scoreMode === 'stars' ? Game.starName + '賞' : '優勝'}</span>
 			<div class="trophy" style:background-image={trophy}></div>
 		</div>
 		<div class="winner-card">
@@ -162,16 +169,48 @@
 	</div>
 
 	<div class="configs">
-		{#if Game.battleMode === 'single'}
-			<button
-				onclick={(event) => {
-					event.stopPropagation();
-					scoreMode = scoreMode === 'game' ? 'total' : 'game';
-				}}
-			>
-				{scoreMode === 'game' ? 'このゲーム' : '累積'}
-			</button>
-		{/if}
+		<button
+			onclick={(event) => {
+				event.stopPropagation();
+
+				if (Game.battleMode === 'single') {
+					switch (scoreMode) {
+						case 'game':
+							scoreMode = 'total';
+							return;
+						case 'total':
+							scoreMode = 'stars';
+							return;
+						case 'stars':
+							scoreMode = 'game';
+							return;
+						default:
+							scoreMode satisfies never;
+					}
+				} else {
+					switch (scoreMode) {
+						case 'game':
+							scoreMode = 'stars';
+							return;
+						case 'total':
+							NotAvailable();
+						case 'stars':
+							scoreMode = 'game';
+							return;
+						default:
+							scoreMode satisfies never;
+					}
+				}
+			}}
+		>
+			{scoreMode === 'game'
+				? 'このゲームの成績'
+				: scoreMode === 'total'
+					? '累積成績'
+					: scoreMode === 'stars'
+						? '累積★数'
+						: NotAvailable()}
+		</button>
 	</div>
 </div>
 
@@ -237,8 +276,8 @@
 		flex-direction: column;
 		align-items: center;
 		justify-content: center;
-		width: min(90vw, 720px);
-		max-width: min(90vw, 900px);
+		width: 90vw;
+		max-width: 1200px;
 		text-align: center;
 		animation: arrive 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) both;
 	}
@@ -330,7 +369,7 @@
 		grid-template-columns: auto 1fr;
 		gap: 0.4rem 1rem;
 		align-items: center;
-		width: min(100%, 560px);
+		width: min(100%, 720px);
 		padding: 0.8rem 1rem;
 		margin-top: 1.5rem;
 		text-align: left;

@@ -134,7 +134,7 @@ export function countAndSort<T extends string | number>(
 	return values.map((item, i) => ({ ...item, rank: ranks[i] })).sort((a, b) => a.rank - b.rank);
 }
 
-export function NotAvailable(): never {
+export function NotAvailable(..._args: unknown[]): never {
 	throw new Error('Not available');
 }
 
