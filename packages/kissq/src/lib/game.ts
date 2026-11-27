@@ -88,7 +88,7 @@ export abstract class GameClassBase {
 		this.previousTrophyGetters = [];
 		this.currentState.attendants.forEach((att, ai) => {
 			if (att.life === 'won') {
-				this.previousTrophyGetters.push(AttendantID(ai));
+				this.previousTrophyGetters.push(ai);
 			}
 
 			this.attendants[ai].trophyCount = att.trophyCount;
@@ -110,8 +110,8 @@ export abstract class GameClassBase {
 				j--;
 			} else {
 				if (j < 0) {
-					Wasedashiki.buttonMapping[AttendantID(i + j)] = Wasedashiki.buttonMapping[AttendantID(i)];
-					delete Wasedashiki.buttonMapping[AttendantID(i)];
+					Wasedashiki.buttonMapping[AttendantID(i + j)] = Wasedashiki.buttonMapping[i];
+					delete Wasedashiki.buttonMapping[i];
 				}
 			}
 		}

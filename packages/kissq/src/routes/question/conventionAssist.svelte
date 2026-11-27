@@ -46,8 +46,8 @@
 		fullAttendants.map((_, ai) =>
 			games.reduce(
 				(acc, game) => {
-					if (game.status !== 'not-started' && game.attendantIDs.includes(AttendantID(ai))) {
-						const cai = AttendantID(game.attendantIDs.indexOf(AttendantID(ai)));
+					if (game.status !== 'not-started' && game.attendantIDs.includes(ai)) {
+						const cai = AttendantID(game.attendantIDs.indexOf(ai));
 						const att =
 							game.status === 'in-progress'
 								? currentState!.attendants[cai]
@@ -248,9 +248,7 @@
 									if (game.attendantIDs.length === fullAttendants.length) {
 										game.attendantIDs = [];
 									} else {
-										game.attendantIDs = fullAttendants.map<AttendantID, true>((_, i) =>
-											AttendantID(i)
-										);
+										game.attendantIDs = fullAttendants.map<AttendantID, true>((_, i) => i);
 									}
 								}}
 								{@attach tooltip('全選択・全選択解除')}

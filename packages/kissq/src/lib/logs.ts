@@ -105,7 +105,7 @@ export class LoggerClass {
 						maruCount: att.maruCount,
 						batsuCount: att.batsuCount,
 						life: att.life,
-						i: AttendantID(ai)
+						i: ai
 					};
 				case 'score':
 				case 'MbyN':
@@ -116,7 +116,7 @@ export class LoggerClass {
 						group: this.Game.currentState.attendants[ai].group,
 						score: att.score,
 						life: att.life,
-						i: AttendantID(ai)
+						i: ai
 					};
 				case 'aql':
 				case 'product':
@@ -131,7 +131,7 @@ export class LoggerClass {
 						seat: att.rule.mode === 'sum' ? null : this.Game.attendants[ai].seat,
 						teamScore: this.Game.currentState.teams[this.Game.attendants[ai].team].teamScore,
 						teamLife: this.Game.currentState.teams[this.Game.attendants[ai].team].teamLife,
-						i: AttendantID(ai)
+						i: ai
 					};
 			}
 		});

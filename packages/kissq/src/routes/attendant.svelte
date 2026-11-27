@@ -124,7 +124,7 @@
 	{@attach tooltip(
 		`このプレイヤーが持っているボタンは${Wasedashiki.buttonMapping[ai] == null ? '???' : Wasedashiki.buttonMapping[ai]}番です。クリックで紐づけ`
 	)}
-	onclick={() => Wasedashiki.setButtonMapping(AttendantID(ai))}
+	onclick={() => Wasedashiki.setButtonMapping(ai)}
 >
 	{Wasedashiki.buttonMapping[ai] ?? '?'}
 </button>

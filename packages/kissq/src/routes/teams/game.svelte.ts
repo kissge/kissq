@@ -80,7 +80,7 @@ export class TeamGameClass extends GameClassBase {
 				// oxlint-disable-next-line typescript/no-unnecessary-condition
 				acc[att.team] ??= [];
 				acc[att.team][att.seat] ??= [];
-				acc[att.team][att.seat]!.push({ att, ai: AttendantID(ai) });
+				acc[att.team][att.seat]!.push({ att, ai });
 				return acc;
 			},
 			this.teams.map<({ att: Attendant; ai: AttendantID }[] | undefined)[]>(() => [])

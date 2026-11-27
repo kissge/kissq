@@ -776,7 +776,7 @@ export class GameState {
 			({ name, nickname, group, trophyCount, totalScore, manualOrder }, attendantID) =>
 				new AttendantState(
 					name,
-					AttendantID(attendantID),
+					attendantID,
 					manualOrder,
 					group,
 					nickname,
@@ -793,7 +793,7 @@ export class GameState {
 					// oxlint-disable-next-line typescript/no-unnecessary-condition
 					acc[att.team] ??= [];
 					acc[att.team][att.seat] ??= [];
-					acc[att.team][att.seat].push(AttendantID(ai));
+					acc[att.team][att.seat].push(ai);
 					return acc;
 				},
 				teams.map(() => [])
@@ -807,7 +807,7 @@ export class GameState {
 		}
 
 		this.rules = rules;
-		this.ranking = this.attendants.map<AttendantID, true>((_, i) => AttendantID(i));
+		this.ranking = this.attendants.map<AttendantID, true>((_, i) => i);
 	}
 
 	get defaultRule(): Rule {

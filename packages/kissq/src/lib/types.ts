@@ -21,7 +21,7 @@ type StripArrayMember<T> = {
 	[
 		K in keyof T as number extends K
 			? never
-			: K extends 'at' | 'filter' | 'findIndex' | 'flat' | 'flatMap' | 'forEach' | 'map'
+			: K extends 'at' | 'filter' | 'findIndex' | 'flat' | 'flatMap' | 'forEach' | 'map' | 'reduce'
 				? never
 				: K
 	]: T[K];
@@ -47,6 +47,23 @@ export type BrandedArray<T, Index extends number> = StripArrayMember<Array<T>> &
 		callbackfn: (value: T, index: Index, array: BrandedArray<T, Index>) => U,
 		thisArg?: any
 	): SimpleArray extends true ? U[] : BrandedArray<U, Index>;
+	reduce(
+		callbackfn: (
+			previousValue: T,
+			currentValue: T,
+			currentIndex: Index,
+			array: BrandedArray<T, Index>
+		) => T
+	): T;
+	reduce<U>(
+		callbackfn: (
+			previousValue: U,
+			currentValue: T,
+			currentIndex: Index,
+			array: BrandedArray<T, Index>
+		) => U,
+		initialValue: U
+	): U;
 };
 export function BrandedArray<T, Index extends number>(arr: T[]): BrandedArray<T, Index> {
 	return arr as BrandedArray<T, Index>;

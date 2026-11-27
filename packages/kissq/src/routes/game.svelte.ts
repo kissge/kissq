@@ -111,7 +111,7 @@ export class SingleGameClass extends GameClassBase {
 			case 'manual':
 				return this.currentState.attendants
 					.flatMap(({ life, manualOrder }, i) =>
-						life === 'removed' ? [] : [[manualOrder, AttendantID(i)] as const]
+						life === 'removed' ? [] : [[manualOrder, i] as const]
 					)
 					.toSorted(([a], [b]) => a - b)
 					.map(([, i]) => i);

@@ -27,7 +27,7 @@ export class WasedashikiClass {
 	buttonReverseMapping: Record<ButtonID, AttendantID | undefined> = $derived.by(() => {
 		const reverse: Record<ButtonID, AttendantID> = {};
 		for (const [attendantID, buttonID] of Object.entries(this.buttonMapping)) {
-			reverse[ButtonID(buttonID)] = AttendantID(Number(attendantID));
+			reverse[buttonID] = AttendantID(Number(attendantID));
 		}
 		return reverse;
 	});
@@ -36,7 +36,7 @@ export class WasedashikiClass {
 		Object.entries(this.answerers)
 			.filter(([, v]) => v != null)
 			.toSorted((a, b) => a[1]!.totalRank - b[1]!.totalRank)
-			.map(([k, v]) => [this.buttonReverseMapping[(Number(k) + 1) as ButtonID], v!] as const)
+			.map(([k, v]) => [this.buttonReverseMapping[ButtonID(Number(k) + 1)], v!] as const)
 	);
 
 	async initiateSerialConnection(serialPort_?: SerialPort) {
@@ -164,7 +164,7 @@ export class WasedashikiClass {
 				if (parts.length === 1 && 1 <= parts[0] && parts[0] <= 32) {
 					if (this.Game.bulkAdjustmentScore === null) {
 						++this.cursor;
-						this.lastButtonID = parts[0] as ButtonID;
+						this.lastButtonID = ButtonID(parts[0]);
 						this.answerers = Array.from({ length: 32 }, (_, i) =>
 							i === parts[0] - 1
 								? this.answerers[i]?.delay
@@ -225,7 +225,7 @@ export class WasedashikiClass {
 						} else if (this.pushers.length === 1) {
 							rank = 2;
 						}
-						this.pushers.push((parts[0] - 100) as ButtonID);
+						this.pushers.push(ButtonID(parts[0] - 100));
 
 						this.answerers = Array.from({ length: 32 }, (_, i) =>
 							i === parts[0] - 101 && parts[1] > 0

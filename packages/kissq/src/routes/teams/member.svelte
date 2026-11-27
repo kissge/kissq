@@ -151,16 +151,13 @@
 		{/if}
 		<button
 			class="button-mapping"
-			style={Wasedashiki.buttonMapping[AttendantID(ai)] == null
+			style={Wasedashiki.buttonMapping[ai] == null
 				? undefined
-				: 1 <= Wasedashiki.buttonMapping[AttendantID(ai)] &&
-					  Wasedashiki.buttonMapping[AttendantID(ai)] <= 6
+				: 1 <= Wasedashiki.buttonMapping[ai] && Wasedashiki.buttonMapping[ai] <= 6
 					? 'background-color: red; color: white'
-					: 7 <= Wasedashiki.buttonMapping[AttendantID(ai)] &&
-						  Wasedashiki.buttonMapping[AttendantID(ai)] <= 12
+					: 7 <= Wasedashiki.buttonMapping[ai] && Wasedashiki.buttonMapping[ai] <= 12
 						? 'background-color: blue; color: white'
-						: 13 <= Wasedashiki.buttonMapping[AttendantID(ai)] &&
-							  Wasedashiki.buttonMapping[AttendantID(ai)] <= 18
+						: 13 <= Wasedashiki.buttonMapping[ai] && Wasedashiki.buttonMapping[ai] <= 18
 							? 'background-color: yellow; color: black'
 							: 'background-color: green; color: white'}
 			style:display={Wasedashiki.lastButtonID == undefined && !Wasedashiki.buttonMappingRestored
@@ -168,7 +165,7 @@
 				: ''}
 			disabled={Wasedashiki.lastButtonID == undefined}
 			{@attach tooltip(
-				`このプレイヤーが持っているボタンは${Wasedashiki.buttonMapping[AttendantID(ai)] == null ? '???' : Wasedashiki.buttonMapping[AttendantID(ai)]}番です。クリックで紐づけ`
+				`このプレイヤーが持っているボタンは${Wasedashiki.buttonMapping[ai] == null ? '???' : Wasedashiki.buttonMapping[ai]}番です。クリックで紐づけ`
 			)}
 			onclick={() => {
 				if (Wasedashiki.lastButtonID !== undefined) {
@@ -178,37 +175,34 @@
 								([, v]) => v !== Wasedashiki.lastButtonID
 							)
 						),
-						[AttendantID(ai)]: Wasedashiki.lastButtonID!
+						[ai]: Wasedashiki.lastButtonID!
 					};
 					Toastify({
-						text: `ボタン${Wasedashiki.lastButtonID}は${Game.attendants[AttendantID(ai)].name || `プレイヤー${ai + 1}`}が持っています`
+						text: `ボタン${Wasedashiki.lastButtonID}は${Game.attendants[ai].name || `プレイヤー${ai + 1}`}が持っています`
 					}).showToast();
 				}
 			}}
 		>
-			{Wasedashiki.buttonMapping[AttendantID(ai)] ?? '?'}
+			{Wasedashiki.buttonMapping[ai] ?? '?'}
 		</button>
 		<input
 			class={[
 				'name',
 				{
 					'answerer-1st':
-						Wasedashiki.answerers[(Wasedashiki.buttonMapping[AttendantID(ai)] ?? 0) - 1]
-							?.currentRank === 1,
+						Wasedashiki.answerers[(Wasedashiki.buttonMapping[ai] ?? 0) - 1]?.currentRank === 1,
 					'answerer-2nd':
 						(Game.wasedashikiMode === 'endless' || Game.wasedashikiMode === 'double') &&
-						Wasedashiki.answerers[(Wasedashiki.buttonMapping[AttendantID(ai)] ?? 0) - 1]
-							?.currentRank === 2,
+						Wasedashiki.answerers[(Wasedashiki.buttonMapping[ai] ?? 0) - 1]?.currentRank === 2,
 					'answerer-late':
 						Game.wasedashikiMode === 'endless' &&
-						Wasedashiki.answerers[(Wasedashiki.buttonMapping[AttendantID(ai)] ?? 0) - 1]
-							?.currentRank === 'late'
+						Wasedashiki.answerers[(Wasedashiki.buttonMapping[ai] ?? 0) - 1]?.currentRank === 'late'
 				}
 			]}
-			bind:value={Game.attendants[AttendantID(ai)].name}
+			bind:value={Game.attendants[ai].name}
 			placeholder={`プレイヤー${ai + 1}`}
 			onpaste={(e) =>
-				Game.handlePasteEvent(e, AttendantID(ai), TeamID(ti)).forEach((attendant) =>
+				Game.handlePasteEvent(e, ai, TeamID(ti)).forEach((attendant) =>
 					QuestionConsole.postMessage({ command: 'attendantAdded', attendant })
 				)}
 		/>
@@ -237,7 +231,7 @@
 						.flat()
 						.filter((a) => a != null && Game.currentState.attendants[a].life !== 'removed')
 						.length <= 1}
-					onclick={() => Game.history.push(new RemoveHistoryEntry(AttendantID(ai)))}
+					onclick={() => Game.history.push(new RemoveHistoryEntry(ai))}
 					{@attach tooltip('このプレイヤーをリストから削除します。')}
 					tabindex={-1}
 				>
@@ -246,7 +240,7 @@
 			</div>
 			<button
 				class="maru-btn"
-				onclick={() => Game.clickMaru(AttendantID(ai))}
+				onclick={() => Game.clickMaru(ai)}
 				{@attach tooltip(
 					`${Game.attendants[ai].name || 'このプレイヤー'}に1○をつけて、問題カウントを1進めます（休みの人がいれば1休減ります）`
 				)}
@@ -255,7 +249,7 @@
 			</button>
 			<button
 				class="batsu-btn"
-				onclick={() => Game.clickBatsu(AttendantID(ai))}
+				onclick={() => Game.clickBatsu(ai)}
 				{@attach tooltip(
 					Game.currentState.defaultRule.chance === 'single'
 						? `${Game.attendants[ai].name || 'このプレイヤー'}に1×をつけて問題カウントを1進めます（休みの人がいれば1休減ります）`

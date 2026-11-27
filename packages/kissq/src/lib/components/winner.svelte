@@ -32,7 +32,7 @@
 						(scoreMode === 'game' ? Game.scoreRanks : Game.totalScoreRanks).reduce<
 							Record<number, AttendantID[]>
 						>((acc, rank, attendantID) => {
-							(acc[rank] ??= []).push(AttendantID(attendantID));
+							(acc[rank] ??= []).push(attendantID);
 							return acc;
 						}, {})
 					)

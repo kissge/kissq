@@ -40,7 +40,7 @@
 	$effect(() => {
 		if (Wasedashiki.answererRanking.length > 0 && Wasedashiki.answererRanking[0][0] == undefined) {
 			const firstUnknown = Game.attendants.findIndex(
-				(_, ai) => Wasedashiki.buttonMapping[AttendantID(ai)] == null
+				(_, ai) => Wasedashiki.buttonMapping[ai] == null
 			);
 			buttonMappingTarget = firstUnknown === -1 ? null : firstUnknown;
 		}
@@ -77,7 +77,7 @@
 									<select bind:value={buttonMappingTarget}>
 										{#each sortedAttendants as { attendant, ai } (ai)}
 											<option value={ai}>
-												{#if Wasedashiki.buttonMapping[AttendantID(ai)] != null}
+												{#if Wasedashiki.buttonMapping[ai] != null}
 													☑️
 												{/if}
 												{attendant.name || `プレイヤー${ai + 1}`}
@@ -101,15 +101,14 @@
 									？？？
 								{/if}
 							{:else}
-								{@const ai = AttendantID(attendantID)}
-								{Game.attendants[ai]?.name || `プレイヤー${ai + 1}`}
-								{#if Game.currentState.attendants[ai]?.life === 'won'}
+								{Game.attendants[attendantID]?.name || `プレイヤー${attendantID + 1}`}
+								{#if Game.currentState.attendants[attendantID]?.life === 'won'}
 									（勝ち抜け済）
-								{:else if Game.currentState.attendants[ai]?.life === 'lost'}
+								{:else if Game.currentState.attendants[attendantID]?.life === 'lost'}
 									（失格済）
-								{:else if Game.currentState.attendants[ai]?.life === 'removed'}
+								{:else if Game.currentState.attendants[attendantID]?.life === 'removed'}
 									（削除済）
-								{:else if typeof Game.currentState.attendants[ai]?.yasuCount === 'number' && Game.currentState.attendants[ai].yasuCount > 0}
+								{:else if typeof Game.currentState.attendants[attendantID]?.yasuCount === 'number' && Game.currentState.attendants[attendantID].yasuCount > 0}
 									（休み中）
 								{/if}
 							{/if}

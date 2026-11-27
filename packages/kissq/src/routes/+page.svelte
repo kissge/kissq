@@ -327,8 +327,7 @@
 							Game.currentState.attendants[ai].life === 'alive' &&
 							Game.currentState.attendants[ai].yasuDisplay > 0,
 						'answerer-1st':
-							Wasedashiki.answerers[(Wasedashiki.buttonMapping[AttendantID(ai)] ?? 0) - 1]
-								?.currentRank === 1,
+							Wasedashiki.answerers[(Wasedashiki.buttonMapping[ai] ?? 0) - 1]?.currentRank === 1,
 						'drop-target': dropTarget === ord
 					}
 				]}
@@ -354,7 +353,7 @@
 				draggable={Game.orderingMode === 'manual'}
 			>
 				<AttendantComponent
-					ai={AttendantID(ai)}
+					{ai}
 					{ord}
 					{screenshotModeTimer}
 					{screenshotOffset}
