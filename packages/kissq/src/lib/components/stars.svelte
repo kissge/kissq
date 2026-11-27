@@ -1,15 +1,25 @@
 <script lang="ts">
+	import { onMount } from 'svelte';
+
+	import type { GameEventType } from '$lib/state';
+
+	let { type }: { type: GameEventType } = $props();
+
 	let emoji = $state<string>();
 	let speed = $state(0.8); // seconds
 
 	let now = new Date();
 
-	if (now.getMonth() == 11 && 23 <= now.getDate() && now.getDate() <= 25) {
-		emoji = '❄';
-		speed = 2;
-	} else if (Math.random() < 0.05) {
-		emoji = '🍔';
-	}
+	onMount(() => {
+		if (type === 'star') {
+			emoji = '⭐️';
+		} else if (now.getMonth() == 11 && 23 <= now.getDate() && now.getDate() <= 25) {
+			emoji = '❄';
+			speed = 2;
+		} else if (Math.random() < 0.05) {
+			emoji = '🍔';
+		}
+	});
 </script>
 
 {#if emoji}

@@ -42,6 +42,7 @@ export abstract class GameClassBase {
 	abstract enableRating: boolean;
 	abstract effect2Name: string | undefined;
 	abstract effect3Name: string | undefined;
+	abstract starName: string | undefined;
 	abstract isConventionAssistActive: boolean;
 	abstract showBanner: (event: GameEvent, duration?: number) => void;
 	abstract bulkAdjustmentScore: number | null;
@@ -66,6 +67,8 @@ export abstract class GameClassBase {
 	get latestAttendants(): BrandedArray<Attendant, AttendantID> {
 		return this.attendants.map((att, ai) => ({
 			...att,
+			trophyCount: this.currentState.attendants[ai].trophyCount,
+			starCount: this.currentState.attendants[ai].starCount,
 			totalScore: {
 				maru: att.totalScore.maru + this.currentState.attendants[ai].trueMaruCount,
 				batsu: att.totalScore.batsu + this.currentState.attendants[ai].trueBatsuCount

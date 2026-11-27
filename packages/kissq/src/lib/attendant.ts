@@ -8,6 +8,7 @@ export interface Attendant {
 	team: TeamID;
 	seat: number;
 	trophyCount: number;
+	starCount: number;
 	totalScore: { maru: number; batsu: number };
 	manualOrder: number;
 	nickname?: string;

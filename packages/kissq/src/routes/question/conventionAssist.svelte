@@ -92,6 +92,7 @@
 			team: TeamID(0),
 			seat: 0,
 			trophyCount: 0,
+			starCount: 0,
 			totalScore: { maru: 0, batsu: 0 },
 			manualOrder: fullAttendants.length
 		});
@@ -152,6 +153,7 @@
 									team: TeamID(0),
 									seat: 0,
 									trophyCount: 0,
+									starCount: 0,
 									totalScore: { maru: 0, batsu: 0 },
 									manualOrder: 0
 								}
@@ -202,6 +204,7 @@
 												team: TeamID(0),
 												seat: 0,
 												trophyCount: 0,
+												starCount: 0,
 												totalScore: { maru: 0, batsu: 0 },
 												manualOrder: fullAttendants[AttendantID(ai + i)].manualOrder
 											};

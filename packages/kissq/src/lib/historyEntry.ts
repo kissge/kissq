@@ -23,7 +23,8 @@ type HistoryEntryType =
 	| LoseHistoryEntry
 	| EditHistoryEntry
 	| BulkAdjustHistoryEntry
-	| ChangeGroupHistoryEntry;
+	| ChangeGroupHistoryEntry
+	| AddStarHistoryEntry;
 
 export type { HistoryEntryType as HistoryEntry };
 
@@ -482,6 +483,30 @@ export class ChangeGroupHistoryEntry implements HistoryEntry {
 	}
 }
 
+export class AddStarHistoryEntry implements HistoryEntry {
+	type = 'add-star' as const;
+
+	constructor(public attendantID: AttendantID) {}
+
+	toString(state: SuccinctGameState): string {
+		return `${state.attendants[this.attendantID].name || 'プレイヤー ' + (this.attendantID + 1)} ★付与`;
+	}
+
+	reducer(state: GameState): GameState {
+		const att = state.attendants[this.attendantID];
+		att.starCount++;
+
+		return state;
+	}
+
+	reducerTeam(state: GameState): GameState {
+		const att = state.attendants[this.attendantID];
+		att.starCount++;
+
+		return state;
+	}
+}
+
 export function rebuildHistoryEntry(pojo: HistoryEntryType): HistoryEntryType {
 	{
 		switch (pojo.type) {
@@ -503,6 +528,8 @@ export function rebuildHistoryEntry(pojo: HistoryEntryType): HistoryEntryType {
 				return new BulkAdjustHistoryEntry(pojo.attendantIDs, pojo.scoreDiff);
 			case 'change-group':
 				return new ChangeGroupHistoryEntry(pojo.attendantID, pojo.newGroup);
+			case 'add-star':
+				return new AddStarHistoryEntry(pojo.attendantID);
 			default:
 				throw new Error(
 					`Unknown history entry type: ${(pojo satisfies never as { type: any }).type}`

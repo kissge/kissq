@@ -52,6 +52,7 @@
 	let wasedashikiMode = $state<WasedashikiMode>();
 	let effect2Name = $state<string>();
 	let effect3Name = $state<string>();
+	let starName = $state<string>();
 	let teams = $state<BrandedArray<string, TeamID>>();
 	let order = $state<'added' | 'same' | 'reverse'>('added');
 	let gameStartedAt = $state(new SvelteDate());
@@ -101,7 +102,7 @@
 						for (const ai of seat ?? []) {
 							array.push({
 								att: currentState.attendants[ai],
-								ai: AttendantID(ai),
+								ai,
 								ord: 0,
 								startOfTeam,
 								startOfSeat
@@ -120,16 +121,12 @@
 					return currentState.attendants.map<
 						{ att: AttendantState; ai: AttendantID; ord: number },
 						true
-					>((att, ai) => ({ att, ai: AttendantID(ai), ord: 0 }));
+					>((att, ai) => ({ att, ai, ord: 0 }));
 				case 'same':
-					return mainScreenOrder.map((ai) => ({
-						att: currentState!.attendants[ai],
-						ai: AttendantID(ai),
-						ord: 0
-					}));
+					return mainScreenOrder.map((ai) => ({ att: currentState!.attendants[ai], ai, ord: 0 }));
 				case 'reverse':
 					return mainScreenOrder
-						.map((ai) => ({ att: currentState!.attendants[ai], ai: AttendantID(ai), ord: 0 }))
+						.map((ai) => ({ att: currentState!.attendants[ai], ai, ord: 0 }))
 						.reverse();
 				default:
 					throw new Error(order satisfies never);
@@ -175,6 +172,8 @@
 							return `まとめて ${name}`;
 						case 'change-group':
 							return `グループ変更 ${name}`;
+						case 'add-star':
+							return `★ ${name}`;
 					}
 				})();
 
@@ -245,6 +244,7 @@
 				wasedashikiMode = event.data.wasedashikiMode;
 				effect2Name = event.data.effect2Name;
 				effect3Name = event.data.effect3Name;
+				starName = event.data.starName;
 				teams = event.data.teams;
 				gameStartedAt = new SvelteDate(event.data.gameStartedAt);
 
@@ -392,7 +392,7 @@
 			correctAnswererInput = !h
 				? null
 				: h.type === 'maru'
-					? AttendantID(h.attendantID)
+					? h.attendantID
 					: h.type === 'through'
 						? THROUGH
 						: null;
@@ -635,7 +635,7 @@
 								const newGroup = Number.parseInt((event.target as HTMLSelectElement).value);
 								postMessage({
 									command: 'updateAttendant',
-									attendantID: AttendantID(ai),
+									attendantID: ai,
 									diff: { group: newGroup }
 								});
 							}}
@@ -646,7 +646,7 @@
 						</select>
 					{/if}
 
-					{#if previousTrophyGetters?.includes(AttendantID(ai))}
+					{#if previousTrophyGetters?.includes(ai)}
 						<span transition:fade {@attach tooltip('直前のゲームで勝ち抜けています')}>🏆</span>
 					{/if}
 
@@ -715,25 +715,18 @@
 								<button
 									class="labeled"
 									data-label={Keys[ord2]?.[0] || ''}
-									onclick={() =>
-										postMessage({ command: 'clickMaru', attendantID: AttendantID(ai) })}
+									onclick={() => postMessage({ command: 'clickMaru', attendantID: ai })}
 								>
 									O
 								</button>
 
 								{#if effect2Name}
-									<button
-										onclick={() =>
-											postMessage({ command: 'clickEffect2', attendantID: AttendantID(ai) })}
-									>
+									<button onclick={() => postMessage({ command: 'clickEffect2', attendantID: ai })}>
 										2O
 									</button>
 								{/if}
 								{#if effect3Name}
-									<button
-										onclick={() =>
-											postMessage({ command: 'clickEffect3', attendantID: AttendantID(ai) })}
-									>
+									<button onclick={() => postMessage({ command: 'clickEffect3', attendantID: ai })}>
 										3O
 									</button>
 								{/if}
@@ -741,11 +734,16 @@
 								<button
 									class="labeled"
 									data-label={Keys[ord2]?.[1] || ''}
-									onclick={() =>
-										postMessage({ command: 'clickBatsu', attendantID: AttendantID(ai) })}
+									onclick={() => postMessage({ command: 'clickBatsu', attendantID: ai })}
 								>
 									X
 								</button>
+
+								{#if starName}
+									<button onclick={() => postMessage({ command: 'clickStar', attendantID: ai })}>
+										★
+									</button>
+								{/if}
 							</div>
 						{/if}
 					{/if}

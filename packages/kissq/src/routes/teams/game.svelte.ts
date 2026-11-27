@@ -46,6 +46,7 @@ export class TeamGameClass extends GameClassBase {
 	previousTrophyGetters = $state<AttendantID[]>([]);
 	playSounds = $state(true);
 	wasedashikiMode = $state<WasedashikiMode>();
+	starName = $state<string>();
 	isConventionAssistActive = $state(false);
 	gameStartedAt = $state(new SvelteDate());
 
@@ -112,6 +113,7 @@ export class TeamGameClass extends GameClassBase {
 			team: teamID,
 			seat: Math.max(0, this.attendantsPerTeam[teamID].length - 1),
 			trophyCount: 0,
+			starCount: 0,
 			totalScore: { maru: 0, batsu: 0 },
 			manualOrder: this.attendants.length
 		};

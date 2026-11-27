@@ -5,7 +5,7 @@ import { qZero, type Media } from '$lib/question';
 import { getWasedashikiContext } from '$lib/wasedashiki.svelte';
 
 import { getGameContext } from './gameContext';
-import { ChangeGroupHistoryEntry, type HistoryEntry } from './historyEntry';
+import { AddStarHistoryEntry, ChangeGroupHistoryEntry, type HistoryEntry } from './historyEntry';
 import { Rule, type RulePOJO } from './rule';
 import { BrandedArray, TeamID, type AttendantID } from './types';
 
@@ -63,6 +63,10 @@ export class QuestionConsoleClass {
 
 			case 'clickEffect3':
 				this.Game.clickEffect3(message.attendantID);
+				break;
+
+			case 'clickStar':
+				this.Game.history.push(new AddStarHistoryEntry(message.attendantID));
 				break;
 
 			case 'clickBatsu':
@@ -177,6 +181,7 @@ export class QuestionConsoleClass {
 						wasedashikiMode: this.Game.wasedashikiMode,
 						effect2Name: this.Game.effect2Name,
 						effect3Name: this.Game.effect3Name,
+						starName: this.Game.starName,
 						teams: this.Game.teams,
 						gameStartedAt: this.Game.gameStartedAt.getTime()
 					} satisfies OutgoingMessage)
@@ -209,6 +214,7 @@ export type IncomingMessage =
 	| { command: 'clickMaru'; attendantID: AttendantID }
 	| { command: 'clickEffect2'; attendantID: AttendantID }
 	| { command: 'clickEffect3'; attendantID: AttendantID }
+	| { command: 'clickStar'; attendantID: AttendantID }
 	| { command: 'clickBatsu'; attendantID: AttendantID }
 	| { command: 'clickThrough' }
 	| { command: 'clickUndo' }
@@ -244,6 +250,7 @@ export type OutgoingMessage =
 			wasedashikiMode: WasedashikiMode | undefined;
 			effect2Name: string | undefined;
 			effect3Name: string | undefined;
+			starName: string | undefined;
 			teams: BrandedArray<string, TeamID>;
 			gameStartedAt: number;
 	  }

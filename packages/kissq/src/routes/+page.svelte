@@ -19,6 +19,7 @@
 	import QuestionWindow from '$lib/components/questionWindow.svelte';
 	import RestorePopup from '$lib/components/restorePopup.svelte';
 	import RuleEditDialog from '$lib/components/ruleEditDialog.svelte';
+	import StarEditDialog from '$lib/components/starEditDialog.svelte';
 	import StateEditDialog from '$lib/components/stateEditDialog.svelte';
 	import TransferAttendantsDialog from '$lib/components/transferAttendantsDialog.svelte';
 	import UndoButton from '$lib/components/undoButton.svelte';
@@ -98,6 +99,7 @@
 	let logDialog: ReturnType<typeof LogDialog>;
 	let answerHistoryDialog: ReturnType<typeof AnswerHistoryDialog>;
 	let effectEditDialog: ReturnType<typeof EffectEditDialog>;
+	let starEditDialog: ReturnType<typeof StarEditDialog>;
 	let appearanceDialog: ReturnType<typeof AppearanceDialog>;
 	let stateEditDialog: ReturnType<typeof StateEditDialog>;
 	let penaltyRoulette: ReturnType<typeof PenaltyRoulette>;
@@ -210,6 +212,7 @@
 					team: TeamID(0),
 					seat: 0,
 					trophyCount: 0,
+					starCount: 0,
 					totalScore: { maru: 0, batsu: 0 },
 					manualOrder: 0
 				},
@@ -219,6 +222,7 @@
 					team: TeamID(0),
 					seat: 0,
 					trophyCount: 0,
+					starCount: 0,
 					totalScore: { maru: 0, batsu: 0 },
 					manualOrder: 1
 				}
@@ -675,6 +679,14 @@
 		エフェクトボタン設定
 	</button>
 	<button
+		onclick={() => starEditDialog.open()}
+		{@attach tooltip('特別なトロフィーの設定を編集します（※この機能はアンロックが必要です）。', {
+			placement: 'left'
+		})}
+	>
+		スターボタン設定🔒
+	</button>
+	<button
 		onclick={editAppearance}
 		{@attach tooltip('外観の設定を編集します（※この機能はアンロックが必要です）。', {
 			placement: 'left'
@@ -733,6 +745,7 @@
 <LogDialog bind:this={logDialog} />
 <AnswerHistoryDialog bind:this={answerHistoryDialog} />
 <EffectEditDialog bind:this={effectEditDialog} />
+<StarEditDialog bind:this={starEditDialog} />
 <AppearanceDialog bind:this={appearanceDialog} />
 <StateEditDialog bind:this={stateEditDialog} />
 <PenaltyRoulette bind:this={penaltyRoulette} />

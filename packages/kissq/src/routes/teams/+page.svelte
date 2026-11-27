@@ -15,6 +15,7 @@
 	import QuestionWindow from '$lib/components/questionWindow.svelte';
 	import RestorePopup from '$lib/components/restorePopup.svelte';
 	import RuleTeamEditDialog from '$lib/components/ruleTeamEditDialog.svelte';
+	import StarEditDialog from '$lib/components/starEditDialog.svelte';
 	import TransferAttendantsDialog from '$lib/components/transferAttendantsDialog.svelte';
 	import UndoButton from '$lib/components/undoButton.svelte';
 	import UnlockDialog from '$lib/components/unlockDialog.svelte';
@@ -54,6 +55,7 @@
 
 	let logDialog: ReturnType<typeof LogDialog>;
 	let ruleTeamEditDialog: ReturnType<typeof RuleTeamEditDialog>;
+	let starEditDialog: ReturnType<typeof StarEditDialog>;
 	let appearanceDialog: ReturnType<typeof AppearanceDialog>;
 	let unlockDialog: ReturnType<typeof UnlockDialog>;
 	let combinationDialog: ReturnType<typeof CombinationDialog>;
@@ -132,6 +134,7 @@
 						team: TeamID(ti),
 						seat: Math.floor(ai / 2),
 						trophyCount: 0,
+						starCount: 0,
 						totalScore: { maru: 0, batsu: 0 },
 						manualOrder: ti * 10 + ai
 					})).flat()
@@ -264,6 +267,7 @@
 					team: TeamID(Game.teams.length - 1),
 					seat: 0,
 					trophyCount: 0,
+					starCount: 0,
 					totalScore: { maru: 0, batsu: 0 },
 					manualOrder: Game.attendants.length
 				});
@@ -362,6 +366,7 @@
 						team: TeamID(0),
 						seat: 0,
 						trophyCount: 0,
+						starCount: 0,
 						totalScore: { maru: 0, batsu: 0 },
 						manualOrder: 0
 					}
@@ -404,6 +409,14 @@
 
 	<h3>設定</h3>
 	<button
+		onclick={() => starEditDialog.open()}
+		{@attach tooltip('特別なトロフィーの設定を編集します（※この機能はアンロックが必要です）。', {
+			placement: 'left'
+		})}
+	>
+		スターボタン設定🔒
+	</button>
+	<button
 		onclick={editAppearance}
 		{@attach tooltip('外観の設定を編集します（※この機能はアンロックが必要です）。', {
 			placement: 'left'
@@ -440,6 +453,7 @@
 
 <RuleTeamEditDialog bind:this={ruleTeamEditDialog} apply={updateRules} />
 <LogDialog bind:this={logDialog} />
+<StarEditDialog bind:this={starEditDialog} />
 <AppearanceDialog bind:this={appearanceDialog} />
 <UnlockDialog bind:this={unlockDialog} />
 <CombinationDialog bind:this={combinationDialog} />

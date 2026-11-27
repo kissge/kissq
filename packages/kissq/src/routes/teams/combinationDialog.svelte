@@ -63,6 +63,7 @@
 						team: ti,
 						seat: seatMode === 'all-same' ? 0 : si,
 						trophyCount: 0,
+						starCount: 0,
 						totalScore: { maru: 0, batsu: 0 },
 						manualOrder: ai
 					}))

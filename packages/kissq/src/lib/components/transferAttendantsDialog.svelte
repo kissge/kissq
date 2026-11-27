@@ -107,6 +107,7 @@
 										totalScore: importTargets.includes('totalScore')
 											? p.totalScore
 											: { maru: 0, batsu: 0 },
+										starCount: importTargets.includes('trophy') ? p.starCount : 0,
 										manualOrder: importTargets.includes('manualOrder') ? p.manualOrder : ai
 									}) satisfies Attendant
 							);
@@ -147,10 +148,11 @@
 						{/if}
 					</label>
 					<label>
-						<input type="checkbox" bind:group={importTargets} value="trophy" /> トロフィー数
+						<input type="checkbox" bind:group={importTargets} value="trophy" /> トロフィー・スター数
 						{#if importingParsed}
 							<span class="sample">
-								: 🏆{importingParsed.attendants[AttendantID(0)]?.trophyCount}、…
+								: 🏆{importingParsed.attendants[AttendantID(0)]?.trophyCount} / ⭐️{importingParsed
+									.attendants[AttendantID(0)]?.starCount}、…
 							</span>
 						{/if}
 					</label>

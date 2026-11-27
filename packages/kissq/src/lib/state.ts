@@ -28,7 +28,8 @@ export class AttendantState {
 		public yasuCount: number | 'next' = 0,
 		public trueMaruCount: number = 0,
 		public trueBatsuCount: number = 0,
-		public rank: number = 0
+		public rank: number = 0,
+		public starCount: number = 0
 	) {
 		if (rule.mode === 'survival') {
 			this.score = rule.lose!;
@@ -744,6 +745,7 @@ export type GameEventType =
 	| 'double-lizhi'
 	| 'effect2'
 	| 'effect3'
+	| 'star'
 	| 'transit'
 	| 'finished';
 

@@ -50,6 +50,7 @@ export class SingleGameClass extends GameClassBase {
 	enableRating = $state(false);
 	effect2Name = $state<string>();
 	effect3Name = $state<string>();
+	starName = $state<string>();
 	isConventionAssistActive = $state(false);
 	showBanner: (event: GameEvent, duration?: number) => void = () => {};
 	bulkAdjustmentScore = $state<number | null>(null);
@@ -151,6 +152,7 @@ export class SingleGameClass extends GameClassBase {
 			team: TeamID(0),
 			seat: 0,
 			trophyCount: 0,
+			starCount: 0,
 			totalScore: { maru: 0, batsu: 0 },
 			manualOrder: this.attendants.length
 		};

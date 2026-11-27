@@ -1,9 +1,12 @@
 <script lang="ts">
+	import { isUnlocked as isUnlocked_ } from 'kissunlocklib';
+	import { onMount } from 'svelte';
 	import { fade, fly } from 'svelte/transition';
 	import Toastify from 'toastify-js';
 
 	import { han2zen } from '$lib/attendant';
 	import {
+		AddStarHistoryEntry,
 		ChangeGroupHistoryEntry,
 		LoseHistoryEntry,
 		RemoveHistoryEntry,
@@ -47,6 +50,8 @@
 	let Layout = getLayoutContext();
 	let QuestionConsole = getQuestionConsoleContext();
 
+	let isUnlocked = $state(false);
+
 	let att = $derived(Game.currentState.attendants[ai]);
 
 	let showRate = $derived(
@@ -55,6 +60,10 @@
 			att.rule.mode !== 'score' &&
 			Game.enableRating
 	);
+
+	onMount(async () => {
+		isUnlocked = await isUnlocked_();
+	});
 
 	function changeGroup(ai: AttendantID, diff: number) {
 		const origRule = Game.rules[Game.currentState.attendants[ai].group];
@@ -291,6 +300,21 @@
 		編集
 	</button>
 	<button
+		class:disabled={!isUnlocked}
+		{@attach tooltip('このプレイヤーに★を付与します。')}
+		onclick={() => {
+			if (!isUnlocked) {
+				Toastify({ text: 'この機能を利用するには機能アンロックが必要です。' }).showToast();
+				return;
+			}
+
+			Game.history.push(new AddStarHistoryEntry(ai));
+			Game.showBanner({ type: 'star', target: 'single', attendantID: ai });
+		}}
+	>
+		★
+	</button>
+	<button
 		onclick={() => Game.history.push(new WinHistoryEntry(ai))}
 		disabled={att.life !== 'alive'}
 		{@attach tooltip('このプレイヤーを強制的に勝ち抜けにします。')}
@@ -313,10 +337,14 @@
 </div>
 
 <div class="trophies" {@attach tooltip('勝ち抜けた累積回数')}>
+	{#each Array.from({ length: att.starCount }), i (i)}
+		<span class="star" in:fade></span>
+	{/each}
 	{#each Array.from({ length: att.trophyCount }), i (i)}
 		{@const prev =
 			Game.previousTrophyGetters.includes(ai) && i === Game.attendants[ai].trophyCount - 1}
 		<span
+			class="trophy"
 			class:previous-trophy-getter={prev}
 			in:fade
 			{@attach prev && tooltip('直前のゲームで勝ち抜けています')}
@@ -565,16 +593,30 @@
 		span {
 			width: 1.375em;
 			height: 1.375em;
-			background-color: #ffffffaa;
-			background-image: var(--trophy-image);
-			background-position: center;
-			background-size: cover;
 			border-radius: 50%;
-			box-shadow: 0 0 3px #888;
-			transition: margin-top 0.3s ease;
 			transition:
+				margin-top 0.3s ease,
 				box-shadow 0.3s ease,
 				background-color 0.3s ease;
+
+			&.star {
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				color: yellow;
+
+				&::before {
+					content: '★';
+				}
+			}
+
+			&.trophy {
+				background-color: #ffffffaa;
+				background-image: var(--trophy-image);
+				background-position: center;
+				background-size: cover;
+				box-shadow: 0 0 3px #888;
+			}
 
 			&.previous-trophy-getter {
 				background-color: #ff08;

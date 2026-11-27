@@ -3,6 +3,7 @@
 	import { fade, slide } from 'svelte/transition';
 
 	import { getGameContext } from '$lib/gameContext';
+	import { NotAvailable } from '$lib/utils';
 
 	import Stars from './stars.svelte';
 
@@ -40,7 +41,7 @@
 
 {#if isBannerVisible}
 	<div class="banner-bg" transition:fade>
-		<Stars />
+		<Stars type={isBannerVisible.type} />
 	</div>
 
 	<div class={['banner', isBannerVisible.type]} transition:slide={{ axis: 'x' }}>
@@ -70,10 +71,14 @@
 			{Game.effect2Name}
 		{:else if isBannerVisible.type === 'effect3'}
 			{Game.effect3Name}
+		{:else if isBannerVisible.type === 'star'}
+			{Game.starName}
 		{:else if isBannerVisible.type === 'transit'}
 			通過席
 		{:else if isBannerVisible.type === 'finished'}
 			問題終了
+		{:else}
+			{NotAvailable()}
 		{/if}
 	</div>
 {/if}
