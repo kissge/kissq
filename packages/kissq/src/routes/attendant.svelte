@@ -300,11 +300,15 @@
 		編集
 	</button>
 	<button
-		class:disabled={!isUnlocked}
+		class:disabled={!isUnlocked || !Game.starName}
 		{@attach tooltip('このプレイヤーに★を付与します。')}
 		onclick={() => {
 			if (!isUnlocked) {
 				Toastify({ text: 'この機能を利用するには機能アンロックが必要です。' }).showToast();
+				return;
+			}
+
+			if (!Game.starName) {
 				return;
 			}
 
