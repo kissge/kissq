@@ -993,6 +993,7 @@
 		onclick={() => {
 			const search = new URLSearchParams(location.search);
 			search.set('attendants', JSON.stringify(latestAttendants));
+			search.set('hideBatsu', String(rules[0].batsu === 0));
 			if (starName) {
 				search.set('starName', starName);
 			}

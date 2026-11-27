@@ -13,6 +13,7 @@
 	let companionSessionID: string | null = null;
 
 	let attendants = $state(BrandedArray<Attendant, AttendantID>([]));
+	let hideBatsu = $state(false);
 	let starName = $state<string>();
 
 	let title = $state('記録集');
@@ -64,6 +65,8 @@
 		const search = new URLSearchParams(location.search);
 		companionSessionID = search.get('session');
 		attendants = JSON.parse(search.get('attendants')!);
+		hideBatsu =
+			search.get('hideBatsu') === 'true' && attendants.every((att) => att.totalScore.batsu === 0);
 		starName = search.get('starName') || undefined;
 
 		if (!starName) {
@@ -211,7 +214,9 @@
 												{/if}
 											</div>
 											<div>{name}</div>
-											<div>{maru}〇{batsu}×</div>
+											<div>
+												{maru}〇{#if !hideBatsu}{batsu}×{/if}
+											</div>
 										{/each}
 									</div>
 								</div>
