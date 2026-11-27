@@ -279,7 +279,11 @@
 
 <nav>
 	<label>
-		<input type="checkbox" bind:checked={showUnused} />
+		<input
+			type="checkbox"
+			disabled={usedQuestionCount >= rawQuestions.length}
+			bind:checked={showUnused}
+		/>
 		未使用問題
 	</label>
 	<label>
@@ -288,12 +292,12 @@
 	</label>
 	{#if starName}
 		<label>
-			<input type="checkbox" bind:checked={showStarRanking} />
+			<input type="checkbox" disabled={starRanking.length === 0} bind:checked={showStarRanking} />
 			通算{starName}数
 		</label>
 	{/if}
 	<label>
-		<input type="checkbox" bind:checked={showLikesRanking} />
+		<input type="checkbox" disabled={likesRanking.length === 0} bind:checked={showLikesRanking} />
 		いいねランキング
 	</label>
 	<div class="spacer"></div>
