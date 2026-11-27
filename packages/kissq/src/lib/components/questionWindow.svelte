@@ -163,7 +163,15 @@
 		box-shadow: 0 0 15px #eeea;
 		backdrop-filter: blur(10px);
 
+		&:hover {
+			p {
+				padding-bottom: 1em;
+				overflow: auto;
+			}
+		}
+
 		p {
+			box-sizing: border-box;
 			height: 100%;
 			margin: 0;
 			overflow: hidden;
@@ -244,10 +252,11 @@
 			color: #fff;
 			cursor: pointer;
 			background: none;
-			border: 1px solid transparent;
+			border: none;
 
 			&:hover {
-				border-color: white;
+				color: black;
+				background: white;
 				box-shadow: none;
 			}
 		}
