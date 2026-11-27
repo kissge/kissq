@@ -993,6 +993,9 @@
 		onclick={() => {
 			const search = new URLSearchParams(location.search);
 			search.set('attendants', JSON.stringify(latestAttendants));
+			if (starName) {
+				search.set('starName', starName);
+			}
 			window.open(`./records?${search}`, 'records');
 		}}
 	>

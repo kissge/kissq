@@ -13,11 +13,13 @@
 	let companionSessionID: string | null = null;
 
 	let attendants = $state(BrandedArray<Attendant, AttendantID>([]));
+	let starName = $state<string>();
 
 	let title = $state('記録集');
 	let subtitle = $state(new Date().toLocaleDateString('ja-JP'));
 	let showUnused = $state(false);
 	let showTotalRanking = $state(true);
+	let showStarRanking = $state(true);
 	let showLikesRanking = $state(true);
 
 	let rawQuestions = $state<RawQuestion[]>([]);
@@ -42,6 +44,18 @@
 			}))
 			.sort((a, b) => a.rank - b.rank)
 	);
+	let starRanks = $derived(getRankingOf(attendants, (att) => [att.starCount]));
+	let starRanking = $derived(
+		attendants
+			.map(({ name, starCount }, ai) => ({
+				name: name || `プレイヤー${ai + 1}`,
+				starCount,
+				rank: starRanks[ai]
+			}))
+			.sort((a, b) => a.rank - b.rank)
+			.filter(({ starCount }) => starCount > 0)
+	);
+
 	let likesRanking = $derived(countAndSort(questions.map((q) => q.likedBy ?? []).flat()));
 
 	onMount(() => {
@@ -50,6 +64,11 @@
 		const search = new URLSearchParams(location.search);
 		companionSessionID = search.get('session');
 		attendants = JSON.parse(search.get('attendants')!);
+		starName = search.get('starName') || undefined;
+
+		if (!starName) {
+			showStarRanking = false;
+		}
 
 		fetchRemoteQuestions();
 	});
@@ -200,6 +219,27 @@
 						</tr>
 					{/if}
 
+					{#if showStarRanking}
+						<tr class="tr-ranking">
+							<td colspan="3">
+								<div>
+									<h2>通算{starName}数</h2>
+									<div class="ranking-table">
+										{#each starRanking as { name, starCount, rank }, i (i)}
+											<div class="rank">
+												{#if i === 0 || starRanking.at(i - 1)?.rank !== rank}
+													{rank}位
+												{/if}
+											</div>
+											<div>{name}</div>
+											<div>⭐️ ✕ {starCount}</div>
+										{/each}
+									</div>
+								</div>
+							</td>
+						</tr>
+					{/if}
+
 					{#if showLikesRanking}
 						<tr class="tr-ranking">
 							<td colspan="3">
@@ -235,6 +275,12 @@
 		<input type="checkbox" bind:checked={showTotalRanking} />
 		通算成績
 	</label>
+	{#if starName}
+		<label>
+			<input type="checkbox" bind:checked={showStarRanking} />
+			通算{starName}数
+		</label>
+	{/if}
 	<label>
 		<input type="checkbox" bind:checked={showLikesRanking} />
 		いいねランキング
@@ -295,8 +341,8 @@
 		border-collapse: separate;
 
 		h2 {
-			padding-top: 0.125em;
 			margin: 0;
+			margin-top: -0.1em;
 			font-weight: bold;
 			letter-spacing: 0;
 		}
@@ -424,12 +470,19 @@
 		display: flex;
 		gap: 0.5em;
 		width: calc(100% - 2em);
-		max-width: 720px;
+		max-width: 1000px;
 		padding: 1em;
+		line-height: 1.2;
 		background: #2222;
 		box-shadow: 0 0 1em rgba(0, 0, 0, 0.4);
 		backdrop-filter: blur(0.5em);
 		transform: translateX(-50%);
+
+		label {
+			display: flex;
+			gap: 0.2em;
+			align-items: baseline;
+		}
 	}
 
 	:global {
