@@ -69,8 +69,14 @@
 			search.get('hideBatsu') === 'true' && attendants.every((att) => att.totalScore.batsu === 0);
 		starName = search.get('starName') || undefined;
 
-		if (!starName) {
+		if (attendants.every(({ totalScore: { maru, batsu } }) => maru === 0 && batsu === 0)) {
+			showTotalRanking = false;
+		}
+		if (!starName || attendants.every(({ starCount }) => starCount === 0)) {
 			showStarRanking = false;
+		}
+		if (questions.every(({ likedBy }) => !likedBy || likedBy.length === 0)) {
+			showLikesRanking = false;
 		}
 
 		fetchRemoteQuestions();
@@ -209,7 +215,7 @@
 									<div class="ranking-table">
 										{#each totalRanking as { name, maru, batsu, rank }, i (i)}
 											<div class="rank">
-												{#if totalRanking.at(i - 1)?.rank !== rank}
+												{#if i === 0 || totalRanking.at(i - 1)?.rank !== rank}
 													{rank}位
 												{/if}
 											</div>
@@ -253,7 +259,7 @@
 									<div class="ranking-table">
 										{#each likesRanking.filter(({ rank }) => rank <= 3) as { value: name, count, rank }, i (i)}
 											<div class="rank">
-												{#if totalRanking.at(i - 1)?.rank !== rank}
+												{#if i === 0 || likesRanking.at(i - 1)?.rank !== rank}
 													{rank}位
 												{/if}
 											</div>
