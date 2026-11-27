@@ -1,7 +1,8 @@
 <script lang="ts">
 	import 'toastify-js/src/toastify.css';
 
-	import { onMount } from 'svelte';
+	import { watch } from 'runed';
+	import { onMount, untrack } from 'svelte';
 	import { flip } from 'svelte/animate';
 	import { SvelteDate } from 'svelte/reactivity';
 	import { fade, fly } from 'svelte/transition';
@@ -386,18 +387,22 @@
 		}
 	});
 
-	$effect(() => {
-		const h = historyDisplay.at(-1);
-		if (correctAnswererInput == null) {
-			correctAnswererInput = !h
+	watch(
+		() => historyDisplay.at(-1),
+		(curr, prev) => {
+			if (JSON.stringify(curr) === JSON.stringify(prev)) {
+				return;
+			}
+
+			correctAnswererInput = !curr
 				? null
-				: h.type === 'maru'
-					? h.attendantID
-					: h.type === 'through'
+				: curr.type === 'maru'
+					? curr.attendantID
+					: curr.type === 'through'
 						? THROUGH
-						: null;
+						: correctAnswererInput;
 		}
-	});
+	);
 
 	onMount(() => {
 		import('kisscsvimport');
@@ -924,7 +929,7 @@
 									<option value={null}>正解者未設定</option>
 									<option value={THROUGH}>スルー</option>
 									{#each orderedAttendants ?? [] as { att, ai } (ai)}
-										<option value={ai} selected={likedBy?.includes(ai.toString())}>
+										<option value={ai}>
 											{att.name || `プレイヤー${ai + 1}`}が正解
 										</option>
 									{/each}
